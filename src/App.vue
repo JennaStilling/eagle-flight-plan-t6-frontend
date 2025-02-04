@@ -59,7 +59,7 @@ export default {
 
 <style>
 #app {
-  font-family: 'Helvetica', sans-serif;
+  font-family: 'Poppins', sans-serif;
   flex-direction: column;
   height: min-content;
   background-color: #021E2C;
