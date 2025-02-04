@@ -14,7 +14,7 @@ export default defineConfig({
     port: 8081,
   },
 
-  base: process.env.APP_ENV === "development" ? "/" : "/2024/project3/t6/",
+  base: process.env.APP_ENV === "development" ? "/" : "/2025/flight-plan/t6/",
 
   resolve: {
     alias: {
