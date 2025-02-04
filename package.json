@@ -1,5 +1,5 @@
 {
-  "name": "course-listing-t6-frontend",
+  "name": "eagle-flight-plan-t6-frontend",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -25,13 +25,13 @@
     "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",
-    "vuetify": "^3.7.3",
+    "vuetify": "^3.7.9",
     "vuex": "^4.1.0",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
     "path": "^0.12.7",
-    "vite": "^5.4.10"
+    "vite": "^5.4.14"
   }
 }
