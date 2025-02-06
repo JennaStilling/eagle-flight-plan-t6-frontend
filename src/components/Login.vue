@@ -19,7 +19,7 @@
   </template>
   
   <script>
-  import SocialLogin from "@/components/SocialLogin.vue";
+  import SocialLogin from "@/components/resumeBuilderComponents/SocialLogin.vue";
   import { useRouter } from "vue-router";
   import { ref } from "vue";
   
