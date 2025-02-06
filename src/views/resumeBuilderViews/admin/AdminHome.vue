@@ -1,11 +1,11 @@
 <script setup>
 import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
-import UserServices from "../../services/resumeBuilderServices/userServices";
-import StudentServices from "../../services/resumeBuilderServices/studentServices";
-import AdminRoleServices from "../../services/resumeBuilderServices/adminRoleServices";
-import ReviewerRoleServices from "../../services/resumeBuilderServices/reviewerRoleServices";
-import RoleServices from "../../services/resumeBuilderServices/roleServices";
+import UserServices from "@/services/resumeBuilderServices/userServices";
+import StudentServices from "@/services/resumeBuilderServices/studentServices";
+import AdminRoleServices from "@/services/resumeBuilderServices/adminRoleServices";
+import ReviewerRoleServices from "@/services/resumeBuilderServices/reviewerRoleServices";
+import RoleServices from "@/services/resumeBuilderServices/roleServices";
 import { useRouter } from "vue-router";
 import Utils from "@/config/utils.js";
 

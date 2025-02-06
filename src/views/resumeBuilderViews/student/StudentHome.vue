@@ -58,9 +58,9 @@
   import { useRouter } from 'vue-router';
   import Utils from '@/config/utils.js';
   import resumeServices from '@/services/resumeBuilderServices/resumeServices.js'
-  import StudentHomeSideNav from '@/components/resumeBuilderComponents/StudentHomeSideNav.vue';
-  import ResumePreview from '@/components/resumeBuilderComponents/ResumePreview.vue';
-  import RequestReviewer from '@/components/resumeBuilderComponents/RequestReviewer.vue';
+  import StudentHomeSideNav from '@/components/resumeBuilderComponents/studentPages/StudentHomeSideNav.vue';
+  import ResumePreview from '@/components/resumeBuilderComponents/studentPages/ResumePreview.vue';
+  import RequestReviewer from '@/components/resumeBuilderComponents/studentPages/RequestReviewer.vue';
   import resumeReviewServices from '@/services/resumeBuilderServices/resumeReviewServices.js';
 
   const user = Utils.getStore("user");

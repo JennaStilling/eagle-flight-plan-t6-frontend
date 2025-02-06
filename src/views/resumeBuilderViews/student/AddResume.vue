@@ -156,7 +156,7 @@ import projectServices from '@/services/resumeBuilderServices/projectServices.js
 import courseServices from '@/services/resumeBuilderServices/courseServices.js'; 
 import Utils from '@/config/utils';
 import html2pdf from 'html2pdf.js';
-import PreviewBar from '@/components/resumeBuilderComponents/PreviewBar.vue';
+import PreviewBar from '@/components/resumeBuilderComponents/studentPages/PreviewBar.vue';
 import resumeServices from '@/services/resumeBuilderServices/resumeServices.js';
 import resumeEducationServices from '@/services/resumeBuilderServices/resumeEducationServices.js';
 import resumeCourseServices from '@/services/resumeBuilderServices/resumeCourseServices.js';

@@ -7,11 +7,11 @@ import Certifications from '@/components/resumeBuilderComponents/userProfile/Cer
 import Skills from '@/components/resumeBuilderComponents/userProfile/Skills.vue';
 import Project from '@/components/resumeBuilderComponents/userProfile/Project.vue';
 
-import ViewResume from '@/views/resumeBuilderViews/ViewResume.vue';
-import AddResume from '@/views/resumeBuilderViews/AddResume.vue';
+import ViewResume from '@/views/resumeBuilderViews/student/ViewResume.vue';
+import AddResume from '@/views/resumeBuilderViews/student/AddResume.vue';
 import Login from '@/components/Login.vue';
-import StudentHome from '@/views/resumeBuilderViews/StudentHome.vue'
-import AdminHomePage from '@/views/resumeBuilderViews/AdminHome.vue';
+import StudentHome from '@/views/resumeBuilderViews/student/StudentHome.vue'
+import AdminHomePage from '@/views/resumeBuilderViews/admin/AdminHome.vue';
 import ReviewerHomePage from '@/views/resumeBuilderViews/reviewer/ReviewerHome.vue';
 import ReviewInbox from '@/components/resumeBuilderComponents/reviewerPages/ReviewInbox.vue';
 import ReviewResume from '@/components/resumeBuilderComponents/reviewerPages/ReviewResume.vue';
