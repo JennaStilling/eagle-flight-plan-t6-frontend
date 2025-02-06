@@ -1,27 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import ContactInfo from './components/userProfile/ContactInfo.vue';
-import Education from './components/userProfile/Education.vue';
-import Courses from './components/userProfile/Courses.vue';
-import Experience from './components/userProfile/Experience.vue';
-import Certifications from './components/userProfile/Certifications.vue';
-import Skills from './components/userProfile/Skills.vue';
-import Project from './components/userProfile/Project.vue';
+import ContactInfo from '@/components/resumeBuilderComponents/userProfile/ContactInfo.vue';
+import Education from '@/components/resumeBuilderComponents/userProfile/Education.vue';
+import Courses from '@/components/resumeBuilderComponents/userProfile/Courses.vue';
+import Experience from '@/components/resumeBuilderComponents/userProfile/Experience.vue';
+import Certifications from '@/components/resumeBuilderComponents/userProfile/Certifications.vue';
+import Skills from '@/components/resumeBuilderComponents/userProfile/Skills.vue';
+import Project from '@/components/resumeBuilderComponents/userProfile/Project.vue';
 
-import ViewResume from './views/ViewResume.vue';
-import AddResume from './views/AddResume.vue';
-import Login from './components/Login.vue';
-import StudentHome from './views/StudentHome.vue'
-import AdminHomePage from './views/admin/AdminHome.vue';
-import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
-import ReviewInbox from './components/reviewerPages/ReviewInbox.vue';
-import ReviewResume from './components/reviewerPages/ReviewResume.vue';
+import ViewResume from '@/views/resumeBuilderViews/ViewResume.vue';
+import AddResume from '@/views/resumeBuilderViews/AddResume.vue';
+import Login from '@/components/Login.vue';
+import StudentHome from '@/views/resumeBuilderViews/StudentHome.vue'
+import AdminHomePage from '@/views/resumeBuilderViews/AdminHome.vue';
+import ReviewerHomePage from '@/views/resumeBuilderViews/reviewer/ReviewerHome.vue';
+import ReviewInbox from '@/components/resumeBuilderComponents/reviewerPages/ReviewInbox.vue';
+import ReviewResume from '@/components/resumeBuilderComponents/reviewerPages/ReviewResume.vue';
 //import path from 'path';
 
-import HomePageRouter from './views/HomePageRouter.vue';
+import HomePageRouter from '@/views/resumeBuilderViews/HomePageRouter.vue';
 //import path from 'path';
 
 import Utils from "@/config/utils.js";
-import UserServices from "@/services/userServices.js";
+import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import { computed, ref } from "vue";
 
 const user = computed(() => Utils.getStore("user"));

@@ -7,8 +7,8 @@
 </template>
 
 <script>
-import Header from './components/Header.vue';
-import NavBar from './components/NavBar.vue';
+import Header from './components/resumeBuilderComponents/Header.vue';
+import NavBar from './components/resumeBuilderComponents/NavBar.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
