@@ -1,6 +1,6 @@
 import axios from "axios";
 import Utils from "../config/utils.js";
-import AuthServices from "./authServices.js";
+import AuthServices from "./resumeBuilderServices/authServices.js";
 import Router from "../router.js";
 
 var baseurl = "";
