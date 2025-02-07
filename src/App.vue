@@ -22,13 +22,13 @@ export default {
 
     // Define a mapping of specific base paths to tab names
     const routeToTabName = {
-      '/contact-info': 'Contact Info',
-      '/education': 'Education',
-      '/courses': 'Courses',
-      '/experience': 'Experience',
-      '/certifications': 'Certifications',
-      '/skills': 'Skills',
-      '/project': 'Project'
+      '/resumeBuilder/contact-info': 'Contact Info',
+      '/resumeBuilder/education': 'Education',
+      '/resumeBuilder/courses': 'Courses',
+      '/resumeBuilder/experience': 'Experience',
+      '/resumeBuilder/certifications': 'Certifications',
+      '/resumeBuilder/skills': 'Skills',
+      '/resumeBuilder/project': 'Project'
     };
     
     // Check if the current route is the root home page

@@ -12,6 +12,7 @@ import AddResume from '@/views/resumeBuilderViews/student/AddResume.vue';
 import Login from '@/components/Login.vue';
 import StudentHome from '@/views/resumeBuilderViews/student/StudentHome.vue'
 import AdminHomePage from '@/views/resumeBuilderViews/admin/AdminHome.vue';
+
 import ReviewerHomePage from '@/views/resumeBuilderViews/reviewer/ReviewerHome.vue';
 import ReviewInbox from '@/components/resumeBuilderComponents/reviewerPages/ReviewInbox.vue';
 import ReviewResume from '@/components/resumeBuilderComponents/reviewerPages/ReviewResume.vue';
@@ -32,34 +33,34 @@ const routes = [
   { path: '/', name: 'home', component: HomePageRouter },
 
   // Profile paths:
-  { path: "/contact-info", name: "contactInfo", component: ContactInfo },
-  { path: "/education", name: "education", component: Education },
-  { path: "/education/edit", name: "educationEdit", component: Education },
-  { path: "/courses", name: "courses", component: Courses },
-  { path: "/courses/select/", name: "coursesSelect", component: Courses },
-  { path: "/courses/select/edit", name: "coursesEdit", component: Courses },
-  { path: "/experience", name: "experience", component: Experience },
-  { path: "/experience/edit", name: "experienceEdit", component: Experience },
-  { path: "/certifications", name: "certifications", component: Certifications },
-  { path: "/certifications/edit", name: "certificationsEdit", component: Certifications },
-  { path: "/skills", name: "skills", component: Skills },
-  { path: "/skills/edit", name: "skillsEdit", component: Skills },
-  { path: "/project", name: "project", component: Project },
-  { path: "/project/edit", name: "projectEdit", component: Project },
+  { path: "/resumeBuilder/contact-info", name: "contactInfo", component: ContactInfo },
+  { path: "/resumeBuilder/education", name: "education", component: Education },
+  { path: "/resumeBuilder/education/edit", name: "educationEdit", component: Education },
+  { path: "/resumeBuilder/courses", name: "courses", component: Courses },
+  { path: "/resumeBuilder/courses/select/", name: "coursesSelect", component: Courses },
+  { path: "/resumeBuilder/courses/select/edit", name: "coursesEdit", component: Courses },
+  { path: "/resumeBuilder/experience", name: "experience", component: Experience },
+  { path: "/resumeBuilder/experience/edit", name: "experienceEdit", component: Experience },
+  { path: "/resumeBuilder/certifications", name: "certifications", component: Certifications },
+  { path: "/resumeBuilder/certifications/edit", name: "certificationsEdit", component: Certifications },
+  { path: "/resumeBuilder/skills", name: "skills", component: Skills },
+  { path: "/resumeBuilder/skills/edit", name: "skillsEdit", component: Skills },
+  { path: "/resumeBuilder/project", name: "project", component: Project },
+  { path: "/resumeBuilder/project/edit", name: "projectEdit", component: Project },
 
   //Login/out: 
   { path: '/login', name: 'login', component: Login },
-  { path: '/studentHome', name: 'studentHome', component: StudentHome },
-  { path: '/resume/:id', name: 'resume', component: ViewResume, props: true },
-  { path: '/add', name: 'addResume', component: AddResume },
+  { path: '/resumeBuilder/studentHome', name: 'studentHome', component: StudentHome },
+  { path: '/resumeBuilder/resume/:id', name: 'resume', component: ViewResume, props: true },
+  { path: '/resumeBuilder/add', name: 'addResume', component: AddResume },
 
-  { path: '/review-inbox', name: 'review-inbox', component: ReviewInbox },
-  { path: '/review-resume/:id', name: 'reviewResume', component: ReviewResume, props: true },
-  { path: '/studentHome', name: 'studentHome', component: StudentHome },
+  { path: '/resumeBuilder/review-inbox', name: 'review-inbox', component: ReviewInbox },
+  { path: '/resumeBuilder/review-resume/:id', name: 'reviewResume', component: ReviewResume, props: true },
+  { path: '/resumeBuilder/studentHome', name: 'studentHome', component: StudentHome },
 
   //dummy / temp routes for nav bar testing
-  { path: '/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
-  { path: '/adminHome', name: 'adminHome', component: AdminHomePage },
+  { path: '/resumeBuilder/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
+  { path: '/resumeBuilder/adminHome', name: 'adminHome', component: AdminHomePage },
 
 ];
 

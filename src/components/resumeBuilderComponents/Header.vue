@@ -36,10 +36,10 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
-import Utils from "../../config/utils";
-import AuthServices from "../../services/resumeBuilderServices/authServices";
+import Utils from "@/config/utils";
+import AuthServices from "@/services/resumeBuilderServices/authServices";
 import { useRouter, useRoute } from "vue-router";
-import UserServices from "../../services/resumeBuilderServices/userServices.js";
+import UserServices from "@/services/resumeBuilderServices/userServices.js";
 
 const user = ref(null);
 const initials = ref("");
@@ -95,7 +95,7 @@ const toggleMenu = () => {
 };
 
 const updateProfile = () => {
-  router.push("/contact-info");
+  router.push({name: 'contactInfo'});
   profileMenuOpen.value = false;
 };
 
