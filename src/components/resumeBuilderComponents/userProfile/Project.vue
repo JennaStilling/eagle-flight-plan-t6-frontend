@@ -132,7 +132,7 @@ const projectToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
+  return route.path.includes('/resumeBuilder/project/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
@@ -141,7 +141,7 @@ function toggleDropdown() {
 }
 
 function editEntry(item) {
-  router.push({ path: `/project/edit/` });
+  router.push({ path: `/resumeBuilder/project/edit/` });
   currentProject.value = item.id;
   formData.value.name = item.name;
   formData.value.description = item.description;
@@ -166,7 +166,7 @@ function deleteProject() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/project/edit/')) {
+  if (route.path.includes('/resumeBuilder/project/edit/')) {
     projectServices.updateProject(studentId.value, currentProject.value, formData.value)
       .then(() => {
         window.location.reload();
@@ -187,7 +187,7 @@ function saveChanges() {
         console.log(error);
       }
       });
-      router.push('/project');
+      router.push('/resumeBuilder/project');
   } else {
     projectServices.createProject(studentId.value, formData.value)
       .then(() => {
@@ -206,11 +206,11 @@ function saveChanges() {
 
 // Navigation methods
 function goBack() {
-  router.push('/skills');
+  router.push('/resumeBuilder/skills');
 }
 
 function goNext() {
-  router.push('/add');
+  router.push('/resumeBuilder/add');
 }
 
 const getProject = () => {

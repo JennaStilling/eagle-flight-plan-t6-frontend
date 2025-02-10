@@ -180,7 +180,7 @@ const educationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
+  return route.path.includes('/resumeBuilder/education/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
@@ -189,7 +189,7 @@ function toggleDropdown() {
 }
 
 function editEntry(item) {
-  router.push({ path: `/education/edit/` });
+  router.push({ path: `/resumeBuilder/education/edit/` });
   currentEducation.value = item.id;
   formData.value.degree = item.degree;
   formData.value.institution = item.institution;
@@ -216,7 +216,7 @@ function deleteEducation() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/education/edit/')) {
+  if (route.path.includes('/resumeBuilder/education/edit/')) {
     educationServices.updateEducation(studentId.value, currentEducation.value, formData.value)
       .then(() => {
         window.location.reload();
@@ -237,7 +237,7 @@ function saveChanges() {
         console.log(error);
       }
       });
-      router.push('/education');
+      router.push('/resumeBuilder/education');
   } else {
     educationServices.createEducation(studentId.value, formData.value)
       .then(() => {
@@ -256,11 +256,11 @@ function saveChanges() {
 
 // Navigation methods
 function goBack() {
-  router.push('/contact-info');
+  router.push('/resumeBuilder/contact-info');
 }
 
 function goNext() {
-  router.push('/courses');
+  router.push('/resumeBuilder/courses');
 }
 
 const getEducation = () => {

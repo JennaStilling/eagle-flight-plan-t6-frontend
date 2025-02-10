@@ -178,7 +178,7 @@ onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
     getEducation();
-    if (route.path.includes('/courses/select/')) {
+    if (route.path.includes('/resumeBuilder/courses/select/')) {
       getCourses();
     }
   });
@@ -202,7 +202,7 @@ const educationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/courses/select/edit') ? 'SAVE CHANGES' : 'ADD TO LIST';
+  return route.path.includes('/resumeBuilder/courses/select/edit') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 function toggleDropdown() {
@@ -214,7 +214,7 @@ function toggleDropdownCourses() {
 }
 
 function editEntry(item) {
-  router.push({ path: `/courses/select/` });
+  router.push({ path: `/resumeBuilder/courses/select/` });
   currentEducation.value = item.id;
   formData.value.degree = item.degree;
   formData.value.institution = item.institution;
@@ -224,13 +224,13 @@ function editEntry(item) {
 }
 
 function editCourse(course) {
-  router.push({ path: '/courses/select/edit', query: { id: course.id } });
+  router.push({ path: '/resumeBuilder/courses/select/edit', query: { id: course.id } });
   formData.value.name = course.name;
   formData.value.grade = course.grade;
 }
 
 function addCourse() {
-  router.push('/courses/select');
+  router.push('/resumeBuilder/courses/select');
   formData.value.name = '';
   formData.value.grade = '';
 }
@@ -277,7 +277,7 @@ function deleteEducation() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/courses/select/edit')) {
+  if (route.path.includes('/resumeBuilder/courses/select/edit')) {
     // Update existing course
     const courseId = route.query.id;
     courseServices.updateCourse(studentId.value, currentEducation.value, courseId, formData.value)
@@ -313,11 +313,11 @@ function getCourses() {
 
 // Navigation methods
 function goBack() {
-  router.push('/education');
+  router.push('/resumeBuilder/education');
 }
 
 function goNext() {
-  router.push('/experience');
+  router.push('/resumeBuilder/experience');
 }
 
 const getEducation = () => {

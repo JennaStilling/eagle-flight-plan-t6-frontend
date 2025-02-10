@@ -153,7 +153,7 @@ const experienceToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/experience/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
+  return route.path.includes('/resumeBuilder/experience/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
@@ -162,7 +162,7 @@ function toggleDropdown() {
 }
 
 function editEntry(item) {
-  router.push({ path: `/experience/edit/` });
+  router.push({ path: `/resumeBuilder/experience/edit/` });
   currentExperience.value = item.id;
   formData.value.role = item.role;
   formData.value.company = item.company;
@@ -190,7 +190,7 @@ function deleteExperience() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/experience/edit/')) {
+  if (route.path.includes('/resumeBuilder/experience/edit/')) {
     experienceServices.updateExperience(studentId.value, currentExperience.value, formData.value)
       .then(() => {
         window.location.reload();
@@ -211,7 +211,7 @@ function saveChanges() {
         console.log(error);
       }
       });
-      router.push('/experience');
+      router.push('/resumeBuilder/experience');
   } else {
     experienceServices.createExperience(studentId.value, formData.value)
       .then(() => {
@@ -231,11 +231,11 @@ function saveChanges() {
 
 // Navigation methods
 function goBack() {
-  router.push('/courses');
+  router.push('/resumeBuilder/courses');
 }
 
 function goNext() {
-  router.push('/certifications');
+  router.push('/resumeBuilder/certifications');
 }
 
 const getExperience = () => {

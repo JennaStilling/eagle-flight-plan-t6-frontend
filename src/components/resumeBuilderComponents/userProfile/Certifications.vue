@@ -170,7 +170,7 @@ const certificationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
+  return route.path.includes('/resumeBuilder/certifications/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
@@ -179,7 +179,7 @@ function toggleDropdown() {
 }
 
 function editEntry(item) {
-  router.push({ path: `/certifications/edit/` });
+  router.push({ path: `/resumeBuilder/certifications/edit/` });
   currentCertification.value = item.id;
   formData.value.name = item.name;
   formData.value.company = item.company;
@@ -205,7 +205,7 @@ function deleteCertification() {
 }
 
 function saveChanges() {
-      if(route.path.includes('/certifications/edit/'))
+      if(route.path.includes('/resumeBuilder/certifications/edit/'))
       {
           certificationServices.updateCertification(studentId.value, currentCertification.value, formData.value)
             .then(() => {
@@ -227,7 +227,7 @@ function saveChanges() {
                 console.log(error);
               }
             });
-            router.push('/certifications');
+            router.push('/resumeBuilder/certifications');
       }
       else {
         certificationServices.createCertification(studentId.value, formData.value)
@@ -249,11 +249,11 @@ function saveChanges() {
 
 // Navigation methods
 function goBack() {
-  router.push('/experience');
+  router.push('/resumeBuilder/experience');
 }
 
 function goNext() {
-  router.push('/skills');
+  router.push('/resumeBuilder/skills');
 }
 
 const getCertification = () => {
