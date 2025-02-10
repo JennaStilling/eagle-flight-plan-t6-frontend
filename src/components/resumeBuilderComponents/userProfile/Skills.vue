@@ -154,7 +154,7 @@ const skillToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/skills/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
+  return route.path.includes('/resumeBuilder/skills/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
@@ -163,7 +163,7 @@ function toggleDropdown() {
 }
 
 function editEntry(item) {
-  router.push({ path: `/skills/edit/` });
+  router.push({ path: `/resumeBuilder/skills/edit/` });
   currentSkill.value = item.id;
   formData.value.name = item.name;
   formData.value.description = item.description;
@@ -188,7 +188,7 @@ function deleteSkill() {
 }
 
 function saveChanges() {
-      if(route.path.includes('/skills/edit/'))
+      if(route.path.includes('/resumeBuilder/skills/edit/'))
       {
         skillServices.updateSkill(studentId.value, currentSkill.value, formData.value)
           .then(() => {
@@ -210,7 +210,7 @@ function saveChanges() {
               console.log(error);
             }
           });
-          router.push('/skills');
+          router.push('/resumeBuilder/skills');
       }
       else {
         skillServices.createSkill(studentId.value, formData.value)
@@ -232,11 +232,11 @@ function saveChanges() {
 
 // Navigation methods
 function goBack() {
-  router.push('/certifications');
+  router.push('/resumeBuilder/certifications');
 }
 
 function goNext() {
-  router.push('/project');
+  router.push('/resumeBuilder/project');
 }
 
 const getSkill = () => {

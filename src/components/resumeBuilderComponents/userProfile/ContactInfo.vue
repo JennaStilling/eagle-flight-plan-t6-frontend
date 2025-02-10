@@ -110,11 +110,11 @@ function saveContactInfo() {
 }
 
 function exit() {
-  router.push('/studentHome');
+  router.push('/resumeBuilder/studentHome');
 }
 
 function goNext() {
-  router.push('/experience');
+  router.push('/resumeBuilder/experience');
 }
 </script>
 

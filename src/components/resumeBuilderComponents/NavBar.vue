@@ -23,26 +23,26 @@ export default {
     isActiveTab(tab) {
       const currentPath = this.$route.path;
       const tabPathMap = {
-        'Contact Info': '/contact-info',
-        'Education': '/education',
-        'Courses': '/courses',
-        'Experience': '/experience',
-        'Certifications': '/certifications',
-        'Skills': '/skills',
-        'Project': '/project',
+        'Contact Info': '/resumeBuilder/contact-info',
+        'Education': '/resumeBuilder/education',
+        'Courses': '/resumeBuilder/courses',
+        'Experience': '/resumeBuilder/experience',
+        'Certifications': '/resumeBuilder/certifications',
+        'Skills': '/resumeBuilder/skills',
+        'Project': '/resumeBuilder/project',
       };
       const basePath = tabPathMap[tab];
       return currentPath.startsWith(basePath);
     },
     changeTab(tab) {
       const routes = {
-        'Contact Info': '/contact-info',
-        'Education': '/education',
-        'Courses': '/courses',
-        'Experience': '/experience',
-        'Certifications': '/certifications',
-        'Skills': '/skills',
-        'Project': '/project',
+        'Contact Info': '/resumeBuilder/contact-info',
+        'Education': '/resumeBuilder/education',
+        'Courses': '/resumeBuilder/courses',
+        'Experience': '/resumeBuilder/experience',
+        'Certifications': '/resumeBuilder/certifications',
+        'Skills': '/resumeBuilder/skills',
+        'Project': '/resumeBuilder/project',
       };
       this.$emit('update:currentTab', tab);
       this.$router.push(routes[tab]);
