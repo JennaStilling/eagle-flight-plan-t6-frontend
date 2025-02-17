@@ -49,7 +49,7 @@
   
   .sidebar {
     width: 200px;
-    background-color: #2c3e50; /* Dark background color */
+    background-color: #5D6D73; /* Dark background color */
     color: white; /* Text color */
     height: 100vh; /* Full height */
     padding: 20px;
@@ -67,7 +67,7 @@
   .resume-button {
     width: 100%; /* Full width button */
     padding: 10px; /* Padding for the button */
-    background-color: #118ACD; /* Blue background */
+    background-color: #118ACB; /* Blue background */
     color: white; /* Text color */
     border: none; /* Remove border */
     cursor: pointer; /* Pointer cursor for clickable items */
@@ -75,11 +75,11 @@
   }
   
   .resume-button:hover {
-    background-color: #1eade0; /* Darker blue on hover */
+    background-color: #708E9A; /* Darker blue on hover */
   }
   
   .sidebar li:hover {
-    background-color: #3d5166; /* Lighten on hover for other items */
+    background-color: #708E9A; /* Lighten on hover for other items */
   }
   
   .content {

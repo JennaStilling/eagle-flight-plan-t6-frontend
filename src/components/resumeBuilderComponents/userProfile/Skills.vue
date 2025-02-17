@@ -253,3 +253,9 @@ const getSkill = () => {
 <style>
 @import '@/assets/dark-mode.css';
 </style>
+
+<style scoped>
+:deep(.text-field::placeholder) {
+  color: gray;
+}
+</style>

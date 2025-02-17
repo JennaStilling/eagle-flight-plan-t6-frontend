@@ -1,22 +1,33 @@
 <template>
-  <div class="resume-preview" 
-    :class="statusClass"
-    @click="handleClick"
-    @mouseover="handleMouseover"
-    @mouseleave="handleMouseleave"
-    >
+  <div class="resume-preview" :class="statusClass" @click="handleClick" @mouseover="handleMouseover"
+    @mouseleave="handleMouseleave">
     <div class="resume-icon">
-      
+
       <img :src="resume.image" :style="{ width: '120px', height: 'auto' }">
     </div>
 
     <h3>{{ resume.name }}</h3>
 
     <!-- Hover overlay -->
+    <!-- <div class="hover-overlay" v-if="showActions">
+      <v-btn @click="handleEdit" icon="mdi-edit"></v-btn>
+      <v-btn @click="handleDelete" icon="mdi-delete"></v-btn>
+    </div> -->
+    
     <div class="hover-overlay" v-if="showActions">
-      <v-btn icon color="primary" @click="handleEdit">Edit</v-btn>
-      <v-btn icon color="error" @click="handleDelete">Delete</v-btn>
-    </div>
+  <v-btn color="primary" @click="handleEdit" icon rounded>
+    <v-icon>
+      <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon-img">
+    </v-icon>
+  </v-btn>
+
+  <v-btn color="error" @click="handleDelete" icon rounded>
+    <v-icon>
+      <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon-img">
+    </v-icon>
+  </v-btn>
+</div>
+
 
     <div v-if="displayDelete" class="modal">
       <div class="modal-content">
@@ -36,23 +47,12 @@
 
         <br />
         <div class="modal-body">
-          <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
-            CANCEL
-          </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="deleteResume()"
-          >
-            DELETE
-          </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <v-btn v-if="!deleteError" @click="displayDelete = false" color="#708E9A">Close</v-btn>
+          <v-btn v-if="!deleteError" @click="deleteResume()" color="#F04E3E" class="me-2">Delete</v-btn>
+          <v-btn v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
-          </button>
+          </v-btn>
         </div>
       </div>
     </div>
@@ -74,10 +74,10 @@ const statusClass = computed(() => {
   if (props.review != null) {
     if (props.review.status === "reviewed") {
       return "border-reviewed";
-    } 
+    }
     else {
       return "border-created"
-    } 
+    }
   }
   else {
     return "border-created";
@@ -103,12 +103,12 @@ onMounted(() => {
 
 const getResumes = () => {
   ResumeServices.getAllResumes(studentId.value)
-      .then((response) => {
-        resumes.value = response.data;
-      })
-      .catch((error) => {
-        console.log("Could not retrieve resumes: " + error);
-      })
+    .then((response) => {
+      resumes.value = response.data;
+    })
+    .catch((error) => {
+      console.log("Could not retrieve resumes: " + error);
+    })
 };
 
 const handleMouseover = () => {
@@ -121,6 +121,7 @@ const handleMouseleave = () => {
 
 const handleClick = () => {
   console.log(`Clicked on resume ${props.resume.name}`);
+  //emit('edit', props.resume.id);
 };
 
 const handleEdit = () => {
@@ -155,12 +156,18 @@ const deleteResume = async () => {
 
 <style scoped>
 .resume-preview {
-  width: 222px; /* Set width to resemble a piece of paper */
-  height: 298px; /* Set height */
-  border: 2px dashed #1A9BCB; /* Dashed border */
-  padding: 10px; /* Padding inside the box */
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  margin-bottom: 10px; /* Space below the shortcut area */
+  width: 222px;
+  /* Set width to resemble a piece of paper */
+  height: 298px;
+  /* Set height */
+  border: 2px dashed #1A9BCB;
+  /* Dashed border */
+  padding: 10px;
+  /* Padding inside the box */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+  margin-bottom: 10px;
+  /* Space below the shortcut area */
   border-radius: 20px;
   cursor: pointer;
 }
@@ -193,9 +200,11 @@ const deleteResume = async () => {
 
 .resume-icon {
   display: flex;
-  justify-content: center; /* Space between dropdown and buttons */
+  justify-content: center;
+  /* Space between dropdown and buttons */
   gap: 30px;
-  margin-bottom: 10px; /* Space below the shortcuts */
+  margin-bottom: 10px;
+  /* Space below the shortcuts */
   margin-top: 10px;
   position: relative;
   color: white;
@@ -215,9 +224,12 @@ const deleteResume = async () => {
   height: 150px;
 }
 
-.h3{
+.h3 {
   padding-top: 550px;
   position: absolute;
 }
-</style>
 
+.icon-img {
+  clip-path: circle(50%);
+}
+</style>

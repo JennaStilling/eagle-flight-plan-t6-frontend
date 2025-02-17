@@ -122,4 +122,8 @@ function goNext() {
 @import '@/assets/dark-mode.css';
 </style>
 
-  
+<style scoped>
+:deep(.text-field::placeholder) {
+  color: gray;
+}
+</style>

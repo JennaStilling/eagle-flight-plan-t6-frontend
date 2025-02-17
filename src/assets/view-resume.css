@@ -3,9 +3,10 @@
 }
 
 .resume-sidebar {
-  background-color: #021e2cff;
+  background-color: #5D6D73;
   padding-top: 20px;
   padding-left: 30px;
+  padding-right: 30px;
   color: #ffffff;
   flex: 1;
 }
@@ -38,7 +39,7 @@
 
 .dropdown-section {
   margin-bottom: 15px;
-  background-color: #084565;
+  background-color: #004761;
   border-radius: 6px;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -133,13 +134,13 @@
   width: 20px;
   height: 20px;
   background-color: #0B547C;
-  border: 2px solid #021E2C;
+  border: 2px solid #f3f3f3;
   border-radius: 4px;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .custom-checkbox input:checked + .checkmark {
-  background-color: #021E2C;
+  background-color: #f3f3f3;
   background-image: url('@/assets/build-icons/checkmark.png');
   background-position: center;
   background-size: cover;

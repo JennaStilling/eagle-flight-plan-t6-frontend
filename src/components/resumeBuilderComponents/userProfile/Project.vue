@@ -244,8 +244,14 @@ const getProject = () => {
 }
 
 .create-resume-button:hover {
-  background-color: #28a745;
+  background-color: rgba(17, 138, 203, 0.5);
   cursor: pointer;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); 
+}
+</style>
+
+<style scoped>
+:deep(.text-field::placeholder) {
+  color: gray;
 }
 </style>

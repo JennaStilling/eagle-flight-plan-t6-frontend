@@ -1,14 +1,14 @@
 /* Layout Styles */
 .container {
     display: flex;
-    background-color: #021E2C;
+    background-color: #FFFFFFff;
     color: #FFF;
     overflow: hidden;
 }
 .sidebar {
     width: 25%;
     padding: 10px;
-    background-color: #021E2C;
+    background-color: #FFFFFFff;
     color: #FFF;
     box-sizing: border-box;
     overflow: hidden;
@@ -18,7 +18,7 @@
     flex: 1;
     padding: 50px;
     box-sizing: border-box;
-    background-color: #021E2C;
+    background-color: #FFFFFFff;
 }
 
 /* List and Dropdown Styles */
@@ -79,7 +79,7 @@
     left: 0;
     font-weight: 700;
     font-size: 16px;
-    color: #fff;
+    color: rgba(0, 0, 0, 0.5);
     font-family: 'Helvetica', sans-serif;
     margin: 5px;
     white-space: normal;
@@ -91,12 +91,13 @@
     margin-top: 30px;
     padding: 5px;
     border-radius: 4px;
-    background-color: #084565;
+    background-color: #FFFfff;
     border: 1px solid #099ace;
-    color: #fff;
+    color: #000000;
     font-size: 16px; 
     font-family: 'Helvetica', sans-serif;
 }
+  
 
 /* Save Button Styles */
 .save-button {
@@ -105,7 +106,7 @@
     height: 40px; 
     text-align: center; 
     font-size: 12px; 
-    color: #021E2C;
+    color: white;
     font-family: Helvetica, sans-serif;
     margin-top: 10px;
     cursor: pointer;
@@ -119,11 +120,12 @@
     top: 0;
     left: 0;
     border-radius: 8px;
-    background: linear-gradient(90deg, #118acb, #69cbff);
-    border: 3px solid #084565;
+    background: #118ACB;
+
     box-sizing: border-box;
     width: 100%;
     height: 100%;
+
 }
 
 .save-changes {
@@ -146,14 +148,14 @@
     text-align: center;
     line-height: 40px;
     font-size: 14px; /* Smaller text size */
-    color: #fff;
+    color: white;
     font-family: 'Helvetica', sans-serif;
     background-color: transparent;
     border: none;
     cursor: pointer;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
     border-radius: 30px;
-    background: linear-gradient(90deg, #7b1329, #e1234b);
+    background: #811429;
     font-weight: 700;
 }
 

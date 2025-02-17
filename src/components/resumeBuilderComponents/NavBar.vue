@@ -53,7 +53,7 @@ export default {
 
 <style scoped>
 .navbar {
-  background-color: #021E2C;
+  background-color: #708E9A;
   display: flex;
   justify-content: space-around;
   padding: 10px;
@@ -65,7 +65,7 @@ export default {
 button {
   background: none;
   border: none;
-  color: #FFF;
+  color: #FFFFff;
   font-size: 16px;
   cursor: pointer;
   position: relative;
@@ -79,7 +79,7 @@ button.active {
 }
 
 button:hover {
-  background-color:#084565;
+  background-color: rgba(17, 138, 203, 0.5);
 }
 
 .navbar::after {

@@ -7,11 +7,11 @@
         <!-- Main Content Area -->
         <div class="content">
             <div class="filtering-shortcuts">
-                <Dropdown style="border-color: #53011a;">
+                <Dropdown style="border-color: #708E9A;">
                     <template #trigger>
-                        <button type="button"> {{ selectedFilter }}</button>
+                        <button type="button" class = "button-text-color"> {{ selectedFilter }}</button>
                     </template>
-                    <ul style="background-color: #65001F; color: white; cursor: pointer;">
+                    <ul style="background-color: #708E9A; color: white; cursor: pointer;">
                       <li
                         v-for="filter in filterOptions" 
                         :key="filter"
@@ -23,9 +23,9 @@
                 </Dropdown>
 
                 <div class="display-toggle">
-                    <img src="/src/assets/grid-icon.svg" alt="Grid Layout" style="display: block; margin: auto;" 
+                    <img src="/src/assets/lm-grid-icon.png" alt="Grid Layout" style="display: block; margin: auto;" 
                       @click="setDisplay('grid')" :class="{ active: displayType === 'grid', 'cursor-pointer': isActive }"/>
-                    <img src="/src/assets/list-elements/list-icon.svg" alt="List Layout" style="display: block; margin: auto;" 
+                    <img src="/src/assets/list-elements/lm-list-icon.png" alt="List Layout" style="display: block; margin: auto;" 
                       @click="setDisplay('list')" :class="{ active: displayType === 'list', 'cursor-pointer': isActive }"/>
                 </div>
             </div>
@@ -198,12 +198,16 @@
   }
 
   .icon-row.active {
-    stroke: #007bff; /* Change stroke color when active */
+    stroke: #118ACB; /* Change stroke color when active */
+  }
+
+  .button-text-color {
+    color: rgba(0,0,0);
   }
 
   .filtering-shortcuts .active {
-    background-color: #1A9BCB; /* Highlight active button */
-    color: white; /* Text color for active button */
+    background-color: #708E9A; /* Highlight active button */
+    color: rgb(0, 0, 0); /* Text color for active button */
   }
   
   .resume-main-area {
@@ -215,7 +219,7 @@
   .resume-create-shortcut-area {
     width: 222px; /* Set width to resemble a piece of paper */
     height: 298px; /* Set height */
-    border: 2px dashed #1A9BCB; /* Dashed border */
+    border: 2px dashed #118ACB; /* Dashed border */
     padding: 10px; /* Padding inside the box */
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     border-radius: 20px;
@@ -223,7 +227,7 @@
   }
   
   .create-resume-button {
-    background-color: #1A9BCB; /* Button color */
+    background-color: #118ACB; /* Button color */
     color: white; /* Text color */
     border: none; /* No border */
     padding: 10px 20px; /* Padding */

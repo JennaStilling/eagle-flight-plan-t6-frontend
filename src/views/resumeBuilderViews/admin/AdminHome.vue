@@ -199,8 +199,8 @@ const addReviewer = (userId) => {
   ReviewerRoleServices.createReviewer()
     .then((res) => {
       const tempId = res.data.id;
-      return UserServices.updateUser(userId, { reviewerId: tempId })      
-      .catch((err) => console.error(err));
+      return UserServices.updateUser(userId, { reviewerId: tempId })
+        .catch((err) => console.error(err));
     })
     .then(() => {
       getUsers();
@@ -215,10 +215,10 @@ const removeReviewer = (userId) => {
     .then((res) => {
       const tempId = res.data.reviewerId;
       return UserServices.updateUser(userId, { reviewerId: null })
-      .then(() =>
-        ReviewerRoleServices.deleteReviewer(tempId)
-      )
-      .catch((err) => console.error(err));
+        .then(() =>
+          ReviewerRoleServices.deleteReviewer(tempId)
+        )
+        .catch((err) => console.error(err));
     })
     .then(() => {
       getUsers();
@@ -301,184 +301,98 @@ const determineReviewerStatus = (item) => {
 </script>
 
 <template>
-  <div class="home-page">
-    <div class="modified-width">
-      <v-card title="Edit Users">
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="search"
-              label="Search for User"
-              prepend-inner-icon="mdi-magnify"
-              variant="outlined"
-              hide-details
-              single-line
-            >
-            </v-text-field>
-          </v-col>
+  <div class="modified-width">
+    <v-card title="Edit Users">
+      <v-row>
+        <v-col cols="6">
+          <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify" variant="outlined"
+            hide-details single-line>
+          </v-text-field>
+        </v-col>
 
-          <v-col cols="6">
-            <v-select
-              v-model="filterType"
-              :items="filterOptions"
-              label="Filter by User Type"
-              outlined
-              hide-details
-            >
-            </v-select>
-          </v-col>
+        <v-col cols="6">
+          <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined hide-details>
+          </v-select>
+        </v-col>
+      </v-row>
+
+      <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1" :items-per-page="filteredUsers.length"
+        hide-default-footer>
+        <template #item.name="{ item }">
+          <span @click="
+            userDataDisplay(item);
+          determineReviewerStatus(item);
+          getSpecificUserRoles(item.id);
+          ">
+            {{ item.fName + " " + item.lName }}
+          </span>
+        </template>
+      </v-data-table>
+    </v-card>
+  </div>
+
+  <div v-if="showUserInfo" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span @click="showUserInfo = false" class="close">&times;</span>
+        <h3>User Data</h3>
+      </div>
+
+      <v-card class="mx-auto pa-4">
+        <div class="modal-body">
+          <v-row>
+            <v-col cols="12">
+              <strong>Name:</strong> {{ user.fName + " " + user.lName }}
+            </v-col>
+            <v-col cols="12">
+              <strong>Email:</strong> {{ user.email }}
+            </v-col>
+            <v-col cols="12">
+              <strong>Roles:</strong> {{ userSpecificRoles }}
+            </v-col>
+            <v-col cols="12">
+              <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"></v-checkbox>
+            </v-col>
+          </v-row>
+        </div>
+
+        <v-row class="justify-end pt-2 justify-right">
+          <v-btn @click="
+            showUserInfo = false;
+          saveUserData(user.id);
+          " color="#5EC4B6" class="me-2">Save</v-btn>
+          <v-btn @click="(showUserInfo = false), (showDeleteItem = true)" color="#F04E3E" class="me-2">Delete</v-btn>
+          <v-btn @click="showUserInfo = false" color="#708E9A">Close</v-btn>
         </v-row>
-
-        <v-data-table
-          :headers="headers"
-          :items="filteredUsers"
-          class="elevation-1"
-          :items-per-page="filteredUsers.length"
-          hide-default-footer
-        >
-          <template #item.name="{ item }">
-            <span
-              @click="
-                userDataDisplay(item);
-                determineReviewerStatus(item);
-                getSpecificUserRoles(item.id);
-              "
-            >
-              {{ item.fName + " " + item.lName }}
-            </span>
-          </template>
-        </v-data-table>
       </v-card>
     </div>
+  </div>
 
-    <div v-if="showUserInfo" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span @click="showUserInfo = false" class="close">&times;</span>
-          <h3>User Data</h3>
-        </div>
-
-        <v-card class="mx-auto pa-4">
-          <div class="modal-body">
-            <v-row>
-              <v-col cols="12">
-                <strong>Name:</strong> {{ user.fName + " " + user.lName }}
-              </v-col>
-              <v-col cols="12">
-                <strong>Email:</strong> {{ user.email }}
-              </v-col>
-              <v-col cols="12">
-                <strong>Roles:</strong> {{ userSpecificRoles }}
-              </v-col>
-              <v-col cols="12">
-                <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"></v-checkbox>
-              </v-col>
-            </v-row>
-          </div>
-
-          <v-row class="justify-end pt-2 justify-right">
-            <v-btn
-              @click="
-                showUserInfo = false;
-                saveUserData(user.id);
-              "
-              color="green"
-              class="me-2"
-              >Save</v-btn
-            >
-            <v-btn
-              @click="(showUserInfo = false), (showDeleteItem = true)"
-              color="red"
-              class="me-2"
-              >Delete</v-btn
-            >
-            <v-btn @click="showUserInfo = false" color="blue">Close</v-btn>
-          </v-row>
-        </v-card>
+  <div v-if="showDeleteItem" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span @click="showDeleteItem = false" class="close">&times;</span>
+        <p v-if="!deleteError">
+          Are you sure you want to delete this user?<br />
+          {{ user.fName + " " + user.lName }}
+        </p>
+        <p v-if="deleteError">
+          Error deleting<br />{{ user.fName + " " + user.lName }}.
+        </p>
       </div>
-    </div>
-
-    <div v-if="showDeleteItem" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span @click="showDeleteItem = false" class="close">&times;</span>
-          <p v-if="!deleteError">
-            Are you sure you want to delete this user?<br />
-            {{ user.fName + " " + user.lName }}
-          </p>
-          <p v-if="deleteError">
-            Error deleting<br />{{ user.fName + " " + user.lName }}.
-          </p>
-        </div>
-        <div class="modal-body">
-          <v-btn
-            v-if="!deleteError"
-            color="blue"
-            @click="showDeleteItem = false"
-            >No, cancel</v-btn
-          >
-          <v-btn v-if="!deleteError" color="red" class="error" @click="deleteUser(user)"
-            >Yes, delete</v-btn
-          >
-          <v-btn
-            v-if="deleteError"
-            @click="
-              deleteError = false;
-              showDeleteItem = false;
-            "
-            >Close</v-btn
-          >
-        </div>
+      <div class="modal-body">
+        <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">No, cancel</v-btn>
+        <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteUser(user)">Yes, delete</v-btn>
+        <v-btn v-if="deleteError" @click="
+          deleteError = false;
+        showDeleteItem = false;
+        ">Close</v-btn>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.menu {
-  list-style-type: none;
-  padding: 0;
-}
-
-.menu-item {
-  margin: 10px 0;
-}
-
-.admin-sidebar {
-  width: 20%;
-  background-color: aqua;
-  float: left;
-}
-
-.sidenav {
-  height: 100%;
-  width: 20%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: rgb(100, 0, 30);
-  overflow-x: hidden;
-  padding-top: 20px;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: black;
-}
-
-.side-bar-button,
-.side-bar-button:active {
-  font-weight: 900;
-  color: black;
-  width: 100%;
-
-  padding-right: 20px;
-}
-
-.card-padding {
-  margin: 10px;
-  padding: 10px;
-}
-
 .modified-width {
   width: 70%;
   margin: 0 auto;
@@ -487,14 +401,5 @@ const determineReviewerStatus = (item) => {
 
 .justify-right {
   padding-right: 10px;
-}
-
-.home-page {
-  color: white;
-  padding: 70px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: hidden;
 }
 </style>
