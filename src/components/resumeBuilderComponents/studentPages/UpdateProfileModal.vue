@@ -26,7 +26,7 @@ export default {
       this.$router.push("/add");
     },
     confirm() {
-      this.$router.push("/contact-info");
+      this.$router.push("/resumeBuilder/contact-info");
     }
   }
 };

@@ -300,7 +300,7 @@ const loadData = (service, sectionKey, resumeService) => {
 }
 
 .back-button {
-  background: linear-gradient(90deg, #7B1329 0%, #E1234B 100%);
+  background: #811429;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   color: white;
   border: none;
@@ -363,14 +363,11 @@ textarea {
 }
 
 .send-button {
-  background-color: #007bff;
-  color: #021E2C;
-  font-weight: 800;
+  background-color: #118ACB;
+  color: white;
+  font-weight: 400;
   border: none;
   padding: 7px 10px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #118ACB 0%, #69CBFF 100%);
-  border: 4px #084565 solid;
   cursor: pointer;
 }
 
