@@ -4,22 +4,17 @@
       <!-- Title Section -->
       <div class="title-section">
         <label for="resumeTitle" class="title-label">Title:</label>
-        <input
-          v-model="resumeTitle"
-          id="resumeTitle"
-          class="title-input"
-          placeholder="First Resume"
-        />
+        <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="First Resume" />
         <button @click="saveResume">
-          <img :src="saveIcon" alt="save" class="save-button" />
+          <Icon :icon=saveIcon :alt="save" :class="save - button" :width="24" :height="24" />
         </button>
         <button @click="downloadPDF">
-          <img :src="downloadIcon" alt="download" />
+          <Icon :icon=downloadIcon :alt="download" :width="24" :height="24" />
         </button>
       </div>
 
-       <!-- Reviewer Suggestion -->
-       <div class="suggestion-box" v-if="resumeStatus">
+      <!-- Reviewer Suggestion -->
+      <div class="suggestion-box" v-if="resumeStatus">
         {{ resumeReview.suggestion }}
         <div class="submit-button">
           <button @click="deleteReview()">Complete</button>
@@ -27,38 +22,21 @@
       </div>
 
       <!-- Dropdown Sections -->
-      <div
-        v-for="(section, sectionKey) in dropdownSections"
-        :key="sectionKey"
-        class="dropdown-section"
-      >
+      <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
         <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
-          <img
-            class="section-icon"
-            :src="getSectionIcon(sectionKey)"
-            :alt="`${section.label} Icon`"
-          />
+          <Icon class="section-icon" :icon="getSectionIcon(sectionKey)" :alt="`${section.label} Icon`" :width="24"
+            :height="24" />
           <span style="text-transform: capitalize;">{{ sectionKey }}</span>
-          <img
-            class="arrow-icon"
-            :src="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
-            alt="arrow"
-          />
+          <Icon class="arrow-icon" :icon="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon" :alt="arrow"
+            :width="24" :height="24" />
         </div>
 
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
           <!-- Education Section -->
           <div v-if="sectionKey === 'education'">
-            <div
-              v-if="dropdownSections[sectionKey].items.length"
-              class="section-list"
-            >
-              <div
-                v-for="(item, index) in dropdownSections[sectionKey].items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(item)"
-              >
+            <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+              <div v-for="(item, index) in dropdownSections[sectionKey].items" :key="index" class="student-contact-info"
+                @click="toggleCheckbox(item)">
                 <div class="student-contact-info-inner">
                   <div class="group-child" :class="{ selected: item.isSelected }">
                     <p>
@@ -81,21 +59,11 @@
 
           <!-- Courses Section -->
           <div v-if="sectionKey === 'courses'">
-            <div
-              v-if="dropdownSections.education.items.length"
-              class="section-list"
-            >
+            <div v-if="dropdownSections.education.items.length" class="section-list">
               <!-- Courses Dropdown -->
-              <div
-                v-for="(education, index) in dropdownSections.education.items"
-                :key="index"
-                class="courses-dropdown"
-              >
+              <div v-for="(education, index) in dropdownSections.education.items" :key="index" class="courses-dropdown">
                 <!-- Courses Dropdown Header -->
-                <div
-                  class="courses-dropdown-header"
-                  @click="toggleCourseDropdown(index, education.id)"
-                >
+                <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
                   <p>
                     {{
                       education.degree
@@ -103,31 +71,17 @@
                         : education.institution
                     }}
                   </p>
-                  <img
-                    class="arrow-icon"
-                    :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
-                    alt="arrow"
-                  />
+                  <img class="arrow-icon" :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
+                    alt="arrow" />
                 </div>
 
                 <!-- Courses Dropdown Content -->
-                <div
-                  v-if="isCourseDropdownOpen[index]"
-                  class="courses-dropdown-content"
-                >
+                <div v-if="isCourseDropdownOpen[index]" class="courses-dropdown-content">
                   <div v-if="education.courses && education.courses.length">
                     <ul>
-                      <li
-                        v-for="(course, courseIndex) in education.courses"
-                        :key="courseIndex"
-                        class="course-item"
-                      >
+                      <li v-for="(course, courseIndex) in education.courses" :key="courseIndex" class="course-item">
                         <label class="custom-checkbox">
-                          <input
-                            type="checkbox"
-                            v-model="course.isSelected"
-                            @click="toggleCourseCheckbox(course)"
-                          />
+                          <input type="checkbox" v-model="course.isSelected" @click="toggleCourseCheckbox(course)" />
                           {{ course.name }} &nbsp;
                           <span class="checkmark"></span>
                         </label>
@@ -142,16 +96,9 @@
 
           <!-- Other Sections -->
           <div v-if="sectionKey !== 'education' && sectionKey !== 'courses'">
-            <div
-              v-if="dropdownSections[sectionKey].items.length"
-              class="section-list"
-            >
-              <div
-                v-for="(item, index) in dropdownSections[sectionKey].items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(item)"
-              >
+            <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+              <div v-for="(item, index) in dropdownSections[sectionKey].items" :key="index" class="student-contact-info"
+                @click="toggleCheckbox(item)">
                 <div class="student-contact-info-inner">
                   <div class="group-child" :class="{ selected: item.isSelected }">
                     <p v-if="sectionKey === 'experience'">
@@ -179,25 +126,13 @@
     <!-- Main Content -->
     <div class="main-content">
       <div class="edit-bar">
-        <div
-          class="tab"
-          :class="{ active: activeTab === 'preview' }"
-          @click="handleTabChange('preview')"
-        >
+        <div class="tab" :class="{ active: activeTab === 'preview' }" @click="handleTabChange('preview')">
           Preview
         </div>
-        <div
-          class="tab"
-          :class="{ active: activeTab === 'template' }"
-          @click="handleTabChange('template')"
-        >
+        <div class="tab" :class="{ active: activeTab === 'template' }" @click="handleTabChange('template')">
           Select Template
         </div>
-        <div
-          class="tab"
-          :class="{ active: activeTab === 'ai' }"
-          @click="handleTabChange('ai')"
-        >
+        <div class="tab" :class="{ active: activeTab === 'ai' }" @click="handleTabChange('ai')">
           AI Analysis
         </div>
       </div>
@@ -209,12 +144,8 @@
 
       <!-- Select Template Tab -->
       <div v-if="activeTab === 'template'" class="template-list">
-        <div
-          v-for="(template, index) in templates"
-          :key="index"
-          class="template-item"
-          :class="{ active: template.name === selectedTemplate }"
-        >
+        <div v-for="(template, index) in templates" :key="index" class="template-item"
+          :class="{ active: template.name === selectedTemplate }">
           <p class="template-name">{{ template.name }}</p>
           <button @click="previewTemplate(template)" class="preview-button">
             Preview
@@ -229,18 +160,10 @@
           <div class="text-field-with-title">
             <label for="jobDescription" class="field-label">Job Description</label>
             <div class="textarea-wrapper">
-              <textarea
-                v-model="jobDescription"
-                rows="3"
-                class="text-field"
-                placeholder="Paste desired job description here..."
-              ></textarea>
-              <button
-                @click="pasteFromClipboard"
-                class="paste-icon"
-                title="Paste"
-              >
-                <img :src="pasteIcon" alt="Paste" />
+              <textarea v-model="jobDescription" rows="3" class="text-field"
+                placeholder="Paste desired job description here..."></textarea>
+              <button @click="pasteFromClipboard" class="paste-icon" title="Paste" >
+                <Icon :icon="pasteIcon" :alt="'Paste'" :color="'#f3f3f3'" />
               </button>
             </div>
             <span class="mandatory">*</span>
@@ -249,20 +172,15 @@
           <!-- AI Suggestion Field -->
           <div class="text-field-with-title">
             <label for="aiSuggestion" class="field-label">AI Suggestion</label>
-            <textarea
-              v-model="result"
-              :placeholder="loading ? 'Loading...' : ''"
-              rows="18"
-              class="text-field"
-              readonly
-            ></textarea>
+            <textarea v-model="result" :placeholder="loading ? 'Loading...' : ''" rows="18" class="text-field"
+              readonly></textarea>
             <span class="mandatory">*</span>
           </div>
 
           <!-- Generate AI Review Button -->
           <div @click="cohereRequest" class="ai-review-button">
-            <img :src="aiIcon" alt="AI Icon" class="ai-icon" /> Generate AI
-            Review
+            <Icon :icon="aiIcon" :alt="'AI Icon'" :class="'ai-icon'" />
+            Generate AI Review
           </div>
         </div>
       </div>
@@ -294,18 +212,10 @@ import resumeProjectServices from '@/services/resumeBuilderServices/resumeProjec
 
 // Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
-import downloadIcon from '@/assets/build-icons/download.png';
-import saveIcon from '@/assets/build-icons/saveIcon.png';
-import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
-import dropDownIcon from '@/assets/build-icons/drop-down.png';
-import educationIcon from '@/assets/build-icons/education.png';
-import courseIcon from '@/assets/build-icons/courses.png';
-import experienceIcon from '@/assets/build-icons/experience.png';
-import certsIcon from '@/assets/build-icons/certs.png';
-import skillsIcon from '@/assets/build-icons/skills.png';
-import projectIcon from '@/assets/build-icons/project.png';
-import aiIcon from '@/assets/build-icons/ai-review.png';
-import pasteIcon from '@/assets/build-icons/paste.png';
+// import aiIcon from '@/assets/build-icons/ai-review.png';
+// import pasteIcon from '@/assets/build-icons/paste.png';
+
+import { Icon } from '@iconify/vue';
 
 import { loadTemplateOne } from '@/services/resumeBuilderServices/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/resumeBuilderServices/templates/templateTwo.js';
@@ -320,6 +230,9 @@ import { useRouter } from "vue-router";
 import { cohereClient } from "@/services/resumeBuilderServices/cohereClientServices.js";
 
 export default {
+  components: {
+    Icon,
+  },
   setup() {
     const user = Utils.getStore('user');
     const studentId = ref(null);
@@ -357,13 +270,19 @@ export default {
       projects: { items: [] },
     });
     const sectionIcons = {
-      education: educationIcon,
-      courses: courseIcon,
-      experience: experienceIcon,
-      certifications: certsIcon,
-      skills: skillsIcon,
-      projects: projectIcon,
+      education: "material-symbols:school-outline-rounded",
+      experience: "material-symbols:work-outline",
+      certifications: "material-symbols:award-star-rounded",
+      skills: "material-symbols:balance-rounded",
+      projects: "material-symbols:assignment-ind",
+      courses: "material-symbols:book-ribbon-outline-rounded",
     };
+    const dropDownUpIcon = "material-symbols:arrow-drop-up-rounded";
+    const dropDownIcon = "material-symbols:arrow-drop-down-rounded";
+    const downloadIcon = "material-symbols:download-rounded";
+    const saveIcon = "material-symbols:save";
+    const pasteIcon = "material-symbols:content-paste-rounded";
+    const aiIcon = "material-symbols:network-intel-node-rounded";
 
     const getSectionIcon = (sectionKey) => {
       return sectionIcons[sectionKey] || '';
@@ -421,8 +340,8 @@ export default {
           if (!previewUpdated) {
             previewUpdated = true;
             setTimeout(() => {
-              updatePDFPreview(); 
-            }, 500); 
+              updatePDFPreview();
+            }, 500);
           }
         } else {
           console.error('Iframe not found');
@@ -470,11 +389,11 @@ export default {
       container.innerHTML = content;
 
       container.style.backgroundColor = '#ffffff'; // White background
-      container.style.padding = '0'; 
-      container.style.overflow = 'hidden'; 
-      container.style.display = 'inline-block'; 
+      container.style.padding = '0';
+      container.style.overflow = 'hidden';
+      container.style.display = 'inline-block';
       container.style.transform = 'scale(0.32)'; // Scale down the text content
-      container.style.transformOrigin = 'top center'; 
+      container.style.transformOrigin = 'top center';
       container.style.position = 'relative'; // Ensure proper layout alignment
       container.style.height = '200px'; // Fixed height
       container.style.margin = '0 auto'; // Center the container horizontally
@@ -521,29 +440,29 @@ export default {
       const sections = dropdownSections.value;
 
       switch (resume.value.template_type) {
-      case 1:
-        return loadTemplateOne(user, sections);
-        break;
-      case 2:
-        return loadTemplateTwo(user, sections);
-        break;
-      case 3:
-        return loadTemplateThree(user, sections);
-        break;
-      case 4:
-        return loadTemplateFour(user, sections);
-        break;
-      case 5:
-        return loadTemplateFive(user, sections);
-        break;
-      case 6:
-        return loadTemplateSix(user, sections);
-        break;
-      case 7:
-        return loadTemplateSeven(user, sections);
-        break;
-      default:
-        return loadTemplateOne(user, sections);
+        case 1:
+          return loadTemplateOne(user, sections);
+          break;
+        case 2:
+          return loadTemplateTwo(user, sections);
+          break;
+        case 3:
+          return loadTemplateThree(user, sections);
+          break;
+        case 4:
+          return loadTemplateFour(user, sections);
+          break;
+        case 5:
+          return loadTemplateFive(user, sections);
+          break;
+        case 6:
+          return loadTemplateSix(user, sections);
+          break;
+        case 7:
+          return loadTemplateSeven(user, sections);
+          break;
+        default:
+          return loadTemplateOne(user, sections);
       }
     };
 
@@ -595,7 +514,7 @@ export default {
         });
     };
 
-    
+
     const loadEducationData = () => {
       educationServices.getAllEducations(studentId.value)
         .then(response => {
@@ -716,7 +635,7 @@ export default {
           saveAsPNG(resumeIdHere).then(() => {
             console.log("Resume saved successfully", resumeIdHere);
             router.push({ name: "studentHome" }); // Navigate back home
-        });
+          });
         })
         .catch((error) => {
           if (error.response && error.response.status === 406) {
@@ -943,15 +862,16 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
+
 .edit-bar {
-    background-color: #084565;
-    display: flex;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    max-width: 100%;
-    margin-left: 70px;
-  }
+  background-color: #084565;
+  display: flex;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  max-width: 100%;
+  margin-left: 70px;
+}
 
 .tab {
   flex: 1;
@@ -968,7 +888,7 @@ export default {
 }
 
 .tab:hover {
-    background-color: #0b547c;
+  background-color: #0b547c;
 }
 
 .nav-button {
@@ -991,25 +911,25 @@ export default {
   height: 105px;
   background-color: #D2D9DC;
   display: flex;
-  align-items: flex-end; 
-  justify-content: flex-end; 
-  padding: 10px; 
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 10px;
 }
 
 .ai-review-button {
   background: linear-gradient(180deg, #5AC8FA 0%, #337C99 100%);
-  color: #021E2C; 
+  color: #021E2C;
   border: none;
-  padding: 15px 20px; 
-  border-radius: 9px; 
+  padding: 15px 20px;
+  border-radius: 9px;
   cursor: pointer;
   font-size: 28px;
   font-weight: 700;
   display: flex;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
   height: 65px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
   font-family: 'Poppins', sans-serif;
 }
@@ -1021,10 +941,10 @@ export default {
 }
 
 .ai-icon {
-  width: 48px; 
-  height: 50px; 
-  margin-right: 10px; 
-  display: flex; 
+  width: 48px;
+  height: 50px;
+  margin-right: 10px;
+  display: flex;
   align-items: center;
 }
 
@@ -1048,10 +968,10 @@ export default {
 
 .cohere-button {
   background: linear-gradient(135deg, #022B3A 0%, #04425A 100%);
-  color: #E0F7FA; 
-  border: 2px solid #04425A; 
+  color: #E0F7FA;
+  border: 2px solid #04425A;
   padding: 15px 30px;
-  border-radius: 10px; 
+  border-radius: 10px;
   cursor: pointer;
   font-size: 20px;
   font-weight: bold;
@@ -1060,7 +980,7 @@ export default {
   justify-content: center;
   height: 65px;
   max-width: 40%;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5); 
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
   transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   margin-right: 40px;
 }
@@ -1068,12 +988,12 @@ export default {
 .cohere-button:hover {
   background: linear-gradient(135deg, #033A4E 0%, #044F6D 100%);
   transform: translateY(-3px);
-  border-color: #056885; 
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6); 
+  border-color: #056885;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
 }
 
 .cohere-button:active {
-  transform: translateY(1px); 
+  transform: translateY(1px);
   background: linear-gradient(135deg, #021E2C 0%, #033A4E 100%);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
@@ -1082,12 +1002,12 @@ export default {
   display: flex;
   position: relative;
   align-items: right;
-  width:100%;
+  width: 100%;
 }
 
 .text-field {
   width: 100%;
-  padding-right: 40px; 
+  padding-right: 40px;
 }
 
 .paste-icon {
@@ -1102,8 +1022,8 @@ export default {
 }
 
 .paste-icon img {
-  width: 27px; 
-  height: 29px; 
+  width: 27px;
+  height: 29px;
   transition: opacity 0.3s ease;
 }
 
@@ -1151,8 +1071,8 @@ export default {
   min-height: 50px;
   background-color: #D2D9DC;
   display: flex;
-  flex-direction: column; 
-  justify-content: space-between; 
+  flex-direction: column;
+  justify-content: space-between;
   padding: 10px;
   border-radius: 10px;
   margin: 10px;
@@ -1161,7 +1081,7 @@ export default {
 }
 
 .submit-button {
-  align-self: flex-end; 
+  align-self: flex-end;
   padding: 5px;
   border-radius: 10px;
   background-color: green;

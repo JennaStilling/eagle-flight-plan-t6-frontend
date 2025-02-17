@@ -1,12 +1,8 @@
 <template>
-  <div class="resume-preview" 
-    :class="statusClass"
-    @click="handleClick"
-    @mouseover="handleMouseover"
-    @mouseleave="handleMouseleave"
-    >
+  <div class="resume-preview" :class="statusClass" @click="handleClick" @mouseover="handleMouseover"
+    @mouseleave="handleMouseleave">
     <div class="resume-icon">
-      
+
       <img :src="resume.image" :style="{ width: '120px', height: 'auto' }">
     </div>
 
@@ -14,8 +10,13 @@
 
     <!-- Hover overlay -->
     <div class="hover-overlay" v-if="showActions">
-      <v-btn icon color="primary" @click="handleEdit">Edit</v-btn>
-      <v-btn icon color="error" @click="handleDelete">Delete</v-btn>
+      <v-btn icon color="primary" @click="handleEdit">
+        <Icon icon="material-symbols:edit-outline" width="24" height="24"/>
+      </v-btn>
+      <v-btn icon color="error" @click="handleDelete">
+        <Icon icon="material-symbols:delete-outline" width="24" height="24" />
+      </v-btn>
+
     </div>
 
     <div v-if="displayDelete" class="modal">
@@ -39,18 +40,11 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="deleteResume()"
-          >
+          <button v-if="!deleteError" class="error modal-button" @click="deleteResume()">
             DELETE
           </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
           </button>
         </div>
@@ -64,6 +58,7 @@ import { ref, onMounted, computed } from "vue";
 import Utils from '@/config/utils.js';
 import ResumeServices from "@/services/resumeBuilderServices/resumeServices";
 import resumeReviewServices from "@/services/resumeBuilderServices/resumeReviewServices";
+import { Icon } from "@iconify/vue";
 
 const props = defineProps({
   resume: Object,
@@ -74,10 +69,10 @@ const statusClass = computed(() => {
   if (props.review != null) {
     if (props.review.status === "reviewed") {
       return "border-reviewed";
-    } 
+    }
     else {
       return "border-created"
-    } 
+    }
   }
   else {
     return "border-created";
@@ -103,12 +98,12 @@ onMounted(() => {
 
 const getResumes = () => {
   ResumeServices.getAllResumes(studentId.value)
-      .then((response) => {
-        resumes.value = response.data;
-      })
-      .catch((error) => {
-        console.log("Could not retrieve resumes: " + error);
-      })
+    .then((response) => {
+      resumes.value = response.data;
+    })
+    .catch((error) => {
+      console.log("Could not retrieve resumes: " + error);
+    })
 };
 
 const handleMouseover = () => {
@@ -155,12 +150,18 @@ const deleteResume = async () => {
 
 <style scoped>
 .resume-preview {
-  width: 222px; /* Set width to resemble a piece of paper */
-  height: 298px; /* Set height */
-  border: 2px dashed #1A9BCB; /* Dashed border */
-  padding: 10px; /* Padding inside the box */
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  margin-bottom: 10px; /* Space below the shortcut area */
+  width: 222px;
+  /* Set width to resemble a piece of paper */
+  height: 298px;
+  /* Set height */
+  border: 2px dashed #1A9BCB;
+  /* Dashed border */
+  padding: 10px;
+  /* Padding inside the box */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+  margin-bottom: 10px;
+  /* Space below the shortcut area */
   border-radius: 20px;
   cursor: pointer;
 }
@@ -193,9 +194,11 @@ const deleteResume = async () => {
 
 .resume-icon {
   display: flex;
-  justify-content: center; /* Space between dropdown and buttons */
+  justify-content: center;
+  /* Space between dropdown and buttons */
   gap: 30px;
-  margin-bottom: 10px; /* Space below the shortcuts */
+  margin-bottom: 10px;
+  /* Space below the shortcuts */
   margin-top: 10px;
   position: relative;
   color: white;
@@ -215,9 +218,14 @@ const deleteResume = async () => {
   height: 150px;
 }
 
-.h3{
+.h3 {
   padding-top: 550px;
   position: absolute;
 }
 </style>
 
+<style scoped>
+.icon {
+  font-size: inherit;
+}
+</style>

@@ -12,28 +12,43 @@
           placeholder="Resume Name"
         />
         <button @click="saveResume">
-          <img :src="saveIcon" alt="save" class="save-button"/>
+          <Icon 
+          :icon= saveIcon
+          :alt="save" 
+          :class="save-button"
+          :width="24" 
+          :height="24"/>
         </button>
         <button @click="downloadPDF">
-          <img :src="downloadIcon" alt="download"/>
+          <Icon 
+          :icon= downloadIcon
+          :alt="download"
+          :width="24" 
+          :height="24"/>
         </button>
       </div>
 
       <!-- Dropdown Sections -->
-      <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
-        <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
-          <img
-            class="section-icon"
-            :src="getSectionIcon(sectionKey)"
-            :alt="`${section.label} Icon`"
-          />
-          <span style="text-transform: capitalize;">{{ sectionKey }}</span>
-          <img
-            class="arrow-icon"
-            :src="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
-            alt="arrow"
-          />
-        </div>
+
+        <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
+  <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
+    <Icon
+      class="section-icon"
+      :icon="getSectionIcon(sectionKey)"
+      :alt="`${section.label} Icon`"
+                :width="24" 
+          :height="24"
+    />
+    <span style="text-transform: capitalize;">{{ sectionKey }}</span>
+    <Icon
+      class="arrow-icon"
+      :icon="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
+      :alt="arrow"
+                :width="24" 
+          :height="24"
+    />
+  </div>
+
 
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
           <!-- Education Section -->
@@ -167,16 +182,8 @@ import resumeProjectServices from '@/services/resumeBuilderServices/resumeProjec
 
 // Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
-import downloadIcon from '@/assets/build-icons/download.png';
-import saveIcon from '@/assets/build-icons/saveIcon.png';
-import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
-import dropDownIcon from '@/assets/build-icons/drop-down.png';
-import educationIcon from '@/assets/build-icons/education.png';
-import experienceIcon from '@/assets/build-icons/experience.png';
-import certsIcon from '@/assets/build-icons/certs.png';
-import skillsIcon from '@/assets/build-icons/skills.png';
-import projectIcon from '@/assets/build-icons/project.png';
-import coursesIcon from '@/assets/build-icons/courses.png'; 
+
+import { Icon } from '@iconify/vue';
 
 import { loadTemplateOne } from '@/services/resumeBuilderServices/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/resumeBuilderServices/templates/templateTwo.js';
@@ -193,6 +200,7 @@ export default {
   name: 'AddResume',
   components: {
     PreviewBar,
+    Icon,
   },
   setup() {
     const user = Utils.getStore('user');
@@ -226,17 +234,23 @@ export default {
       projects: { items: [] },
     });
     const sectionIcons = {
-      education: educationIcon,
-      experience: experienceIcon,
-      certifications: certsIcon,
-      skills: skillsIcon,
-      projects: projectIcon,
-      courses: coursesIcon,
+      education: "material-symbols:school-outline-rounded",
+      experience: "material-symbols:work-outline",
+      certifications: "material-symbols:award-star-rounded",
+      skills: "material-symbols:balance-rounded",
+      projects: "material-symbols:assignment-ind",
+      courses: "material-symbols:book-ribbon-outline-rounded",
     };
+    const dropDownUpIcon = "material-symbols:arrow-drop-up-rounded";
+    const dropDownIcon = "material-symbols:arrow-drop-down-rounded";
+    const downloadIcon = "material-symbols:download-rounded";
+    const saveIcon = "material-symbols:save";
 
-    const getSectionIcon = (sectionKey) => {
-      return sectionIcons[sectionKey] || '';
-    };
+const getSectionIcon = (sectionKey) => {
+  return sectionIcons[sectionKey] || 'default-icon';
+};
+
+
 
     const templates = ref([
       { name: '01: Default', type: 1 },
@@ -700,5 +714,22 @@ export default {
   align-items: center;
   margin-bottom: 5px;
   color: #fff;
+}
+</style>
+
+<style scoped>
+.transparent-btn {
+  background-color: transparent !important;
+  box-shadow: none; 
+  min-width: unset; 
+}
+
+.white-icon {
+  color: white; 
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
 }
 </style>

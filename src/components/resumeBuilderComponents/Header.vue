@@ -9,9 +9,10 @@
 
     <div class="user-menu">
       <!-- Home Menu -->
-      <img src="/src/assets/home.png" alt="Home" class="user-icon" @click="toggleHomeMenu"
-        @keydown.enter="toggleHomeMenu" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
-        style="width: 39px; height: 39px;" />
+      <v-btn icon class="transparent-btn" @click="toggleHomeMenu" @keydown.enter="toggleHomeMenu"
+    role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen">
+    <Icon icon="material-symbols:home-outline-rounded" width="39" height="39" class="white-icon" />
+  </v-btn>
       <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
           <li v-if="studentId != null" @click="updateHomePage('Student')">Student Home</li>
@@ -21,9 +22,10 @@
       </div>
 
       <!-- Profile Menu -->
-      <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleProfileMenu"
-        @keydown.enter="toggleProfileMenu" role="button" tabindex="0" aria-haspopup="true"
-        :aria-expanded="profileMenuOpen" />
+      <v-btn icon class="transparent-btn" @click="toggleProfileMenu" @keydown.enter="toggleProfileMenu"
+    role="button" tabindex="0" aria-haspopup="true" :aria-expanded="profileMenuOpen">
+    <Icon icon="material-symbols:user-attributes" width="39" height="39" class="white-icon" />
+  </v-btn>
       <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
           <li @click="updateProfile">Update Profile</li>
@@ -40,6 +42,7 @@ import Utils from "@/config/utils";
 import AuthServices from "@/services/resumeBuilderServices/authServices";
 import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
+import { Icon } from '@iconify/vue';
 
 const user = ref(null);
 const initials = ref("");
@@ -95,7 +98,7 @@ const toggleMenu = () => {
 };
 
 const updateProfile = () => {
-  router.push({name: 'contactInfo'});
+  router.push({ name: 'contactInfo' });
   profileMenuOpen.value = false;
 };
 
@@ -210,5 +213,17 @@ const toggleProfileMenu = () => {
 
 .dropdown-menu li:hover {
   background-color: #8f042d;
+}
+</style>
+
+<style scoped>
+.transparent-btn {
+  background-color: transparent !important;
+  box-shadow: none; 
+  min-width: unset; 
+}
+
+.white-icon {
+  color: white; 
 }
 </style>
