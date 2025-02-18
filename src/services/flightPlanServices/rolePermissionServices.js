@@ -1,25 +1,22 @@
-import apiClient from "../services";
+import apiClient from "../services.js";
 
 export default {
-    createRolePermission(roleId, permissionId, data) {
-        return apiClient.post(`flightPlan-t6/role/${roleId}/permission/${permissionId}/rolePermission`, data);
+    createRolePermission(data) {
+        return apiClient.post(`flightPlan-t6/rolePermission`, data);
     },
-    getAllRolePermissions(roleId, permissionId) {
-        return apiClient.get(`flightPlan-t6/role/${roleId}/permission/${permissionId}/rolePermission`);
+    getAllRolePermissions() {
+        return apiClient.get(`flightPlan-t6/rolePermission`);
     },
-    getRolePermission(roleId, permissionId, id) {
-        return apiClient.get(`flightPlan-t6/role/${roleId}/permission/${permissionId}/rolePermission/${id}`);
+    getRolePermission(id) {
+        return apiClient.get(`flightPlan-t6/rolePermission/${id}`);
     },
-    updateRolePermission(roleId, permissionId, id, data) {
-        return apiClient.put(`flightPlan-t6/role/${roleId}/permission/${permissionId}/rolePermission/${id}`, data);
+    updateRolePermission(id, data) {
+        return apiClient.put(`flightPlan-t6/rolePermission/${id}`, data);
     },
-    deleteRolePermission(roleId, permissionId, id) {
-        return apiClient.delete(`flightPlan-t6/role/${roleId}/permission/${permissionId}/rolePermission/${id}`);
+    deleteRolePermission(id) {
+        return apiClient.delete(`flightPlan-t6/rolePermission/${id}`);
     },
-    deleteAllRolePermissions(roleId, permissionId) {
-        return apiClient.delete(`flightPlan-t6/role/${roleId}/permission/${permissionId}/rolePermission`);
-    },
-    deleteAllSystemRolePermissions() {
+    deleteAllRolePermissions() {
         return apiClient.delete(`flightPlan-t6/rolePermission`);
-    }
+    },
 };

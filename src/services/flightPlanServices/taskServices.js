@@ -1,28 +1,22 @@
 import apiClient from "../services";
 
 export default {
-    createTask(taskId, verificationId, data) {
-        return apiClient.post(`flightPlan-t6/task/${taskId}/verification/${verificationId}/task`, data);
-    },
-    createSystemTask(data) {
+    createTask(data) {
         return apiClient.post(`flightPlan-t6/task`, data);
     },
-    getAllTasks(taskId, verificationId) {
-        return apiClient.get(`flightPlan-t6/task/${taskId}/verification/${verificationId}/task`);
+    getAllTasks() {
+        return apiClient.get(`flightPlan-t6/task`);
     },
-    getTask(taskId, verificationId, id) {
-        return apiClient.get(`flightPlan-t6/task/${taskId}/verification/${verificationId}/task/${id}`);
+    getTask(id) {
+        return apiClient.get(`flightPlan-t6/task/${id}`);
     },
-    updateTask(taskId, verificationId, id, data) {
-        return apiClient.put(`flightPlan-t6/task/${taskId}/verification/${verificationId}/task/${id}`, data);
+    updateTask(id, data) {
+        return apiClient.put(`flightPlan-t6/task/${id}`, data);
     },
-    deleteTask(taskId, verificationId, id) {
-        return apiClient.delete(`flightPlan-t6/task/${taskId}/verification/${verificationId}/task/${id}`);
+    deleteTask(id) {
+        return apiClient.delete(`flightPlan-t6/task/${id}`);
     },
-    deleteAllTasks(taskId, verificationId) {
-        return apiClient.delete(`flightPlan-t6/task/${taskId}/verification/${verificationId}/task`);
-    },
-    deleteAllSystemTasks() {
+    deleteAllTasks() {
         return apiClient.delete(`flightPlan-t6/task`);
     }
 };
