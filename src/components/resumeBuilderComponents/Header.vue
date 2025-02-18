@@ -62,7 +62,7 @@ const currentRouteName = computed(() => route.name);
 
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
-  if (!event.target.closest(".user-menu")) {
+  if (!event.target.closest(".user-menu") ) {
     homeMenuOpen.value = false;
     profileMenuOpen.value = false;
   }

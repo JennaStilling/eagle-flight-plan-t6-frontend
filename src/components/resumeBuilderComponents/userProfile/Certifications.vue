@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <div class="sidebar">
-      <div class="list">
+      <div class="list scrollable">
         <!-- CERTIFICATION LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">
+        <div class="list-title title-color" @click="toggleDropdown">
           Certification List {{ showDropdown ? '▲' : '▼' }}
         </div>
         <br>
@@ -269,6 +269,10 @@ const getCertification = () => {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color:black;
+}
 </style>
 
 <style scoped>

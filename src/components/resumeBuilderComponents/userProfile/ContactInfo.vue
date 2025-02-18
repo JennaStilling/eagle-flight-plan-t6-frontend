@@ -120,6 +120,10 @@ function goNext() {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color:black;
+}
 </style>
 
 <style scoped>

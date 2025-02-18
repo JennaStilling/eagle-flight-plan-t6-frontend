@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="sidebar">
-      <div class="list">
+      <div class="list scrollable">
         <!-- PROJECT LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">
-          Project List {{ showDropdown ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdown">
+          Projects List
         </div>
         <br>
         <div v-if="showDropdown" class="dropdown">
@@ -247,6 +247,10 @@ const getProject = () => {
   background-color: rgba(17, 138, 203, 0.5);
   cursor: pointer;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); 
+}
+
+.title-color {
+  color:black;
 }
 </style>
 

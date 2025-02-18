@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="sidebar">
-      <div class="list">
+      <div class="list scrollable">
         <!-- EDUCATION LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">
-          Education List {{ showDropdown ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdown">
+          Educations List
         </div>
         <br />
         <div v-if="showDropdown" class="dropdown">
@@ -13,49 +13,35 @@
               <!-- Display each institution's name -->
               <span class="university-name name">{{ item.institution }}</span>
               <div class="icon-buttons">
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(item)"
-                />
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteConfirmation(item)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(item)" />
+                <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                  @click.stop="showDeleteConfirmation(item)" />
               </div>
             </li>
           </ul>
         </div>
         <br />
-        <div class="list-title" @click="toggleDropdownCourses">
-          Courses List {{ showDropdownCourses ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdownCourses">
+          Courses List
         </div>
-        <div v-if="showDropdownCourses" class="dropdown">
-          <ul>
-            <li v-for="(course, index) in courses" :key="index" class="dropdown-item">
-              <span class="course-name name">{{ course.name }}</span>
-              <div class="icon-buttons">
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editCourse(course)"
-                />
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteCourseConfirmation(course)"
-                />
+        <div class="list scrollable">
+          <div v-if="showDropdownCourses" class="dropdown">
+            <ul>
+              <li v-for="(course, index) in courses" :key="index" class="dropdown-item">
+                <span class="course-name name">{{ course.name }}</span>
+                <div class="icon-buttons">
+                  <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                    @click.stop="editCourse(course)" />
+                  <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                    @click.stop="showDeleteCourseConfirmation(course)" />
+                </div>
+              </li>
+              <div v-if="courses.length > 0">
+                <button @click="addCourse" class="add-button-green">+</button>
               </div>
-            </li>
-            <div v-if="courses.length > 0">
-              <button @click="addCourse" class="add-button-green">+</button>
-            </div>
-          </ul>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -78,21 +64,12 @@
           </div>
           <div class="text-field-with-title">
             <label class="field-label">NAME</label>
-            <input
-              v-model="formData.name"
-              class="text-field"
-              type="text"
-              placeholder="Enter course name"
-            />
+            <input v-model="formData.name" class="text-field" type="text" placeholder="Enter course name" />
           </div>
           <div class="text-field-with-title">
             <label class="field-label">GRADE LETTER</label>
-            <input
-              v-model="formData.grade"
-              class="text-field"
-              type="text"
-              placeholder="Enter grade (A, B, C, D, F, P*)"
-            />
+            <input v-model="formData.grade" class="text-field" type="text"
+              placeholder="Enter grade (A, B, C, D, F, P*)" />
           </div>
 
           <!-- Save/Add button -->
@@ -137,18 +114,12 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="courseToDelete ? deleteCourse() : deleteEducation()"
-          >
+          <button v-if="!deleteError" class="error modal-button"
+            @click="courseToDelete ? deleteCourse() : deleteEducation()">
             DELETE
           </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
           </button>
         </div>
@@ -333,6 +304,10 @@ const getEducation = () => {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color: black;
+}
 </style>
 
 <style scoped>

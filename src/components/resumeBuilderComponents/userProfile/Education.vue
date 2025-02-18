@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="sidebar">
-      <div class="list">
+      <div class="list scrollable">
         <!-- EDUCATION LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">
-          Education List {{ showDropdown ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdown">
+          Educations List
         </div>
         <br />
         <div v-if="showDropdown" class="dropdown">
@@ -276,6 +276,10 @@ const getEducation = () => {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color:black;
+}
 </style>
 
 <style scoped>
