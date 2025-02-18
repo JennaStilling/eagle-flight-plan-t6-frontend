@@ -15,9 +15,9 @@
   </v-btn>
       <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
-          <li v-if="studentId != null" @click="updateHomePage('Student')">Student Home</li>
-          <li v-if="reviewerId != null" @click="updateHomePage('Reviewer')">Reviewer Home</li>
           <li v-if="adminId != null" @click="updateHomePage('Admin')">Admin Home</li>
+          <li v-if="reviewerId != null" @click="updateHomePage('Reviewer')">Reviewer Home</li>
+          <li v-if="studentId != null" @click="updateHomePage('Student')">Student Home</li>
         </ul>
       </div>
 
