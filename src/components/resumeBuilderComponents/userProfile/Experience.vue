@@ -55,7 +55,7 @@
         <!-- End date input field -->
         <div class="text-field-with-title">
           <label for="end_date" class="field-label">END DATE</label>
-          <input type="date" id="end_date" v-model="formData.end_date" class="text-field" required />
+          <input type="date" id="end_date" v-model="formData.end_date" class="text-field" appearance = "none" required />
           <span class="mandatory">*</span>
         </div>
 
@@ -251,4 +251,10 @@ const getExperience = () => {
 
 <style>
 @import '@/assets/dark-mode.css';
+</style>
+
+<style scoped>
+:deep(.text-field::placeholder) {
+  color: gray;
+}
 </style>

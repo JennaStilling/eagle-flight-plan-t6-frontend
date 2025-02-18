@@ -9,6 +9,11 @@
     <h3>{{ resume.name }}</h3>
 
     <!-- Hover overlay -->
+    <!-- <div class="hover-overlay" v-if="showActions">
+      <v-btn @click="handleEdit" icon="mdi-edit"></v-btn>
+      <v-btn @click="handleDelete" icon="mdi-delete"></v-btn>
+    </div> -->
+    
     <div class="hover-overlay" v-if="showActions">
       <v-btn icon color="primary" @click="handleEdit">
         <Icon icon="material-symbols:edit-outline" width="24" height="24"/>
@@ -37,16 +42,12 @@
 
         <br />
         <div class="modal-body">
-          <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
-            CANCEL
-          </button>
-          <button v-if="!deleteError" class="error modal-button" @click="deleteResume()">
-            DELETE
-          </button>
-          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+          <v-btn v-if="!deleteError" @click="displayDelete = false" color="#708E9A">Close</v-btn>
+          <v-btn v-if="!deleteError" @click="deleteResume()" color="#F04E3E" class="me-2">Delete</v-btn>
+          <v-btn v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
             class="modal-button">
             Close
-          </button>
+          </v-btn>
         </div>
       </div>
     </div>
@@ -116,6 +117,7 @@ const handleMouseleave = () => {
 
 const handleClick = () => {
   console.log(`Clicked on resume ${props.resume.name}`);
+  //emit('edit', props.resume.id);
 };
 
 const handleEdit = () => {

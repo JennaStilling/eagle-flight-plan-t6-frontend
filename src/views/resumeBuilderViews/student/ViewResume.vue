@@ -212,10 +212,8 @@ import resumeProjectServices from '@/services/resumeBuilderServices/resumeProjec
 
 // Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
-// import aiIcon from '@/assets/build-icons/ai-review.png';
-// import pasteIcon from '@/assets/build-icons/paste.png';
-
 import { Icon } from '@iconify/vue';
+
 
 import { loadTemplateOne } from '@/services/resumeBuilderServices/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/resumeBuilderServices/templates/templateTwo.js';
@@ -864,14 +862,15 @@ export default {
 @import '@/assets/view-resume.css';
 
 .edit-bar {
-  background-color: #084565;
-  display: flex;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  max-width: 100%;
-  margin-left: 70px;
-}
+
+    background-color: #5D6D73;
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    max-width: 100%;
+    margin-left: 70px;
+  }
 
 .tab {
   flex: 1;
@@ -917,8 +916,8 @@ export default {
 }
 
 .ai-review-button {
-  background: linear-gradient(180deg, #5AC8FA 0%, #337C99 100%);
-  color: #021E2C;
+  background: #118ACB;
+  color: #f3f3f3; 
   border: none;
   padding: 15px 20px;
   border-radius: 9px;
@@ -935,7 +934,7 @@ export default {
 }
 
 .ai-review-button:hover {
-  background: linear-gradient(180deg, #4BB5D7 0%, #2F6D81 100%);
+  background: rgba(17, 138, 203, 0.5);
   transform: scale(1.05);
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
@@ -1007,7 +1006,14 @@ export default {
 
 .text-field {
   width: 100%;
-  padding-right: 40px;
+  padding-right: 40px; 
+  color: #000000;
+}
+
+.text-field-ai {
+  width: 100%;
+  padding-right: 40px; 
+  color: #000000;
 }
 
 .paste-icon {
@@ -1084,7 +1090,13 @@ export default {
   align-self: flex-end;
   padding: 5px;
   border-radius: 10px;
-  background-color: green;
+  background-color: #118ACB;
   color: white;
+}
+</style>
+
+<style scoped>
+:deep(.text-field::placeholder) {
+  color: gray;
 }
 </style>

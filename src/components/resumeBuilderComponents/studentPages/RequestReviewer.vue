@@ -291,7 +291,7 @@ const deleteResumeReview = (id) => {
 .submit-button {
     padding-top: 10px;
     padding-bottom: 10px;
-    background: green;
+    background: #118ACB;
     color: white;
     text-align: center;
     font: bold;
