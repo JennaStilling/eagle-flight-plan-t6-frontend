@@ -273,8 +273,8 @@
     background-color: #e74c3c;
 }
 
-.add-button-green {
-    background-color: #4CAF50; 
+.add-button {
+    background-color: #118ACB; 
     border: none;
     color: white;
     padding: 1px 1px;
@@ -288,6 +288,6 @@
     border-radius: 4px;
   }
   
-  .add-button-green:hover {
-    background-color: #45a049;
+  .add-button:hover {
+    background-color: rgba(17, 138, 203, 0.5);
   }

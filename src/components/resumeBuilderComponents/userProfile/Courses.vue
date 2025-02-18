@@ -38,7 +38,7 @@
                 </div>
               </li>
               <div v-if="courses.length > 0">
-                <button @click="addCourse" class="add-button-green">+</button>
+                <button @click="addCourse" class="add-button">+</button>
               </div>
             </ul>
           </div>
