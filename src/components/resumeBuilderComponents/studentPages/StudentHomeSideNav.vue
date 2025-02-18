@@ -25,8 +25,9 @@
 
   const navItems = [
     { name: 'Start a New Resume' },
-    { name: 'My Home' },
+    //{ name: 'My Home' },
     { name: 'Request Resume Review' },
+    { name: 'Update Profile'},
   ]
 
   const selectItem = (item) => {
@@ -38,6 +39,8 @@
       // This needs to be changed for taking into account Student Roles and going to StudentHome
     } else if (item.name === 'Request Resume Review') {
       emit("request");
+    } else if (item.name === 'Update Profile') {
+      router.push({ name: 'contactInfo' });
     }
   }
 </script>
