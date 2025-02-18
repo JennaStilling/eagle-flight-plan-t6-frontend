@@ -4,7 +4,7 @@
       <router-link :to="{ name: 'home' }">
         <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
       </router-link>
-      <div class="title">OC Resume Builder</div>
+      <div class="title prevent-select">OC Resume Builder</div>
     </div>
 
     <div class="user-menu">
@@ -225,5 +225,11 @@ const toggleProfileMenu = () => {
 
 .white-icon {
   color: white; 
+}
+
+.prevent-select {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 </style>
