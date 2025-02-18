@@ -2,12 +2,12 @@ import apiClient from "../services.js";
 
 export default {
   loginUser(user) {
-    return apiClient.post("login", user);
+    return apiClient.post("resume-t6/login", user);
   },
   authorizeUser(code) {
-    return apiClient.post("authorize", code);
+    return apiClient.post("resume-t6/authorize", code);
   },
   logoutUser(token) {
-    return apiClient.post("logout", token);
+    return apiClient.post("resume-t6/logout", token);
   },
 };

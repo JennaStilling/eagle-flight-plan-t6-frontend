@@ -2,21 +2,21 @@ import apiClient from "../services.js";
 
 export default {
     createReviewer(data) {
-      return apiClient.post(`reviewerRole/`, data);
+      return apiClient.post(`resume-t6/reviewerRole/`, data);
     },
     getAllReviewers() {
-      return apiClient.get(`reviewerRole/`);
+      return apiClient.get(`resume-t6/reviewerRole/`);
     },
     getReviewer(id) {
-      return apiClient.get(`reviewerRole/${id}`);
+      return apiClient.get(`resume-t6/reviewerRole/${id}`);
     },
     updateReviewer(id, data) {
-      return apiClient.put(`reviewerRole/${id}`, data);
+      return apiClient.put(`resume-t6/reviewerRole/${id}`, data);
     },
     deleteReviewer(id) {
-      return apiClient.delete(`reviewerRole/${id}`);
+      return apiClient.delete(`resume-t6/reviewerRole/${id}`);
     },
     deleteAllReviewers() {
-      return apiClient.delete(`reviewerRole/`);
+      return apiClient.delete(`resume-t6/reviewerRole/`);
     },
 };

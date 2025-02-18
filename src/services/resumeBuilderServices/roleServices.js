@@ -2,21 +2,21 @@ import apiClient from "../services.js";
 
 export default {
     createRole(data) {
-      return apiClient.post(`role/`, data);
+      return apiClient.post(`resume-t6/role/`, data);
     },
     getAllRoles() {
-      return apiClient.get(`role/`);
+      return apiClient.get(`resume-t6/role/`);
     },
     getRole(id) {
-      return apiClient.get(`role/${id}`);
+      return apiClient.get(`resume-t6/role/${id}`);
     },
     updateRole(id, data) {
-      return apiClient.put(`role/${id}`, data);
+      return apiClient.put(`resume-t6/role/${id}`, data);
     },
     deleteRole(id) {
-      return apiClient.delete(`role/${id}`);
+      return apiClient.delete(`resume-t6/role/${id}`);
     },
     deleteAllRoles() {
-      return apiClient.delete(`role/`);
+      return apiClient.delete(`resume-t6/role/`);
     },
 };
