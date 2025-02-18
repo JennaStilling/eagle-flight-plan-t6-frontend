@@ -5,61 +5,33 @@
       <!-- Title Section -->
       <div class="title-section">
         <label for="resumeTitle" class="title-label">Title:</label>
-        <input
-          v-model="resumeTitle"
-          id="resumeTitle"
-          class="title-input"
-          placeholder="Resume Name"
-        />
+        <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="My Resume" />
         <button @click="saveResume">
-          <Icon 
-          :icon= saveIcon
-          :alt="save" 
-          :class="save-button"
-          :width="24" 
-          :height="24"/>
+          <Icon :icon=saveIcon :alt="save" :class="save - button" :width="24" :height="24" />
         </button>
         <button @click="downloadPDF">
-          <Icon 
-          :icon= downloadIcon
-          :alt="download"
-          :width="24" 
-          :height="24"/>
+          <Icon :icon=downloadIcon :alt="download" :width="24" :height="24" />
         </button>
       </div>
 
       <!-- Dropdown Sections -->
 
-        <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
-  <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
-    <Icon
-      class="section-icon"
-      :icon="getSectionIcon(sectionKey)"
-      :alt="`${section.label} Icon`"
-                :width="24" 
-          :height="24"
-    />
-    <span style="text-transform: capitalize;">{{ sectionKey }}</span>
-    <Icon
-      class="arrow-icon"
-      :icon="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
-      :alt="arrow"
-                :width="24" 
-          :height="24"
-    />
-  </div>
+      <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
+        <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
+          <Icon class="section-icon" :icon="getSectionIcon(sectionKey)" :alt="`${section.label} Icon`" :width="24"
+            :height="24" />
+          <span style="text-transform: capitalize;">{{ sectionKey }}</span>
+          <Icon class="arrow-icon" :icon="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon" :alt="arrow"
+            :width="24" :height="24" />
+        </div>
 
 
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
           <!-- Education Section -->
           <div v-if="sectionKey === 'education'">
             <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
-              <div
-                v-for="(item, index) in dropdownSections[sectionKey].items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(item)"
-              >
+              <div v-for="(item, index) in dropdownSections[sectionKey].items" :key="index" class="student-contact-info"
+                @click="toggleCheckbox(item)">
                 <div class="student-contact-info-inner">
                   <div class="group-child" :class="{ 'selected': item.isSelected }">
                     <p>{{ item.degree ? `${item.degree}, ${item.institution}` : item.institution }}</p>
@@ -74,53 +46,43 @@
             <p v-else>No education data available.</p>
           </div>
 
-        <!-- Courses Section -->
-        <div v-if="sectionKey === 'courses'">
-          <div v-if="dropdownSections.education.items.length" class="section-list">
-            <!-- Courses Dropdown -->
-            <div
-              v-for="(education, index) in dropdownSections.education.items"
-              :key="index"
-              class="courses-dropdown"
-            >
-              <!-- Courses Dropdown Header -->
-              <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
-                <p>{{ education.degree ? `${education.degree}, ${education.institution}` : education.institution }}</p>
-                <img
-                  class="arrow-icon"
-                  :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
-                  alt="arrow"
-                />
-              </div>
-
-              <!-- Courses Dropdown Content -->
-              <div v-if="isCourseDropdownOpen[index]" class="courses-dropdown-content">
-                <div v-if="education.courses.length">
-                  <ul>
-                    <li v-for="(course, courseIndex) in education.courses" :key="courseIndex" class="course-item">
-                    <label class="custom-checkbox">
-                      <input type="checkbox" v-model="course.isSelected" @click="toggleCourseCheckbox(course)" />
-                       {{ course.name }} &nbsp;
-                       <span class="checkmark"></span>
-                    </label>
-                    </li>
-                  </ul>
+          <!-- Courses Section -->
+          <div v-if="sectionKey === 'courses'">
+            <div v-if="dropdownSections.education.items.length" class="section-list">
+              <!-- Courses Dropdown -->
+              <div v-for="(education, index) in dropdownSections.education.items" :key="index" class="courses-dropdown">
+                <!-- Courses Dropdown Header -->
+                <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
+                  <p>{{ education.degree ? `${education.degree}, ${education.institution}` : education.institution }}
+                  </p>
+                  <img class="arrow-icon" :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
+                    alt="arrow" />
                 </div>
-                <p v-else>No courses available.</p>
+
+                <!-- Courses Dropdown Content -->
+                <div v-if="isCourseDropdownOpen[index]" class="courses-dropdown-content">
+                  <div v-if="education.courses.length">
+                    <ul>
+                      <li v-for="(course, courseIndex) in education.courses" :key="courseIndex" class="course-item">
+                        <label class="custom-checkbox">
+                          <input type="checkbox" v-model="course.isSelected" @click="toggleCourseCheckbox(course)" />
+                          {{ course.name }} &nbsp;
+                          <span class="checkmark"></span>
+                        </label>
+                      </li>
+                    </ul>
+                  </div>
+                  <p v-else>No courses available.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>  
 
           <!-- Other Sections -->
           <div v-if="sectionKey !== 'education' && sectionKey !== 'courses'">
             <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
-              <div
-                v-for="(item, index) in dropdownSections[sectionKey].items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(item)"
-              >
+              <div v-for="(item, index) in dropdownSections[sectionKey].items" :key="index" class="student-contact-info"
+                @click="toggleCheckbox(item)">
                 <div class="student-contact-info-inner">
                   <div class="group-child" :class="{ 'selected': item.isSelected }">
                     <p v-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
@@ -145,12 +107,9 @@
       <div class="pdf-preview" v-if="activeTab === 'preview'">
         <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
       </div>
-      <div v-if="activeTab === 'template'">      
+      <div v-if="activeTab === 'template'">
         <div class="template-list" width="100%" height="100%">
-          <div 
-            v-for="(template, index) in templates" 
-            :key="index" 
-            class="template-item" 
+          <div v-for="(template, index) in templates" :key="index" class="template-item"
             :class="{ active: template.name === selectedTemplate }">
             <p class="template-name">{{ template.name }}</p>
             <button @click="previewTemplate(template)" class="preview-button">Preview</button>
@@ -168,7 +127,7 @@ import experienceServices from '@/services/resumeBuilderServices/experienceServi
 import certificationServices from '@/services/resumeBuilderServices/certificationServices.js';
 import skillServices from '@/services/resumeBuilderServices/skillServices.js';
 import projectServices from '@/services/resumeBuilderServices/projectServices.js';
-import courseServices from '@/services/resumeBuilderServices/courseServices.js'; 
+import courseServices from '@/services/resumeBuilderServices/courseServices.js';
 import Utils from '@/config/utils';
 import html2pdf from 'html2pdf.js';
 import PreviewBar from '@/components/resumeBuilderComponents/studentPages/PreviewBar.vue';
@@ -221,7 +180,7 @@ export default {
       certifications: false,
       skills: false,
       projects: false,
-      courses: false, 
+      courses: false,
     });
     const isCourseDropdownOpen = ref({});
     const isNestedDropdownOpen = ref({});
@@ -246,9 +205,9 @@ export default {
     const downloadIcon = "material-symbols:download-rounded";
     const saveIcon = "material-symbols:save";
 
-const getSectionIcon = (sectionKey) => {
-  return sectionIcons[sectionKey] || 'default-icon';
-};
+    const getSectionIcon = (sectionKey) => {
+      return sectionIcons[sectionKey] || 'default-icon';
+    };
 
 
 
@@ -271,7 +230,7 @@ const getSectionIcon = (sectionKey) => {
     const previewTemplate = (template) => {
       selectTemplate(template);
       changeTemplateType(template.type);
-      handleTabChange('preview');      
+      handleTabChange('preview');
     };
 
     onMounted(() => {
@@ -332,43 +291,43 @@ const getSectionIcon = (sectionKey) => {
       const user = Utils.getStore('user');
       const sections = dropdownSections.value;
 
-      sections.courses.items = dropdownSections.value.education.items.flatMap(education => 
+      sections.courses.items = dropdownSections.value.education.items.flatMap(education =>
         education.courses.filter(course => course.isSelected)
       );
 
       console.log('Selected Courses:', sections.courses.items);
 
       switch (resume.value.template_type) {
-      case 1:
-        return loadTemplateOne(user, sections);
-      case 2:
-        return loadTemplateTwo(user, sections);
-      case 3:
-        return loadTemplateThree(user, sections);
-      case 4:
-        return loadTemplateFour(user, sections);
-      case 5:
-        return loadTemplateFive(user, sections);
-      case 6:
-        return loadTemplateSix(user, sections);
-      case 7:
-        return loadTemplateSeven(user, sections);
-      default:
-        return loadTemplateOne(user, sections);
+        case 1:
+          return loadTemplateOne(user, sections);
+        case 2:
+          return loadTemplateTwo(user, sections);
+        case 3:
+          return loadTemplateThree(user, sections);
+        case 4:
+          return loadTemplateFour(user, sections);
+        case 5:
+          return loadTemplateFive(user, sections);
+        case 6:
+          return loadTemplateSix(user, sections);
+        case 7:
+          return loadTemplateSeven(user, sections);
+        default:
+          return loadTemplateOne(user, sections);
       }
     };
 
     const loadData = (service, sectionKey) => {
       service(studentId.value)
-      .then(response => {
-        dropdownSections.value[sectionKey].items = response.data.map(item => ({
-        ...item,
-        isSelected: false
-        }));
-      })
-      .catch(error => {
-        console.error(`Failed to fetch ${sectionKey} data:`, error);
-      });
+        .then(response => {
+          dropdownSections.value[sectionKey].items = response.data.map(item => ({
+            ...item,
+            isSelected: false
+          }));
+        })
+        .catch(error => {
+          console.error(`Failed to fetch ${sectionKey} data:`, error);
+        });
     };
 
     const loadEducationData = () => {
@@ -431,7 +390,7 @@ const getSectionIcon = (sectionKey) => {
 
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
-      updatePDFPreview(); 
+      updatePDFPreview();
     };
 
     const saveAsPNG = (resumeIdHere) => {
@@ -510,29 +469,30 @@ const getSectionIcon = (sectionKey) => {
     };
 
     function saveResume() {
-    // Save the resume data
-    resume.value.name = resumeTitle;
+      // Save the resume data
+      console.log("Title value:" + resumeTitle.value)
+      resume.value.name = resumeTitle.value || "My Resume";
 
-    resumeServices.createResume(studentId.value, resume.value)
-      .then((res) => {
-        resumeId.value = res.data.id;
-        const resumeIdHere = res.data.id;
-        addResumeInfo();
+      resumeServices.createResume(studentId.value, resume.value)
+        .then((res) => {
+          resumeId.value = res.data.id;
+          const resumeIdHere = res.data.id;
+          addResumeInfo();
 
-        saveAsPNG(resumeIdHere).then(() => {
-          console.log("Resume saved successfully", resumeIdHere);
-          router.push({ name: "studentHome" }); // Navigate back home
+          saveAsPNG(resumeIdHere).then(() => {
+            console.log("Resume saved successfully", resumeIdHere);
+            router.push({ name: "studentHome" }); // Navigate back home
+          });
+
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 406) {
+            console.log("Error: " + error.code + ":" + error.message);
+          } else {
+            console.log(error);
+          }
         });
-
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 406) {
-          console.log("Error: " + error.code + ":" + error.message);
-        } else {
-          console.log(error);
-        }
-      });
-  }
+    }
 
 
     function addResumeInfo() {
@@ -594,7 +554,7 @@ const getSectionIcon = (sectionKey) => {
       });
 
       selectedCourses.forEach(course => {
-      resumeCourseServices.createResumeCourse(resumeId.value, course.educationId, course.id, {})
+        resumeCourseServices.createResumeCourse(resumeId.value, course.educationId, course.id, {})
           .then(() => {
             console.log("Course added to resume successfully");
           })
@@ -720,12 +680,12 @@ const getSectionIcon = (sectionKey) => {
 <style scoped>
 .transparent-btn {
   background-color: transparent !important;
-  box-shadow: none; 
-  min-width: unset; 
+  box-shadow: none;
+  min-width: unset;
 }
 
 .white-icon {
-  color: white; 
+  color: white;
 }
 
 .icon {
