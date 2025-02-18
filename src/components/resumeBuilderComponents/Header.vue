@@ -10,9 +10,10 @@
     <div class="user-menu">
       <!-- Home Menu -->
       <v-btn icon class="transparent-btn" @click="toggleHomeMenu" @keydown.enter="toggleHomeMenu"
-    role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen">
-    <Icon icon="material-symbols:home-outline-rounded" width="39" height="39" class="white-icon" />
-  </v-btn>
+        role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen">
+        <Icon icon="material-symbols:home-outline-rounded" width="39" height="39" class="white-icon" />
+      </v-btn>
+
       <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
           <li v-if="adminId != null" @click="updateHomePage('Admin')">Admin Home</li>
@@ -62,7 +63,8 @@ const currentRouteName = computed(() => route.name);
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
   if (!event.target.closest(".user-menu")) {
-    menuOpen.value = false;
+    homeMenuOpen.value = false;
+    profileMenuOpen.value = false;
   }
 };
 
