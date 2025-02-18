@@ -39,7 +39,7 @@
       <div class="form">
         <!-- Skill name input field -->
         <div class="text-field-with-title">
-          <label for="skillName" class="field-label">SKILL NAME</label>
+          <label for="skillName" class="field-label">SKILL NAME <span class="mandatory">*</span></label>
           <input
             type="text"
             id="skillName"
@@ -48,7 +48,6 @@
             placeholder="Enter skill name"
             required
           />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Skill description input field -->

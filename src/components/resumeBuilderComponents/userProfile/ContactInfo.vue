@@ -3,7 +3,7 @@
     <div class="form">
       <!-- First Name Field -->
       <div class="text-field-with-title">
-        <label for="firstName" class="field-label">FIRST NAME</label>
+        <label for="firstName" class="field-label">FIRST NAME <span class="mandatory">*</span></label>
         <input
           type="text"
           id="firstName"
@@ -12,12 +12,11 @@
           placeholder="Enter your first name"
           required
         />
-        <span class="mandatory">*</span>
       </div>
 
       <!-- Last Name Field -->
       <div class="text-field-with-title">
-        <label for="lastName" class="field-label">LAST NAME</label>
+        <label for="lastName" class="field-label">LAST NAME <span class="mandatory">*</span></label>
         <input
           type="text"
           id="lastName"
@@ -26,19 +25,12 @@
           placeholder="Enter your last name"
           required
         />
-        <span class="mandatory">*</span>
       </div>
 
       <!-- Email Field -->
       <div class="text-field-with-title">
         <label for="email" class="field-label">EMAIL</label>
-        <input
-          type="email"
-          id="email"
-          v-model="formData.email"
-          class="text-field"
-          placeholder="Enter your email address"
-        />
+        <p class="text-field"> {{  formData.email  }}</p>
       </div>
 
       <!-- Save Changes Button -->

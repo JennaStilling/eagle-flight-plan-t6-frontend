@@ -31,32 +31,28 @@
       <div class="form">
         <!-- Experience role input field -->
         <div class="text-field-with-title">
-          <label for="experienceName" class="field-label">ROLE</label>
+          <label for="experienceName" class="field-label">ROLE <span class="mandatory">*</span></label>
           <input type="text" id="experienceName" v-model="formData.role" class="text-field" placeholder="Enter role"
             required />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Experience company input field -->
         <div class="text-field-with-title">
-          <label for="experienceCompany" class="field-label">COMPANY</label>
+          <label for="experienceCompany" class="field-label">COMPANY <span class="mandatory">*</span></label>
           <input type="text" id="experienceCompany" v-model="formData.company" class="text-field"
             placeholder="Enter company" required />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Start date input field -->
         <div class="text-field-with-title">
-          <label for="start_date" class="field-label">START DATE</label>
+          <label for="start_date" class="field-label">START DATE <span class="mandatory">*</span></label>
           <input type="date" id="start_date" v-model="formData.start_date" class="text-field" required />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- End date input field -->
         <div class="text-field-with-title">
-          <label for="end_date" class="field-label">END DATE</label>
+          <label for="end_date" class="field-label">END DATE <span class="mandatory">*</span></label>
           <input type="date" id="end_date" v-model="formData.end_date" class="text-field" appearance = "none" required />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Experience description input field -->

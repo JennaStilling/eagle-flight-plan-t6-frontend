@@ -37,7 +37,7 @@
       <div class="form">
         <!-- Degree input field -->
         <div class="text-field-with-title">
-          <label for="degree" class="field-label">DEGREE</label>
+          <label for="degree" class="field-label">DEGREE <span class="mandatory">*</span></label>
           <input
             type="text"
             id="degree"
@@ -46,11 +46,10 @@
             placeholder="Enter your degree"
             required
           />
-          <span class="mandatory">*</span>
         </div>
         <!-- Institution input field -->
         <div class="text-field-with-title">
-          <label for="institution" class="field-label">INSTITUTION</label>
+          <label for="institution" class="field-label">INSTITUTION <span class="mandatory">*</span></label>
           <input
             type="text"
             id="institution"
@@ -59,11 +58,10 @@
             placeholder="Enter the institution name"
             required
           />
-          <span class="mandatory">*</span>
         </div>
         <!-- GPA input field -->
         <div class="text-field-with-title">
-          <label for="gpa" class="field-label">GPA</label>
+          <label for="gpa" class="field-label">GPA <span class="mandatory">*</span></label>
           <input
             type="number"
             id="gpa"
@@ -73,11 +71,10 @@
             step="0.01"
             required
           />
-          <span class="mandatory">*</span>
         </div>
         <!-- Graduation date input field -->
         <div class="text-field-with-title">
-          <label for="graduation" class="field-label">GRADUATION</label>
+          <label for="graduation" class="field-label">GRADUATION DATE <span class="mandatory">*</span></label>
           <input
             type="date"
             id="graduation"
@@ -85,7 +82,6 @@
             class="text-field"
             required
           />
-          <span class="mandatory">*</span>
         </div>
         <!-- Save/Add button -->
         <div class="save-button" @click="saveChanges">

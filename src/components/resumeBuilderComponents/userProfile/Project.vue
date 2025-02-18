@@ -35,10 +35,9 @@
       <div class="form">
         <!-- Project name input field -->
         <div class="text-field-with-title">
-          <label for="projectName" class="field-label">PROJECT NAME</label>
+          <label for="projectName" class="field-label">PROJECT NAME <span class="mandatory">*</span></label>
           <input type="text" id="projectName" v-model="formData.name" class="text-field"
             placeholder="Enter project name" required />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Project description input field -->

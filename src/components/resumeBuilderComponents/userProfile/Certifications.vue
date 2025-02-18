@@ -39,7 +39,7 @@
       <div class="form">
         <!-- Certification name input field -->
         <div class="text-field-with-title">
-          <label for="name" class="field-label">CERTIFICATION NAME</label>
+          <label for="name" class="field-label">CERTIFICATION NAME <span class="mandatory">*</span></label>
           <input
             type="text"
             id="name"
@@ -48,12 +48,11 @@
             placeholder="Enter certification name"
             required
           />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Company input field -->
         <div class="text-field-with-title">
-          <label for="company" class="field-label">COMPANY</label>
+          <label for="company" class="field-label">COMPANY <span class="mandatory">*</span></label>
           <input
             type="text"
             id="company"
@@ -62,12 +61,11 @@
             placeholder="Enter company"
             required
           />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Date acquired input field -->
         <div class="text-field-with-title">
-          <label for="date_acquired" class="field-label">DATE ACQUIRED</label>
+          <label for="date_acquired" class="field-label">DATE ACQUIRED <span class="mandatory">*</span></label>
           <input
             type="date"
             id="date_acquired"
@@ -75,7 +73,6 @@
             class="text-field"
             required
           />
-          <span class="mandatory">*</span>
         </div>
 
         <!-- Save changes button -->
