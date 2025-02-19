@@ -2,24 +2,24 @@ import apiClient from "../services.js";
 
 export default {
     createResumeReview(studentId, data) {
-        return apiClient.post(`student/${studentId}/resumeReview/`, data);
+        return apiClient.post(`resume-t6/student/${studentId}/resumeReview/`, data);
     },
     getAllResumeReviews(studentId) {
-        return apiClient.get(`student/${studentId}/resumeReview/`);
+        return apiClient.get(`resume-t6/student/${studentId}/resumeReview/`);
     },
     getResumeReview(studentId, id) {
-        return apiClient.get(`student/${studentId}/resumeReview/${id}`);
+        return apiClient.get(`resume-t6/student/${studentId}/resumeReview/${id}`);
     },
     getResumeReviewById(id) {
-        return apiClient.get(`resumeReview/${id}`);
+        return apiClient.get(`resume-t6/resumeReview/${id}`);
     },
     updateResumeReview(studentId, id, data) {
-        return apiClient.put(`student/${studentId}/resumeReview/${id}`, data);
+        return apiClient.put(`resume-t6/student/${studentId}/resumeReview/${id}`, data);
     },
     deleteResumeReview(studentId, id) {
-        return apiClient.delete(`student/${studentId}/resumeReview/${id}`);
+        return apiClient.delete(`resume-t6/student/${studentId}/resumeReview/${id}`);
     },
     deleteAllResumeReviews(studentId) {
-        return apiClient.delete(`student/${studentId}/resumeReview/`);
+        return apiClient.delete(`resume-t6/student/${studentId}/resumeReview/`);
     }
 };
