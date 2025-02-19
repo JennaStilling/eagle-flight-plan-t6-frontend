@@ -52,7 +52,7 @@
         <!-- End date input field -->
         <div class="text-field-with-title">
           <label for="end_date" class="field-label">END DATE <span class="mandatory">*</span></label>
-          <input type="date" id="end_date" v-model="formData.end_date" class="text-field" appearance = "none" required />
+          <input type="date" id="end_date" v-model="formData.end_date" class="text-field" appearance="none" required />
         </div>
 
         <!-- Experience description input field -->
@@ -63,20 +63,27 @@
         </div>
 
         <div class="form-buttons">
-        <!-- Save changes button -->
-        <div class="save-button" @click="saveChanges">
-          <div class="save-button-child"></div>
-          <b class="save-changes">{{ buttonLabel }}</b>
-        </div>
-        <br><br><br>
-        <!-- Navigation buttons -->
-        <div class="navigation-buttons">
-          <button class="nav-button" @click="goBack">BACK</button>
-          <button class="nav-button" @click="goNext">NEXT</button>
-        </div>
-      </div>
-      </div>
+          <!-- Delete changes button -->
+          <div v-if="editEntryVal && currentExperience" class="delete-button" @click="showDeleteConfirmation(formData)">
+            <div class="delete-button-child"></div>
+            <b class="delete-changes">DELETE</b>
+          </div>
 
+          <div v-else>
+          </div>
+          <!-- Save changes button -->
+          <div class="save-button" @click="saveChanges">
+            <div class="save-button-child"></div>
+            <b class="save-changes">{{ buttonLabel }}</b>
+          </div>
+          <br><br><br>
+          <!-- Navigation buttons -->
+          <div class="navigation-buttons">
+            <button class="nav-button" @click="goBack">BACK</button>
+            <button class="nav-button" @click="goNext">NEXT</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Hidden Delete Confirmation Pop-up -->
@@ -88,11 +95,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ experienceToDelete.name }}?
+            {{ experienceToDelete.role }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ experienceToDelete.name }}.
+            {{ experienceToDelete.role }}.
           </p>
         </div>
 
@@ -128,6 +135,7 @@ const studentId = ref();
 const experiences = ref(null);
 
 const errors = ref({});
+const editEntryVal = ref(false);
 
 onMounted(() => {
   Utils.getUser(user).then(value => {
@@ -144,6 +152,16 @@ const formData = ref({
   end_date: '',
   job_description: ''
 })
+
+function clearFormData() {
+  formData.value = {
+    role: '',
+    company: '',
+    start_date: '',
+    end_date: '',
+    job_description: ''
+  };
+}
 
 const currentExperience = ref(null);
 const displayDelete = ref(false);
@@ -162,6 +180,7 @@ function toggleDropdown() {
 
 function editEntry(item) {
   router.push({ path: `/resumeBuilder/experience/edit/` });
+  editEntryVal.value = true;
   currentExperience.value = item.id;
   formData.value.role = item.role;
   formData.value.company = item.company;
@@ -171,8 +190,19 @@ function editEntry(item) {
 }
 
 function showDeleteConfirmation(item) {
-  experienceToDelete.value = item;
-  displayDelete.value = true;
+  console.log("Id" + item.id)
+  if (item != undefined && item.id != undefined) {
+    experienceToDelete.value = item;
+    console.log(experienceToDelete.value)
+  } else if (currentExperience.value) {
+    experienceToDelete.value = experiences.value.find(exp => exp.id === currentExperience.value) || null;
+    console.log("ran this")
+    console.log(experienceToDelete.value)
+  }
+
+  if (experienceToDelete.value) {
+    displayDelete.value = true;
+  }
 }
 
 function deleteExperience() {
@@ -180,6 +210,7 @@ function deleteExperience() {
     .then(() => {
       displayDelete.value = false;
       deleteError.value = false;
+      clearFormData();
       getExperience();
     })
     .catch((error) => {
@@ -196,21 +227,21 @@ function saveChanges() {
       })
       .catch((error) => {
         if (error.response != null && error.response.status == "406") {
-        for(let obj in errors.value) {
-          errors.value[obj] = '*'
-        }
-        for (let obj of error.response.data) {
-          if (obj.attributeName === undefined) {
-            obj.attributeName = "idNumber";
+          for (let obj in errors.value) {
+            errors.value[obj] = '*'
           }
-          errors.value[obj.attributeName] = obj.message;
+          for (let obj of error.response.data) {
+            if (obj.attributeName === undefined) {
+              obj.attributeName = "idNumber";
+            }
+            errors.value[obj.attributeName] = obj.message;
+          }
+        } else {
+          console.log(error);
+          console.log(error);
         }
-      } else {
-        console.log(error);
-        console.log(error);
-      }
       });
-      router.push('/resumeBuilder/experience');
+    router.push('/resumeBuilder/experience');
   } else {
     experienceServices.createExperience(studentId.value, formData.value)
       .then(() => {
@@ -241,6 +272,7 @@ const getExperience = () => {
   experienceServices.getAllExperiences(studentId.value)
     .then((res) => {
       experiences.value = res.data;
+      editEntryVal.value = false;
     })
     .catch((err) => {
       console.log(err);
@@ -252,7 +284,7 @@ const getExperience = () => {
 @import '@/assets/dark-mode.css';
 
 .title-color {
-  color:black;
+  color: black;
 }
 </style>
 

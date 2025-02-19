@@ -51,7 +51,15 @@
       </div>
 
       <div class="form-buttons">
-        <!-- Save changes button -->
+        <!-- Delete changes button -->
+        <div v-if="editEntryVal && currentCertification" class="delete-button"
+          @click="showDeleteConfirmation(formData)">
+          <div class="delete-button-child"></div>
+          <b class="delete-changes">DELETE</b>
+        </div>
+        <div v-else>
+        </div>
+
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
           <b class="save-changes">{{ buttonLabel }}</b>
@@ -114,6 +122,7 @@ const studentId = ref();
 const certifications = ref(null);
 
 const errors = ref({});
+const editEntryVal = ref(false);
 
 onMounted(() => {
   Utils.getUser(user).then(value => {
@@ -128,6 +137,14 @@ const formData = ref({
   company: '',
   date_acquired: '',
 });
+
+function clearFormData() {
+  formData.value = {
+    name: '',
+    company: '',
+    date_acquired: '',
+  };
+}
 
 const currentCertification = ref(null);
 const displayDelete = ref(false);
@@ -146,6 +163,7 @@ function toggleDropdown() {
 
 function editEntry(item) {
   router.push({ path: `/resumeBuilder/certifications/edit/` });
+  editEntryVal.value = true;
   currentCertification.value = item.id;
   formData.value.name = item.name;
   formData.value.company = item.company;
@@ -153,8 +171,19 @@ function editEntry(item) {
 }
 
 function showDeleteConfirmation(item) {
-  certificationToDelete.value = item;
-  displayDelete.value = true;
+  console.log("Id" + item.id)
+  if (item != undefined && item.id != undefined) {
+    certificationToDelete.value = item;
+    console.log(certificationToDelete.value)
+  } else if (currentCertification.value) {
+    certificationToDelete.value = certifications.value.find(cert => cert.id === currentCertification.value) || null;
+    console.log("ran this")
+    console.log(certificationToDelete.value)
+  }
+
+  if (certificationToDelete.value) {
+    displayDelete.value = true;
+  }
 }
 
 function deleteCertification() {
@@ -162,6 +191,7 @@ function deleteCertification() {
     .then(() => {
       displayDelete.value = false;
       deleteError.value = false;
+      clearFormData();
       getCertification();
     })
     .catch((error) => {
@@ -224,6 +254,7 @@ const getCertification = () => {
   certificationServices.getAllCertifications(studentId.value)
     .then((res) => {
       certifications.value = res.data;
+      editEntryVal.value = false;
     })
     .catch((err) => {
       console.log(err);

@@ -48,6 +48,14 @@
         </div>
 
         <div class="form-buttons">
+          <!-- Delete changes button -->
+          <div v-if="editEntryVal && currentProject" class="delete-button" @click="showDeleteConfirmation(formData)">
+            <div class="delete-button-child"></div>
+            <b class="delete-changes">DELETE</b>
+          </div>
+
+          <div v-else>
+          </div>
         <!-- Save changes button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
@@ -112,6 +120,7 @@ const studentId = ref();
 const projects = ref(null);
 
 const errors = ref({});
+const editEntryVal = ref(false);
 
 onMounted(() => {
   Utils.getUser(user).then(value => {
@@ -125,6 +134,13 @@ const formData = ref({
   name: '',
   description: '',
 });
+
+function clearFormData() {
+  formData.value = {
+    name: '',
+    description: '',
+  };
+}
 
 const currentProject = ref(null);
 const displayDelete = ref(false);
@@ -143,14 +159,25 @@ function toggleDropdown() {
 
 function editEntry(item) {
   router.push({ path: `/resumeBuilder/project/edit/` });
+  editEntryVal.value = true;
   currentProject.value = item.id;
   formData.value.name = item.name;
   formData.value.description = item.description;
 }
 
 function showDeleteConfirmation(index) {
-  projectToDelete.value = index;
-  displayDelete.value = true;
+  console.log(index.id)
+  if (index != undefined && index.id != undefined) {
+    projectToDelete.value = index;
+    console.log(projectToDelete.value)
+  } else if (currentProject.value) {
+    projectToDelete.value = projects.value.find(project => project.id === currentProject.value) || null;
+    console.log("ran this")
+  }
+
+  if (projectToDelete.value) {
+    displayDelete.value = true;
+  }
 }
 
 function deleteProject() {
@@ -158,6 +185,7 @@ function deleteProject() {
     .then(() => {
       displayDelete.value = false;
       deleteError.value = false;
+      clearFormData();
       getProject();
     })
     .catch((error) => {
@@ -218,6 +246,7 @@ const getProject = () => {
       projectServices.getAllProjects(studentId.value)
         .then((res) => {
             projects.value = res.data;
+            editEntryVal.value = false;
         })
         .catch((err) => {
             console.log(err);

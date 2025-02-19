@@ -52,8 +52,9 @@
         <!-- Education label -->
         <div class="text-field-with-title">
           <label class="field-label">
-            {{ route.path.includes('/courses/select') ? 'SELECTED EDUCATION' : 'EDIT EDUCATION TO ADD COURSES' }} <br>
+            {{ route.path.includes('/courses/select') && currentEducation? 'SELECTED EDUCATION' : 'EDIT EDUCATION TO ADD COURSES' }} <br>
           </label>
+          <p class = "title-text" v-if = "route.path.includes('/courses/select') && currentEducation">{{ currentEducation.institution }}</p>
         </div>
 
         <!-- IF EDUCATION IS SELECTED SHOW THIS -->
@@ -73,6 +74,14 @@
           </div>
 
           <div class="form-buttons">
+           <!-- Delete changes button -->
+          <div v-if="editEntryVal && currentCourse" class="delete-button" @click="showDeleteConfirmation(formData)">
+            <div class="delete-button-child"></div>
+            <b class="delete-changes">DELETE</b>
+          </div>
+
+          <div v-else>
+          </div>
         <!-- Save changes button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
@@ -146,6 +155,7 @@ const educations = ref(null);
 const courses = ref([]);
 
 const errors = ref({});
+const editEntryVal = ref(false);
 
 onMounted(() => {
   Utils.getUser(user).then(value => {
@@ -168,7 +178,15 @@ const formData = ref({
   grade: ''
 });
 
+function clearFormData() {
+  formData.value = {
+    name: '',
+    grade: '',
+  };
+}
+
 const currentEducation = ref(null);
+const currentCourse = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const educationToDelete = ref(null);
@@ -198,6 +216,8 @@ function editEntry(item) {
 
 function editCourse(course) {
   router.push({ path: '/resumeBuilder/courses/select/edit', query: { id: course.id } });
+  editEntryVal.value = true;
+  currentCourse.value = course.id;
   formData.value.name = course.name;
   formData.value.grade = course.grade;
 }
@@ -217,8 +237,18 @@ function showDeleteCourseConfirmation(course) {
 
 
 function showDeleteConfirmation(item) {
-  educationToDelete.value = item;
-  displayDelete.value = true;
+  console.log(item.id)
+  if (item != undefined && item.id != undefined) {
+    courseToDelete.value = item;
+    console.log(courseToDelete.value)
+  } else if (currentCourse.value) {
+    courseToDelete.value = courses.value.find(course => course.id === currentCourse.value) || null;
+    console.log("ran this")
+  }
+
+  if (courseToDelete.value) {
+    displayDelete.value = true;
+  }
 }
 
 function deleteCourse() {
@@ -227,6 +257,7 @@ function deleteCourse() {
       .then(() => {
         displayDelete.value = false;
         deleteError.value = false;
+        clearFormData();
         getCourses(); // Refresh the courses list
       })
       .catch((error) => {
@@ -241,6 +272,7 @@ function deleteEducation() {
     .then(() => {
       displayDelete.value = false;
       deleteError.value = false;
+      clearFormData();
       getEducation();
     })
     .catch((error) => {
@@ -277,6 +309,7 @@ function getCourses() {
     courseServices.getAllCourses(studentId.value, currentEducation.value)
       .then((res) => {
         courses.value = res.data;
+        editEntryVal.value = false;
       })
       .catch((err) => {
         console.log(err);
@@ -297,6 +330,7 @@ const getEducation = () => {
   educationServices.getAllEducations(studentId.value)
     .then((res) => {
       educations.value = res.data;
+      editEntryVal.value = false;
     })
     .catch((err) => {
       console.log(err);
@@ -315,5 +349,13 @@ const getEducation = () => {
 <style scoped>
 :deep(.text-field::placeholder) {
   color: gray;
+}
+
+.title-text {
+  color: black;
+}
+
+.text-field-with-title .title-text {
+  color: black !important;
 }
 </style>
