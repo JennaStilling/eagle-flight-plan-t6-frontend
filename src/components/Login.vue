@@ -33,7 +33,7 @@
       const errorMessage = ref("");
   
       const handleLoginSuccess = () => {
-        router.push('/home');
+        router.push('/homeFP');
       };
   
       const handleLoginFailure = (message) => {

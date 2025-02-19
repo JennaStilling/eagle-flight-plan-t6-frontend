@@ -94,7 +94,7 @@ const getUserRoles = () => {
           adminId.value != null &&
           studentId.value == null)
       )
-        router.push({ name: "adminHome" });
+        router.push({ name: "adminHomeRB" });
       else if (
         reviewerId.value != null &&
         adminId.value == null &&

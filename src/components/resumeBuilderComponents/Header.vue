@@ -1,7 +1,7 @@
 <template>
   <header class="header" v-if="currentRouteName !== 'login'">
     <div class="logo-title">
-      <router-link :to="{ name: 'home' }">
+      <router-link :to="{ name: 'homeRB' }">
         <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
       </router-link>
       <div class="title prevent-select">OC Resume Builder</div>

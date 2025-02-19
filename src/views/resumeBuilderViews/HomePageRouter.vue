@@ -34,7 +34,7 @@ const HandleRoute = () => {
                 || (studentId != null && reviewerId != null && adminId != null)
                 || (studentId != null && adminId != null && reviewerId == null)
                 || (reviewerId != null && adminId != null && studentId == null))
-                router.push({ name: "adminHome" });
+                router.push({ name: "adminHomeRB" });
             else if (reviewerId != null && adminId == null && studentId == null
                 || (reviewerId != null && studentId != null && adminId == null)
             )
