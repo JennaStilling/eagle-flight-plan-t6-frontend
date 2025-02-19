@@ -7,10 +7,10 @@
         <label for="resumeTitle" class="title-label">Title:</label>
         <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="My Resume" />
         <button @click="saveResume">
-          <Icon :icon=saveIcon :alt="save" :class="save - button" :width="24" :height="24" />
+          <Icon :icon=saveIcon :width="48" :height="48" :alt="'save'" />
         </button>
         <button @click="downloadPDF">
-          <Icon :icon=downloadIcon :alt="download" :width="24" :height="24" />
+          <Icon :icon=downloadIcon :width="48" :height="48" :alt="'download'" />
         </button>
       </div>
 
@@ -18,11 +18,11 @@
 
       <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
         <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
-          <Icon class="section-icon" :icon="getSectionIcon(sectionKey)" :alt="`${section.label} Icon`" :width="24"
-            :height="24" />
+          <Icon class="section-icon" :icon="getSectionIcon(sectionKey)" :width="48"
+            :height="48" :alt="`${section.label} Icon`" />
           <span style="text-transform: capitalize;">{{ sectionKey }}</span>
-          <Icon class="arrow-icon" :icon="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon" :alt="arrow"
-            :width="24" :height="24" />
+          <Icon class="arrow-icon" :icon="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
+            :width="48" :height="48" :alt="'arrow'"/>
         </div>
 
 
@@ -55,8 +55,7 @@
                 <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
                   <p>{{ education.degree ? `${education.degree}, ${education.institution}` : education.institution }}
                   </p>
-                  <img class="arrow-icon" :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
-                    alt="arrow" />
+                  <Icon class="arrow-icon" :icon="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon" :width="48" :height="48"/>
                 </div>
 
                 <!-- Courses Dropdown Content -->
