@@ -23,7 +23,7 @@
     "html2pdf.js": "^0.10.2",
     "iconify": "^1.4.0",
     "mdi": "^2.2.43",
-    "pinia": "^2.2.4",
+    "pinia": "^2.3.1",
     "v-dropdown": "^3.0.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.5.12",

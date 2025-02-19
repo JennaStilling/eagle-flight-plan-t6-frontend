@@ -1,26 +1,30 @@
 <template>
   <div class="user-menu">
     <div :class="['sidebar', { collapsed: menuOpen }]">
-      <img :src="menuOpen ? menuIcon : closeIcon" 
-        alt="menu" class="toggle-btn" @click="toggleMenu"
-        @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
-        style="width: 39px; height: 39px;" />
-      
+      <img :src="menuOpen ? menuIcon : closeIcon" alt="menu" class="toggle-btn" @click="toggleMenu"
+        @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true"
+        :aria-expanded="homeMenuOpen" style="width: 39px; height: 39px;" />
+
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow" :class="['arrow-down', { 'arrow-up': roleDropdown }]"/>
+          <li @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow"
+              :class="['arrow-down', { 'arrow-up': roleDropdown }]" />
             <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-              <li>Students</li>
-              <li>Student Workers</li>
-              <li>Professors</li>
-              <li>Admins</li>
-            </div>
-          </li>
-          <li><router-link to="/resumeBuilder">Resume Builder</router-link></li>
-        </ul>
+          <li>Students</li>
+          <li>Student Workers</li>
+          <li>Professors</li>
+          <li>Admins</li>
       </div>
+      </li>
+      <li @click="handleRoute('resumeBuilder')">Resume Builder</li>
+      <li @click="handleRoute('studentHome')">Student Home Page</li>
+      <li @click="handleRoute('studentWorkerHome')">Student Worker Home Page</li>
+      <li @click="handleRoute('professorHome')">Professor Home Page</li>
+      <li @click="handleRoute('adminHome')">Admin Home Page</li>
+      </ul>
     </div>
+  </div>
   </div>
 </template>
 
@@ -90,6 +94,28 @@ const toggleRoleDropdown = () => {
   roleDropdown.value = !roleDropdown.value;
 }
 
+const handleRoute = (loc) => {
+  toggleMenu();
+  switch (loc) {
+    case 'resumeBuilder':
+      router.push({ name: "homeRB" });
+      break;
+    case 'adminHome':
+      router.push({ name: "adminHomeFP" });
+      break;
+    case 'studentHome':
+      router.push({ name: "studentHomeFP" });
+      break;
+    case 'studentWorkerHome':
+      router.push({ name: "studentWorkerHomeFP" });
+      break;
+    case 'professorHome':
+      router.push({ name: "professorHomeFP" });
+      break;
+  }
+
+}
+
 </script>
 
 <style scoped>
@@ -109,14 +135,14 @@ const toggleRoleDropdown = () => {
   background-color: #5D6D73;
   color: white;
   padding: 20px;
-  transition: width 0.3s ease; 
+  transition: width 0.3s ease;
   overflow: hidden;
   z-index: 2000;
   box-shadow: 0px 4px 4px 0px rgba(32, 32, 32, 0.50);
 }
 
 .sidebar.collapsed {
-  width: 60px; 
+  width: 60px;
 }
 
 /* Toggle sidebar */
@@ -162,8 +188,8 @@ a:hover {
 
 .dropdown-menu {
   /* position: absolute; */
-  left: 0; 
-  transform: translateX(-20px); 
+  left: 0;
+  transform: translateX(-20px);
   width: 250px;
   background-color: #FFFFFF;
   color: #202020;
@@ -173,7 +199,7 @@ a:hover {
 
 .dropdown-menu li {
   padding-left: 40px;
-  font-size: 16px; 
+  font-size: 16px;
 }
 
 .arrow-down {
