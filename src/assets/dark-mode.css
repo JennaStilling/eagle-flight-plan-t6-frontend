@@ -101,8 +101,8 @@
 
 /* Save Button Styles */
 .save-button {
-    width: 130px; 
-    position: relative;
+    width: 15%; 
+    position: absolute;
     height: 40px; 
     text-align: center; 
     font-size: 12px; 
@@ -113,6 +113,7 @@
     display: flex;
     align-items: center;
     justify-content: center; 
+    left: 85%;
 }
 
 .save-button-child {
@@ -121,7 +122,7 @@
     left: 0;
     border-radius: 8px;
     background: #118ACB;
-
+    margin-right: 5px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -144,7 +145,7 @@
 .nav-button {
     position: relative;
     height: 40px;
-    width: 80px;
+    width: 15%;
     text-align: center;
     line-height: 40px;
     font-size: 14px; /* Smaller text size */
@@ -154,7 +155,7 @@
     border: none;
     cursor: pointer;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
-    border-radius: 30px;
+    border-radius: 8px;
     background: #811429;
     font-weight: 700;
 }
@@ -290,4 +291,13 @@
   
   .add-button:hover {
     background-color: rgba(17, 138, 203, 0.5);
+  }
+
+  .form {
+   position: relative; 
+  }
+
+  .form-buttons{
+    position: relative;
+    width: 70%;
   }

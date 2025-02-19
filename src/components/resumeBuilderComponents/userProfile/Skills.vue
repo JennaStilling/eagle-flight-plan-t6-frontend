@@ -62,18 +62,21 @@
           ></textarea>
         </div>
 
+        <div class="form-buttons">
         <!-- Save changes button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
           <b class="save-changes">{{ buttonLabel }}</b>
         </div>
+        <br><br><br>
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+          <button class="nav-button" @click="goBack">BACK</button>
+          <button class="nav-button" @click="goNext">NEXT</button>
+        </div>
+      </div>
       </div>
 
-      <!-- Navigation buttons -->
-      <div class="navigation-buttons">
-        <button class="nav-button" @click="goBack">BACK</button>
-        <button class="nav-button" @click="goNext">NEXT</button>
-      </div>
     </div>
 
     <!-- Hidden Delete Confirmation Pop-up -->

@@ -47,17 +47,19 @@
             placeholder="Enter a detailed description of the project"></textarea>
         </div>
 
+        <div class="form-buttons">
         <!-- Save changes button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
           <b class="save-changes">{{ buttonLabel }}</b>
         </div>
+        <br><br><br>
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+          <button class="nav-button" @click="goBack">BACK</button>
+          <button class="nav-button" @click="goNext">CREATE RESUME</button>
+        </div>
       </div>
-
-      <!-- Navigation buttons -->
-      <div class="navigation-buttons">
-        <button class="nav-button" @click="goBack">BACK</button>
-        <button class="create-resume-button" @click="goNext">CREATE RESUME</button>
       </div>
     </div>
 

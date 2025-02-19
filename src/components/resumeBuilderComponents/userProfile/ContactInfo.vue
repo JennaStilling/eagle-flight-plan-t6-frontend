@@ -32,19 +32,22 @@
         <label for="email" class="field-label">EMAIL</label>
         <p class="text-field"> {{  formData.email  }}</p>
       </div>
-
-      <!-- Save Changes Button -->
-      <div class="save-button" @click="saveContactInfo">
+      
+      <div class="form-buttons">
+        <!-- Save changes button -->
+        <div class="save-button" @click="saveContactInfo">
         <div class="save-button-child"></div>
         <b class="save-changes">SAVE CHANGES</b>
       </div>
+        <br><br><br>
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+          <button class="nav-button" @click="goBack">BACK</button>
+          <button class="nav-button" @click="goNext">NEXT</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Navigation Buttons Section -->
-    <div class="navigation-buttons">
-      <button class="nav-button" @click="exit">EXIT</button>
-      <button class="nav-button" @click="goNext">NEXT</button>
-    </div>
   </div>
 </template>
 

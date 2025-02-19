@@ -24,12 +24,12 @@ export default {
       const currentPath = this.$route.path;
       const tabPathMap = {
         'Contact Info': '/resumeBuilder/contact-info',
-        'Education': '/resumeBuilder/education',
+        'Educations': '/resumeBuilder/education',
         'Courses': '/resumeBuilder/courses',
-        'Experience': '/resumeBuilder/experience',
+        'Experiences': '/resumeBuilder/experience',
         'Certifications': '/resumeBuilder/certifications',
         'Skills': '/resumeBuilder/skills',
-        'Project': '/resumeBuilder/project',
+        'Projects': '/resumeBuilder/project',
       };
       const basePath = tabPathMap[tab];
       return currentPath.startsWith(basePath);

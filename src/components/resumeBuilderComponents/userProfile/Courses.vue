@@ -72,23 +72,25 @@
               placeholder="Enter grade (A, B, C, D, F, P*)" />
           </div>
 
-          <!-- Save/Add button -->
-          <div class="save-button" @click="saveChanges">
-            <div class="save-button-child"></div>
-            <b class="save-changes">{{ buttonLabel }}</b>
-          </div>
+          <div class="form-buttons">
+        <!-- Save changes button -->
+        <div class="save-button" @click="saveChanges">
+          <div class="save-button-child"></div>
+          <b class="save-changes">{{ buttonLabel }}</b>
+        </div>
+        <br><br><br>
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+          <button class="nav-button" @click="goBack">BACK</button>
+          <button class="nav-button" @click="goNext">NEXT</button>
+        </div>
+      </div>
         </div>
 
         <!-- ELSE IF EDUCATION IS NOT SELECTED SHOW THIS -->
         <div v-else>
           <br><br><br><br><br><br>
         </div>
-      </div>
-
-      <!-- Navigation buttons -->
-      <div class="navigation-buttons">
-        <button class="nav-button" @click="goBack">BACK</button>
-        <button class="nav-button" @click="goNext">NEXT</button>
       </div>
     </div>
 
