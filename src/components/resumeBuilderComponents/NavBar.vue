@@ -16,7 +16,7 @@ export default {
   props: ['currentTab'],
   data() {
     return {
-      tabs: ['Contact Info', 'Education', 'Courses', 'Experience', 'Certifications', 'Skills', 'Project'],
+      tabs: ['Contact Info', 'Educations', 'Courses', 'Experiences', 'Certifications', 'Skills', 'Projects'],
     }
   },
   methods: {
@@ -24,12 +24,12 @@ export default {
       const currentPath = this.$route.path;
       const tabPathMap = {
         'Contact Info': '/resumeBuilder/contact-info',
-        'Education': '/resumeBuilder/education',
+        'Educations': '/resumeBuilder/education',
         'Courses': '/resumeBuilder/courses',
-        'Experience': '/resumeBuilder/experience',
+        'Experiences': '/resumeBuilder/experience',
         'Certifications': '/resumeBuilder/certifications',
         'Skills': '/resumeBuilder/skills',
-        'Project': '/resumeBuilder/project',
+        'Projects': '/resumeBuilder/project',
       };
       const basePath = tabPathMap[tab];
       return currentPath.startsWith(basePath);
@@ -37,12 +37,12 @@ export default {
     changeTab(tab) {
       const routes = {
         'Contact Info': '/resumeBuilder/contact-info',
-        'Education': '/resumeBuilder/education',
+        'Educations': '/resumeBuilder/education',
         'Courses': '/resumeBuilder/courses',
-        'Experience': '/resumeBuilder/experience',
+        'Experiences': '/resumeBuilder/experience',
         'Certifications': '/resumeBuilder/certifications',
         'Skills': '/resumeBuilder/skills',
-        'Project': '/resumeBuilder/project',
+        'Projects': '/resumeBuilder/project',
       };
       this.$emit('update:currentTab', tab);
       this.$router.push(routes[tab]);

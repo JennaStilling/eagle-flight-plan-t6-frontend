@@ -8,6 +8,7 @@ import ReviewerRoleServices from "@/services/resumeBuilderServices/reviewerRoleS
 import RoleServices from "@/services/resumeBuilderServices/roleServices";
 import { useRouter } from "vue-router";
 import Utils from "@/config/utils.js";
+import { Icon } from "@iconify/vue";
 
 const users = ref([]);
 const user = ref(null);
@@ -25,15 +26,20 @@ const students = ref([]);
 const reviewers = ref([]);
 const admins = ref([]);
 
-const filterOptions = ["All", "Students", "Reviewers", "Admins"];
+const filterOptions = ["All", "Admins", "Students", "Reviewers"];
 const filterType = ref("All");
-const headers = [{ text: "Name", value: "name", align: "start" }];
+const headers = [
+  { text: "Name", value: "name", align: "start" },
+  { text: "Email", value: "email", align: "start" },
+  { text: "Is Student?", value: "isStudent", align: "start" },
+  { text: "Is Reviewer?", value: "isReviewer", align: "start" },
+  { text: "Is Admin?", value: "isAdmin", align: "start" },
+  
+];
 
 const roles = ref([]);
 const userRoles = ref([]);
 const userSpecificRoles = ref("");
-
-const initials = ref("");
 const router = useRouter();
 
 const studentId = ref("");
@@ -305,9 +311,12 @@ const determineReviewerStatus = (item) => {
     <v-card title="Edit Users">
       <v-row>
         <v-col cols="6">
-          <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify" variant="outlined"
-            hide-details single-line>
+          <v-text-field v-model="search" label="Search for User" variant="outlined" hide-details single-line>
+            <template v-slot:prepend-inner>
+              <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+            </template>
           </v-text-field>
+
         </v-col>
 
         <v-col cols="6">
@@ -401,5 +410,9 @@ const determineReviewerStatus = (item) => {
 
 .justify-right {
   padding-right: 10px;
+}
+
+.black-icon {
+  color: black;
 }
 </style>

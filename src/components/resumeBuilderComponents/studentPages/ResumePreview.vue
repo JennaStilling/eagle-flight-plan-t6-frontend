@@ -9,28 +9,17 @@
     <h3>{{ resume.name }}</h3>
 
     <!-- Hover overlay -->
-    <!-- <div class="hover-overlay" v-if="showActions">
-      <v-btn @click="handleEdit" icon="mdi-edit"></v-btn>
-      <v-btn @click="handleDelete" icon="mdi-delete"></v-btn>
-    </div> -->
-    
     <div class="hover-overlay" v-if="showActions">
-  <v-btn color="primary" @click="handleEdit" icon rounded>
-    <v-icon>
-      <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon-img">
-    </v-icon>
-  </v-btn>
-
-  <v-btn color="error" @click="handleDelete" icon rounded>
-    <v-icon>
-      <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon-img">
-    </v-icon>
-  </v-btn>
-</div>
-
+      <v-btn icon color="primary" @click="handleEdit">
+        <Icon icon="material-symbols:edit-outline" width="24" height="24"/>
+      </v-btn>
+      <v-btn icon color="error" @click="handleDelete">
+        <Icon icon="material-symbols:delete-outline" width="24" height="24" />
+      </v-btn>
+    </div>
 
     <div v-if="displayDelete" class="modal">
-      <div class="modal-content">
+      <div class="modal-content" @click.stop>
         <span @click="displayDelete = false" class="close">&times;</span>
         <div class="modal-header">
           <p style="font-weight: bold;">This action is permanent.</p>
@@ -49,7 +38,7 @@
         <div class="modal-body">
           <v-btn v-if="!deleteError" @click="displayDelete = false" color="#708E9A">Close</v-btn>
           <v-btn v-if="!deleteError" @click="deleteResume()" color="#F04E3E" class="me-2">Delete</v-btn>
-          <v-btn v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+          <v-btn v-if="deleteError" @click="() => { event.stopPropagation(); deleteError = false; displayDelete = false; }"
             class="modal-button">
             Close
           </v-btn>
@@ -64,6 +53,7 @@ import { ref, onMounted, computed } from "vue";
 import Utils from '@/config/utils.js';
 import ResumeServices from "@/services/resumeBuilderServices/resumeServices";
 import resumeReviewServices from "@/services/resumeBuilderServices/resumeReviewServices";
+import { Icon } from "@iconify/vue";
 
 const props = defineProps({
   resume: Object,
@@ -121,14 +111,16 @@ const handleMouseleave = () => {
 
 const handleClick = () => {
   console.log(`Clicked on resume ${props.resume.name}`);
-  //emit('edit', props.resume.id);
+  emit('edit', props.resume.id);
 };
 
 const handleEdit = () => {
+  event.stopPropagation();
   emit('edit', props.resume.id);
 };
 
 const handleDelete = async () => {
+  event.stopPropagation();
   resumeToDelete.value = props.resume.value;
   displayDelete.value = true;
 };
@@ -227,9 +219,17 @@ const deleteResume = async () => {
 .h3 {
   padding-top: 550px;
   position: absolute;
+  color: black;
 }
 
-.icon-img {
-  clip-path: circle(50%);
+h3 {
+  text-align: center;
+  color: black;
+}
+</style>
+
+<style scoped>
+.icon {
+  font-size: inherit;
 }
 </style>

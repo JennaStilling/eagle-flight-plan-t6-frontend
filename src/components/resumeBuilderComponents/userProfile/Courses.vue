@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="sidebar">
-      <div class="list">
+      <div class="list scrollable">
         <!-- EDUCATION LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">
-          Education List {{ showDropdown ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdown">
+          Educations List
         </div>
         <br />
         <div v-if="showDropdown" class="dropdown">
@@ -13,49 +13,35 @@
               <!-- Display each institution's name -->
               <span class="university-name name">{{ item.institution }}</span>
               <div class="icon-buttons">
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(item)"
-                />
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteConfirmation(item)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(item)" />
+                <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                  @click.stop="showDeleteConfirmation(item)" />
               </div>
             </li>
           </ul>
         </div>
         <br />
-        <div class="list-title" @click="toggleDropdownCourses">
-          Courses List {{ showDropdownCourses ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdownCourses">
+          Courses List
         </div>
-        <div v-if="showDropdownCourses" class="dropdown">
-          <ul>
-            <li v-for="(course, index) in courses" :key="index" class="dropdown-item">
-              <span class="course-name name">{{ course.name }}</span>
-              <div class="icon-buttons">
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editCourse(course)"
-                />
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteCourseConfirmation(course)"
-                />
+        <div class="list scrollable">
+          <div v-if="showDropdownCourses" class="dropdown">
+            <ul>
+              <li v-for="(course, index) in courses" :key="index" class="dropdown-item">
+                <span class="course-name name">{{ course.name }}</span>
+                <div class="icon-buttons">
+                  <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                    @click.stop="editCourse(course)" />
+                  <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                    @click.stop="showDeleteCourseConfirmation(course)" />
+                </div>
+              </li>
+              <div v-if="courses.length > 0">
+                <button @click="addCourse" class="add-button">+</button>
               </div>
-            </li>
-            <div v-if="courses.length > 0">
-              <button @click="addCourse" class="add-button-green">+</button>
-            </div>
-          </ul>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -66,8 +52,9 @@
         <!-- Education label -->
         <div class="text-field-with-title">
           <label class="field-label">
-            {{ route.path.includes('/courses/select') ? 'SELECTED EDUCATION' : 'EDIT EDUCATION TO ADD COURSES' }} <br>
+            {{ route.path.includes('/courses/select') && currentEducation? 'SELECTED EDUCATION' : 'EDIT EDUCATION TO ADD COURSES' }} <br>
           </label>
+          <p class = "title-text" v-if = "route.path.includes('/courses/select') && currentEducation">{{ currentEducation.institution }}</p>
         </div>
 
         <!-- IF EDUCATION IS SELECTED SHOW THIS -->
@@ -78,40 +65,41 @@
           </div>
           <div class="text-field-with-title">
             <label class="field-label">NAME</label>
-            <input
-              v-model="formData.name"
-              class="text-field"
-              type="text"
-              placeholder="Enter course name"
-            />
+            <input v-model="formData.name" class="text-field" type="text" placeholder="Enter course name" />
           </div>
           <div class="text-field-with-title">
             <label class="field-label">GRADE LETTER</label>
-            <input
-              v-model="formData.grade"
-              class="text-field"
-              type="text"
-              placeholder="Enter grade (A, B, C, D, F, P*)"
-            />
+            <input v-model="formData.grade" class="text-field" type="text"
+              placeholder="Enter grade (A, B, C, D, F, P*)" />
           </div>
 
-          <!-- Save/Add button -->
-          <div class="save-button" @click="saveChanges">
-            <div class="save-button-child"></div>
-            <b class="save-changes">{{ buttonLabel }}</b>
+          <div class="form-buttons">
+           <!-- Delete changes button -->
+          <div v-if="editEntryVal && currentCourse" class="delete-button" @click="showDeleteConfirmation(formData)">
+            <div class="delete-button-child"></div>
+            <b class="delete-changes">DELETE</b>
           </div>
+
+          <div v-else>
+          </div>
+        <!-- Save changes button -->
+        <div class="save-button" @click="saveChanges">
+          <div class="save-button-child"></div>
+          <b class="save-changes">{{ buttonLabel }}</b>
+        </div>
+        <br><br><br>
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+          <button class="nav-button" @click="goBack">BACK</button>
+          <button class="nav-button" @click="goNext">NEXT</button>
+        </div>
+      </div>
         </div>
 
         <!-- ELSE IF EDUCATION IS NOT SELECTED SHOW THIS -->
         <div v-else>
           <br><br><br><br><br><br>
         </div>
-      </div>
-
-      <!-- Navigation buttons -->
-      <div class="navigation-buttons">
-        <button class="nav-button" @click="goBack">BACK</button>
-        <button class="nav-button" @click="goNext">NEXT</button>
       </div>
     </div>
 
@@ -137,18 +125,12 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="courseToDelete ? deleteCourse() : deleteEducation()"
-          >
+          <button v-if="!deleteError" class="error modal-button"
+            @click="courseToDelete ? deleteCourse() : deleteEducation()">
             DELETE
           </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
           </button>
         </div>
@@ -173,6 +155,7 @@ const educations = ref(null);
 const courses = ref([]);
 
 const errors = ref({});
+const editEntryVal = ref(false);
 
 onMounted(() => {
   Utils.getUser(user).then(value => {
@@ -195,7 +178,15 @@ const formData = ref({
   grade: ''
 });
 
+function clearFormData() {
+  formData.value = {
+    name: '',
+    grade: '',
+  };
+}
+
 const currentEducation = ref(null);
+const currentCourse = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const educationToDelete = ref(null);
@@ -225,6 +216,8 @@ function editEntry(item) {
 
 function editCourse(course) {
   router.push({ path: '/resumeBuilder/courses/select/edit', query: { id: course.id } });
+  editEntryVal.value = true;
+  currentCourse.value = course.id;
   formData.value.name = course.name;
   formData.value.grade = course.grade;
 }
@@ -244,8 +237,18 @@ function showDeleteCourseConfirmation(course) {
 
 
 function showDeleteConfirmation(item) {
-  educationToDelete.value = item;
-  displayDelete.value = true;
+  console.log(item.id)
+  if (item != undefined && item.id != undefined) {
+    courseToDelete.value = item;
+    console.log(courseToDelete.value)
+  } else if (currentCourse.value) {
+    courseToDelete.value = courses.value.find(course => course.id === currentCourse.value) || null;
+    console.log("ran this")
+  }
+
+  if (courseToDelete.value) {
+    displayDelete.value = true;
+  }
 }
 
 function deleteCourse() {
@@ -254,6 +257,7 @@ function deleteCourse() {
       .then(() => {
         displayDelete.value = false;
         deleteError.value = false;
+        clearFormData();
         getCourses(); // Refresh the courses list
       })
       .catch((error) => {
@@ -268,6 +272,7 @@ function deleteEducation() {
     .then(() => {
       displayDelete.value = false;
       deleteError.value = false;
+      clearFormData();
       getEducation();
     })
     .catch((error) => {
@@ -304,6 +309,7 @@ function getCourses() {
     courseServices.getAllCourses(studentId.value, currentEducation.value)
       .then((res) => {
         courses.value = res.data;
+        editEntryVal.value = false;
       })
       .catch((err) => {
         console.log(err);
@@ -324,6 +330,7 @@ const getEducation = () => {
   educationServices.getAllEducations(studentId.value)
     .then((res) => {
       educations.value = res.data;
+      editEntryVal.value = false;
     })
     .catch((err) => {
       console.log(err);
@@ -333,10 +340,22 @@ const getEducation = () => {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color: black;
+}
 </style>
 
 <style scoped>
 :deep(.text-field::placeholder) {
   color: gray;
+}
+
+.title-text {
+  color: black;
+}
+
+.text-field-with-title .title-text {
+  color: black !important;
 }
 </style>

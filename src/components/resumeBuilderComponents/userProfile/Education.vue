@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="sidebar">
-      <div class="list">
+      <div class="list scrollable">
         <!-- EDUCATION LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">
-          Education List {{ showDropdown ? '▲' : '▼' }}
+        <div class="list-title title-color" @click="toggleDropdown">
+          Educations List
         </div>
         <br />
         <div v-if="showDropdown" class="dropdown">
@@ -13,18 +13,10 @@
               <!-- Display each institution's name -->
               <span class="university-name name">{{ item.institution }}</span>
               <div class="icon-buttons">
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(item)"
-                />
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteConfirmation(item)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(item)" />
+                <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                  @click.stop="showDeleteConfirmation(item)" />
               </div>
             </li>
           </ul>
@@ -37,68 +29,50 @@
       <div class="form">
         <!-- Degree input field -->
         <div class="text-field-with-title">
-          <label for="degree" class="field-label">DEGREE</label>
-          <input
-            type="text"
-            id="degree"
-            v-model="formData.degree"
-            class="text-field"
-            placeholder="Enter your degree"
-            required
-          />
-          <span class="mandatory">*</span>
+          <label for="degree" class="field-label">DEGREE <span class="mandatory">*</span></label>
+          <input type="text" id="degree" v-model="formData.degree" class="text-field" placeholder="Enter your degree"
+            required />
         </div>
         <!-- Institution input field -->
         <div class="text-field-with-title">
-          <label for="institution" class="field-label">INSTITUTION</label>
-          <input
-            type="text"
-            id="institution"
-            v-model="formData.institution"
-            class="text-field"
-            placeholder="Enter the institution name"
-            required
-          />
-          <span class="mandatory">*</span>
+          <label for="institution" class="field-label">INSTITUTION <span class="mandatory">*</span></label>
+          <input type="text" id="institution" v-model="formData.institution" class="text-field"
+            placeholder="Enter the institution name" required />
         </div>
         <!-- GPA input field -->
         <div class="text-field-with-title">
-          <label for="gpa" class="field-label">GPA</label>
-          <input
-            type="number"
-            id="gpa"
-            v-model="formData.gpa"
-            class="text-field"
-            placeholder="Enter your GPA"
-            step="0.01"
-            required
-          />
-          <span class="mandatory">*</span>
+          <label for="gpa" class="field-label">GPA <span class="mandatory">*</span></label>
+          <input type="number" id="gpa" v-model="formData.gpa" class="text-field" placeholder="Enter your GPA"
+            step="0.01" required />
         </div>
         <!-- Graduation date input field -->
         <div class="text-field-with-title">
-          <label for="graduation" class="field-label">GRADUATION</label>
-          <input
-            type="date"
-            id="graduation"
-            v-model="formData.graduation_date"
-            class="text-field"
-            required
-          />
-          <span class="mandatory">*</span>
+          <label for="graduation" class="field-label">GRADUATION DATE <span class="mandatory">*</span></label>
+          <input type="date" id="graduation" v-model="formData.graduation_date" class="text-field" required />
         </div>
-        <!-- Save/Add button -->
-        <div class="save-button" @click="saveChanges">
-          <div class="save-button-child"></div>
-          <b class="save-changes">{{ buttonLabel }}</b>
+        <div class="form-buttons">
+          <!-- Delete changes button -->
+          <div v-if="editEntryVal && currentEducation" class="delete-button" @click="showDeleteConfirmation(formData)">
+            <div class="delete-button-child"></div>
+            <b class="delete-changes">DELETE</b>
+          </div>
+
+          <div v-else>
+          </div>
+          <!-- Save changes button -->
+          <div class="save-button" @click="saveChanges">
+            <div class="save-button-child"></div>
+            <b class="save-changes">{{ buttonLabel }}</b>
+          </div>
+          <br><br><br>
+          <!-- Navigation buttons -->
+          <div class="navigation-buttons">
+            <button class="nav-button" @click="goBack">BACK</button>
+            <button class="nav-button" @click="goNext">NEXT</button>
+          </div>
         </div>
       </div>
 
-      <!-- Navigation buttons -->
-      <div class="navigation-buttons">
-        <button class="nav-button" @click="goBack">BACK</button>
-        <button class="nav-button" @click="goNext">NEXT</button>
-      </div>
     </div>
 
     <!-- Hidden Delete Confirmation Pop-up -->
@@ -108,7 +82,7 @@
         <div class="modal-header">
           <p style="font-weight: bold;">This action is permanent.</p>
           <hr />
-          <p v-if="!deleteError">
+          <p v-if="!deleteError && educationToDelete">
             Are you sure you want to delete <br />
             {{ educationToDelete.institution }}?
           </p>
@@ -123,18 +97,11 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="deleteEducation()"
-          >
+          <button v-if="!deleteError" class="error modal-button" @click="deleteEducation()">
             DELETE
           </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
           </button>
         </div>
@@ -155,6 +122,7 @@ const route = useRoute();
 const user = Utils.getStore("user");
 const studentId = ref();
 const educations = ref(null);
+const editEntryVal = ref(false);
 
 const errors = ref({});
 
@@ -163,6 +131,7 @@ onMounted(() => {
     studentId.value = value.studentId;
     getEducation();
   });
+  console.log(editEntryVal.value)
 });
 
 const showDropdown = ref(true);
@@ -190,6 +159,7 @@ function toggleDropdown() {
 
 function editEntry(item) {
   router.push({ path: `/resumeBuilder/education/edit/` });
+  editEntryVal.value = true;
   currentEducation.value = item.id;
   formData.value.degree = item.degree;
   formData.value.institution = item.institution;
@@ -198,9 +168,19 @@ function editEntry(item) {
 }
 
 function showDeleteConfirmation(item) {
-  educationToDelete.value = item;
-  displayDelete.value = true;
+  console.log(item.value)
+  if (item) {
+    educationToDelete.value = item;
+  } else if (currentEducation.value) {
+    educationToDelete.value = educations.value.find(edu => edu.id === currentEducation.value) || null;
+  }
+
+  if (educationToDelete.value) {
+    displayDelete.value = true;
+  }
 }
+
+
 
 function deleteEducation() {
   educationServices.deleteEducation(studentId.value, educationToDelete.value.id)
@@ -223,21 +203,22 @@ function saveChanges() {
       })
       .catch((error) => {
         if (error.response != null && error.response.status == "406") {
-        for(let obj in errors.value) {
-          errors.value[obj] = '*'
-        }
-        for (let obj of error.response.data) {
-          if (obj.attributeName === undefined) {
-            obj.attributeName = "idNumber";
+          for (let obj in errors.value) {
+            errors.value[obj] = '*'
           }
-          errors.value[obj.attributeName] = obj.message;
+          for (let obj of error.response.data) {
+            if (obj.attributeName === undefined) {
+              obj.attributeName = "idNumber";
+            }
+            errors.value[obj.attributeName] = obj.message;
+          }
+        } else {
+          console.log(error);
+          console.log(error);
         }
-      } else {
-        console.log(error);
-        console.log(error);
-      }
       });
-      router.push('/resumeBuilder/education');
+      editEntryVal.value = false;
+    router.push('/resumeBuilder/education');
   } else {
     educationServices.createEducation(studentId.value, formData.value)
       .then(() => {
@@ -264,18 +245,25 @@ function goNext() {
 }
 
 const getEducation = () => {
-      educationServices.getAllEducations(studentId.value)
-        .then((res) => {
-            educations.value = res.data;
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
+  educationServices.getAllEducations(studentId.value)
+    .then((res) => {
+      educations.value = res.data;
+      if (!currentEducation.value) {
+        editEntryVal.value = false;
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 </script>
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color: black;
+}
 </style>
 
 <style scoped>

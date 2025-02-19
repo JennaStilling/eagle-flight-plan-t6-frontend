@@ -101,8 +101,8 @@
 
 /* Save Button Styles */
 .save-button {
-    width: 130px; 
-    position: relative;
+    width: 15%; 
+    position: absolute;
     height: 40px; 
     text-align: center; 
     font-size: 12px; 
@@ -113,6 +113,7 @@
     display: flex;
     align-items: center;
     justify-content: center; 
+    left: 85%;
 }
 
 .save-button-child {
@@ -121,7 +122,7 @@
     left: 0;
     border-radius: 8px;
     background: #118ACB;
-
+    margin-right: 5px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -129,6 +130,41 @@
 }
 
 .save-changes {
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold; 
+}
+
+.delete-button {
+    width: 15%; 
+    position: absolute;
+    height: 40px; 
+    text-align: center; 
+    font-size: 12px; 
+    color: white;
+    font-family: Helvetica, sans-serif;
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    right: 85%;
+}
+
+.delete-button-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 8px;
+    background: #F04E3E;
+    margin-right: 5px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+
+}
+
+.delete-changes {
     z-index: 1;
     font-size: 12px;
     font-weight: bold; 
@@ -144,7 +180,7 @@
 .nav-button {
     position: relative;
     height: 40px;
-    width: 80px;
+    width: 15%;
     text-align: center;
     line-height: 40px;
     font-size: 14px; /* Smaller text size */
@@ -154,7 +190,7 @@
     border: none;
     cursor: pointer;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
-    border-radius: 30px;
+    border-radius: 8px;
     background: #811429;
     font-weight: 700;
 }
@@ -171,10 +207,14 @@
     border-radius: 10px;
 }
 
+.scrollable {
+    overflow-y: scroll;
+ }
+
 /* Form Data Styles */
 .mandatory {
     color: red;
-    margin-left: 2px;
+    margin-left: 5px;
     font-size: 12px;
 }
 
@@ -197,6 +237,7 @@
     display: flex;
     padding-top: 30px;
     text-indent: 5px; 
+    color:black;
 }
 
 .text-field::placeholder {
@@ -269,8 +310,8 @@
     background-color: #e74c3c;
 }
 
-.add-button-green {
-    background-color: #4CAF50; 
+.add-button {
+    background-color: #118ACB; 
     border: none;
     color: white;
     padding: 1px 1px;
@@ -284,6 +325,15 @@
     border-radius: 4px;
   }
   
-  .add-button-green:hover {
-    background-color: #45a049;
+  .add-button:hover {
+    background-color: rgba(17, 138, 203, 0.5);
+  }
+
+  .form {
+   position: relative; 
+  }
+
+  .form-buttons{
+    position: relative;
+    width: 70%;
   }
