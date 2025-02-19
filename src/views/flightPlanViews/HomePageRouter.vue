@@ -27,18 +27,14 @@ const HandleRoute = () => {
             let adminId = currentUser.value.adminId;
             let reviewerId = currentUser.value.reviewerId;
 
-
+            // Note: This is deciding the homepage of the user using the old role syste. This will need to be updated once the new system is in place
             if (studentId != null && adminId == null && reviewerId == null)
-                router.push({ name: "studentHome" });
+                router.push({ name: "studentHomeFP" });
             else if ((adminId != null && studentId == null && reviewerId == null)
                 || (studentId != null && reviewerId != null && adminId != null)
                 || (studentId != null && adminId != null && reviewerId == null)
                 || (reviewerId != null && adminId != null && studentId == null))
-                router.push({ name: "adminHomeRB" });
-            else if (reviewerId != null && adminId == null && studentId == null
-                || (reviewerId != null && studentId != null && adminId == null)
-            )
-                router.push({ name: "reviewerHome" });
+                router.push({ name: "adminHomeFP" });
             else 
                 console.log("User has not been assigned a role");
         })
@@ -55,8 +51,8 @@ const HandleRoute = () => {
 
 <template>
     <div class="home-page">
-        <h1>Welcome to ResuMate!</h1>
-        <p>You shouldn't see this page</p>
+        <h1>Welcome to Flight Plan!</h1>
+        <p>This page should not be visible</p>
     </div>
 </template>
 

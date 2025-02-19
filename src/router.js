@@ -18,8 +18,17 @@ import ReviewInbox from '@/components/resumeBuilderComponents/reviewerPages/Revi
 import ReviewResume from '@/components/resumeBuilderComponents/reviewerPages/ReviewResume.vue';
 //import path from 'path';
 
-import HomePageRouter from '@/views/resumeBuilderViews/HomePageRouter.vue';
+// Resume builder page router
+import HomePageRouterRB from '@/views/resumeBuilderViews/HomePageRouter.vue';
 //import path from 'path';
+
+// Flight Plan page router
+import HomepageRouterFP from '@/views/flightPlanViews/HomePageRouter.vue';
+
+// Flight Plan components and the like
+import AdminHomePageFP from '@/views/flightPlanViews/admin/AdminHome.vue';
+import settings from '@/views/flightPlanViews/Settings.vue';
+import profile from '@/views/flightPlanViews/Profile.vue';
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
@@ -30,7 +39,12 @@ const user = computed(() => Utils.getStore("user"));
 // Define routes
 const routes = [
   { path: '/login', name: "login"},
-  { path: '/', name: 'home', component: HomePageRouter },
+
+  // Flight Plan
+  { path: '/', name: 'homeFP', component: HomepageRouterFP },
+
+  // Resume Builder Router
+  { path: '/resumeBuilder', name: 'homeRB', component: HomePageRouterRB },
 
   // Profile paths:
   { path: "/resumeBuilder/contact-info", name: "contactInfo", component: ContactInfo },
@@ -60,7 +74,13 @@ const routes = [
 
   //dummy / temp routes for nav bar testing
   { path: '/resumeBuilder/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
-  { path: '/resumeBuilder/adminHome', name: 'adminHome', component: AdminHomePage },
+  { path: '/resumeBuilder/adminHome', name: 'adminHomeRB', component: AdminHomePage },
+
+  // Flight Plan Jazz
+  { path: '/flightPlan/adminHome', name: 'adminHomeFP', component: AdminHomePageFP},
+
+  { path: '/flightPlan/settings', name: 'settings', component: settings },
+  { path: '/flightPlan/profile', name: 'profile', component: profile },
 
 ];
 
@@ -113,7 +133,7 @@ router.beforeEach(async (to, from) => {
   ];
   
   const adminPages = [
-    "adminHome"
+    "adminHomeRB"
   ];
 
   const reviewerPages = [
@@ -127,29 +147,30 @@ router.beforeEach(async (to, from) => {
     return { name: "login" };
   }
 
+  // Note: This is using the old role system currently in place, once the new one is implemented, this will need to be changed
   // logged in
   if (isAuthenticated) {
     // not a student
     if (!isStudent && studentPages.includes(to.name)) {
       console.log("Access denied to student page:", to.name);
-      return { name: "home" };
+      return { name: "homeFP" };
     }
 
     // not an admin
     if (!isAdmin && adminPages.includes(to.name)) {
       console.log("Access denied to admin page:", to.name);
-      return { name: "home" };
+      return { name: "homeFP" };
     }
 
     // not a reviewer
     if (!isReviewer && reviewerPages.includes(to.name)) {
       console.log("Access denied to reviewer page:", to.name);
-      return { name: "home" };
+      return { name: "homeFP" };
     }
 
     // trying to go to the login page while logged in
     if (to.name === "login") {
-      return { name: "home" };
+      return { name: "homeFP" };
     }
   }
 });

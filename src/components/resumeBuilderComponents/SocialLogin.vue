@@ -57,7 +57,7 @@
             this.fName = this.user.fName;
             this.lName = this.user.lName;
             this.id = this.user.id;
-            this.$router.push({ name: "home" });
+            this.$router.push({ name: "homeFP" });
           })
           .catch((error) => {
             console.log("error", error);

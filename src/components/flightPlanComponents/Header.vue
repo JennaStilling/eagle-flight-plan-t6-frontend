@@ -1,22 +1,23 @@
 <template>
+  <logout v-if="isLogout" @toggleLogout="toggleLogout" @signOut="signOut"/>
   <header class="header" v-if="currentRouteName !== 'login'">
     <div class="logo-title">
-      <router-link :to="{ name: 'homeRB' }">
-        <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
+      <router-link :to="{ name: 'homeFP' }"> <!-- Change the router link later -->
+        <img src="/src/assets/OCLogo.png" alt="OC Logo" class="logo" />
       </router-link>
-      <div class="title">OC Resume Builder</div>
+      <div class="title">Eagle Flight Plan</div>
     </div>
 
     <div class="user-menu">
-      <!-- Home Menu -->
-      <img src="/src/assets/home.png" alt="Home" class="user-icon" @click="toggleHomeMenu"
-        @keydown.enter="toggleHomeMenu" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
-        style="width: 39px; height: 39px;" />
-      <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop>
-        <ul>
-          <li v-if="studentId != null" @click="updateHomePage('Student')">Student Home</li>
-          <li v-if="reviewerId != null" @click="updateHomePage('Reviewer')">Reviewer Home</li>
-          <li v-if="adminId != null" @click="updateHomePage('Admin')">Admin Home</li>
+      <!-- Notification -->
+      <img src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
+      @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
+      style="width: 39px; height: 39px;" />
+      <div v-if="notificationMenuOpen" class="dropdown-menu" @click.stop>
+        <ul> <!-- !!!!! TEMP data -->
+          <li>Temp Notification</li>
+          <li>Temp Notification</li>
+          <li>Temp Notification</li>
         </ul>
       </div>
 
@@ -25,9 +26,11 @@
         @keydown.enter="toggleProfileMenu" role="button" tabindex="0" aria-haspopup="true"
         :aria-expanded="profileMenuOpen" />
       <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop>
+        <div style="font-size: 20px;"> {{ user.fName }} {{ user.lName }} </div>
         <ul>
-          <li @click="updateProfile">Update Profile</li>
-          <li @click="signOut">Sign Out</li>
+          <li @click="updateProfile">Edit Profile</li>
+          <li @click="settings">Settings</li>
+          <li @click="toggleLogout">Sign Out</li>
         </ul>
       </div>
     </div>
@@ -40,6 +43,7 @@ import Utils from "@/config/utils";
 import AuthServices from "@/services/resumeBuilderServices/authServices";
 import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
+import logout from '@/components/flightPlanComponents/Logout.vue';
 
 const user = ref(null);
 const initials = ref("");
@@ -52,6 +56,8 @@ const reviewerId = ref("");
 
 const homeMenuOpen = ref(false);
 const profileMenuOpen = ref(false);
+const notificationMenuOpen = ref(false);
+const isLogout = ref(false);
 
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
@@ -95,9 +101,14 @@ const toggleMenu = () => {
 };
 
 const updateProfile = () => {
-  router.push({name: 'contactInfo'});
+  router.push({name: 'profile'});
   profileMenuOpen.value = false;
 };
+
+const settings = () => {
+  router.push({name: 'settings'});
+  profileMenuOpen.value = false;
+}
 
 const updateHomePage = (loc) => {
   const roleMap = {
@@ -128,20 +139,31 @@ const signOut = async () => {
   profileMenuOpen.value = false;
 };
 
-const toggleHomeMenu = () => {
-  homeMenuOpen.value = !homeMenuOpen.value;
-  profileMenuOpen.value = false; // Close profile menu when home menu opens
-};
+// CREATE A GET NOTIFICATION FUNCTION HERE AND ADD THEM TO AN ARRAY TO PASS LATER
 
 const toggleProfileMenu = () => {
   profileMenuOpen.value = !profileMenuOpen.value;
   homeMenuOpen.value = false; // Close home menu when profile menu opens
+  notificationMenuOpen.value = false; // Close notification menu when profile menu opens
+  isLogout.value = false;
 };
+
+const toggleNotification = () => {
+  notificationMenuOpen.value = !notificationMenuOpen.value;
+  profileMenuOpen.value = false; // Close profile menu when home menu opens
+  homeMenuOpen.value = false; // Close home menu when profile menu opens
+  isLogout.value = false;
+}
+
+const toggleLogout = () => {
+  isLogout.value = !isLogout.value;
+  profileMenuOpen.value = false;
+}
 </script>
 
 <style scoped>
 .header {
-  background-color: #65001F;
+  background-color: #811429;
   color: #FFF;
   padding-top: 5px;
   display: flex;
@@ -184,16 +206,18 @@ const toggleProfileMenu = () => {
 }
 
 .dropdown-menu {
+  text-align: center;
   position: absolute;
   right: 0;
-  background-color: #65001F;
+  background-color: #FFFFFF;
   z-index: 2000;
   /* Higher z-index to ensure dropdown is above everything */
-  color: white;
-  border: 1px solid #53011a;
+  color: #811429;
   box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
-  width: 150px;
-  z-index: 1000;
+  width: 317px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #FFF;
 }
 
 .dropdown-menu ul {
@@ -204,11 +228,11 @@ const toggleProfileMenu = () => {
 
 .dropdown-menu li {
   padding: 10px;
-  border-bottom: 1px solid #53011a;
   cursor: pointer;
 }
 
 .dropdown-menu li:hover {
-  background-color: #8f042d;
+  border: 1px solid #811429;
 }
+
 </style>

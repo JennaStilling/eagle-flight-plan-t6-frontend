@@ -1,20 +1,26 @@
 <template>
-  <div id="app">
-    <Header v-if="currentTab.value !== 'login'" :currentTab="currentTab" />
+  <div id="app" :class="{ 'flight-plan': currentModule === 'flightPlan' }">
+    <HeaderResumeBuilder v-if="currentTab.value !== 'login' && currentModule === 'resumeBuilder'" :currentTab="currentTab" />
+    <HeaderFlightPlan v-if="currentTab.value !== 'login' && currentModule === 'flightPlan'" />
+    <SideBar v-if="currentTab.value !== 'login' && currentModule === 'flightPlan'" :currentTab="currentTab" />
     <NavBar v-if="showNavBar" :currentTab="currentTab" />
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Header from './components/resumeBuilderComponents/Header.vue';
+import HeaderResumeBuilder from './components/resumeBuilderComponents/Header.vue';
+import HeaderFlightPlan from './components/flightPlanComponents/Header.vue';
+import SideBar from './components/flightPlanComponents/SideBar.vue';
 import NavBar from './components/resumeBuilderComponents/NavBar.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default {
   components: {
-    Header,
+    HeaderResumeBuilder,
+    HeaderFlightPlan,
+    SideBar,
     NavBar,
   },
   setup() {
@@ -48,10 +54,16 @@ export default {
     const showHeader = computed(() => {
       return currentTab.value === 'login'});
 
+    const currentModule = computed(() => {
+      const segments = route.path.split('/');
+      return segments[1] || '';
+    });
+
     return {
       isHomePage,
       currentTab,
-      showNavBar
+      showNavBar,
+      currentModule
     };
   },
 };
@@ -64,5 +76,9 @@ export default {
   height: min-content;
   background-color: #FFFFff;
   overflow: hidden;
+}
+
+.flight-plan {
+  margin-left: 60px;
 }
 </style>
