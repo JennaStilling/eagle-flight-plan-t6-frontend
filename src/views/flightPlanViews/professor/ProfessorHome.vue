@@ -12,10 +12,6 @@
   
   const homeStore = useHomePageStore();
   
-  onMounted(() => {
-    homeStore.switchView("professor", "professorHome");
-  });
-  
   </script>
   
   <style scoped>

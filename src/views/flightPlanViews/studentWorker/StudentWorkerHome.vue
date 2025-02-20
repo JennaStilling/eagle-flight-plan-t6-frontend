@@ -11,11 +11,7 @@
   import { onMounted } from 'vue';
   
   const homeStore = useHomePageStore();
-  
-  onMounted(() => {
-    homeStore.switchView("student_worker", "studentWorkerHome");
-  });
-  
+
   </script>
   
   <style scoped>

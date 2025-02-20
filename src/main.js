@@ -8,6 +8,9 @@ import App from './App.vue'
 import store from "./store/store";
 import router from "./router";
 //import vuetify from "./plugins/vuetify.js";
+import "@fontsource/poppins";
+import "@fontsource/poppins/500.css"; 
+
 
 import 'vuetify/styles';
 import { createVuetify } from 'vuetify';

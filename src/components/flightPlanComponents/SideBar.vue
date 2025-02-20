@@ -49,6 +49,9 @@ const reviewerId = ref("");
 const roleDropdown = ref(false);
 const homeMenuOpen = ref(false);
 
+import { useHomePageStore } from '@/store/homePageStore';
+const homeStore = useHomePageStore();
+
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
 
@@ -101,15 +104,19 @@ const handleRoute = (loc) => {
       router.push({ name: "homeRB" });
       break;
     case 'adminHome':
+      homeStore.switchView("admin", "adminHome");
       router.push({ name: "adminHomeFP" });
       break;
     case 'studentHome':
+      homeStore.switchView("student", "studentHome");
       router.push({ name: "studentHomeFP" });
       break;
     case 'studentWorkerHome':
+      homeStore.switchView("studentWorker", "studentWorkerHome");
       router.push({ name: "studentWorkerHomeFP" });
       break;
     case 'professorHome':
+      homeStore.switchView("professor", "professorHome");
       router.push({ name: "professorHomeFP" });
       break;
   }

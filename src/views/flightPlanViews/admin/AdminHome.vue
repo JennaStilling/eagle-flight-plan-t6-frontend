@@ -12,10 +12,6 @@ import { onMounted } from 'vue';
 
 const homeStore = useHomePageStore();
 
-onMounted(() => {
-  homeStore.switchView("admin", "adminHome");
-});
-
 </script>
 
 <style scoped>
