@@ -32,7 +32,7 @@
           <li @click="updateProfile">Edit Profile</li>
           <li @click="settings">Settings</li>
           <li @click="toggleRoleSwitchMenu" style="position: relative; display: flex; align-items: center;">
-            <span style="position: absolute; left: 50%; transform: translateX(-50%);">Switch Roles</span>
+            <span style="position: absolute; left: 50%; transform: translateX(-50%);">Switch Role View</span>
             <Icon class="arrow-icon" :icon="roleSwitchMenuOpen ? dropDownUpIcon : dropDownIcon" :alt="'arrow'" />
           </li>
           <li v-if="roleSwitchMenuOpen" @click="updateHomePage('admin')" class="role-menu">Admin</li>
