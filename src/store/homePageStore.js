@@ -22,5 +22,6 @@ export const useHomePageStore = defineStore("homePage", {
     getters: {
         getHomePage: (state) => state.currentHome,
         getCurrentRole: (state) => state.currentRole,
-    }
+    },
+    persist: true,
 });
