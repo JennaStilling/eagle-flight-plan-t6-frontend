@@ -8,9 +8,9 @@
       <div class="title">Eagle Flight Plan</div>
     </div>
 
-    <div class="user-menu">
+    <div class="user-menu" v-if="homeStore.getCurrentRole != UserRoles.NONE">
       <!-- Notification -->
-      <img src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
+      <img v-if="homeStore.getCurrentRole != UserRoles.NONE" src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
         @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true"
         :aria-expanded="homeMenuOpen" style="width: 39px; height: 39px;" />
       <div v-if="notificationMenuOpen" class="dropdown-menu" @click.stop>

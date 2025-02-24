@@ -10,20 +10,20 @@
                 </v-card-subtitle>
             </v-card-item>
             <v-card-actions class="actions">
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.ADMIN)">
-                    <span>Admin Home</span>
+                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.ADMIN)"
+                    text="Admin Home">
                 </v-btn>
 
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)">
-                    <span>Professor Home</span>
+                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)"
+                    text="Professor Home">
                 </v-btn>
 
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT)">
-                    <span>Student Home</span>
+                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT)"
+                    text="Student Home">
                 </v-btn>
 
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)">
-                    <span>Student Worker Home</span>
+                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)"
+                    text="Student Worker Home">
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -63,15 +63,19 @@ const handleRoute = (loc) => {
 .container {
     display: flex;
     justify-content: center;
-    align-items: flex-start; 
+    align-items: flex-start;
     height: 100vh;
-    padding-top: 5vh; 
+    padding-top: 5vh;
+    padding-left: 5vw;
+    padding-right: 5vw;
 }
 
 .card {
-    width: 60vw;
-    height: auto;
+    width: 100%;
+    min-width: 320px;
+    max-width: 1000px;
     border-radius: 16px;
+    border-color: black;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 24px;
     background-color: #ffffff;
@@ -81,6 +85,7 @@ const handleRoute = (loc) => {
     align-items: center;
 }
 
+
 .text-section {
     text-align: center;
     margin-bottom: 24px;
@@ -88,32 +93,35 @@ const handleRoute = (loc) => {
 
 .v-card-title {
     font-weight: 700;
-    font-size: 36px;
+    font-size: clamp(24px, 5vw, 36px);
     margin-bottom: 8px;
+    word-wrap: break-word;
 }
 
 .v-card-subtitle {
     font-weight: 400;
-    font-size: 20px;
+    font-size: clamp(16px, 3vw, 20px);
+    word-wrap: break-word;
 }
 
 .actions {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
     margin-top: 16px;
 }
 
+
 .button {
-    width: auto; 
+    width: auto;
     padding: 16px 24px;
-    color: white !important; 
-    font-size: 18px;
+    color: white !important;
+    font-size: clamp(16px, 2vw, 18px);
     font-weight: 600;
     border-radius: 8px;
     text-transform: none;
-    white-space: nowrap; 
+    white-space: nowrap;
 }
 </style>
