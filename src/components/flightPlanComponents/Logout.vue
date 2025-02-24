@@ -22,7 +22,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import Utils from '@/config/utils.js';
-import { useHomePageStore } from '@/store/homePageStore';
+import { UserRoles, HomePages, useHomePageStore } from '@/store/homePageStore';
 const homeStore = useHomePageStore();
 
 const emit = defineEmits(["toggleLogout", "signOut"]);
@@ -43,7 +43,7 @@ const cancel = () => {
 
 const logout = () => {
     emit("signOut");
-    homeStore.switchView("none", "none");
+    homeStore.switchView(UserRoles.NONE, HomePages.NONE);
     toggleLogout();
 };
 
