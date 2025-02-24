@@ -19,14 +19,6 @@ const pinia = createPinia();
 
 pinia.use(piniaPluginPersistedState)
 
-// watch(
-//   pinia.state,
-//   (state) => {
-//     localStorage.setItem("homePage", JSON.stringify(state.counter));
-//   },
-//   { deep: true }
-// );
-
 const vuetify = createVuetify({
   icons: {
     defaultSet: "mdi",

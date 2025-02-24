@@ -9,16 +9,16 @@
             </v-card-subtitle>
         </v-card-item>
         <v-card-actions>
-            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute('adminHome')"><span
+            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute(UserRoles.ADMIN)"><span
                     style="color:white">Admin Home</span></v-btn>
 
-            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute('professorHome')"><span
+            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute(UserRoles.PROFESSOR)"><span
                     style="color:white">Professor Home</span></v-btn>
 
-            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute('studentHome')"><span
+            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute(UserRoles.STUDENT)"><span
                     style="color:white">Student Home</span></v-btn>
 
-            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute('studentWorkerHome')"><span
+            <v-btn color="#5EC4B6" size="x-large" variant="elevated" @click="handleRoute(UserRoles.STUDENT_WORKER)"><span
                     style="color:white">Student Worker Home</span></v-btn>
         </v-card-actions>
     </v-card>
@@ -26,28 +26,23 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { useHomePageStore } from '@/store/homePageStore';
+import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
 const router = useRouter();
 const homeStore = useHomePageStore();
 
-
 const handleRoute = (loc) => {
     switch (loc) {
-        case 'adminHome':
-            homeStore.switchView("admin", "adminHome"); 
-            router.push({ name: "adminHomeFP" });
+        case UserRoles.ADMIN:
+            homeStore.switchView(UserRoles.ADMIN, HomePages.ADMIN, router);
             break;
-        case 'studentHome':
-            homeStore.switchView("student", "studentHome");
-            router.push({ name: "studentHomeFP" });
+        case UserRoles.STUDENT:
+            homeStore.switchView(UserRoles.STUDENT, HomePages.STUDENT, router);
             break;
-        case 'studentWorkerHome':
-            homeStore.switchView("studentWorker", "studentWorkerHome");
-            router.push({ name: "studentWorkerHomeFP" });
+        case UserRoles.STUDENT_WORKER:
+            homeStore.switchView(UserRoles.STUDENT_WORKER, HomePages.STUDENT_WORKER, router);
             break;
-        case 'professorHome':
-            homeStore.switchView("professor", "professorHome");
-            router.push({ name: "professorHomeFP" });
+        case UserRoles.PROFESSOR:
+            homeStore.switchView(UserRoles.PROFESSOR, HomePages.PROFESSOR, router);
             break;
     }
 }

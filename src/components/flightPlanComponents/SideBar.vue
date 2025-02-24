@@ -17,11 +17,7 @@
           <li>Admins</li>
       </div>
       </li>
-      <li @click="handleRoute('resumeBuilder')">Resume Builder</li>
-      <li @click="handleRoute('studentHome')">Student Home Page</li>
-      <li @click="handleRoute('studentWorkerHome')">Student Worker Home Page</li>
-      <li @click="handleRoute('professorHome')">Professor Home Page</li>
-      <li @click="handleRoute('adminHome')">Admin Home Page</li>
+      <li @click="router.push({ name: 'homeRB' })">Resume Builder</li>
       </ul>
     </div>
   </div>
@@ -95,32 +91,6 @@ const toggleMenu = () => {
 
 const toggleRoleDropdown = () => {
   roleDropdown.value = !roleDropdown.value;
-}
-
-const handleRoute = (loc) => {
-  toggleMenu();
-  switch (loc) {
-    case 'resumeBuilder':
-      router.push({ name: "homeRB" });
-      break;
-    case 'adminHome':
-      homeStore.switchView("admin", "adminHome");
-      router.push({ name: "adminHomeFP" });
-      break;
-    case 'studentHome':
-      homeStore.switchView("student", "studentHome");
-      router.push({ name: "studentHomeFP" });
-      break;
-    case 'studentWorkerHome':
-      homeStore.switchView("studentWorker", "studentWorkerHome");
-      router.push({ name: "studentWorkerHomeFP" });
-      break;
-    case 'professorHome':
-      homeStore.switchView("professor", "professorHome");
-      router.push({ name: "professorHomeFP" });
-      break;
-  }
-
 }
 
 </script>
