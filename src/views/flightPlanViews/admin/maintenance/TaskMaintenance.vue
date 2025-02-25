@@ -13,7 +13,7 @@
                 <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Category" variant="outlined"
                     density="compact" class="filter-menu"></v-select>
 
-                <v-btn class="button" variant="elevated" color="#5EC4B6" size="small" @click="addTask()">
+                <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addTask()">
                     Add Task
                 </v-btn>
             </div>
