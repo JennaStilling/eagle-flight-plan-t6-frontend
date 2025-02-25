@@ -3,6 +3,7 @@ import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import InitialLogin from '@/components/flightPlanComponents/InitialLogin.vue'
 
 const currentUser = ref(null);
 const user = ref(null);
@@ -10,7 +11,7 @@ const router = useRouter();
 
 onMounted(() => {
     user.value = Utils.getStore("user");
-    HandleRoute();
+    //HandleRoute();
 });
 
 const HandleRoute = () => {
@@ -19,10 +20,10 @@ const HandleRoute = () => {
     UserServices.getUser(user.value.userId)
         .then((res) => {
             currentUser.value = res.data;
-            // console.log("ID: " + currentUser.value.id);
-            // console.log("Student ID: " + currentUser.value.studentId);
-            // console.log("Admin ID: " + currentUser.value.adminId);
-            // console.log("Reviewer ID: " + currentUser.value.reviewerId);
+            console.log("ID: " + currentUser.value.id);
+            console.log("Student ID: " + currentUser.value.studentId);
+            console.log("Admin ID: " + currentUser.value.adminId);
+            console.log("Reviewer ID: " + currentUser.value.reviewerId);
             let studentId = currentUser.value.studentId;
             let adminId = currentUser.value.adminId;
             let reviewerId = currentUser.value.reviewerId;
@@ -51,8 +52,7 @@ const HandleRoute = () => {
 
 <template>
     <div class="home-page">
-        <h1>Welcome to Flight Plan!</h1>
-        <p>This page should not be visible</p>
+        <InitialLogin></InitialLogin>
     </div>
 </template>
 
@@ -60,12 +60,13 @@ const HandleRoute = () => {
 @import "@/assets/dark-mode.css";
 
 .home-page {
-    color: white;
+    color: black;
     padding: 70px;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow: hidden;
+    padding-top: 15%;
 }
 
 .start-button {

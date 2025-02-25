@@ -1,26 +1,26 @@
 <template>
   <div class="user-menu">
     <div :class="['sidebar', { collapsed: menuOpen }]">
-      <img :src="menuOpen ? menuIcon : closeIcon" 
-        alt="menu" class="toggle-btn" @click="toggleMenu"
-        @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
-        style="width: 39px; height: 39px;" />
-      
+      <img :src="menuOpen ? menuIcon : closeIcon" alt="menu" class="toggle-btn" @click="toggleMenu"
+        @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true"
+        :aria-expanded="homeMenuOpen" style="width: 39px; height: 39px;" />
+
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow" :class="['arrow-down', { 'arrow-up': roleDropdown }]"/>
+          <li @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow"
+              :class="['arrow-down', { 'arrow-up': roleDropdown }]" />
             <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-              <li>Students</li>
-              <li>Student Workers</li>
-              <li>Professors</li>
-              <li>Admins</li>
-            </div>
-          </li>
-          <li><router-link to="/resumeBuilder">Resume Builder</router-link></li>
-        </ul>
+          <li>Students</li>
+          <li>Student Workers</li>
+          <li>Professors</li>
+          <li>Admins</li>
       </div>
+      </li>
+      <li @click="router.push({ name: 'homeRB' })">Resume Builder</li>
+      </ul>
     </div>
+  </div>
   </div>
 </template>
 
@@ -44,6 +44,9 @@ const reviewerId = ref("");
 
 const roleDropdown = ref(false);
 const homeMenuOpen = ref(false);
+
+import { useHomePageStore } from '@/store/homePageStore';
+const homeStore = useHomePageStore();
 
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
@@ -109,14 +112,14 @@ const toggleRoleDropdown = () => {
   background-color: #5D6D73;
   color: white;
   padding: 20px;
-  transition: width 0.3s ease; 
+  transition: width 0.3s ease;
   overflow: hidden;
   z-index: 2000;
   box-shadow: 0px 4px 4px 0px rgba(32, 32, 32, 0.50);
 }
 
 .sidebar.collapsed {
-  width: 60px; 
+  width: 60px;
 }
 
 /* Toggle sidebar */
@@ -162,8 +165,8 @@ a:hover {
 
 .dropdown-menu {
   /* position: absolute; */
-  left: 0; 
-  transform: translateX(-20px); 
+  left: 0;
+  transform: translateX(-20px);
   width: 250px;
   background-color: #FFFFFF;
   color: #202020;
@@ -173,7 +176,7 @@ a:hover {
 
 .dropdown-menu li {
   padding-left: 40px;
-  font-size: 16px; 
+  font-size: 16px;
 }
 
 .arrow-down {

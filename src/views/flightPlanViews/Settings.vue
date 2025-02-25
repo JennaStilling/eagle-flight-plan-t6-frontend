@@ -1,6 +1,7 @@
 <template>
     <div>
-        This is the settigns page.
+        This is the settings page.
+        <br><br><br><br><br><br><br><br><br><br><br><br><br> <!-- Temporary to show dropdown menu -->
     </div>
 </template>
 

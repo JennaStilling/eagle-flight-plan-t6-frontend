@@ -8,9 +8,9 @@
       <div class="title">Eagle Flight Plan</div>
     </div>
 
-    <div class="user-menu">
+    <div class="user-menu" v-if="homeStore.getCurrentRole != UserRoles.NONE">
       <!-- Notification -->
-      <img src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
+      <img v-if="homeStore.getCurrentRole != UserRoles.NONE" src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
         @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true"
         :aria-expanded="homeMenuOpen" style="width: 39px; height: 39px;" />
       <div v-if="notificationMenuOpen" class="dropdown-menu" @click.stop>
@@ -35,10 +35,10 @@
             <span style="position: absolute; left: 50%; transform: translateX(-50%);">Switch Role View</span>
             <Icon class="arrow-icon" :icon="roleSwitchMenuOpen ? dropDownUpIcon : dropDownIcon" :alt="'arrow'" />
           </li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage('admin')" class="role-menu">Admin</li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage('professor')" class="role-menu">Professor</li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage('student')" class="role-menu">Student</li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage('studentWorker')" class="role-menu">Student Worker</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.ADMIN)" class="role-menu">Admin</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.PROFESSOR)" class="role-menu">Professor</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.STUDENT)" class="role-menu">Student</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.STUDENT_WORKER)" class="role-menu">Student Worker</li>
           <li @click="toggleLogout">Sign Out</li>
 
         </ul>
@@ -55,6 +55,7 @@ import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import logout from '@/components/flightPlanComponents/Logout.vue';
 import { Icon } from "@iconify/vue";
+import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
 
 const dropDownUpIcon = "material-symbols:arrow-drop-up-rounded";
 const dropDownIcon = "material-symbols:arrow-drop-down-rounded";
@@ -76,6 +77,7 @@ const isLogout = ref(false);
 
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
+const homeStore = useHomePageStore();
 
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
@@ -127,16 +129,20 @@ const settings = () => {
 
 const updateHomePage = (loc) => {
   console.log(`Selected ${loc} role`);
-  switch(loc) {
-    case 'admin':
+  toggleRoleSwitchMenu();
+  toggleProfileMenu();
+  switch (loc) {
+    case UserRoles.ADMIN:
+      homeStore.switchView(UserRoles.ADMIN, HomePages.ADMIN, router);
       break;
-    case 'professor':
+    case UserRoles.STUDENT:
+      homeStore.switchView(UserRoles.STUDENT, HomePages.STUDENT, router);
       break;
-    case 'student':
+    case UserRoles.STUDENT_WORKER:
+      homeStore.switchView(UserRoles.STUDENT_WORKER, HomePages.STUDENT_WORKER, router);
       break;
-    case 'studentWorker':
-      break;
-    default:
+    case UserRoles.PROFESSOR:
+      homeStore.switchView(UserRoles.PROFESSOR, HomePages.PROFESSOR, router);
       break;
   }
 };
