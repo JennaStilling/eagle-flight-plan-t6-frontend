@@ -1,6 +1,6 @@
 <template>
     <div>
-        Student Home page
+        This is the Transaction Log Page
     </div>
 </template>
 

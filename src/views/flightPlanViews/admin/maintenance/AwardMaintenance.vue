@@ -1,6 +1,6 @@
 <template>
     <div>
-        Student Home page
+        This is the Award Maintenance Page
     </div>
 </template>
 

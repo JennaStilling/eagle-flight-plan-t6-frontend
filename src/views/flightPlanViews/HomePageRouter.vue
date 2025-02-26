@@ -1,10 +1,14 @@
 <script setup>
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
+import userRoleServices from "@/services/resumeBuilderServices/userRoleServices";
+import roleServices from "@/services/resumeBuilderServices/roleServices";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const currentUser = ref(null);
+const allRoles = ref(null);
+const roleArray = [];
 const user = ref(null);
 const router = useRouter();
 
@@ -15,38 +19,58 @@ onMounted(() => {
 
 const HandleRoute = () => {
     if (user.value != null)
-    {
-    UserServices.getUser(user.value.userId)
-        .then((res) => {
-            currentUser.value = res.data;
-            // console.log("ID: " + currentUser.value.id);
-            // console.log("Student ID: " + currentUser.value.studentId);
-            // console.log("Admin ID: " + currentUser.value.adminId);
-            // console.log("Reviewer ID: " + currentUser.value.reviewerId);
-            let studentId = currentUser.value.studentId;
-            let adminId = currentUser.value.adminId;
-            let reviewerId = currentUser.value.reviewerId;
+        {
+            UserServices.getUser(user.value.userId)
+                .then((res) => {
+                    currentUser.value = res.data;
+                    getUserRole();
+                })
+                .catch((error) => {
+                    console.log("error", error);
+                });
+        }
+        else
+        {
+            router.push({ name: "login" });
+        }
+    };
 
-            // Note: This is deciding the homepage of the user using the old role syste. This will need to be updated once the new system is in place
-            if (studentId != null && adminId == null && reviewerId == null)
-                router.push({ name: "studentHomeFP" });
-            else if ((adminId != null && studentId == null && reviewerId == null)
-                || (studentId != null && reviewerId != null && adminId != null)
-                || (studentId != null && adminId != null && reviewerId == null)
-                || (reviewerId != null && adminId != null && studentId == null))
-                router.push({ name: "adminHomeFP" });
-            else 
-                console.log("User has not been assigned a role");
+const getUserRole = () => {
+    userRoleServices.getAllUserRoles(currentUser.value.id)
+        .then((res) => {
+            allRoles.value = res.data;
+            checkRoles();
         })
         .catch((error) => {
             console.log("error", error);
-        });
+        })
+}
+
+const checkRoles = () => {
+    allRoles.value.forEach(userRole => {
+        roleServices.getRole(userRole.id)
+            .then((res) => {
+                roleArray.push(res.data.role_type);
+                routeToHomePage();
+            })
+            .catch((error) => {
+                console.log("error", error);
+            })
+    });
+}
+
+const routeToHomePage = () => {
+    if (roleArray.includes('admin')) {
+        router.push({ name: "adminHomeFP" });
     }
-    else
-    {
-        router.push({ name: "login" });
+    else if (roleArray.includes('professor')) {
+        router.push({ name: "professorHomeFP" });
     }
-    };
+    else if (roleArray.includes('student') || roleArray.includes('student_worker')) {
+        router.push({ name: "studentHomeFP" });
+    }
+}
+
 </script>
 
 <template>

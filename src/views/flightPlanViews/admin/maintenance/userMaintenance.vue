@@ -1,6 +1,6 @@
 <template>
     <div>
-        Student Home page
+        This is the User Maintenance Page
     </div>
 </template>
 

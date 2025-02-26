@@ -4,6 +4,9 @@ export default {
     createUserRolePermission(data) {
         return apiClient.post(`flightPlan-t6/userRolePermission`, data);
     },
+    getAllPermissionsForUser(userRoleId) {
+        return apiClient.get(`flightPlan-t6/userRole/${userRoleId}/userRolePermission`);
+    },
     getAllUserRolePermissions() {
         return apiClient.get(`flightPlan-t6/userRolePermission`);
     },

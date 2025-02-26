@@ -7,11 +7,11 @@ export default {
     createSystemStudentFlightPlanTask(data) {
         return apiClient.post(`flightPlan-t6/studentFlightPlanTask`, data);
     },
-    getAllStudentFlightPlanTasks(studentFlightPlanId, taskId, userId) {
-        return apiClient.get(`flightPlan-t6/studentFlightPlan/${studentFlightPlanId}/task/${taskId}/user/${userId}/studentFlightPlanTask`);
+    getAllStudentFlightPlanTasks() {
+        return apiClient.get(`flightPlan-t6/studentFlightPlanTask`);
     },
-    getStudentFlightPlanTask(studentFlightPlanId, taskId, userId, id) {
-        return apiClient.get(`flightPlan-t6/studentFlightPlan/${studentFlightPlanId}/task/${taskId}/user/${userId}/studentFlightPlanTask/${id}`);
+    getStudentFlightPlanTask(id) {
+        return apiClient.get(`flightPlan-t6/studentFlightPlanTask/${id}`);
     },
     updateStudentFlightPlanTask(studentFlightPlanId, taskId, userId, id, data) {
         return apiClient.put(`flightPlan-t6/studentFlightPlan/${studentFlightPlanId}/task/${taskId}/user/${userId}/studentFlightPlanTask/${id}`, data);

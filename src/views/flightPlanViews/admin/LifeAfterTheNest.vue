@@ -1,6 +1,6 @@
 <template>
     <div>
-        Student Home page
+        This is the Life After the Nest Page
     </div>
 </template>
 

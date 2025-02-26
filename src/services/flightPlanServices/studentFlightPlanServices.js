@@ -10,8 +10,8 @@ export default {
     getAllStudentFlightPlans(studentId, flightPlanId) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/flightPlan/${flightPlanId}/studentFlightPlan`);
     },
-    getStudentFlightPlan(studentId, flightPlanId, id) {
-        return apiClient.get(`flightPlan-t6/student/${studentId}/flightPlan/${flightPlanId}/studentFlightPlan/${id}`);
+    getStudentFlightPlan(id) {
+        return apiClient.get(`flightPlan-t6/studentFlightPlan/${id}`);
     },
     updateStudentFlightPlan(studentId, flightPlanId, id, data) {
         return apiClient.put(`flightPlan-t6/student/${studentId}/flightPlan/${flightPlanId}/studentFlightPlan/${id}`, data);

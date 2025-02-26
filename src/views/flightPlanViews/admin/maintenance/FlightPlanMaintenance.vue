@@ -1,6 +1,6 @@
 <template>
     <div>
-        Student Home page
+        This is the Flight Plan Maintenance Page
     </div>
 </template>
 

@@ -27,8 +27,20 @@ import HomepageRouterFP from '@/views/flightPlanViews/HomePageRouter.vue';
 
 // Flight Plan components and the like
 import AdminHomePageFP from '@/views/flightPlanViews/admin/AdminHome.vue';
+import ProfessorHomeFP from './views/flightPlanViews/professor/ProfessorHome.vue';
+import StudentHomeFP from './views/flightPlanViews/student/StudentHome.vue';
 import settings from '@/views/flightPlanViews/Settings.vue';
 import profile from '@/views/flightPlanViews/Profile.vue';
+import AwardMaintenance from './views/flightPlanViews/admin/maintenance/AwardMaintenance.vue';
+import BadgeMaintenance from './views/flightPlanViews/admin/maintenance/BadgeMaintenance.vue';
+import CliftonStrength from './views/flightPlanViews/admin/CliftonStrength.vue';
+import EventMaintenance from './views/flightPlanViews/admin/maintenance/EventMaintenance.vue';
+import ExperienceMaintenance from './views/flightPlanViews/admin/maintenance/ExperienceMaintenance.vue';
+import FlightPlanMaintenance from './views/flightPlanViews/admin/maintenance/FlightPlanMaintenance.vue';
+import LifeAfterTheNestFP from './views/flightPlanViews/admin/LifeAfterTheNest.vue';
+import TaskMaintenance from './views/flightPlanViews/admin/maintenance/TaskMaintenance.vue';
+import TransactionLogs from './views/flightPlanViews/admin/TransactionLogs.vue';
+import UserMaintenance from './views/flightPlanViews/admin/maintenance/userMaintenance.vue';
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
@@ -74,7 +86,7 @@ const routes = [
 
   //dummy / temp routes for nav bar testing
   { path: '/resumeBuilder/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
-  { path: '/resumeBuilder/adminHome', name: 'adminHomeRB', component: AdminHomePage },
+  { path: '/resumeBuilder/adminHome', name: 'adminHome', component: AdminHomePage },
 
   // Flight Plan Jazz
   { path: '/flightPlan/adminHome', name: 'adminHomeFP', component: AdminHomePageFP},
@@ -82,6 +94,18 @@ const routes = [
   { path: '/flightPlan/settings', name: 'settings', component: settings },
   { path: '/flightPlan/profile', name: 'profile', component: profile },
 
+  { path: '/flightPlan/award/Maintenance', name: 'award', component: AwardMaintenance },
+  { path: '/flightPlan/badge/Maintenance', name: 'badge', component: BadgeMaintenance },
+  { path: '/flightPlan/event/Maintenance', name: 'event', component: EventMaintenance },
+  { path: '/flightPlan/experience/Maintenance', name: 'experience', component: ExperienceMaintenance },
+  { path: '/flightPlan/flightPlan/Maintenance', name: 'flightPlan', component: FlightPlanMaintenance },
+  { path: '/flightPlan/lifeAfterTheNest', name: 'lifeAfterTheNest', component: LifeAfterTheNestFP },
+  { path: '/flightPlan/task/Maintenance', name: 'task', component: TaskMaintenance },
+  { path: '/flightPlan/transaction/logs', name: 'transactionLog', component: TransactionLogs },
+  { path: '/flightPlan/user/Maintenance', name: 'userMaintenance', component: UserMaintenance },
+  { path: '/flightPlan/professorHome', name: 'professorHomeFP', component: ProfessorHomeFP },
+  { path: '/flightPlan/studentHome', name: 'studentHomeFP', component: StudentHomeFP },
+  { path: '/flightPlan/cliftonStrength', name: 'cliftonStrength', component: CliftonStrength },
 ];
 
 const router = createRouter({
@@ -133,7 +157,7 @@ router.beforeEach(async (to, from) => {
   ];
   
   const adminPages = [
-    "adminHomeRB"
+    "adminHome"
   ];
 
   const reviewerPages = [
