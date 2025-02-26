@@ -4,8 +4,8 @@ export default {
     createEvent(verificationId, data) {
         return apiClient.post(`flightPlan-t6/verification/${verificationId}/event`, data);
     },
-    getAllEvents(verificationId) {
-        return apiClient.get(`flightPlan-t6/verification/${verificationId}/event`);
+    getAllEvents() {
+        return apiClient.get(`flightPlan-t6/event`);
     },
     getEvent(verificationId, id) {
         return apiClient.get(`flightPlan-t6/verification/${verificationId}/event/${id}`);

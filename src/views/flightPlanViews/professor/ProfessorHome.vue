@@ -1,4 +1,5 @@
 <template>
+
     <div class="modified-width">
       <p>Professor home page</p>
       <p> Current role: {{ homeStore.getCurrentRole }}</p>

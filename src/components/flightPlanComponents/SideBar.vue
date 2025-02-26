@@ -8,19 +8,27 @@
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow"
-              :class="['arrow-down', { 'arrow-up': roleDropdown }]" />
+          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow" :class="['arrow-down', { 'arrow-up': roleDropdown }]"/>
             <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-          <li>Students</li>
-          <li>Student Workers</li>
-          <li>Professors</li>
-          <li>Admins</li>
+              <li>Students</li>
+              <li>Student Workers</li>
+              <li>Professors</li>
+              <li>Admins</li>
+            </div>
+          </li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }">Events</router-link></li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }">Tasks</router-link></li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }">Experiences</router-link></li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'flightPlan' }">Flight Plan</router-link></li>
+          <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'award' }">Shop Items</router-link></li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'badge' }">Badges</router-link></li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'cliftonStrength' }">Clifton Strength</router-link></li>
+          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'lifeAfterTheNest' }">Life After The Nest</router-link></li>
+          <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'transactionLog' }">Transaction History</router-link></li>
+          <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
+        </ul>
       </div>
-      </li>
-      <li @click="router.push({ name: 'homeRB' })">Resume Builder</li>
-      </ul>
     </div>
-  </div>
   </div>
 </template>
 
@@ -32,15 +40,14 @@ import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import Utils from "@/config/utils";
 import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
+import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
+import userRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
+import permissionServices from '@/services/flightPlanServices/permissionServices';
 
 const user = ref(null);
 const initials = ref("");
 const name = ref("");
 const menuOpen = ref(true);
-const router = useRouter();
-const studentId = ref("");
-const adminId = ref("");
-const reviewerId = ref("");
 
 const roleDropdown = ref(false);
 const homeMenuOpen = ref(false);
@@ -50,6 +57,15 @@ const homeStore = useHomePageStore();
 
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
+
+const currentUser = ref(null);
+const userRoles = ref(null);
+const userRolePermissions = ref(null);
+const userPermissions = [];
+
+const hasUserPermission = ref(false);
+const hasFlightPlanPermission = ref(false);
+const hasShopPermission = ref(false);
 
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
@@ -64,7 +80,7 @@ onMounted(() => {
     initials.value = user.value.fName[0] + user.value.lName[0];
     name.value = user.value.fName + " " + user.value.lName;
   }
-  getUserRoles(); // WIll likely change the function to use the new system
+  getCurrentUser();
   document.addEventListener("click", handleClickOutside);
 });
 
@@ -72,18 +88,59 @@ onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
 
-const getUserRoles = async () => {
-  try {
-    user.value = Utils.getStore("user");
-    const res = await UserServices.getUser(user.value.userId);
-    user.value = res.data;
-    studentId.value = user.value.studentId;
-    adminId.value = user.value.adminId;
-    reviewerId.value = user.value.reviewerId;
-  } catch (error) {
-    console.error("Error fetching roles", error);
-  }
+const getCurrentUser = () => {
+  UserServices.getUser(user.value.userId)
+    .then((res) => {
+        currentUser.value = res.data;
+        getUserRoles();
+    })
+    .catch((error) => {
+        console.log("error", error);
+    });
+}
+
+const getUserRoles =  () => {
+  userRoleServices.getAllUserRoles(currentUser.value.id)
+    .then((res) => {
+      userRoles.value = res.data;
+      getUserRolePermission();
+    })
+    .catch((error) => {
+      console.log("Error: " + error);
+    })
 };
+
+const getUserRolePermission = () => {
+  userRoles.value.forEach(userRole => {
+    userRolePermissionServices.getAllPermissionsForUser(userRole.id)
+      .then((res) => {
+        userRolePermissions.value = res.data;
+        getAllPermissions()
+      })
+      .catch((error) => {
+        console.log("Error: " + error);
+      })
+  });
+}
+
+const getAllPermissions = () => {
+  userRolePermissions.value.forEach(permission => {
+    permissionServices.getPermission(permission.permissionId)
+      .then((res) => {
+        userPermissions.push(res.data.type);
+        checkPermissions();
+      })
+      .catch((error) => {
+        console.log("Error" + error);
+      });
+  });
+}
+
+const checkPermissions = () => {
+  (userPermissions.includes('user_maintenance')) ? hasUserPermission.value = true : hasUserPermission.value = false;
+  (userPermissions.includes('flightplan_maintenance')) ? hasFlightPlanPermission.value = true : hasFlightPlanPermission.value = false;
+  (userPermissions.includes('shop_maintenance')) ? hasShopPermission.value = true : hasShopPermission.value = false;
+}
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;
