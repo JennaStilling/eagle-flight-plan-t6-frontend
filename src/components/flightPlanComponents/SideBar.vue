@@ -28,11 +28,7 @@
           <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
         </ul>
       </div>
-      </li>
-      <li @click="router.push({ name: 'homeRB' })">Resume Builder</li>
-      </ul>
     </div>
-  </div>
   </div>
 </template>
 
