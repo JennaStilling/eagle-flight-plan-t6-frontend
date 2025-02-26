@@ -3,7 +3,7 @@
     <div class="form">
       <!-- First Name Field -->
       <div class="text-field-with-title">
-        <label for="firstName" class="field-label">FIRST NAME</label>
+        <label for="firstName" class="field-label">FIRST NAME <span class="mandatory">*</span></label>
         <input
           type="text"
           id="firstName"
@@ -12,12 +12,11 @@
           placeholder="Enter your first name"
           required
         />
-        <span class="mandatory">*</span>
       </div>
 
       <!-- Last Name Field -->
       <div class="text-field-with-title">
-        <label for="lastName" class="field-label">LAST NAME</label>
+        <label for="lastName" class="field-label">LAST NAME <span class="mandatory">*</span></label>
         <input
           type="text"
           id="lastName"
@@ -26,33 +25,29 @@
           placeholder="Enter your last name"
           required
         />
-        <span class="mandatory">*</span>
       </div>
 
       <!-- Email Field -->
       <div class="text-field-with-title">
         <label for="email" class="field-label">EMAIL</label>
-        <input
-          type="email"
-          id="email"
-          v-model="formData.email"
-          class="text-field"
-          placeholder="Enter your email address"
-        />
+        <p class="text-field"> {{  formData.email  }}</p>
       </div>
-
-      <!-- Save Changes Button -->
-      <div class="save-button" @click="saveContactInfo">
+      
+      <div class="form-buttons">
+        <!-- Save changes button -->
+        <div class="save-button" @click="saveContactInfo">
         <div class="save-button-child"></div>
         <b class="save-changes">SAVE CHANGES</b>
       </div>
+        <br><br><br>
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+          <button class="nav-button" @click="goBack">BACK</button>
+          <button class="nav-button" @click="goNext">NEXT</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Navigation Buttons Section -->
-    <div class="navigation-buttons">
-      <button class="nav-button" @click="exit">EXIT</button>
-      <button class="nav-button" @click="goNext">NEXT</button>
-    </div>
   </div>
 </template>
 
@@ -120,6 +115,10 @@ function goNext() {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.title-color {
+  color:black;
+}
 </style>
 
 <style scoped>

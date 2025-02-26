@@ -1,5 +1,5 @@
 <template>
-  <logout v-if="isLogout" @toggleLogout="toggleLogout" @signOut="signOut"/>
+  <logout v-if="isLogout" @toggleLogout="toggleLogout" @signOut="signOut" />
   <header class="header" v-if="currentRouteName !== 'login'">
     <div class="logo-title">
       <router-link :to="{ name: 'homeFP' }"> <!-- Change the router link later -->
@@ -8,11 +8,11 @@
       <div class="title">Eagle Flight Plan</div>
     </div>
 
-    <div class="user-menu">
+    <div class="user-menu" v-if="homeStore.getCurrentRole != UserRoles.NONE">
       <!-- Notification -->
-      <img src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
-      @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
-      style="width: 39px; height: 39px;" />
+      <img v-if="homeStore.getCurrentRole != UserRoles.NONE" src="/src/assets/notificationsIcon.svg" alt="Notification" class="user-icon" @click="toggleNotification"
+        @keydown.enter="toggleNotification" role="button" tabindex="0" aria-haspopup="true"
+        :aria-expanded="homeMenuOpen" style="width: 39px; height: 39px;" />
       <div v-if="notificationMenuOpen" class="dropdown-menu" @click.stop>
         <ul> <!-- !!!!! TEMP data -->
           <li>Temp Notification</li>
@@ -20,6 +20,7 @@
           <li>Temp Notification</li>
         </ul>
       </div>
+
 
       <!-- Profile Menu -->
       <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleProfileMenu"
@@ -30,7 +31,16 @@
         <ul>
           <li @click="updateProfile">Edit Profile</li>
           <li @click="settings">Settings</li>
+          <li @click="toggleRoleSwitchMenu" style="position: relative; display: flex; align-items: center;">
+            <span style="position: absolute; left: 50%; transform: translateX(-50%);">Switch Role View</span>
+            <Icon class="arrow-icon" :icon="roleSwitchMenuOpen ? dropDownUpIcon : dropDownIcon" :alt="'arrow'" />
+          </li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.ADMIN)" class="role-menu">Admin</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.PROFESSOR)" class="role-menu">Professor</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.STUDENT)" class="role-menu">Student</li>
+          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.STUDENT_WORKER)" class="role-menu">Student Worker</li>
           <li @click="toggleLogout">Sign Out</li>
+
         </ul>
       </div>
     </div>
@@ -44,6 +54,11 @@ import AuthServices from "@/services/resumeBuilderServices/authServices";
 import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import logout from '@/components/flightPlanComponents/Logout.vue';
+import { Icon } from "@iconify/vue";
+import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
+
+const dropDownUpIcon = "material-symbols:arrow-drop-up-rounded";
+const dropDownIcon = "material-symbols:arrow-drop-down-rounded";
 
 const user = ref(null);
 const initials = ref("");
@@ -57,10 +72,12 @@ const reviewerId = ref("");
 const homeMenuOpen = ref(false);
 const profileMenuOpen = ref(false);
 const notificationMenuOpen = ref(false);
+const roleSwitchMenuOpen = ref(false);
 const isLogout = ref(false);
 
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
+const homeStore = useHomePageStore();
 
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
@@ -101,28 +118,33 @@ const toggleMenu = () => {
 };
 
 const updateProfile = () => {
-  router.push({name: 'profile'});
+  router.push({ name: 'profile' });
   profileMenuOpen.value = false;
 };
 
 const settings = () => {
-  router.push({name: 'settings'});
+  router.push({ name: 'settings' });
   profileMenuOpen.value = false;
 }
 
 const updateHomePage = (loc) => {
-  const roleMap = {
-    Student: studentId,
-    Reviewer: reviewerId,
-    Admin: adminId,
-  };
-  if (roleMap[loc].value) {
-    router.push({ name: `${loc.toLowerCase()}Home` });
-    menuOpen.value = false;
-  } else {
-    console.error(`You do not have ${loc.toLowerCase()} permissions`);
+  console.log(`Selected ${loc} role`);
+  toggleRoleSwitchMenu();
+  toggleProfileMenu();
+  switch (loc) {
+    case UserRoles.ADMIN:
+      homeStore.switchView(UserRoles.ADMIN, HomePages.ADMIN, router);
+      break;
+    case UserRoles.STUDENT:
+      homeStore.switchView(UserRoles.STUDENT, HomePages.STUDENT, router);
+      break;
+    case UserRoles.STUDENT_WORKER:
+      homeStore.switchView(UserRoles.STUDENT_WORKER, HomePages.STUDENT_WORKER, router);
+      break;
+    case UserRoles.PROFESSOR:
+      homeStore.switchView(UserRoles.PROFESSOR, HomePages.PROFESSOR, router);
+      break;
   }
-  homeMenuOpen.value = false;
 };
 
 const signOut = async () => {
@@ -146,13 +168,22 @@ const toggleProfileMenu = () => {
   homeMenuOpen.value = false; // Close home menu when profile menu opens
   notificationMenuOpen.value = false; // Close notification menu when profile menu opens
   isLogout.value = false;
+  roleSwitchMenuOpen.value = false;
 };
 
 const toggleNotification = () => {
   notificationMenuOpen.value = !notificationMenuOpen.value;
   profileMenuOpen.value = false; // Close profile menu when home menu opens
   homeMenuOpen.value = false; // Close home menu when profile menu opens
+  roleSwitchMenuOpen.value = false;
   isLogout.value = false;
+}
+
+const toggleRoleSwitchMenu = () => {
+  roleSwitchMenuOpen.value = !roleSwitchMenuOpen.value;
+  notificationMenuOpen.value = false; // Close notification menu when role menu opens
+  homeMenuOpen.value = false; // Close home menu when role menu opens
+
 }
 
 const toggleLogout = () => {
@@ -235,4 +266,14 @@ const toggleLogout = () => {
   border: 1px solid #811429;
 }
 
+.role-menu {
+  background-color: rgba(32, 32, 32, .1) !important;
+  background: rgba(32, 32, 32, .1) !important;
+}
+
+.arrow-icon {
+  margin-left: auto;
+  width: 25px;
+  height: 20px;
+}
 </style>

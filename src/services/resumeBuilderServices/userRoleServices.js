@@ -7,6 +7,9 @@ export default {
     getAllUserRoles(userId) {
       return apiClient.get(`resume-t6/user/${userId}/userRole/`);
     },
+    getEveryUserRole(){
+      return apiClient.get(`resume-t6/userRole/`);
+    },
     getUserRole(userId, id) {
       return apiClient.get(`resume-t6/user/${userId}/userRole/${id}`);
     },

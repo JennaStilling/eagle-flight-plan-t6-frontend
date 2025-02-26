@@ -5,6 +5,7 @@ import userRoleServices from "@/services/resumeBuilderServices/userRoleServices"
 import roleServices from "@/services/resumeBuilderServices/roleServices";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import InitialLogin from '@/components/flightPlanComponents/InitialLogin.vue'
 
 const currentUser = ref(null);
 const allRoles = ref(null);
@@ -14,7 +15,7 @@ const router = useRouter();
 
 onMounted(() => {
     user.value = Utils.getStore("user");
-    HandleRoute();
+    //HandleRoute();
 });
 
 const HandleRoute = () => {
@@ -34,6 +35,7 @@ const HandleRoute = () => {
             router.push({ name: "login" });
         }
     };
+
 
 const getUserRole = () => {
     userRoleServices.getAllUserRoles(currentUser.value.id)
@@ -75,8 +77,7 @@ const routeToHomePage = () => {
 
 <template>
     <div class="home-page">
-        <h1>Welcome to Flight Plan!</h1>
-        <p>This page should not be visible</p>
+        <InitialLogin></InitialLogin>
     </div>
 </template>
 
@@ -84,12 +85,13 @@ const routeToHomePage = () => {
 @import "@/assets/dark-mode.css";
 
 .home-page {
-    color: white;
+    color: black;
     padding: 70px;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow: hidden;
+    padding-top: 15%;
 }
 
 .start-button {

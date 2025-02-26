@@ -123,6 +123,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useHomePageStore } from '@/store/homePageStore';
 import BackArrow from '@/assets/ArrowBackwardIcon.svg';
 import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
 import Utils from "@/config/utils";
@@ -265,6 +266,7 @@ const listStudentTasks = () => {
         if (studentFlightPlanTask.status === 'ready_for_review') studentFlightPlanTasksList.value.push(studentFlightPlanTask);
       });
 
+const homeStore = useHomePageStore();
       // Add to object and put into a list
       addToStudentList();
     })

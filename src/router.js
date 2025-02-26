@@ -27,8 +27,9 @@ import HomepageRouterFP from '@/views/flightPlanViews/HomePageRouter.vue';
 
 // Flight Plan components and the like
 import AdminHomePageFP from '@/views/flightPlanViews/admin/AdminHome.vue';
-import ProfessorHomeFP from './views/flightPlanViews/professor/ProfessorHome.vue';
-import StudentHomeFP from './views/flightPlanViews/student/StudentHome.vue';
+import StudentHomePageFP from '@/views/flightPlanViews/student/StudentHome.vue';
+import StudentWorkerHomePageFP from '@/views/flightPlanViews/studentWorker/StudentWorkerHome.vue';
+import ProfessorHomePageFP from '@/views/flightPlanViews/professor/ProfessorHome.vue';
 import settings from '@/views/flightPlanViews/Settings.vue';
 import profile from '@/views/flightPlanViews/Profile.vue';
 import AwardMaintenance from './views/flightPlanViews/admin/maintenance/AwardMaintenance.vue';
@@ -90,6 +91,9 @@ const routes = [
 
   // Flight Plan Jazz
   { path: '/flightPlan/adminHome', name: 'adminHomeFP', component: AdminHomePageFP},
+  { path: '/flightPlan/studentHome', name: 'studentHomeFP', component: StudentHomePageFP},
+  { path: '/flightPlan/studentWorkerHome', name: 'studentWorkerHomeFP', component: StudentWorkerHomePageFP},
+  { path: '/flightPlan/professorHome', name: 'professorHomeFP', component: ProfessorHomePageFP},
 
   { path: '/flightPlan/settings', name: 'settings', component: settings },
   { path: '/flightPlan/profile', name: 'profile', component: profile },
@@ -103,8 +107,6 @@ const routes = [
   { path: '/flightPlan/task/Maintenance', name: 'task', component: TaskMaintenance },
   { path: '/flightPlan/transaction/logs', name: 'transactionLog', component: TransactionLogs },
   { path: '/flightPlan/user/Maintenance', name: 'userMaintenance', component: UserMaintenance },
-  { path: '/flightPlan/professorHome', name: 'professorHomeFP', component: ProfessorHomeFP },
-  { path: '/flightPlan/studentHome', name: 'studentHomeFP', component: StudentHomeFP },
   { path: '/flightPlan/cliftonStrength', name: 'cliftonStrength', component: CliftonStrength },
 ];
 
