@@ -125,7 +125,7 @@ const getUserRolePermission = () => {
 
 const getAllPermissions = () => {
   userRolePermissions.value.forEach(permission => {
-    permissionServices.getPermission(permission.id)
+    permissionServices.getPermission(permission.permissionId)
       .then((res) => {
         userPermissions.push(res.data.type);
         checkPermissions();
