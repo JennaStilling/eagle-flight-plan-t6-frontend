@@ -3,10 +3,10 @@
       <v-container class="login-container" fill-height>
         <v-row justify="center" align="center" class="welcome-container">
           <div class="welcome-message">
-            <img src="/src/assets/bigLogo.png" alt="ResuMate Logo" class="logo" />
-            <h1 class="welcome-text">Welcome to ResuMate!</h1>
+            <h1 class="welcome-text">Welcome to <br>
+               Eagle Flight Plan!</h1>
             <p class="instructions">
-              Log in or register to begin building your resume.
+              Log in to Career Services.
             </p>
             <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
             <div class="signup-section">
@@ -19,7 +19,7 @@
   </template>
   
   <script>
-  import SocialLogin from "@/components/SocialLogin.vue";
+  import SocialLogin from "@/components/resumeBuilderComponents/SocialLogin.vue";
   import { useRouter } from "vue-router";
   import { ref } from "vue";
   
@@ -33,7 +33,7 @@
       const errorMessage = ref("");
   
       const handleLoginSuccess = () => {
-        router.push('/home');
+        router.push('/homeFP');
       };
   
       const handleLoginFailure = (message) => {
@@ -51,12 +51,15 @@
   
   <style scoped>
   .login-page {
-    background-image: url('@/assets/login-background.png');
+    background-image: url('@/assets/eagle-login-background.jpg');
     background-size: cover;
     background-position: center;
     min-height: 100vh;
     display: flex;
     justify-content: center;
+    margin-left: -10px; 
+    box-shadow: 20 8px 12px rgba(0, 0, 0, 20);
+    overflow: hidden;
   }
   
   .login-container {
@@ -64,6 +67,8 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
+    margin-left: 100vh;
+    box-shadow: 20 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   .logo {
@@ -102,11 +107,12 @@
     margin-bottom: 30px;
     text-align: center;
     line-height: 1.4;
+    font-weight: lighter;
   }
   
   .error-message {
-    color: red; /* Red color for error messages */
-    margin-bottom: 20px; /* Space below the error message */
+    color: red; 
+    margin-bottom: 20px; 
   }
   
   .signup-section {
@@ -114,11 +120,25 @@
     display: flex;
     justify-content: center;
     margin-top: 20px;
+    box-shadow: 20 4px 8px rgba(0, 0, 0, 0.9);
   }
   
   .signup-section .social-login-btn {
     width: 100%;
     text-align: center;
     color: #fff;
+    box-shadow: 20 4px 8px rgba(0, 0, 0, 0.1);
   }
-  </style>  
+  
+  .login-modal {
+    position: absolute;
+    right: 500px; 
+    bottom: 50px; 
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  </style>

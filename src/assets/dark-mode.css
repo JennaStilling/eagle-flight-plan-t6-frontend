@@ -1,14 +1,14 @@
 /* Layout Styles */
 .container {
     display: flex;
-    background-color: #021E2C;
+    background-color: #FFFFFFff;
     color: #FFF;
     overflow: hidden;
 }
 .sidebar {
     width: 25%;
     padding: 10px;
-    background-color: #021E2C;
+    background-color: #FFFFFFff;
     color: #FFF;
     box-sizing: border-box;
     overflow: hidden;
@@ -18,7 +18,7 @@
     flex: 1;
     padding: 50px;
     box-sizing: border-box;
-    background-color: #021E2C;
+    background-color: #FFFFFFff;
 }
 
 /* List and Dropdown Styles */
@@ -79,7 +79,7 @@
     left: 0;
     font-weight: 700;
     font-size: 16px;
-    color: #fff;
+    color: rgba(0, 0, 0, 0.5);
     font-family: 'Helvetica', sans-serif;
     margin: 5px;
     white-space: normal;
@@ -91,27 +91,29 @@
     margin-top: 30px;
     padding: 5px;
     border-radius: 4px;
-    background-color: #084565;
+    background-color: #FFFfff;
     border: 1px solid #099ace;
-    color: #fff;
+    color: #000000;
     font-size: 16px; 
     font-family: 'Helvetica', sans-serif;
 }
+  
 
 /* Save Button Styles */
 .save-button {
-    width: 130px; 
-    position: relative;
+    width: 15%; 
+    position: absolute;
     height: 40px; 
     text-align: center; 
     font-size: 12px; 
-    color: #021E2C;
+    color: white;
     font-family: Helvetica, sans-serif;
     margin-top: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center; 
+    left: 85%;
 }
 
 .save-button-child {
@@ -119,14 +121,50 @@
     top: 0;
     left: 0;
     border-radius: 8px;
-    background: linear-gradient(90deg, #118acb, #69cbff);
-    border: 3px solid #084565;
+    background: #118ACB;
+    margin-right: 5px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
+
 }
 
 .save-changes {
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold; 
+}
+
+.delete-button {
+    width: 15%; 
+    position: absolute;
+    height: 40px; 
+    text-align: center; 
+    font-size: 12px; 
+    color: white;
+    font-family: Helvetica, sans-serif;
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    right: 85%;
+}
+
+.delete-button-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 8px;
+    background: #F04E3E;
+    margin-right: 5px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+
+}
+
+.delete-changes {
     z-index: 1;
     font-size: 12px;
     font-weight: bold; 
@@ -142,18 +180,18 @@
 .nav-button {
     position: relative;
     height: 40px;
-    width: 80px;
+    width: 15%;
     text-align: center;
     line-height: 40px;
     font-size: 14px; /* Smaller text size */
-    color: #fff;
+    color: white;
     font-family: 'Helvetica', sans-serif;
     background-color: transparent;
     border: none;
     cursor: pointer;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
-    border-radius: 30px;
-    background: linear-gradient(90deg, #7b1329, #e1234b);
+    border-radius: 8px;
+    background: #811429;
     font-weight: 700;
 }
 
@@ -169,10 +207,14 @@
     border-radius: 10px;
 }
 
+.scrollable {
+    overflow-y: scroll;
+ }
+
 /* Form Data Styles */
 .mandatory {
     color: red;
-    margin-left: 2px;
+    margin-left: 5px;
     font-size: 12px;
 }
 
@@ -195,6 +237,7 @@
     display: flex;
     padding-top: 30px;
     text-indent: 5px; 
+    color:black;
 }
 
 .text-field::placeholder {
@@ -267,8 +310,8 @@
     background-color: #e74c3c;
 }
 
-.add-button-green {
-    background-color: #4CAF50; 
+.add-button {
+    background-color: #118ACB; 
     border: none;
     color: white;
     padding: 1px 1px;
@@ -282,6 +325,15 @@
     border-radius: 4px;
   }
   
-  .add-button-green:hover {
-    background-color: #45a049;
+  .add-button:hover {
+    background-color: rgba(17, 138, 203, 0.5);
+  }
+
+  .form {
+   position: relative; 
+  }
+
+  .form-buttons{
+    position: relative;
+    width: 70%;
   }

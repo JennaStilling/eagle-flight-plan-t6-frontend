@@ -1,20 +1,26 @@
 <template>
-  <div id="app">
-    <Header v-if="currentTab.value !== 'login'" :currentTab="currentTab" />
+  <div id="app" :class="{ 'flight-plan': currentModule === 'flightPlan' }">
+    <HeaderResumeBuilder v-if="currentTab.value !== 'login' && currentModule === 'resumeBuilder'" :currentTab="currentTab" />
+    <HeaderFlightPlan v-if="currentTab.value !== 'login' && currentModule === 'flightPlan' || isHomePage" />
+    <SideBar v-if="currentTab.value !== 'login' && currentModule === 'flightPlan' || isHomePage" :currentTab="currentTab" />
     <NavBar v-if="showNavBar" :currentTab="currentTab" />
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Header from './components/Header.vue';
-import NavBar from './components/NavBar.vue';
+import HeaderResumeBuilder from './components/resumeBuilderComponents/Header.vue';
+import HeaderFlightPlan from './components/flightPlanComponents/Header.vue';
+import SideBar from './components/flightPlanComponents/SideBar.vue';
+import NavBar from './components/resumeBuilderComponents/NavBar.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default {
   components: {
-    Header,
+    HeaderResumeBuilder,
+    HeaderFlightPlan,
+    SideBar,
     NavBar,
   },
   setup() {
@@ -22,13 +28,13 @@ export default {
 
     // Define a mapping of specific base paths to tab names
     const routeToTabName = {
-      '/contact-info': 'Contact Info',
-      '/education': 'Education',
-      '/courses': 'Courses',
-      '/experience': 'Experience',
-      '/certifications': 'Certifications',
-      '/skills': 'Skills',
-      '/project': 'Project'
+      '/resumeBuilder/contact-info': 'Contact Info',
+      '/resumeBuilder/education': 'Education',
+      '/resumeBuilder/courses': 'Courses',
+      '/resumeBuilder/experience': 'Experience',
+      '/resumeBuilder/certifications': 'Certifications',
+      '/resumeBuilder/skills': 'Skills',
+      '/resumeBuilder/project': 'Project'
     };
     
     // Check if the current route is the root home page
@@ -48,10 +54,16 @@ export default {
     const showHeader = computed(() => {
       return currentTab.value === 'login'});
 
+    const currentModule = computed(() => {
+      const segments = route.path.split('/');
+      return segments[1] || '';
+    });
+
     return {
       isHomePage,
       currentTab,
-      showNavBar
+      showNavBar,
+      currentModule
     };
   },
 };
@@ -59,10 +71,14 @@ export default {
 
 <style>
 #app {
-  font-family: 'Helvetica', sans-serif;
+  font-family: 'Poppins', sans-serif;
   flex-direction: column;
   height: min-content;
-  background-color: #021E2C;
+  background-color: #FFFFff;
   overflow: hidden;
+}
+
+.flight-plan {
+  margin-left: 60px;
 }
 </style>

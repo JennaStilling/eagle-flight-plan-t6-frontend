@@ -9,7 +9,7 @@ loadFonts();
 
 // Styles
 import "vuetify/styles";
-//import "@mdi/font/css/materialdesignicons.css";
+import '@mdi/font/css/materialdesignicons.css';
 
 const myCustomLightTheme = {
   dark: false,
