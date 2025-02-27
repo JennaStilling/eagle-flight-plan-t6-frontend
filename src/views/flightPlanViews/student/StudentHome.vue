@@ -1,23 +1,43 @@
 <template>
-  <div class="modified-width">
-    <!-- <p>Student home page</p>
-    <p> Current role: {{ homeStore.getCurrentRole }}</p>
-    <p> Current home page: {{ homeStore.getHomePage }}</p> -->
-    <div class="semester-navigation">
-      <button @click="getPreviousSemester">
-        <img src="@/assets/navigation/left-arrow2.png" alt="Previous Semester" />
-      </button>
-      <h1>{{ currentSemester }}</h1>
-      <button @click="getNextSemester">
-        <img src="@/assets/navigation/left-arrow2.png" alt="Next Semester" class="right-arrow" />
-      </button>
+  <div class="container">
+    <div class="left-side">
+      <div class="semester-navigation">
+        <button @click="getPreviousSemester">
+          <img src="@/assets/navigation/left-arrow2.png" alt="Previous Semester" />
+        </button>
+        <h1>{{ currentSemester }}</h1>
+        <button @click="getNextSemester">
+          <img src="@/assets/navigation/left-arrow2.png" alt="Next Semester" class="right-arrow" />
+        </button>
+      </div>
+      <div class="data-table-container">
+        <table class="data-table">
+          <tbody>
+            <br><br><br><br><br><br><br><br>
+            <br><br><br><br><br><br><br><br>
+            <br><br>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="data-table-container">
-      <table class="data-table">
-        <tbody>
-          <!-- Data rows  -->
-        </tbody>
-      </table>
+    <div class="right-side">
+      <div class = "shop-card">
+        <img src="@/assets/navigation/shoppingCart.png" alt="Shopping Cart" class="shopping-cart-icon" />
+        <div class="shop-info">
+          <h1>Shop</h1>
+            <p>You have <strong style="color: #811429; font-weight: 700;">37</strong> points</p>
+        </div>
+      </div>
+      <div class="events-navigation">
+        <h1>Upcoming Events</h1>
+      </div>
+      <div class="data-table-container">
+        <table class="data-table">
+          <tbody>
+            <br><br><br><br><br><br><br><br><br><br>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -70,10 +90,19 @@ const getNextSemester = () => {
 </script>
 
 <style scoped>
-.modified-width {
+.container {
+  display: flex;
   height: 100vh;
-  margin: 0 auto;
-  padding-top: 15px;
+  background-color: #bed6e7;
+}
+
+.left-side, .right-side {
+  width: 50%;
+  padding: 17px;
+}
+
+.left-side {
+  margin-left: 2%;
 }
 
 .semester-navigation {
@@ -83,24 +112,74 @@ const getNextSemester = () => {
   background-color: #811429;
   color: white;
   border-radius: 20px 20px 0 0;
-  padding: 10px;
+  padding: 9px;
   position: relative;
-  width: 50%;
+  width: 95%;
   margin-top: 2%;
-  margin-left: 2%;
 }
 
-.semester-navigation button {
+.shop-card {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  color: black;
+  border-radius: 16px;
+  padding: 27px;
+  position: relative;
+  width: 95%;
+  height: 20%;
+  margin-top: 2%;
+  margin-bottom: 4%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease, border 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.shop-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  border: 4px solid #811429;
+}
+
+.shop-card .shopping-cart-icon {
+  width: 67px;
+  height: 67px;
+  margin-right: 20px;
+}
+
+.shop-card .shop-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-info p{
+  font-size: 1.5rem;  
+}
+
+.events-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #811429;
+  color: white;
+  border-radius: 20px 20px 0 0;
+  padding: 18px;
+  position: relative;
+  width: 95%;
+  margin-top: 2%;
+}
+
+.semester-navigation button, .events-navigation button {
   background: none;
   border: none;
   cursor: pointer;
   color: white;
-  margin-top: 1%;
-  margin-left: 2%;
-  margin-right: 2%;
+  margin-left: 6%;
+  margin-right: 6%;
+  margin-top:1%;
 }
 
-.semester-navigation img {
+.semester-navigation img, .events-navigation img {
   width: 2.6rem;
   height: 2.6rem;
 }
@@ -118,9 +197,14 @@ const getNextSemester = () => {
   font-size: 1.7rem;
 }
 
+.events-navigation h1 {
+  margin: 4;
+  color: white;
+  font-size: 1.7rem;
+}
+
 .data-table-container {
-  width: 50%;
-  margin-left: 2%;
+  width: 95%;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 0 0 20px 20px;
@@ -128,7 +212,7 @@ const getNextSemester = () => {
 }
 
 .data-table {
-  width: 100%;
+  width: 95%;
   border-collapse: collapse;
 }
 
@@ -140,5 +224,22 @@ const getNextSemester = () => {
 .data-table th {
   background-color: #f2f2f2;
   text-align: left;
+}
+
+.progress-section {
+  margin-top: 10px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #C5DCEC;
+  border-radius: 5px;
+}
+
+.progress {
+  height: 10px;
+  background: #8CB9D6;
+  border-radius: 5px;
 }
 </style>
