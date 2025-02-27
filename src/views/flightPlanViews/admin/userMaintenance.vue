@@ -1,13 +1,43 @@
 <template>
   <div class="modified-width">
+
+    <div class="title-row">
+      <h1 class="table-title">Manage Users</h1>
+      <div class="search-filter-button-group">
+        <v-text-field v-model="search" label="Search for User" variant="solo" hide-details single-line density="compact"
+          class="search-bar">
+          <template v-slot:prepend-inner>
+            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+          </template>
+        </v-text-field>
+
+        <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" variant="solo" hide-details
+          density="compact" class="filter-menu"></v-select>
+
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addTask()">
+          Add Student
+        </v-btn>
+      </div>
+    </div>
+
+      <v-card class="stuff">
+        <div class="user-previews" v-if="!loadingUserRoles && !loadingUsers && !loadingRoles">
+          <UserPreview v-for="user in filteredUsers" :key="user.id" :user="user"
+            :userRoles="userRoles.filter((userRole) => userRole.userId === user.id)" :roles="roles" @edit="handleEdit"
+            @delete="handleDelete" />
+        </div>
+      </v-card>
+      <v-card class="pager">
+        <h3>Page 1 of 1</h3>
+
+      </v-card>
+  </div>
+
+  <div class="modified-width">
     <v-card title="Edit Users">
       <v-row>
-        <v-col cols="3">
-          <p>test</p>
-
-        </v-col>
-        <v-col cols="3">
-          <v-text-field v-model="search" label="Search for User" variant="outlined" hide-details single-line>
+        <v-col cols="5">
+          <v-text-field v-model="search" label="Search for User" variant="solo" hide-details single-line>
             <template v-slot:prepend-inner>
               <Icon icon="material-symbols:search-rounded" width="24" height="24" />
             </template>
@@ -15,9 +45,15 @@
 
         </v-col>
 
-        <v-col cols="3">
-          <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined hide-details>
+        <v-col cols="5">
+          <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined hide-details
+            variant="solo">
           </v-select>
+        </v-col>
+        <v-col cols="2">
+          <v-btn>
+            Add Student
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -100,14 +136,16 @@
 <script setup>
 import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
+
+// Services Files
 import UserServices from "@/services/resumeBuilderServices/userServices";
-
-import ReviewerRoleServices from "@/services/resumeBuilderServices/reviewerRoleServices";
-
 import RoleServices from "@/services/resumeBuilderServices/roleServices";
 import RolePermissionServices from "@/services/flightPlanServices/rolePermissionServices";
 import UserRolePermissionServices from "@/services/flightPlanServices/userRolePermissionServices";
 import UserRoleServices from "@/services/resumeBuilderServices/userRoleServices";
+
+// Components 
+import UserPreview from '@/components/flightPlanComponents/adminPages/UserPreview.vue';
 
 import { useRouter } from "vue-router";
 import Utils from "@/config/utils.js";
@@ -132,7 +170,6 @@ const headers = [
   { text: "Is Student?", value: "isStudent", align: "start" },
   { text: "Is Reviewer?", value: "isReviewer", align: "start" },
   { text: "Is Admin?", value: "isAdmin", align: "start" },
-
 ];
 
 const roles = ref([]);
@@ -140,75 +177,38 @@ const userRoles = ref([]);
 const specificUserRoles = ref("");
 const router = useRouter();
 
-const studentId = ref("");
-const adminId = ref("");
-const reviewerId = ref("");
-
-const selectedStudentId = ref("");
-const selectedAdminId = ref("");
-const selectedReviewerId = ref("");
 const hasReviewerAccess = ref(false);
+
+const loadingUserRoles = ref(true);
+const loadingUsers = ref(true);
+const loadingRoles = ref(true);
 
 onMounted(() => {
   user.value = Utils.getStore("user");
+  refresh();
+});
+
+const refresh = () => {
   getUsers();
   getAllRoles();
   getAllUserRoles();
-  //getUserRoles();
-});
+}
 
-const getUserRoles = () => {
-  UserServices.getUser(user.value.userId)
-    .then((res) => {
-      user.value = res.data;
-      console.log("ID: " + user.value.id);
-      console.log("Student ID: " + user.value.studentId);
-      console.log("Admin ID: " + user.value.adminId);
-      console.log("Reviewer ID: " + user.value.reviewerId);
-
-      studentId.value = user.value.studentId;
-      adminId.value = user.value.adminId;
-      reviewerId.value = user.value.reviewerId;
-
-      if (
-        studentId.value != null &&
-        adminId.value == null &&
-        reviewerId.value == null
-      )
-        router.push({ name: "studentHome" });
-      else if (
-        (adminId.value != null &&
-          studentId.value == null &&
-          reviewerId.value == null) ||
-        (studentId.value != null &&
-          reviewerId.value != null &&
-          adminId.value != null) ||
-        (studentId.value != null &&
-          adminId.value != null &&
-          reviewerId.value == null) ||
-        (reviewerId.value != null &&
-          adminId.value != null &&
-          studentId.value == null)
-      )
-        router.push({ name: "adminHomeRB" });
-      else if (
-        reviewerId.value != null &&
-        adminId.value == null &&
-        studentId.value == null
-      )
-        router.push({ name: "reviewerHome" });
-      else console.log("User has not been assigned a role");
-    })
-    .catch((error) => {
-      console.log("error", error);
-    });
+const handleEdit = (id) => {
+  console.log("EDITING");
 };
+
+const handleDelete = async () => {
+  console.log("DELETING");
+};
+
 
 const getAllRoles = () => {
   RoleServices.getAllRoles()
     .then((res) => {
       roles.value = res.data;
       message.value = "";
+      loadingRoles.value = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -221,6 +221,7 @@ const getAllUserRoles = () => {
     .then((res) => {
       userRoles.value = res.data;
       message.value = "";
+      loadingUserRoles.value = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -234,6 +235,7 @@ const getUsers = () => {
       users.value = res.data;
       message.value = "";
       orderUsers("asc");
+      loadingUsers.value = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -269,7 +271,6 @@ const deleteDisplay = (item) => {
 const userDataDisplay = async (item) => {
   user.value = item;
   showUserInfo.value = true;
-  //await getUserRoles(item.id);
 };
 
 const filteredUsers = computed(() => {
@@ -363,8 +364,7 @@ const addRole = (userId, roleName) => {
       console.log(err);
     })
     .finally(() => {
-      getUsers();
-      getAllUserRoles();
+      refresh();
     })
 };
 
@@ -374,10 +374,11 @@ const removeRole = (userId, roleName) => {
 
   UserRoleServices.deleteUserRole(userId, userRoleId)
     .then(() => {
-      getUsers();
-      getAllUserRoles();
     })
-    .catch((err) => console.error(err));
+    .catch((err) => console.error(err))
+    .finally(() => {
+      refresh();
+    })
 };
 
 const getSpecificUserRoles = (specificUserId) => {
@@ -415,5 +416,90 @@ const saveUserData = (userId) => {
   height: 100vh;
   margin: 0 auto;
   padding-top: 15px;
+}
+
+.user-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(23vw, 1fr));
+  gap: 20px;
+  grid-auto-flow: dense;
+  margin: 20px;
+}
+
+.stuff {
+  background-color: rgb(255, 255, 255);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  border-radius: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  grid-auto-flow: dense;
+}
+
+.pager {
+  margin: 20px;
+  padding: 10px;
+}
+
+.card-outlines {
+
+  background-color: rgb(255, 255, 255);
+
+  width: 100%;
+  /* Set width to resemble a piece of paper */
+  height: 100;
+  /* Set height */
+  padding: 10px;
+  /* Padding inside the box */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+  margin-bottom: 10px;
+  /* Space below the shortcut area */
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    flex-wrap: wrap;
+}
+
+.table-title {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.search-filter-button-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    justify-content: flex-start;
+}
+
+.search-bar {
+    width: 250px;
+    min-width: 180px;
+    max-width: 300px;
+    flex-shrink: 1;
+}
+
+.filter-menu {
+    width: 180px;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.button {
+    width: auto;
+    color: white !important;
+    white-space: nowrap;
 }
 </style>
