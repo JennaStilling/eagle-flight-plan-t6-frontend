@@ -182,9 +182,9 @@
 
       <v-card-actions class="popup-actions">
         <v-spacer></v-spacer>
-        <v-btn v-if="taskEdit" color="red" variant="outlined">Delete</v-btn>
-        <v-btn color="grey" variant="outlined" @click="showTaskDetails = false">Cancel</v-btn>
-        <v-btn color="green" variant="flat" @click="taskEdit ? editTask() : addTask()">Save</v-btn>
+        <v-btn v-if="taskEdit" color="#F04E3E" variant="flat">Delete</v-btn>
+        <v-btn color="#708E9A" variant="flat" @click="showTaskDetails = false">Cancel</v-btn>
+        <v-btn color="#5EC4B6" variant="flat" @click="taskEdit ? editTask() : addTask()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </div>

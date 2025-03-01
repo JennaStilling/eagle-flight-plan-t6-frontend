@@ -143,10 +143,11 @@
 
             <v-card-actions class="popup-actions">
                 <v-spacer></v-spacer>
-                <v-btn v-if="experienceEdit" color="red" variant="outlined">Delete</v-btn>
-                <v-btn color="grey" variant="outlined" @click="showExperienceDetails = false">Cancel</v-btn>
-                <v-btn color="green" variant="flat"
+                <v-btn v-if="experienceEdit" color="#F04E3E" variant="flat">Delete</v-btn>
+                <v-btn color="#708E9A" variant="flat" @click="showExperienceDetails = false">Cancel</v-btn>
+                <v-btn color="#5EC4B6" variant="flat" style="color: white;"
                     @click="experienceEdit ? editExperience() : addExperience()">Save</v-btn>
+
             </v-card-actions>
         </v-card>
     </div>
@@ -275,7 +276,7 @@ const editExperience = () => {
         expScheduleType.value = 'special_event'
     }
 
-    if(expScheduleType.value === 'Every Semester') {
+    if (expScheduleType.value === 'Every Semester') {
         expScheduleType.value = 'every_semester'
     }
 
@@ -330,17 +331,17 @@ const addExperience = () => {
         expScheduleType.value = 'special_event'
     }
 
-    if(expScheduleType.value === 'Every Semester') {
+    if (expScheduleType.value === 'Every Semester') {
         expScheduleType.value = 'every_semester'
     }
 
     //   category enum('academic','leadership','networking','strengths','career_prep','mentoring','volunteer','') 
-// type enum('automatic','manual') 
-// req_reflection tinyint(1) 
-// schedule_type enum('one_time','every_semester','special_event') 
-// name varchar(255) 
-// description varchar(255) 
-// rational varchar(255)
+    // type enum('automatic','manual') 
+    // req_reflection tinyint(1) 
+    // schedule_type enum('one_time','every_semester','special_event') 
+    // name varchar(255) 
+    // description varchar(255) 
+    // rational varchar(255)
 
     const newExperience = {
         category: expCategory.value.toLowerCase(),
