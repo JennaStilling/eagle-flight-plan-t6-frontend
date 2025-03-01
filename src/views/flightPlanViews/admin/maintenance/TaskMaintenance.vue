@@ -523,7 +523,6 @@ const deleteSelectedTasks = (selected) => {
 
 .edit-popup {
   max-width: 550px;
-  /* Increased width */
   max-height: 80vh;
   overflow-y: auto;
   padding: 16px;
@@ -543,9 +542,7 @@ const deleteSelectedTasks = (selected) => {
 
 .label-column {
   white-space: nowrap;
-  /* Prevents labels from wrapping */
   text-align: right;
-  /* Aligns labels to the right */
   font-weight: 500;
   font-size: 14px;
   color: #555;
@@ -554,6 +551,5 @@ const deleteSelectedTasks = (selected) => {
 .v-text-field,
 .v-textarea {
   width: 100%;
-  /* Ensures input fields take up full width */
 }
 </style>
