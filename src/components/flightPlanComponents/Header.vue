@@ -2,9 +2,7 @@
   <logout v-if="isLogout" @toggleLogout="toggleLogout" @signOut="signOut" />
   <header class="header" v-if="currentRouteName !== 'login'">
     <div class="logo-title">
-      <router-link :to="{ name: 'homeFP' }"> <!-- Change the router link later -->
-        <img src="/src/assets/OCLogo.png" alt="OC Logo" class="logo" />
-      </router-link>
+        <img src="/src/assets/OCLogo.png" alt="OC Logo" class="logo" @click="goToHome()"/>
       <div class="title">Eagle Flight Plan</div>
     </div>
 
@@ -146,6 +144,10 @@ const updateHomePage = (loc) => {
       break;
   }
 };
+
+const goToHome = () => {
+  homeStore.routeToView(router);
+}
 
 const signOut = async () => {
   user.value = Utils.getStore("user");
