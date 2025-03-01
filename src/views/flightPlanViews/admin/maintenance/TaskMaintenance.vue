@@ -13,7 +13,7 @@
         <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Category" variant="solo-filled"
           density="compact" hide-details class="filter-menu"></v-select>
 
-        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addTask()">
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addTaskPopup()">
           Add Task
         </v-btn>
         <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteSelectedTasks(selected)">
@@ -60,134 +60,123 @@
   <div v-if="showTaskDetails" class="modal edit-form-body">
     <v-card class="edit-popup mx-auto">
       <v-card-title class="popup-header">
-        <v-text-field> {{ taskEdit ? taskName : "<Task Name>" }}</v-text-field>
+        <v-text-field v-model="taskName"></v-text-field>
 
       </v-card-title>
 
       <v-divider></v-divider>
-
+      <!-- Category-->
       <v-container class="popup-content">
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.category }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+              <v-select v-model="taskCategory" :items="categoryOptions" variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
           </v-col>
         </v-row>
 
+        <!-- Reflection Required-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.reflection }}</label>
           </v-col>
-
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-switch v-model="isRequired" hide-details></v-switch>
           </v-col>
         </v-row>
 
+        <!-- Frequency-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.schedule }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-select v-model="scheduleType" :items="frequencyOptions" variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
           </v-col>
         </v-row>
 
+        <!-- Description-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.description }}</label>
           </v-col>
-
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-textarea v-model="taskDescription" rows="2" variant="outlined" density="compact"></v-textarea>
           </v-col>
         </v-row>
 
+        <!-- Rationale-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.rationale }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="taskRationale" variant="outlined" density="compact"
+              hide-details></v-text-field>
           </v-col>
         </v-row>
 
+        <!-- Semesters from Grad-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.semesters }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="semFromGrad" variant="outlined" density="compact"
+              hide-details></v-text-field>
           </v-col>
         </v-row>
 
+        <!-- Point Value-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.points }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="taskPointValue" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
+        <!-- Prereq Task-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.prereq }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="taskPreReq" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
+        <!-- Video Type-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.video }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="taskVideoLink" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
+        <!-- Verification-->
         <v-row class="form-row">
           <v-col cols="5" class="label-column">
-            <label>{{ label }}</label>
+            <label>{{ labels.verification }}</label>
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskFields[index]" variant="outlined" density="compact" hide-details></v-text-field>
-          </v-col>
-        </v-row>
-
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>Reflection Required?</label>
-          </v-col>
-          <v-col cols="7">
-            <v-switch v-model="taskEdit" hide-details>{{ taskEdit ? taskDescription : false }}</v-switch>
-          </v-col>
-        </v-row>
-
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>Description</label>
-          </v-col>
-          <v-col cols="7">
-            <v-textarea v-model="taskDescription" rows="2" variant="outlined" density="compact">{{ taskEdit ? isRequired
-              :
-              "" }}</v-textarea>
+            <v-text-field v-model="taskVerificationType" variant="outlined" density="compact"
+              hide-details></v-text-field>
           </v-col>
         </v-row>
       </v-container>
-
 
       <v-divider></v-divider>
 
@@ -245,10 +234,13 @@ const headers = ref([
 ]);
 
 const filterOptions = ref(['All', 'Academic', 'Leadership', 'Networking', 'Strengths', 'Career Prep', 'Mentoring', 'Volunteer', 'Other']);
+const categoryOptions = ['Academic', 'Leadership', 'Networking', 'Strengths', 'Career Prep', 'Mentoring', 'Volunteer', 'Other'];
+const frequencyOptions = ['One Time', 'Semesterly', 'Special Event', 'Other']
+//const frequencyOptions = ['one_time', 'semesterly', 'special_event', 'other']
 
 const labels = {
   category: "Category",
-  reflection: "Reflection",
+  reflection: "Reflection Required?",
   schedule: "Frequency",
   description: "Description",
   rationale: "Rationale",
@@ -258,14 +250,6 @@ const labels = {
   video: "Video Link",
   verification: "Verification Type"
 };
-
-const taskFields = ref([
-  taskCategory, scheduleType, taskRationale, semFromGrad,
-  taskPointValue, taskPreReq, taskVideoLink, taskVerificationType
-]);
-
-const taskFieldValues = ref([]);
-
 
 const filteredTasks = computed(() => {
   if (selectedFilter.value === 'All') {
@@ -282,6 +266,10 @@ const filteredTasks = computed(() => {
 });
 
 onMounted(() => {
+  getAllTasks();
+});
+
+const getAllTasks = () => {
   TaskServices.getAllTasks()
     .then((res) => {
       tasks.value = res.data;
@@ -291,7 +279,7 @@ onMounted(() => {
       message.value = `Error: ${err.code}: ${err.message}`;
       console.error(err);
     });
-});
+}
 
 
 
@@ -301,35 +289,122 @@ const editTaskPopup = (task) => {
   taskEdit.value = true;
   taskAdd.value = false;
 
-  taskFields.value = [
-    taskToEdit.value.category, 
-    taskToEdit.value.rationale, 
-    taskToEdit.value.semester_from_grad, 
-    taskToEdit.value.point_value, 
-    taskToEdit.value.taskId, 
-    taskToEdit.value.video_link, 
-    taskToEdit.value.verificationId]
-
+  taskCategory.value = capitalize(taskToEdit.value.category);
+  taskRationale.value = taskToEdit.value.rationale;
+  semFromGrad.value = taskToEdit.value.semester_from_grad;
+  taskPointValue.value = taskToEdit.value.point_value;
+  taskPreReq.value = taskToEdit.value.taskId;
+  taskVideoLink.value = taskToEdit.value.video_link;
+  taskVerificationType.value = taskToEdit.value.verificationId;
   taskDescription.value = taskToEdit.value.description;
-  isRequired.value = taskToEdit.reflection_required
+  isRequired.value = taskToEdit.value.reflection_required;
   taskName.value = taskToEdit.value.name;
+  scheduleType.value = capitalize(taskToEdit.value.schedule_type);
 };
 
-const editTask = () => {
-  console.log('Edit task:', taskToEdit.value.name);
-  showTaskDetails.value = false
+function capitalize(s)
+{
+    return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
 
-const addTask = () => {
-  console.log("Adding a task...");
+const editTask = () => {
+  if (taskCategory.value === 'Career Prep') {
+    taskCategory.value = 'career_prep'
+  }
+
+  if(scheduleType.value === 'One Time') {
+    scheduleType.value = 'one_time'
+  }
+
+  if(scheduleType.value === 'Special Event') {
+    scheduleType.value = 'special_event'
+  }
+
+  const updatedTask = {
+    category: taskCategory.value.toLowerCase(),
+    reflection_required: isRequired.value,
+    schedule_type: scheduleType.value.toLowerCase(),
+    name: taskName.value,
+    description: taskDescription.value,
+    rationale: taskRationale.value,
+    semester_from_grad: semFromGrad.value,
+    point_value: taskPointValue.value,
+    video_link: taskVideoLink.value,
+    taskId: taskPreReq.value,
+    verificationId: taskVerificationType.value,
+  };
+
+  TaskServices.updateTask(taskToEdit.value.id, updatedTask)
+    .then((response) => {
+      console.log("Task updated successfully:", response.data);
+      showTaskDetails.value = false;
+      getAllTasks();
+    })
+    .catch((e) => {
+      message.value = e.response.data.message;
+      deleteError.value = true;
+    });
+};
+
+
+const addTaskPopup = () => {
   showTaskDetails.value = true;
   taskAdd.value = true;
   taskEdit.value = false;
-  taskFields.value = ["", "", "", "", "", "", "", ""]
+  taskToEdit.value = null;
+
+  taskName.value = "";
+  taskCategory.value = "";
+  taskRationale.value = "";
+  semFromGrad.value = "";
+  taskPointValue.value = "";
+  taskPreReq.value = "";
+  taskVideoLink.value = "";
+  taskVerificationType.value = "";
   taskDescription.value = "";
   isRequired.value = false;
-  taskName.value = "";
+  scheduleType.value = "";
 };
+
+
+const addTask = () => {
+  if (taskCategory.value === 'Career Prep') {
+    taskCategory.value = 'career_prep'
+  }
+
+  if(scheduleType.value === 'One Time') {
+    scheduleType.value = 'one_time'
+  }
+
+  if(scheduleType.value === 'Special Event') {
+    scheduleType.value = 'special_event'
+  }
+
+  const newTask = {
+    category: taskCategory.value.toLowerCase(),
+    reflection_required: isRequired.value,
+    schedule_type: scheduleType.value,
+    name: taskName.value,
+    description: taskDescription.value,
+    rationale: taskRationale.value,
+    semester_from_grad: semFromGrad.value,
+    point_value: taskPointValue.value,
+    video_link: taskVideoLink.value,
+    taskId: taskPreReq.value,
+    verificationId: taskVerificationType.value,
+  };
+
+  TaskServices.createTask(newTask).then(() => {
+    showTaskDetails.value = false;
+    console.log("Task added successfully:", response.data);
+    getAllTasks();
+  })
+    .catch((e) => {
+      message.value = e.response.data.message;
+      deleteError.value = true;
+    });
+}
+
 
 const deleteTaskConfirmation = (task) => {
   taskToDelete.value = task;
@@ -423,13 +498,6 @@ const deleteSelectedTasks = (selected) => {
 .button-white-text {
   color: white !important;
 }
-
-/* .edit-form-body {
-  padding-top: 10% !important;
-  padding-bottom: 10% !important;
-  padding-left: 25% !important;
-  padding-right: 25% !important;
-} */
 
 .label-column p {
   font-weight: 500;
