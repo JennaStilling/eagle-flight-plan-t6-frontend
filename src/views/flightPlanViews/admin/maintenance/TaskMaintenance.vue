@@ -60,7 +60,7 @@
   <div v-if="showTaskDetails" class="modal edit-form-body">
     <v-card class="edit-popup mx-auto">
       <v-card-title class="popup-header">
-        <v-text-field v-model="taskName"></v-text-field>
+        <v-text-field v-model="taskName"><Icon icon="material-symbols:edit-outline" width="24" height="24" /></v-text-field>
 
       </v-card-title>
 
@@ -383,24 +383,27 @@ const addTask = () => {
   const newTask = {
     category: taskCategory.value.toLowerCase(),
     reflection_required: isRequired.value,
-    schedule_type: scheduleType.value,
+    schedule_type: scheduleType.value.toLowerCase(),
     name: taskName.value,
     description: taskDescription.value,
     rationale: taskRationale.value,
     semester_from_grad: semFromGrad.value,
     point_value: taskPointValue.value,
     video_link: taskVideoLink.value,
-    taskId: taskPreReq.value,
-    verificationId: taskVerificationType.value,
+    // taskId: taskPreReq.value,
+    // verificationId: taskVerificationType.value,
   };
 
-  TaskServices.createTask(newTask).then(() => {
+  console.log(newTask)
+
+  TaskServices.createTask(newTask).then((response) => {
     showTaskDetails.value = false;
     console.log("Task added successfully:", response.data);
     getAllTasks();
   })
     .catch((e) => {
-      message.value = e.response.data.message;
+      console.log(e)
+      //message.value = e.response.data.message;
       deleteError.value = true;
     });
 }
