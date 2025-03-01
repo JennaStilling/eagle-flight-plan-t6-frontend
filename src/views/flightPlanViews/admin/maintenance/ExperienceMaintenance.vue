@@ -1,7 +1,7 @@
 <template>
     <v-card flat>
         <div class="title-row">
-            <h1 class="table-title">Tasks</h1>
+            <h1 class="table-title">Experiences</h1>
             <div class="search-filter-button-group">
                 <v-text-field v-model="search" label="Search" variant="solo-filled" hide-details single-line
                     density="compact" class="search-bar">
@@ -13,11 +13,11 @@
                 <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Category"
                     variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
 
-                <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addTaskPopup()">
-                    Add Category
+                <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addExperiencePopup()">
+                    Add Experiences
                 </v-btn>
-                <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteSelectedCategories(selected)">
-                    Delete Selected Categories
+                <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteSelectedExperiences(selected)">
+                    Delete Selected Experiences
                 </v-btn>
             </div>
         </div>
@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div v-if="showTaskDetails" class="modal edit-form-body">
+    <div v-if="showExperienceDetails" class="modal edit-form-body">
         <v-card class="edit-popup mx-auto">
             <v-card-title class="popup-header">
                 <v-text-field v-model="expName">
@@ -76,7 +76,19 @@
                     </v-col>
 
                     <v-col cols="7">
-                        <v-select v-model="expCategory" :items="categoryOptions" variant="solo-filled"
+                        <v-select v-model="expCategory" :items="categoryOptions" variant="solo-filled" density="compact"
+                            hide-details class="filter-menu"></v-select>
+                    </v-col>
+                </v-row>
+
+                <!-- Verification Type-->
+                <v-row class="form-row">
+                    <v-col cols="5" class="label-column">
+                        <label>{{ labels.verification }}</label>
+                    </v-col>
+
+                    <v-col cols="7">
+                        <v-select v-model="expVerificationType" :items="typeOptions" variant="solo-filled"
                             density="compact" hide-details class="filter-menu"></v-select>
                     </v-col>
                 </v-row>
@@ -98,7 +110,7 @@
                     </v-col>
 
                     <v-col cols="7">
-                        <v-select v-model="scheduleType" :items="frequencyOptions" variant="solo-filled"
+                        <v-select v-model="expScheduleType" :items="frequencyOptions" variant="solo-filled"
                             density="compact" hide-details class="filter-menu"></v-select>
                     </v-col>
                 </v-row>
@@ -109,8 +121,7 @@
                         <label>{{ labels.description }}</label>
                     </v-col>
                     <v-col cols="7">
-                        <v-textarea v-model="taskDescription" rows="2" variant="outlined"
-                            density="compact"></v-textarea>
+                        <v-textarea v-model="expDescription" rows="3" variant="outlined" density="compact"></v-textarea>
                     </v-col>
                 </v-row>
 
@@ -121,8 +132,8 @@
                     </v-col>
 
                     <v-col cols="7">
-                        <v-text-field v-model="taskRationale" variant="outlined" density="compact"
-                            hide-details></v-text-field>
+                        <v-textarea v-model="expRationale" rows="3" variant="outlined" density="compact"
+                            hide-details></v-textarea>
                     </v-col>
                 </v-row>
 
@@ -132,9 +143,10 @@
 
             <v-card-actions class="popup-actions">
                 <v-spacer></v-spacer>
-                <v-btn v-if="taskEdit" color="red" variant="outlined">Delete</v-btn>
-                <v-btn color="grey" variant="outlined" @click="showTaskDetails = false">Cancel</v-btn>
-                <v-btn color="green" variant="flat" @click="taskEdit ? editTask() : addTask()">Save</v-btn>
+                <v-btn v-if="experienceEdit" color="red" variant="outlined">Delete</v-btn>
+                <v-btn color="grey" variant="outlined" @click="showExperienceDetails = false">Cancel</v-btn>
+                <v-btn color="green" variant="flat"
+                    @click="experienceEdit ? editExperience() : addExperience()">Save</v-btn>
             </v-card-actions>
         </v-card>
     </div>
@@ -149,35 +161,30 @@ const search = ref('');
 const experiences = ref([]);
 const message = ref('');
 const selected = ref([]);
-const showTaskDetails = ref(false);
+const showExperienceDetails = ref(false);
 const showDeleteItem = ref(false);
 const deleteError = ref(false);
 const editError = ref(false);
 const selectedFilter = ref('All');
 
-const taskToEdit = ref(null);
+const experienceToEdit = ref(null);
 const categoryToDelete = ref(null);
-const taskEdit = ref(false);
-const taskAdd = ref(false);
+const experienceEdit = ref(false);
+const experienceAdd = ref(false);
 
 const expName = ref("");
 const expCategory = ref("");
-const scheduleType = ref("");
-const taskRationale = ref("");
-const semFromGrad = ref("");
-const taskPointValue = ref("");
-const taskPreReq = ref("");
-const taskVideoLink = ref("");
-const taskVerificationType = ref("");
-
-const taskDescription = ref("");
+const expScheduleType = ref("");
+const expRationale = ref("");
+const expDescription = ref("");
+const expVerificationType = ref("")
 
 
 
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
     { key: 'description', title: 'Description' },
-    { key: 'category', title: 'Category'},
+    { key: 'category', title: 'Category' },
     { key: 'actions', title: '', sortable: false }
 ]);
 
@@ -186,12 +193,8 @@ const categoryOptions = ['Academic', 'Leadership', 'Networking', 'Strengths', 'C
 const typeOptions = ['Automatic', 'Manual']
 const frequencyOptions = ['One Time', 'Every Semester', 'Special Event']
 
-const expType = ref(null);
-const isRequired = ref(false);
-const expScheduleType = ref(null);
 
-const expDescription = ref(null);
-const expRationale = ref(null);
+const isRequired = ref(false);
 
 //   category enum('academic','leadership','networking','strengths','career_prep','mentoring','volunteer','') 
 // type enum('automatic','manual') 
@@ -207,6 +210,7 @@ const labels = {
     schedule: "Frequency",
     description: "Description",
     rationale: "Rationale",
+    verification: "Verification Type",
 };
 
 const filteredExperiences = computed(() => {
@@ -241,59 +245,54 @@ const getAllExperiences = () => {
 
 
 const editExperiencePopup = (task) => {
-    taskToEdit.value = task;
-    showTaskDetails.value = true;
-    taskEdit.value = true;
-    taskAdd.value = false;
-
-    expCategory.value = capitalize(taskToEdit.value.category);
-    taskRationale.value = taskToEdit.value.rationale;
-    semFromGrad.value = taskToEdit.value.semester_from_grad;
-    taskPointValue.value = taskToEdit.value.point_value;
-    taskPreReq.value = taskToEdit.value.taskId;
-    taskVideoLink.value = taskToEdit.value.video_link;
-    taskVerificationType.value = taskToEdit.value.verificationId;
-    taskDescription.value = taskToEdit.value.description;
-    isRequired.value = taskToEdit.value.reflection_required;
-    expName.value = taskToEdit.value.name;
-    scheduleType.value = capitalize(taskToEdit.value.schedule_type);
+    experienceToEdit.value = task;
+    showExperienceDetails.value = true;
+    experienceEdit.value = true;
+    experienceAdd.value = false;
+    expVerificationType.value = capitalize(experienceToEdit.value.type)
+    expCategory.value = capitalize(experienceToEdit.value.category);
+    expRationale.value = experienceToEdit.value.rationale;
+    expDescription.value = experienceToEdit.value.description;
+    isRequired.value = experienceToEdit.value.reflection_required;
+    expName.value = experienceToEdit.value.name;
+    expScheduleType.value = capitalize(experienceToEdit.value.schedule_type);
 };
 
 function capitalize(s) {
     return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
 
-const editTask = () => {
+const editExperience = () => {
     if (expCategory.value === 'Career Prep') {
         expCategory.value = 'career_prep'
     }
 
-    if (scheduleType.value === 'One Time') {
-        scheduleType.value = 'one_time'
+    if (expScheduleType.value === 'One Time') {
+        expScheduleType.value = 'one_time'
     }
 
-    if (scheduleType.value === 'Special Event') {
-        scheduleType.value = 'special_event'
+    if (expScheduleType.value === 'Special Event') {
+        expScheduleType.value = 'special_event'
     }
 
-    const updatedTask = {
+    if(expScheduleType.value === 'Every Semester') {
+        expScheduleType.value = 'every_semester'
+    }
+
+    const updatedExperience = {
         category: expCategory.value.toLowerCase(),
-        reflection_required: isRequired.value,
-        schedule_type: scheduleType.value.toLowerCase(),
+        type: expVerificationType.value.toLowerCase(),
+        req_reflection: isRequired.value,
+        schedule_type: expScheduleType.value.toLowerCase(),
         name: expName.value,
-        description: taskDescription.value,
-        rationale: taskRationale.value,
-        semester_from_grad: semFromGrad.value,
-        point_value: taskPointValue.value,
-        video_link: taskVideoLink.value,
-        taskId: taskPreReq.value,
-        verificationId: taskVerificationType.value,
+        description: expDescription.value,
+        rational: expRationale.value,
     };
 
-    ExperienceTypeServices.updateExperienceType(taskToEdit.value.id, updatedTask)
+    ExperienceTypeServices.updateExperienceType(experienceToEdit.value.id, updatedExperience)
         .then((response) => {
             console.log("Task updated successfully:", response.data);
-            showTaskDetails.value = false;
+            showExperienceDetails.value = false;
             getAllExperiences();
         })
         .catch((e) => {
@@ -303,63 +302,66 @@ const editTask = () => {
 };
 
 
-const addTaskPopup = () => {
-    showTaskDetails.value = true;
-    taskAdd.value = true;
-    taskEdit.value = false;
-    taskToEdit.value = null;
-
+const addExperiencePopup = () => {
+    showExperienceDetails.value = true;
+    experienceAdd.value = true;
+    experienceEdit.value = false;
+    experienceToEdit.value = null;
+    expVerificationType.value = ""
     expName.value = "";
     expCategory.value = "";
-    taskRationale.value = "";
-    semFromGrad.value = "";
-    taskPointValue.value = "";
-    taskPreReq.value = "";
-    taskVideoLink.value = "";
-    taskVerificationType.value = "";
-    taskDescription.value = "";
+    expRationale.value = "";
+    expDescription.value = "";
     isRequired.value = false;
-    scheduleType.value = "";
+    expScheduleType.value = "";
 };
 
 
-const addTask = () => {
+const addExperience = () => {
     if (expCategory.value === 'Career Prep') {
         expCategory.value = 'career_prep'
     }
 
-    if (scheduleType.value === 'One Time') {
-        scheduleType.value = 'one_time'
+    if (expScheduleType.value === 'One Time') {
+        expScheduleType.value = 'one_time'
     }
 
-    if (scheduleType.value === 'Special Event') {
-        scheduleType.value = 'special_event'
+    if (expScheduleType.value === 'Special Event') {
+        expScheduleType.value = 'special_event'
     }
 
-    const newTask = {
+    if(expScheduleType.value === 'Every Semester') {
+        expScheduleType.value = 'every_semester'
+    }
+
+    //   category enum('academic','leadership','networking','strengths','career_prep','mentoring','volunteer','') 
+// type enum('automatic','manual') 
+// req_reflection tinyint(1) 
+// schedule_type enum('one_time','every_semester','special_event') 
+// name varchar(255) 
+// description varchar(255) 
+// rational varchar(255)
+
+    const newExperience = {
         category: expCategory.value.toLowerCase(),
-        reflection_required: isRequired.value,
-        schedule_type: scheduleType.value.toLowerCase(),
+        type: expVerificationType.value.toLowerCase(),
+        req_reflection: isRequired.value,
+        schedule_type: expScheduleType.value.toLowerCase(),
         name: expName.value,
-        description: taskDescription.value,
-        rationale: taskRationale.value,
-        semester_from_grad: semFromGrad.value,
-        point_value: taskPointValue.value,
-        video_link: taskVideoLink.value,
-        // taskId: taskPreReq.value,
-        // verificationId: taskVerificationType.value,
+        description: expDescription.value,
+        rational: expRationale.value,
     };
 
-    console.log(newTask)
+    console.log(newExperience)
 
-    ExperienceTypeServices.createExperienceType(newTask).then((response) => {
-        showTaskDetails.value = false;
+    ExperienceTypeServices.createExperienceType(newExperience).then((response) => {
+        showExperienceDetails.value = false;
         console.log("Task added successfully:", response.data);
         getAllExperiences();
     })
         .catch((e) => {
             console.log(e)
-            //message.value = e.response.data.message;
+            message.value = e.response.data.message;
             deleteError.value = true;
         });
 }
@@ -383,7 +385,7 @@ const deleteExperience = () => {
         });
 };
 
-const deleteSelectedCategories = (selected) => {
+const deleteSelectedExperiences = (selected) => {
     if (selected.length > 0) {
         console.log("Deleting selected category: ", selected);
         selected.forEach(category => {
