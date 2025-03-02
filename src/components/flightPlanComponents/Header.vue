@@ -35,10 +35,10 @@
             <span style="position: absolute; left: 50%; transform: translateX(-50%);">Switch Role View</span>
             <Icon class="arrow-icon" :icon="roleSwitchMenuOpen ? dropDownUpIcon : dropDownIcon" :alt="'arrow'" />
           </li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.ADMIN)" class="role-menu">Admin</li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.PROFESSOR)" class="role-menu">Professor</li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.STUDENT)" class="role-menu">Student</li>
-          <li v-if="roleSwitchMenuOpen" @click="updateHomePage(UserRoles.STUDENT_WORKER)" class="role-menu">Student Worker</li>
+          <li v-if="roleSwitchMenuOpen && adminAccess" @click="updateHomePage(UserRoles.ADMIN)" class="role-menu">Admin</li>
+          <li v-if="roleSwitchMenuOpen && professorAccess" @click="updateHomePage(UserRoles.PROFESSOR)" class="role-menu">Professor</li>
+          <li v-if="roleSwitchMenuOpen && studentAccess" @click="updateHomePage(UserRoles.STUDENT)" class="role-menu">Student</li>
+          <li v-if="roleSwitchMenuOpen && studentAccess" @click="updateHomePage(UserRoles.STUDENT_WORKER)" class="role-menu">Student Worker</li>
           <li @click="toggleLogout">Sign Out</li>
 
         </ul>
@@ -53,6 +53,7 @@ import Utils from "@/config/utils";
 import AuthServices from "@/services/resumeBuilderServices/authServices";
 import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
+import userRolePermissionServices from "@/services/flightPlanServices/userRolePermissionServices";
 import logout from '@/components/flightPlanComponents/Logout.vue';
 import { Icon } from "@iconify/vue";
 import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
@@ -79,6 +80,12 @@ const route = useRoute();
 const currentRouteName = computed(() => route.name);
 const homeStore = useHomePageStore();
 
+const adminAccess = ref(false);
+const studentAccess = ref(false);
+const professorAccess = ref(false);
+
+const userRoles = ref([]);
+
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
   if (!event.target.closest(".user-menu")) {
@@ -93,6 +100,7 @@ onMounted(() => {
     name.value = user.value.fName + " " + user.value.lName;
   }
   getUserRoles();
+  getAllUserRoles();
   document.addEventListener("click", handleClickOutside);
 });
 
@@ -112,6 +120,28 @@ const getUserRoles = async () => {
     console.error("Error fetching roles", error);
   }
 };
+
+const getAllUserRoles = () => {
+  userRolePermissionServices.getAllPermissionsForUser(user.value.userId).then((res) => {
+    userRoles.value = res.data;
+    console.log(userRoles.value);
+    // id 7 - admin
+    // id 8 - student
+    // id 9 - professor
+    userRoles.value.forEach(role => {
+      console.log(role.permissionId)
+
+      if(role.permissionId == 7)
+        adminAccess.value = true
+      if(role.permissionId == 8)
+        studentAccess.value = true
+      if(role.permissionId == 9)
+        professorAccess.value = true
+    });
+  }).catch((error) => {
+      console.log("error", error);
+    });
+}
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;

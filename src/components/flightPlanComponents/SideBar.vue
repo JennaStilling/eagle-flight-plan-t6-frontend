@@ -8,27 +8,54 @@
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow" :class="['arrow-down', { 'arrow-up': roleDropdown }]"/>
+          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'" class="dropdown-arrow" />
             <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-              <li>Students</li>
-              <li>Student Workers</li>
-              <li>Professors</li>
-              <li>Admins</li>
-            </div>
-          </li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }">Events</router-link></li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }">Tasks</router-link></li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }">Experiences</router-link></li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'flightPlan' }">Flight Plan</router-link></li>
-          <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'award' }">Shop Items</router-link></li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'badge' }">Badges</router-link></li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'cliftonStrength' }">Clifton Strength</router-link></li>
-          <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'lifeAfterTheNest' }">Life After The Nest</router-link></li>
-          <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'transactionLog' }">Transaction History</router-link></li>
-          <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
-        </ul>
+          <li>Students</li>
+          <li>Student Workers</li>
+          <li>Professors</li>
+          <li>Admins</li>
       </div>
+      </li>
+
+      <!-- Admin Maintenance -->
+      <li @click="toggleMaintenanceDropdown"> Maintenance <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'" class="dropdown-arrow" />
+
+      <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }"><span
+              class='black-text'>Events</span></router-link></li>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }"><span
+              class='black-text'>Tasks</span></router-link></li>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }"><span
+              class='black-text'>Experiences</span></router-link></li>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'flightPlan' }"><span
+              class='black-text'>Flight Plans</span></router-link></li>
+        <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'award' }"><span
+              class='black-text'>Shop Items</span></router-link></li>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'badge' }"><span
+              class='black-text'>Badges</span></router-link></li>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'cliftonStrength' }"><span
+              class='black-text'>Clifton Strengths</span></router-link></li>
+        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'lifeAfterTheNest' }"><span
+              class='black-text'>Life After the Nest</span></router-link></li>
+        <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'transactionLog' }"><span
+              class='black-text'>Transaction History</span></router-link></li>
+      </div>
+      </li>
+
+      <!-- Resume Builder -->
+      <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
+
+      <!-- Student Pages -->
+
+
+      <!-- Professor Pages -->
+
+
+      <!-- Student Worker Pages -->
+
+      </ul>
     </div>
+  </div>
   </div>
 </template>
 
@@ -42,6 +69,7 @@ import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 import userRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
+import { Icon } from '@iconify/vue';
 import permissionServices from '@/services/flightPlanServices/permissionServices';
 
 const user = ref(null);
@@ -51,6 +79,7 @@ const menuOpen = ref(true);
 
 const roleDropdown = ref(false);
 const homeMenuOpen = ref(false);
+const maintenanceDropdown = ref(false);
 
 import { useHomePageStore } from '@/store/homePageStore';
 const homeStore = useHomePageStore();
@@ -91,15 +120,15 @@ onBeforeUnmount(() => {
 const getCurrentUser = () => {
   UserServices.getUser(user.value.userId)
     .then((res) => {
-        currentUser.value = res.data;
-        getUserRoles();
+      currentUser.value = res.data;
+      getUserRoles();
     })
     .catch((error) => {
-        console.log("error", error);
+      console.log("error", error);
     });
 }
 
-const getUserRoles =  () => {
+const getUserRoles = () => {
   userRoleServices.getAllUserRoles(currentUser.value.id)
     .then((res) => {
       userRoles.value = res.data;
@@ -148,6 +177,10 @@ const toggleMenu = () => {
 
 const toggleRoleDropdown = () => {
   roleDropdown.value = !roleDropdown.value;
+}
+
+const toggleMaintenanceDropdown = () => {
+  maintenanceDropdown.value = !maintenanceDropdown.value;
 }
 
 </script>
@@ -242,5 +275,9 @@ a:hover {
 
 .arrow-up {
   transform: rotate(180deg);
+}
+
+.black-text {
+  color: #202020;
 }
 </style>
