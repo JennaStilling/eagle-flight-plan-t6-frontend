@@ -34,7 +34,7 @@
   
   <script setup>
   import StudentHomeSideNav from '@/components/resumeBuilderComponents/studentPages/StudentHomeSideNav.vue';
-  import clockTower from '@/assets/clocktower.jpg';
+  import clockTower from '@/assets/clocktower.png';
   import { ref } from 'vue';
   
   const isRequest = ref(false);
