@@ -11,6 +11,7 @@ import ViewResume from "@/views/resumeBuilderViews/student/ViewResume.vue";
 import AddResume from "@/views/resumeBuilderViews/student/AddResume.vue";
 import Login from "@/components/Login.vue";
 import StudentHome from "@/views/resumeBuilderViews/student/StudentHome.vue";
+import HelpfulResources from "@/views/resumeBuilderViews/student/HelpfulResources.vue";
 import AdminHomePage from "@/views/resumeBuilderViews/admin/AdminHome.vue";
 
 import ReviewerHomePage from "@/views/resumeBuilderViews/reviewer/ReviewerHome.vue";
@@ -141,6 +142,11 @@ const routes = [
     path: "/resumeBuilder/studentHome",
     name: "studentHome",
     component: StudentHome,
+  },
+  {
+    path: "/resumeBuilder/helpfulResources",
+    name: "helpfulResources",
+    component: HelpfulResources,
   },
 
   //dummy / temp routes for nav bar testing
