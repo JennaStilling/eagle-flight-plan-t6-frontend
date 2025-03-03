@@ -8,7 +8,7 @@ dns.setDefaultResultOrder("verbatim");
 
 export default defineConfig({
   plugins: [vue(), vuetify({ autoImport: true })],
-  assetsInclude: ['**/*.JPG', '**/*.jpg', '**/*.png', '**/*.svg'],
+  //assetsInclude: ['**/*.JPG', '**/*.jpg', '**/*.png', '**/*.svg'],
 
   server: {
     host: "localhost",
