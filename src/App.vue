@@ -74,7 +74,7 @@ export default {
   font-family: 'Poppins', sans-serif;
   flex-direction: column;
   height: min-content;
-  background-color: #D4E6F3;
+  background-color: #FFFFff;
   overflow: hidden;
 }
 
