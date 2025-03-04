@@ -10,19 +10,19 @@
                 </v-card-subtitle>
             </v-card-item>
             <v-card-actions class="actions">
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.ADMIN)"
+                <v-btn v-if="adminAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.ADMIN)"
                     text="Admin Home">
                 </v-btn>
 
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)"
+                <v-btn v-if="professorAccess"  color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)"
                     text="Professor Home">
                 </v-btn>
 
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT)"
+                <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT)"
                     text="Student Home">
                 </v-btn>
 
-                <v-btn color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)"
+                <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)"
                     text="Student Worker Home">
                 </v-btn>
             </v-card-actions>
@@ -31,11 +31,48 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Utils from '@/config/utils';
 import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
+import userRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
+const userRoles = ref([])
 
+const user = ref(null);
+const adminAccess = ref(false);
+const studentAccess = ref(false);
+const professorAccess = ref(false);
 const router = useRouter();
 const homeStore = useHomePageStore();
+
+onMounted(() => {
+  user.value = Utils.getStore("user");
+  if (user.value) {
+    getAllUserRoles();
+  }
+});
+
+const getAllUserRoles = () => {
+  userRolePermissionServices.getAllPermissionsForUser(user.value.userId).then((res) => {
+    userRoles.value = res.data;
+    console.log(userRoles.value);
+    // id 7 - admin
+    // id 8 - student
+    // id 9 - professor
+    userRoles.value.forEach(role => {
+      console.log(role.permissionId)
+
+      if(role.permissionId == 7)
+        adminAccess.value = true
+      if(role.permissionId == 8)
+        studentAccess.value = true
+      if(role.permissionId == 9)
+        professorAccess.value = true
+    });
+  }).catch((error) => {
+      console.log("error", error);
+    });
+}
 
 const handleRoute = (loc) => {
     switch (loc) {

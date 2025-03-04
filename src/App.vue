@@ -1,8 +1,8 @@
 <template>
   <div id="app" :class="{ 'flight-plan': currentModule === 'flightPlan' }">
     <HeaderResumeBuilder v-if="currentTab.value !== 'login' && currentModule === 'resumeBuilder'" :currentTab="currentTab" />
-    <HeaderFlightPlan v-if="currentTab.value !== 'login' && currentModule === 'flightPlan' || isHomePage" />
-    <SideBar v-if="currentTab.value !== 'login' && currentModule === 'flightPlan' || isHomePage" :currentTab="currentTab" />
+    <HeaderFlightPlan v-if="(currentTab.value !== 'login' || currentTab.value !== 'homeFP') && currentModule === 'flightPlan'" />
+    <SideBar v-if="(currentTab.value !== 'login' || currentTab.value !== 'homeFP') && currentModule === 'flightPlan'" :currentTab="currentTab" />
     <NavBar v-if="showNavBar" :currentTab="currentTab" />
     <router-view></router-view>
   </div>

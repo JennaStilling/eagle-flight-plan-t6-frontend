@@ -1,29 +1,30 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import ContactInfo from '@/components/resumeBuilderComponents/userProfile/ContactInfo.vue';
-import Education from '@/components/resumeBuilderComponents/userProfile/Education.vue';
-import Courses from '@/components/resumeBuilderComponents/userProfile/Courses.vue';
-import Experience from '@/components/resumeBuilderComponents/userProfile/Experience.vue';
-import Certifications from '@/components/resumeBuilderComponents/userProfile/Certifications.vue';
-import Skills from '@/components/resumeBuilderComponents/userProfile/Skills.vue';
-import Project from '@/components/resumeBuilderComponents/userProfile/Project.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import ContactInfo from "@/components/resumeBuilderComponents/userProfile/ContactInfo.vue";
+import Education from "@/components/resumeBuilderComponents/userProfile/Education.vue";
+import Courses from "@/components/resumeBuilderComponents/userProfile/Courses.vue";
+import Experience from "@/components/resumeBuilderComponents/userProfile/Experience.vue";
+import Certifications from "@/components/resumeBuilderComponents/userProfile/Certifications.vue";
+import Skills from "@/components/resumeBuilderComponents/userProfile/Skills.vue";
+import Project from "@/components/resumeBuilderComponents/userProfile/Project.vue";
 
-import ViewResume from '@/views/resumeBuilderViews/student/ViewResume.vue';
-import AddResume from '@/views/resumeBuilderViews/student/AddResume.vue';
-import Login from '@/components/Login.vue';
-import StudentHome from '@/views/resumeBuilderViews/student/StudentHome.vue'
-import AdminHomePage from '@/views/resumeBuilderViews/admin/AdminHome.vue';
+import ViewResume from "@/views/resumeBuilderViews/student/ViewResume.vue";
+import AddResume from "@/views/resumeBuilderViews/student/AddResume.vue";
+import Login from "@/components/Login.vue";
+import StudentHome from "@/views/resumeBuilderViews/student/StudentHome.vue";
+import HelpfulResources from "@/views/resumeBuilderViews/student/HelpfulResources.vue";
+import AdminHomePage from "@/views/resumeBuilderViews/admin/AdminHome.vue";
 
-import ReviewerHomePage from '@/views/resumeBuilderViews/reviewer/ReviewerHome.vue';
-import ReviewInbox from '@/components/resumeBuilderComponents/reviewerPages/ReviewInbox.vue';
-import ReviewResume from '@/components/resumeBuilderComponents/reviewerPages/ReviewResume.vue';
+import ReviewerHomePage from "@/views/resumeBuilderViews/reviewer/ReviewerHome.vue";
+import ReviewInbox from "@/components/resumeBuilderComponents/reviewerPages/ReviewInbox.vue";
+import ReviewResume from "@/components/resumeBuilderComponents/reviewerPages/ReviewResume.vue";
 //import path from 'path';
 
 // Resume builder page router
-import HomePageRouterRB from '@/views/resumeBuilderViews/HomePageRouter.vue';
+import HomePageRouterRB from "@/views/resumeBuilderViews/HomePageRouter.vue";
 //import path from 'path';
 
 // Flight Plan page router
-import HomepageRouterFP from '@/views/flightPlanViews/HomePageRouter.vue';
+import HomepageRouterFP from "@/views/flightPlanViews/HomePageRouter.vue";
 
 // Flight Plan components and the like
 import AdminHomePageFP from '@/views/flightPlanViews/admin/AdminHome.vue';
@@ -51,52 +52,131 @@ const user = computed(() => Utils.getStore("user"));
 
 // Define routes
 const routes = [
-  { path: '/login', name: "login"},
+  { path: "/login", name: "login" },
 
   // Flight Plan
-  { path: '/', name: 'homeFP', component: HomepageRouterFP },
+  { path: "/", name: "homeFP", component: HomepageRouterFP },
 
   // Resume Builder Router
-  { path: '/resumeBuilder', name: 'homeRB', component: HomePageRouterRB },
+  { path: "/resumeBuilder", name: "homeRB", component: HomePageRouterRB },
 
   // Profile paths:
-  { path: "/resumeBuilder/contact-info", name: "contactInfo", component: ContactInfo },
+  {
+    path: "/resumeBuilder/contact-info",
+    name: "contactInfo",
+    component: ContactInfo,
+  },
   { path: "/resumeBuilder/education", name: "education", component: Education },
-  { path: "/resumeBuilder/education/edit", name: "educationEdit", component: Education },
+  {
+    path: "/resumeBuilder/education/edit",
+    name: "educationEdit",
+    component: Education,
+  },
   { path: "/resumeBuilder/courses", name: "courses", component: Courses },
-  { path: "/resumeBuilder/courses/select/", name: "coursesSelect", component: Courses },
-  { path: "/resumeBuilder/courses/select/edit", name: "coursesEdit", component: Courses },
-  { path: "/resumeBuilder/experience", name: "experience", component: Experience },
-  { path: "/resumeBuilder/experience/edit", name: "experienceEdit", component: Experience },
-  { path: "/resumeBuilder/certifications", name: "certifications", component: Certifications },
-  { path: "/resumeBuilder/certifications/edit", name: "certificationsEdit", component: Certifications },
+  {
+    path: "/resumeBuilder/courses/select/",
+    name: "coursesSelect",
+    component: Courses,
+  },
+  {
+    path: "/resumeBuilder/courses/select/edit",
+    name: "coursesEdit",
+    component: Courses,
+  },
+  {
+    path: "/resumeBuilder/experience",
+    name: "experience",
+    component: Experience,
+  },
+  {
+    path: "/resumeBuilder/experience/edit",
+    name: "experienceEdit",
+    component: Experience,
+  },
+  {
+    path: "/resumeBuilder/certifications",
+    name: "certifications",
+    component: Certifications,
+  },
+  {
+    path: "/resumeBuilder/certifications/edit",
+    name: "certificationsEdit",
+    component: Certifications,
+  },
   { path: "/resumeBuilder/skills", name: "skills", component: Skills },
   { path: "/resumeBuilder/skills/edit", name: "skillsEdit", component: Skills },
   { path: "/resumeBuilder/project", name: "project", component: Project },
-  { path: "/resumeBuilder/project/edit", name: "projectEdit", component: Project },
+  {
+    path: "/resumeBuilder/project/edit",
+    name: "projectEdit",
+    component: Project,
+  },
 
-  //Login/out: 
-  { path: '/login', name: 'login', component: Login },
-  { path: '/resumeBuilder/studentHome', name: 'studentHome', component: StudentHome },
-  { path: '/resumeBuilder/resume/:id', name: 'resume', component: ViewResume, props: true },
-  { path: '/resumeBuilder/add', name: 'addResume', component: AddResume },
+  //Login/out:
+  { path: "/login", name: "login", component: Login },
+  {
+    path: "/resumeBuilder/studentHome",
+    name: "studentHome",
+    component: StudentHome,
+  },
+  {
+    path: "/resumeBuilder/resume/:id",
+    name: "resume",
+    component: ViewResume,
+    props: true,
+  },
+  { path: "/resumeBuilder/add", name: "addResume", component: AddResume },
 
-  { path: '/resumeBuilder/review-inbox', name: 'review-inbox', component: ReviewInbox },
-  { path: '/resumeBuilder/review-resume/:id', name: 'reviewResume', component: ReviewResume, props: true },
-  { path: '/resumeBuilder/studentHome', name: 'studentHome', component: StudentHome },
+  {
+    path: "/resumeBuilder/review-inbox",
+    name: "review-inbox",
+    component: ReviewInbox,
+  },
+  {
+    path: "/resumeBuilder/review-resume/:id",
+    name: "reviewResume",
+    component: ReviewResume,
+    props: true,
+  },
+  {
+    path: "/resumeBuilder/studentHome",
+    name: "studentHome",
+    component: StudentHome,
+  },
+  {
+    path: "/resumeBuilder/helpfulResources",
+    name: "helpfulResources",
+    component: HelpfulResources,
+  },
 
   //dummy / temp routes for nav bar testing
   { path: '/resumeBuilder/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
   { path: '/resumeBuilder/adminHome', name: 'adminHome', component: AdminHomePage },
 
   // Flight Plan Jazz
-  { path: '/flightPlan/adminHome', name: 'adminHomeFP', component: AdminHomePageFP},
-  { path: '/flightPlan/studentHome', name: 'studentHomeFP', component: StudentHomePageFP},
-  { path: '/flightPlan/studentWorkerHome', name: 'studentWorkerHomeFP', component: StudentWorkerHomePageFP},
-  { path: '/flightPlan/professorHome', name: 'professorHomeFP', component: ProfessorHomePageFP},
+  {
+    path: "/flightPlan/adminHome",
+    name: "adminHomeFP",
+    component: AdminHomePageFP,
+  },
+  {
+    path: "/flightPlan/studentHome",
+    name: "studentHomeFP",
+    component: StudentHomePageFP,
+  },
+  {
+    path: "/flightPlan/studentWorkerHome",
+    name: "studentWorkerHomeFP",
+    component: StudentWorkerHomePageFP,
+  },
+  {
+    path: "/flightPlan/professorHome",
+    name: "professorHomeFP",
+    component: ProfessorHomePageFP,
+  },
 
-  { path: '/flightPlan/settings', name: 'settings', component: settings },
-  { path: '/flightPlan/profile', name: 'profile', component: profile },
+  { path: "/flightPlan/settings", name: "settings", component: settings },
+  { path: "/flightPlan/profile", name: "profile", component: profile },
 
   { path: '/flightPlan/award/Maintenance', name: 'award', component: AwardMaintenance },
   { path: '/flightPlan/badge/Maintenance', name: 'badge', component: BadgeMaintenance },
@@ -121,7 +201,7 @@ router.beforeEach(async (to, from) => {
 
   const currentUser = ref({});
 
-  if (to.name === 'login') {
+  if (to.name === "login") {
     return true; // Explicitly allow navigation
   }
 
@@ -129,7 +209,8 @@ router.beforeEach(async (to, from) => {
     try {
       const res = await UserServices.getUser(user.value.userId);
       currentUser.value = res.data;
-    } catch (error) { // just in case
+    } catch (error) {
+      // just in case
       console.log("No user found");
       return { name: "login" };
     }
@@ -162,11 +243,7 @@ router.beforeEach(async (to, from) => {
     "adminHome"
   ];
 
-  const reviewerPages = [
-    "reviewerHome", 
-    "review-inbox", 
-    "reviewResume"
-  ];
+  const reviewerPages = ["reviewerHome", "review-inbox", "reviewResume"];
 
   // not logged in
   if (!isAuthenticated && to.name !== "login") {
