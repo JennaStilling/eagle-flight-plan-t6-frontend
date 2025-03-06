@@ -8,14 +8,7 @@
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons <img :src="dropDownArrow" :class="['arrow-down', { 'arrow-up': roleDropdown }]"/>
-            <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-              <li>Students</li>
-              <li>Student Workers</li>
-              <li>Professors</li>
-              <li>Admins</li>
-            </div>
-          </li>
+          <li v-if="hasUserPermission" @click="toggleMenu"><router-link :to="{ name: 'userMaintenance' }">Users</router-link></li>
           <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }">Events</router-link></li>
           <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }">Tasks</router-link></li>
           <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }">Experiences</router-link></li>

@@ -19,39 +19,56 @@
         <v-overlay v-model="overlay" class="align-center justify-center">
             <v-card class="edit-user">
                 <div class="scroll">
-                <h3>{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
+                    <h3>{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
 
 
-                <v-sheet class="mx-auto" width="300">
+                    <v-sheet class="mx-auto" width="300">
 
-                    <v-form ref="form">
-                        <v-select v-model="data.prefix" :items="data.prefixes" label="Prefix" required variant="solo"></v-select>
-                        <v-text-field v-model="data.firstName" :counter="10" label="First Name" required variant="solo"></v-text-field>
-                        <v-text-field v-model="data.lastName" :counter="10" label="Last Name" required variant="solo"></v-text-field>
-                        <v-text-field v-model="data.email" :counter="10" label="Email" required variant="solo"></v-text-field>
-                        <v-text-field v-model="data.phoneNumeber" :counter="10" label="Phone Number" required variant="solo"></v-text-field>
-                        <v-text-field v-model="data.studentId" :counter="10" label="StudentID" required variant="solo"></v-text-field>
-                        <v-text-field v-model="data.class" :counter="10" label="Class" required variant="solo"></v-text-field>
-                        <v-select v-model="data.select" :items="data.items" label="Graduation Date" required variant="solo"></v-select>
-                        <v-text-field v-model="data.points" label="Points Earned" required variant="solo"></v-text-field>
-                        <v-checkbox v-model="data.checkbox" label="Do you agree?" required variant="solo"></v-checkbox>
-
-                        <div class="d-flex flex-column">
-                            <v-btn class="mt-4" color="success" block @click="">
-                                Validate
-                            </v-btn>
-
-                            <v-btn class="mt-4" color="error" block @click="">
-                                Reset Form
-                            </v-btn>
-
-                            <v-btn class="mt-4" color="warning" block @click="">
-                                Reset Validation
-                            </v-btn>
-                        </div>
-                    </v-form>
-                </v-sheet>
-            </div>
+                        <v-form ref="form">
+                            <div>
+                                <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma=1" color="primary"
+                                    rounded="lg">
+                                    {{ formatRole(role.role_type) }}
+                                </v-chip>
+                                <v-select v-model="roleData.addRole" :items="roleData.roles" label="Role" required
+                                    variant="solo"></v-select>
+                            </div>
+                            <div>
+                                <v-select v-model="userData.prefix" :items="userData.prefixes" label="Prefix" required
+                                    variant="solo"></v-select>
+                                <v-text-field v-model="userData.firstName" :counter="10" label="First Name" required
+                                    variant="solo"></v-text-field>
+                                <v-text-field v-model="userData.lastName" :counter="10" label="Last Name" required
+                                    variant="solo"></v-text-field>
+                                <v-text-field v-model="userData.email" :counter="10" label="Email" required
+                                    variant="solo"></v-text-field>
+                                <v-text-field v-model="userData.phoneNumeber" :counter="10" label="Phone Number"
+                                    required variant="solo"></v-text-field>
+                            </div>
+                            <div v-if="hasRole('student')">
+                                <v-text-field v-model="userData.studentId" :counter="10" label="StudentID" required
+                                    variant="solo"></v-text-field>
+                                <v-text-field v-model="userData.class" :counter="10" label="Class" required
+                                    variant="solo"></v-text-field>
+                                <v-select v-model="userData.select" :items="userData.items" label="Graduation Date"
+                                    required variant="solo"></v-select>
+                                <v-text-field v-model="userData.points" label="Points Earned" required
+                                    variant="solo"></v-text-field>
+                            </div>
+                            <div class="d-flex flex-row">
+                                <v-btn class="button" variant="elevated" color="#5EC4B6" @click="saveUser">
+                                    Save
+                                </v-btn>
+                                <v-btn class="button" variant="elevated" color="#D9D9D9" @click="cancelEdit">
+                                    Cancel
+                                </v-btn>
+                                <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteUser">
+                                    Delete
+                                </v-btn>
+                            </div>
+                        </v-form>
+                    </v-sheet>
+                </div>
             </v-card>
         </v-overlay>
     </div>
@@ -66,7 +83,15 @@ const props = defineProps({
     roles: Object,
 });
 
-const data = ({
+const emit = defineEmits(['save-user', 'delete-user', 'cancel-edit']);
+
+const roleData = ({
+    addRole: props.user.prefix,
+    roles: props.roles.map((role) => role.role_type),
+    rolesToAdd: null
+})
+
+const userData = ({
     prefix: props.user.prefix,
     prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
     firstName: props.user.fName,
@@ -87,9 +112,6 @@ const data = ({
     ],
     checkbox: false,
 })
-
-
-console.log(props.user);
 
 const specificUserRoles = ref([]);
 
@@ -127,6 +149,18 @@ const action3 = () => {
     console.log("Action 3");
 };
 
+const saveUser = () => {
+    emit('save-user', { user: userData, roles: roleData });
+};
+
+const deleteUser = () => {
+    emit('delete-user', props.user.id);
+};
+
+const cancelEdit = () => {
+    overlay.value = false;
+};
+
 const formatRole = (role) => {
     return role.replace(/_/g, ' ')
         .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -135,6 +169,10 @@ const formatRole = (role) => {
 const getSpecificUserRoles = () => {
     specificUserRoles.value = props.userRoles.map(
         (userRole) => props.roles.find((role) => role.id === userRole.roleId));
+};
+
+const hasRole = (role) => {
+    return specificUserRoles.value.some((userRole) => userRole.role_type === role);
 };
 </script>
 
@@ -174,6 +212,7 @@ const getSpecificUserRoles = () => {
     border-radius: 20px;
     cursor: pointer;
 }
+
 .scroll {
     overflow-y: auto;
     max-height: 100%;
