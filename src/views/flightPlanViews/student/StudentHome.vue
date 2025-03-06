@@ -1,130 +1,92 @@
 <template>
-  <div class="content">
-      <!-- Semester Information -->
-      <div class="left-column">
-          <div class="content-header">
-            <img 
-              :src="BackArrow" 
-              alt="Back Arrow" 
-              class="arrow-button"
-              @click="getPreviousSemester"
-              :class="{ disabled: currentIndex === 0 }"
-            />
-            {{ currentSemester }}
-            <img 
-              :src="ForwardArrow" 
-              alt="Forward Arrow" 
-              class="arrow-button"
-              @click="getNextSemester"
-              :class="{ disabled: currentIndex === semesters.length - 1 }"
-            />
-          </div>
-          <div class="student-tasks-body">
-            <div class="card-item" v-for="(event, index) in limitedEvents" 
-              :key="index" 
-              @click="openModal(event.name)">
-              <div class="list-text">
-                <div class="list-title">{{ event.name }}</div>
-                <div class="list-sub">{{ eventDate(event.date) }}</div>
-              </div>
-            </div>
-          </div>
-      </div>
-
-      <!-- Upcoming Events List -->
-      <div class="right-column">
-          <div>
-              <div class="content-header">
-                <img 
-                  :src="BackArrow" 
-                  alt="Back Arrow" 
-                  class="arrow-button"
-                  @click="prevEventPage"
-                  :class="{ disabled: currentEventPage === 1 }"
-                />
-                Upcoming Events ({{ currentEventPage }}/{{ totalEventPages }})
-                <img 
-                  :src="ForwardArrow" 
-                  alt="Forward Arrow" 
-                  class="arrow-button"
-                  @click="nextEventPage"
-                  :class="{ disabled: currentEventPage === totalEventPages }"
-                />
-              </div>
-              <div class="upcoming-events-body">
-                <div class="card-item" v-for="(event, index) in paginatedEvents" 
-                  :key="index" 
-                  @click="getSelectedEvent(index)">
-                  <div class="list-text">
-                    <div class="list-title">{{ event.name }}</div>
-                    <div class="list-sub"> {{ eventDate(event.date) }}</div>
-                  </div>
-                  <div class="point-value">Points: {{ event.point_value }}</div>
-                </div>
-              </div>
-          </div>
-      </div>
-  </div>
-
-  <!-- Student Task View Modal -->
-  <div v-if="viewingTask" class="modal">
-    <div class="modal-content"> 
-      <span @click="toggleTaskView()" class="close">&times;</span>
-      <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div> 
-      {{ currentTask.name }}  
-      <div class="reflection-box">
-        {{ currentTask.reflection }} 
-      </div>
-
-      <div class="button-group">
-        <button 
-          @click="selectOption('approve')" 
-          :class="{ selected: selectedOption === 'approve' }">
-          Approve
+  <div class="container">
+    <div class="left-side">
+       <!-- Semesters -->
+      <div class="semester-navigation">
+        <button @click="getPreviousSemester">
+          <img :src="BackArrow"  alt="Previous Semester" />
         </button>
-        <button 
-          @click="selectOption('deny')" 
-          :class="{ selected: selectedOption === 'deny' }">
-          Deny
+        <h1>{{ currentSemester }}</h1>
+        <button @click="getNextSemester">
+          <img :src="ForwardArrow" alt="Next Semester" />
         </button>
       </div>
-      <div v-if="isReasonEmpty" style="color: red"> Fill out Reason for Denying </div>
-      <div v-if="selectedOption === 'deny'" class="textarea-container"> 
-        <textarea v-model="userInput" placeholder="Reason for Not Approving"></textarea>
+       <!-- Tasks -->
+      <div class="task-data-table-container">
+        <table class="task-data-table">
+          <tbody>
+
+          </tbody>
+        </table>
       </div>
-      <button v-if="selectedOption === 'deny' || selectedOption === 'approve'" 
-        class="submit-button"  
-        @click="completeTaskReview(currentTask.id)"> 
-        Submit 
-      </button>
+    </div>
+    <div class="right-side">
+       <!-- Shop Card -->
+      <div class="shop-card" @click="goToShop">
+        <img src="@/assets/navigation/shoppingCart.png" alt="Shopping Cart" class="shopping-cart-icon" />
+        <div class="shop-info">
+          <h1>Shop</h1>
+          <p>You have <strong style="color: #811429; font-weight: 700;">37</strong> points</p>
+        </div>
+      </div>
+       <!-- Events under Shop -->
+      <div class="events-navigation">
+        <h1>Upcoming Events</h1>
+      </div>
+      <div class="event-data-table-container"> 
+        <table class="event-data-table">
+          <tbody>
+            <template v-for="event in limitedEvents" :key="event.id">
+              <tr @click="openModal(event)" class="clickable-row">
+                <td class="date">
+                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toLocaleUpperCase() }}</div>
+                  <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+                </td>
+                <td style="user-select: none;">
+                    {{ new Date(event.start_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new Date(event.end_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).replace('AM', 'am').replace('PM', 'pm') }}
+                  <br>
+                    <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="3"><hr class="event-line"></td>
+              </tr>
+            </template>
+          </tbody>   
+        </table>
+        <p class="view-more" @click.self="viewMoreEvents">View More 🡺</p>
+      </div>
     </div>
   </div>
-
-  <!-- Event Viewer modal -->
-  <div v-if="viewingEvent" class="modal">
-    <div class="modal-content"> 
-      <span @click="toggleEventView()" class="close">&times;</span>
-      <div class="modal-header" style="font-size: 30px; font-weight: bold;"> 
-        {{ selectedEvent.name }} 
-      </div> 
+ <!-- Event Modal -->
+  <div v-if="modalVisible" class="modal-overlay" @click.self="closeModal">
+    <div class="modal-content">
+      <span @click="closeModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedEvent.name }}</h2>
       <div style="font-size: 20px;">{{ selectedEvent.description }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points</div>
       <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
-      <div style="margin-bottom: 15px;">Time: {{ startTime }} - {{ endTime }}</div>
-      <div style="margin-bottom"> Points: {{ selectedEvent.point_value }}</div>
-      <button 
-        @click="toggleEventView()"> 
-        Close 
-      </button>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) }}
+      </div>
+      <div style="margin-bottom: 15px;"> 
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }} - 
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+// Vue Files
 import { useHomePageStore } from '@/store/homePageStore';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import Utils from "@/config/utils";
+// Image Files
 import BackArrow from '@/assets/ArrowBackwardIcon.svg';
 import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
-import Utils from "@/config/utils";
 // Service Files
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import studentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
@@ -133,49 +95,36 @@ import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
 import semesterServices from '@/services/flightPlanServices/semesterServices';
+import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTaskServices';
+import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 
+// CONSTS
+const homeStore = useHomePageStore();
+const router = useRouter();
+// user consts
 const user = ref(null);
-const studentTasks = ref({
-  name: { names: [] },
-  task: { tasks: [] },
-  reflection: { reflections: [] },
-  id: { ids: [] }
-});
-
-const currentDate = ref(null);
-const upcomingEvents = ref([]);
-
-// Semester Variables
-const currentSemester = ref('Loading...');
+const studentId = ref([]);
+// semester & event consts
+const currentDate = ref([]);
 const semesters = ref([]);
+const currentSemester = ref('Loading...');
 const currentIndex = ref(0);
-
-const studentFlightPlanTasksList = ref([]);
-
-const viewingTask = ref(false);
-const viewingEvent = ref(false);
-const currentTask = ref({
-  name: null,
-  task: null,
-  reflection: null,
-  id: null
-});
-
-// Modal Variables
-const selectedOption = ref(null);
-const userInput = ref("");
-const isReasonEmpty = ref(false);
-const studentFlightPlanTask = ref(null);
-const selectedEvent = ref(null);
+const events = ref([]);
+const limitedEvents = ref([]);
+const modalVisible = ref(false);
+const selectedEvent = ref({});
 
 onMounted(async () => {
-  user.value = Utils.getStore("user");
-  currentDate.value = new Date().toJSON().slice(0, 24);
-  // Get Student Tasks function call
-  listStudentTasks();
-  // Get Upcoming Events function call
-  getAllFutureEvents();
-  // Get Semesters
+  try {
+    user.value = Utils.getStore("user");
+    const userRes = await UserServices.getAllStudentUsers(user.value.userId);
+    studentId.value = userRes.data[0].id;
+    currentDate.value = new Date().toJSON().slice(0, 24);
+    console.log("Student ID is: " + studentId.value);
+  } catch (error) {
+    console.error('Error fetching student ID: ', error);
+  }
+
   try {
     const response = await semesterServices.getAllSemesters();
     if (response.data && response.data.length > 0) {
@@ -199,467 +148,257 @@ onMounted(async () => {
   try {
     const eventResponse = await eventServices.getAllSystemEvents();
     if (eventResponse.data) {
-      events.value = eventResponse.data;
+      events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
+      events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
+      console.log("events");
+      console.log(events.value);
     }
   } catch (error) {
     console.error('Error fetching events:', error);
   }
 });
 
-// Pagination
-const itemsPerPage = 6;
-const currentTaskPage = ref(1);
-const currentEventPage = ref(1);
+// METHODS
 
-// Total task pages
-const totalTaskPages = computed(() => Math.ceil(studentTasks.value.name.names.length / itemsPerPage));
+// modals --------------------
+const openModal = (event) => {
+  selectedEvent.value = event;
+  modalVisible.value = true;
+};
+const closeModal = () => {
+  modalVisible.value = false;
+};
 
-// Total event pages
-const totalEventPages = computed(() => Math.ceil(upcomingEvents.value.length / itemsPerPage));
+// exit homepage with router ---
+const goToShop = () => {
+  router.push({ name: 'shop' });
+};
+const viewMoreEvents = () => {
+  router.push({ name: 'events' });
+};
 
-// Get paginated tasks
-const paginatedTasks = computed(() => {
-  const start = (currentTaskPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return studentTasks.value.name.names.slice(start, end);
-});
-
-// Get paginated events
-const paginatedEvents = computed(() => {
-  const start = (currentEventPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return upcomingEvents.value.slice(start, end);
-})
-
-// Get flight plan tasks by semester
+// semester navigation ----------------------------------------------
 const getPreviousSemester = () => {
   if (currentIndex.value > 0) {
     currentIndex.value--;
     currentSemester.value = semesters.value[currentIndex.value].name;
   }
 };
-
 const getNextSemester = () => {
   if (currentIndex.value < semesters.value.length - 1) {
     currentIndex.value++;
     currentSemester.value = semesters.value[currentIndex.value].name;
   }
 };
-
-// Task Navigation Functions
-const nextTaskPage = () => {
-  if (currentTaskPage.value < totalTaskPages.value) {
-    currentTaskPage.value++;
-  }
-};
-
-const prevTaskPage = () => {
-  if (currentTaskPage.value > 1) {
-    currentTaskPage.value--;
-  }
-};
-
-// Events Navigation Functions
-const nextEventPage = () => {
-  if (currentEventPage.value < totalEventPages.value) {
-    currentEventPage.value++;
-  }
-};
-
-const prevEventPage = () => {
-  if (currentEventPage.value > 1) { 
-    currentEventPage.value--;
-  }
-};
-
-const eventDate = (date) => { return new Date(date).toLocaleDateString('en-US', {
-  month: 'short',  
-  day: 'numeric',  
-  year: 'numeric' 
-})};
-
-const startTime = computed(() => new Date(selectedEvent.value.start_date_time)
-  .toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-}));
-
-const endTime = computed(() => new Date(selectedEvent.value.end_date_time)
-  .toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-}));
-
-const getAllFutureEvents = () => {
-  eventServices.getAllEvents()
-    .then((res) => {
-      upcomingEvents.value = res.data.filter((event) => event.date > currentDate.value);
-      upcomingEvents.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-      console.log("Upcoming Events:", upcomingEvents.value); // Log the events here
-    })
-    .catch((error) => {
-      console.log("Error: " + error);
-    })
-}
-
-const listStudentTasks = () => {
-  studentFlightPlanTaskServices.getAllStudentFlightPlanTasks()
-    .then((res) => {
-      clearArrays();
-      // Gets only the tasks with status = ready_for_review
-      res.data.forEach(studentFlightPlanTask => {
-        if (studentFlightPlanTask.status === 'ready_for_review') studentFlightPlanTasksList.value.push(studentFlightPlanTask);
-      });
-
-const homeStore = useHomePageStore();
-      // Add to object and put into a list
-      addToStudentList();
-    })
-    .catch((error) => {
-      console.log("Error: " + error);
-    })
-}
-
-// Get all the information needed to put into the list
-const addToStudentList = async () => {
-  const promises = studentFlightPlanTasksList.value.map(async (studentFlightPlanTask) => {
-    try {
-      // Get task info
-      const taskRes = await taskServices.getTask(studentFlightPlanTask.taskId);
-      const taskName = taskRes.data.name;
-
-      // StudentFlightPlan
-      const flightPlanRes = await studentFlightPlanServices.getStudentFlightPlan(studentFlightPlanTask.studentFlightPlanId);
-      const studentRes = await studentServices.getStudent(flightPlanRes.data.studentId);
-      const userRes = await UserServices.getAllStudentUsers(studentRes.data.id);
-      
-      const studentName = userRes.data[0].fName + " " + userRes.data[0].lName;
-
-      // Returns the data in order
-      return {
-        task: taskName,
-        name: studentName,
-        reflection: studentFlightPlanTask.reflection,
-        id: studentFlightPlanTask.id,
-      };
-    } catch (error) {
-      console.log("Error:", error);
-      return null; 
-    }
-  });
-
-  // Promise waits for calls to finish
-  const results = await Promise.all(promises);
-
-  // removes null values
-  studentTasks.value = {
-    name: { names: results.map(res => res?.name).filter(Boolean) },
-    task: { tasks: results.map(res => res?.task).filter(Boolean) },
-    reflection: { reflections: results.map(res => res?.reflection).filter(Boolean) },
-    id: { ids: results.map(res => res?.id).filter(Boolean) }
-  };
-};
-
-const getSelectedTask = (name, task, reflection, id) => {
-  currentTask.value.name = name;
-  currentTask.value.task = task;
-  currentTask.value.reflection = reflection;
-  currentTask.value.id = id;
-  viewingTask.value = !viewingTask.value;
-  console.log(studentTasks.value);
-}
-
-const getSelectedEvent = (index) => {
-  selectedEvent.value = upcomingEvents.value[index];
-  viewingEvent.value = !viewingEvent.value;
-}
-
-// Toggle Modal
-const toggleTaskView = () => {
-  viewingTask.value = !viewingTask.value;
-  selectedOption.value = "";
-  isReasonEmpty.value = false;
-}
-
-const toggleEventView = () => {
-  viewingEvent.value = !viewingEvent.value;
-}
-
-// Approve or Deny Options
-const selectOption = (option) => {
-  selectedOption.value = option;
-};
-
-const completeTaskReview = (id) => {
-  if (selectedOption.value === 'deny' && userInput.value === "") {
-    isReasonEmpty.value = true;
-  }
-  else {
-    studentFlightPlanTaskServices.getStudentFlightPlanTask(id)
-      .then((res) => {
-        studentFlightPlanTask.value = res.data;
-        if (selectedOption.value === 'deny') {
-          studentFlightPlanTask.value.status = "unapproved";
-          studentFlightPlanTask.value.unapprove_reason = userInput.value;
-        }
-        else {
-          studentFlightPlanTask.value.status = "approved";
-          studentFlightPlanTask.value.userId = user.value.userId;
-        }
-        studentFlightPlanTaskServices.updateSystemStudentFlightPlanTask(id, studentFlightPlanTask.value)
-          .then((res) => {
-            toggleTaskView();
-            listStudentTasks();
-          })
-          .catch((error) => {
-            console.log("Error: " + error);
-          })
-      })
-      .catch((error) => {
-        console.log("Error: ", error)
-      })
-  }
-}
-
-const clearArrays = () => {
-  studentFlightPlanTasksList.value = [];
-  studentTasks.value.name.names = [];
-  studentTasks.value.task.tasks = [];
-  studentTasks.value.reflection.reflections = [];
-  studentTasks.value.id.ids = [];
-}
 </script>
 
 <style scoped>
-.content {
-  display: grid;
-  grid-template-columns: 1fr 1fr; 
-  gap: 20px; 
-  padding: 35px 5%;
+/* MAIN LAYOUT ----------------------*/
+.container {
+  display: flex;
+  height: 100vh;
+  background-color: #ffffff;
+}
+.left-side, .right-side {
+  width: 50%;
+  padding: 17px;
+}
+.left-side {
+  margin-left: 2%;
 }
 
+/* SEMESTER NAVIGATION --------------*/
+.semester-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  color: #FAFAFA;
+  border-radius: 20px 20px 0 0;
+  padding: 9px;
+  position: relative;
+  width: 95%;
+  margin-top: 2%;
+}
+.semester-navigation button {
+  background-color: #D9D9D9;
+  border: none;
+  cursor: pointer;
+  margin-left: 6%;
+  margin-right: 6%;
+  margin-top: 1%;
+  user-select: none;
+}
+.semester-navigation img {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+.semester-navigation h1 {
+  margin: 0;
+  color: black;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.7rem;
+  user-select: none;
+}
 
-.left-column, .right-column {
+/* SHOP CARD ---------------------------*/
+.shop-card {
+  display: flex;
+  align-items: center;
+  background-color: #FAFAFA;
+  color: black;
+  border-radius: 16px;
+  padding: 27px;
+  width: 95%;
+  height: 20%;
+  margin: 2% 0 4%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease, border 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.shop-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  border: 4px solid #811429;
+}
+/* - Icons and Info */
+.shop-card .shopping-cart-icon {
+  width: 67px;
+  height: 67px;
+  margin-right: 20px;
+}
+.shop-card .shop-info {
   display: flex;
   flex-direction: column;
-  width: 100%; 
-  max-width: 700px; 
+}
+.shop-info p {
+  font-size: 1.5rem;
 }
 
-.arrow-button {
-  width: 65px;
-  height: 65px;
-  background: #D9D9D9;
+/* Data Tables ----------------------------------*/
+.event-data-table-container, .task-data-table-container {
+  width: 95%;
+  background-color: #FAFAFA;
+  border: 1px solid #FAFAFA;
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
 }
-
-.content-header {
-  display: flex; 
+.task-data-table-container {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+.event-data-table, .task-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: black;
+}
+.event-data-table td {
+  padding: 3px;
+  font-size: 16px;
+}
+.task-data-table tbody {
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
+}
+
+/* EVENT INFO --------------------------*/
+
+/*- Events Navigation */
+.events-navigation {
+  display: flex;
   align-items: center;
-  width: 100%; 
-  height: 65px;
-  color: #202020;
-  font-size: 2vw; 
-  font-weight: 400;
+  justify-content: flex-start;
+  background-color: white;
+  color: black;
+  border-radius: 20px 20px 0 0;
+  padding: 18px;
+  position: relative;
+  width: 95%;
+  margin-top: 4%;
+}
+.events-navigation h1 {
+  margin: 0;
+  color: black;
+  font-size: 1.7rem;
+  user-select: none;
+}
+/* - Date and Time */
+.date {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2%;
+  font-size: 24px;
+}
+.month {
+  font-size: 16px; 
   text-align: center;
 }
-
-.student-tasks-body,
-.upcoming-events-body {
-  width: 100%; 
-  max-width: 700px; 
-  background: #FAFAFA;
-  flex-grow: 1; 
-  min-height: 500px; 
-  height: 75vh; 
-  overflow-y: auto;
+.day {
+  font-size: 30px;
+  text-align: center;
+  font-weight: 650;
 }
-
-/* .student-tasks-body {
-  height: 725px;
+.time {
+  text-align: left;
+  user-select: none;
 }
-
-.upcoming-events-body {
-  height: 725px;
-} */
-
-.list-text {
-  display: flex;
-  flex-direction: column;
+.event-name {
+  font-size: 24px;
+  text-align: left;
+  user-select: none;
 }
-
-.list-title {
-  /* font-weight: bold; */
-  font-size: clamp(14px, 1.5vw, 22px);
-}
-
-.list-sub {
-  font-size: 16px;
-  color: #555;
-}
-
-.point-value {
-  font-size: clamp(14px, 1.5vw, 22px);
-  color: #555;
-  padding-bottom: 10%;
-}
-
-.card-item {
-  width: 100%; 
-  max-width: 700px;
-  background: #F9F7F7;
-  box-shadow: 0px 4px 4px rgba(32, 32, 32, 0.20);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px;
-  font-size: 1.2vw; 
-  border-radius: 10px;
-  margin: 5px 0;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.card-item:hover {
-  transform: translateY(-3px); 
-  box-shadow: 0px 8px 12px rgba(32, 32, 32, 0.3); 
-}
-
-.card-item button {
-  background-color: #007bff; 
-  color: white;
+/* - Divider */
+.event-line {
   border: none;
-  padding: 4px 12px;
+  border-top: 1.1px solid black;
+  width: 95%;
+  padding: 10;
+  margin: 0 auto;
+}
+.clickable-row:hover {
   cursor: pointer;
-  border-radius: 5px;
-  margin-right: 15px;
+  backdrop-filter: brightness(97%);
+}
+.view-more {
+  font-size: 23px;
+  color: black;
+  font-weight: 700;
+  text-align: right;
+  padding-right: 2%;
+  margin: 2% 0;
+  cursor: pointer;
+  user-select: none;
 }
 
-.card-item button:hover {
-  background-color: #0056b3;
-}
-
-.pagination {
+/* - Events Modal---------------------------*/
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 10px;
 }
-
-.pagination-arrow {
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  transition: opacity 0.3s;
-}
-
-.arrow-button.disabled {
-  opacity: 0.5;
-  cursor: auto;
-}
-
-.modal {
-    width: 100%;
-    height: 100%;
-    flex-shrink: 0;
-}
-
 .modal-content {
   min-width: 400px;
   min-height: 100px; 
   border-radius: 10px;
-  background: #FFF;
+  background: #FAFAFA;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   padding: 20px;
-  max-height: 90vh; 
+  max-height: 90vh;
   overflow-y: auto;
   overflow-x: auto;
-}
-
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #000;
-    text-align: center;
-    /* font-family: Poppins; */
-    font-size: 20px;
-}
-
-.reflection-box {
-  width: 100%; 
-  display: flex;
-  justify-content: center;
-  border: 2px solid #B0B0B0; 
-  border-radius: 5px; 
-  padding: 10px;
-  font-size: 16px;
-  resize: vertical; 
-  outline: none; 
-  justify-content: space-between;
-}
-
-.textarea-container {
-  width: 100%; 
-  display: flex;
-  justify-content: center; 
-}
-
-.textarea-container textarea {
-  width: 100%; 
-  min-height: 100px; 
-  border: 2px solid #B0B0B0; 
-  border-radius: 5px; 
-  padding: 10px;
-  font-size: 16px;
-  resize: vertical; 
-  outline: none; 
-}
-
-.textarea-container textarea:focus {
-  border-color: #888;
-}
-
-.button-group {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-button {
-  background-color: #e0e0e0;
-  border: 2px solid transparent;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-  width: 100px;
-}
-
-button:hover {
-  background-color: #d6d6d6;
-}
-
-button.selected {
-  background-color: #007bff;
-  border-color: #0056b3;
-  color: white;
-}
-
-.submit-button {
-  background-color: green;
-  margin-top: 15px;
-  color: white;
 }
 </style>

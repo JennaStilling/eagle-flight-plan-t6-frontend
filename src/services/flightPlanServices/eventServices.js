@@ -7,6 +7,9 @@ export default {
     getAllEvents() {
         return apiClient.get(`flightPlan-t6/event`);
     },
+    getAllSystemEvents() {
+        return apiClient.get(`flightPlan-t6/event`);
+    },
     getEvent(verificationId, id) {
         return apiClient.get(`flightPlan-t6/verification/${verificationId}/event/${id}`);
     },
