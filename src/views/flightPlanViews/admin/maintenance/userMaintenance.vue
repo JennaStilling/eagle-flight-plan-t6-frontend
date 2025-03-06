@@ -21,14 +21,13 @@
 
     <v-card class="stuff">
       <div class="user-previews" v-if="!loadingUserRoles && !loadingUsers && !loadingRoles">
-        <UserPreview
-          v-for="user in filteredUsers"
-          :key="user.id"
-          :user="user"
-          :userRoles="getUserRoles(user.id)"
-          :roles="roles"
-          @save-user="handleSaveUser"
-          @delete-user="handleDeleteUser"
+        <UserPreview v-for="user in filteredUsers"
+        :key="user.id"
+        :user="user"
+        :userRoles="getUserRoles(user.id)"
+        :roles="roles"
+        @save-user="handleSaveUser"
+        @delete-user="handleDeleteUser"
         />
       </div>
     </v-card>
@@ -86,26 +85,25 @@ const refresh = () => {
   getAllUserRoles();
 }
 
+const getUserRoles = (userId) => {
+  return userRoles.value.filter((userRole) => userRole.userId === userId);
+}
+
 const handleSaveUser = async ({ user, newRoles }) => {
   const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
   const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
 
-  const addRolePromises = newRoles.map((role) => {
+  newRoles.forEach((role) => {
     if (!specificUserRoles.includes(role)) {
-      return addRole(user.id, role);
+      addRole(user.id, role);
     }
-  });
+  })
 
-  const removeRolePromises = specificUserRoles.map((role) => {
+  specificUserRoles.forEach((role) => {
     if (!newRoles.includes(role)) {
-      return removeRole(user.id, role);
+      removeRole(user.id, role);
     }
-  });
-
-  await Promise.all([...addRolePromises, ...removeRolePromises]);
-
-  // Refresh user roles after adding/removing roles
-  await refresh();
+  })
 };
 
 const handleDeleteUser = async (userId) => {
