@@ -1,6 +1,5 @@
 <template>
   <div class="modified-width">
-
     <div class="title-row">
       <h1 class="table-title">Manage Users</h1>
       <div class="search-filter-button-group">
@@ -22,162 +21,21 @@
 
     <v-card class="stuff">
       <div class="user-previews" v-if="!loadingUserRoles && !loadingUsers && !loadingRoles">
-        <UserPreview v-for="user in filteredUsers"
-        :key="user.id"
-        :user="user"
-        :userRoles="userRoles.filter((userRole) => userRole.userId === user.id)"
-        :roles="roles"
-        @save-user="handleSaveUser"
-        @delete-user="handleDeleteUser"
+        <UserPreview
+          v-for="user in filteredUsers"
+          :key="user.id"
+          :user="user"
+          :userRoles="getUserRoles(user.id)"
+          :roles="roles"
+          @save-user="handleSaveUser"
+          @delete-user="handleDeleteUser"
         />
       </div>
     </v-card>
     <v-card class="pager">
       <h3>Page 1 of 1</h3>
-
     </v-card>
   </div>
-
-  <div class="modified-width">
-    <v-card title="Edit Users">
-      <v-row>
-        <v-col cols="5">
-          <v-text-field v-model="search" label="Search for User" variant="solo" hide-details single-line>
-            <template v-slot:prepend-inner>
-              <Icon icon="material-symbols:search-rounded" width="24" height="24" />
-            </template>
-          </v-text-field>
-
-        </v-col>
-
-        <v-col cols="5">
-          <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined hide-details
-            variant="solo">
-          </v-select>
-        </v-col>
-        <v-col cols="2">
-          <v-btn>
-            Add Student
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1" :items-per-page="filteredUsers.length"
-        hide-default-footer>
-        <template #item.name="{ item }">
-          <span @click="
-            userDataDisplay(item);
-          determineReviewerStatus(item);
-          getSpecificUserRoles(item.id);
-          ">
-            {{ item.fName + " " + item.lName }}
-          </span>
-        </template>
-      </v-data-table>
-    </v-card>
-  </div>
-
-  <div v-if="showUserInfo" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span @click="showUserInfo = false" class="close">&times;</span>
-        <h3>User Data</h3>
-      </div>
-
-      <v-card class="mx-auto pa-4">
-        <div class="modal-body">
-          <v-row>
-            <v-col cols="12">
-              <strong>Name:</strong> {{ user.fName + " " + user.lName }}
-            </v-col>
-            <v-col cols="12">
-              <strong>Email:</strong> {{ user.email }}
-            </v-col>
-            <v-col cols="12">
-              <strong>Roles:</strong> {{ specificUserRoles }}
-            </v-col>
-            <v-col cols="12">
-              <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"></v-checkbox>
-            </v-col>
-          </v-row>
-        </div>
-
-        <v-row class="justify-end pt-2 justify-right">
-          <v-btn @click="
-            showUserInfo = false;
-          saveUserData(user.id);
-          " color="#5EC4B6" class="me-2">Save</v-btn>
-          <v-btn @click="(showUserInfo = false), (showDeleteItem = true)" color="#F04E3E" class="me-2">Delete</v-btn>
-          <v-btn @click="showUserInfo = false" color="#708E9A">Close</v-btn>
-        </v-row>
-      </v-card>
-    </div>
-  </div>
-
-  <div v-if="showDeleteItem" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span @click="showDeleteItem = false" class="close">&times;</span>
-        <p v-if="!deleteError">
-          Are you sure you want to delete this user?<br />
-          {{ user.fName + " " + user.lName }}
-        </p>
-        <p v-if="deleteError">
-          Error deleting<br />{{ user.fName + " " + user.lName }}.
-        </p>
-      </div>
-      <div class="modal-body">
-        <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">No, cancel</v-btn>
-        <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteUser(user)">Yes, delete</v-btn>
-        <v-btn v-if="deleteError" @click="
-          deleteError = false;
-        showDeleteItem = false;
-        ">Close</v-btn>
-      </div>
-    </div>
-  </div>
-
-
-  <v-overlay v-model="addingUser" class="align-center justify-center">
-    <v-card class="add-user">
-      <div class="scroll">
-        <v-sheet class="mx-auto" width="300">
-
-          <v-form ref="form">
-            <div>
-              <v-select v-model="data.prefix" :items="data.prefixes" label="Prefix" required variant="solo"></v-select>
-              <v-text-field v-model="data.firstName" :counter="10" label="First Name" required
-                variant="solo"></v-text-field>
-              <v-text-field v-model="data.lastName" :counter="10" label="Last Name" required
-                variant="solo"></v-text-field>
-              <v-text-field v-model="data.email" :counter="10" label="Email" required variant="solo"></v-text-field>
-              <v-text-field v-model="data.phoneNumeber" :counter="10" label="Phone Number" required
-                variant="solo"></v-text-field>
-            </div>
-            <div>
-              <v-text-field v-model="data.studentId" :counter="10" label="StudentID" required
-                variant="solo"></v-text-field>
-              <v-text-field v-model="data.class" :counter="10" label="Class" required variant="solo"></v-text-field>
-              <v-select v-model="data.select" :items="data.items" label="Graduation Date" required
-                variant="solo"></v-select>
-              <v-text-field v-model="data.points" label="Points Earned" required variant="solo"></v-text-field>
-            </div>
-            <div class="d-flex flex-row">
-              <v-btn class="button" variant="elevated" color="#5EC4B6" @click="">
-                Save
-              </v-btn>
-              <v-btn class="button" variant="elevated" color="#D9D9D9" @click="">
-                Cancel
-              </v-btn>
-              <v-btn class="button" variant="elevated" color="#F04E3E" @click="">
-                Delete
-              </v-btn>
-            </div>
-          </v-form>
-        </v-sheet>
-      </div>
-    </v-card>
-  </v-overlay>
 </template>
 
 <script setup>
@@ -201,58 +59,21 @@ import { Icon } from "@iconify/vue";
 const users = ref([]);
 const user = ref(null);
 
-const showDeleteItem = ref(false);
-const deleteError = ref(false);
 const message = ref("");
-
-const showUserInfo = ref(false);
 
 const search = ref("");
 
 const filterOptions = ["All", "Admins", "Students", "Reviewers", "Student Workers", "Professors"];
 const filterType = ref("All");
-const headers = [
-  { text: "Name", value: "name", align: "start" },
-  { text: "Email", value: "email", align: "start" },
-  { text: "Is Student?", value: "isStudent", align: "start" },
-  { text: "Is Reviewer?", value: "isReviewer", align: "start" },
-  { text: "Is Admin?", value: "isAdmin", align: "start" },
-];
 
 const roles = ref([]);
 const userRoles = ref([]);
-const specificUserRoles = ref("");
-const router = useRouter();
-
-const hasReviewerAccess = ref(false);
 
 const loadingUserRoles = ref(true);
 const loadingUsers = ref(true);
 const loadingRoles = ref(true);
 
 const addingUser = ref(false);
-
-const data = ({
-  prefix: null,
-  prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumeber: '',
-  nameRules: [
-    v => !!v || 'Name is required',
-    v => (v && v.length <= 10) || 'Name must be 10 characters or less',
-  ],
-  studentId: '',
-  select: null,
-  items: [
-    'Item 1',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-  ],
-  checkbox: false,
-})
 
 onMounted(() => {
   user.value = Utils.getStore("user");
@@ -265,9 +86,26 @@ const refresh = () => {
   getAllUserRoles();
 }
 
-const handleSaveUser = async ({ user, roles }) => {
-  console.log(user);
-  console.log(roles);
+const handleSaveUser = async ({ user, newRoles }) => {
+  const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
+  const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
+
+  const addRolePromises = newRoles.map((role) => {
+    if (!specificUserRoles.includes(role)) {
+      return addRole(user.id, role);
+    }
+  });
+
+  const removeRolePromises = specificUserRoles.map((role) => {
+    if (!newRoles.includes(role)) {
+      return removeRole(user.id, role);
+    }
+  });
+
+  await Promise.all([...addRolePromises, ...removeRolePromises]);
+
+  // Refresh user roles after adding/removing roles
+  await refresh();
 };
 
 const handleDeleteUser = async (userId) => {
@@ -276,8 +114,7 @@ const handleDeleteUser = async (userId) => {
 
 const addUser = () => {
   addingUser.value = true;
-}
-
+};
 
 const getAllRoles = () => {
   RoleServices.getAllRoles()
@@ -303,7 +140,7 @@ const getAllUserRoles = () => {
       message.value = "Error: " + err.code + ":" + err.message;
       console.log(err);
     });
-}
+};
 
 const getUsers = () => {
   UserServices.getAllUsers()
@@ -319,34 +156,12 @@ const getUsers = () => {
     });
 };
 
-const deleteUser = (user) => {
-  UserServices.deleteUser(user.id)
-    .then(() => {
-      showDeleteItem.value = false;
-      users.value = users.value.filter((allUsers) => allUsers.id !== user.id);
-    })
-    .catch((e) => {
-      message.value = e.response.data.message;
-      deleteError.value = true;
-    });
-};
-
 const orderUsers = (val) => {
   users.value.sort((a, b) => {
     return val === "asc"
       ? a.lName.localeCompare(b.lName)
       : b.lName.localeCompare(a.lName);
   });
-};
-
-const deleteDisplay = (item) => {
-  user.value = item;
-  showDeleteItem.value = true;
-};
-
-const userDataDisplay = async (item) => {
-  user.value = item;
-  showUserInfo.value = true;
 };
 
 const filteredUsers = computed(() => {
@@ -386,19 +201,6 @@ const filteredUsers = computed(() => {
 
   return filtered;
 });
-
-const determineReviewerStatus = (item) => {
-  const reviewerId = roles.value.find((role) => role.role_type === "reviewer").id;
-  hasReviewerAccess.value = userRoles.value.some((userRole) => userRole.userId === item.id && userRole.roleId === reviewerId)
-};
-
-const addReviewer = (userId) => {
-  addRole(userId, "reviewer");
-};
-
-const removeReviewer = (userId) => {
-  removeRole(userId, "reviewer");
-};
 
 const addRole = (userId, roleName) => {
   const specificRoleId = roles.value.find((role) => role.role_type === roleName).id;
@@ -455,35 +257,6 @@ const removeRole = (userId, roleName) => {
     .finally(() => {
       refresh();
     })
-};
-
-const getSpecificUserRoles = (specificUserId) => {
-  function formatString(str) {
-    return str.replace(/_/g, ' ')
-      .replace(/,(\s*)$/g, '')
-      .replace(/,(\S)/g, ', $1')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
-  }
-
-  UserServices.getUser(specificUserId)
-    .then((res) => {
-      specificUserRoles.value = "";
-      const specificUserRolesArray = ref([]);
-      specificUserRolesArray.value = userRoles.value.filter((userRole) => userRole.userId === specificUserId);
-
-      specificUserRolesArray.value.forEach((userRole) => {
-        specificUserRoles.value = specificUserRoles.value.concat(roles.value.find((role) => role.id === userRole.roleId).role_type + ",");
-      });
-      specificUserRoles.value = formatString(specificUserRoles.value);
-    });
-};
-
-const saveUserData = (userId) => {
-  if (hasReviewerAccess.value) {
-    addReviewer(userId);
-  } else {
-    removeReviewer(userId);
-  }
 };
 </script>
 
