@@ -1,10 +1,11 @@
 <template>
     <div class="user-preview" @click="handleClick" @mouseover="handleMouseover" @mouseleave="handleMouseleave">
         <h3>{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
-        <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma=1" color="primary" rounded="lg">
-            {{ formatRole(role.role_type) }}
+        <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma=1" color="primary" rounded="lg"
+            :text="formatRole(role.role_type)">
         </v-chip>
 
+        <br>
         <v-btn color="#5EC4B6" class="me-2" @click.stop="quickAction1" rounded="lg">
             Quick Action 1
         </v-btn>
@@ -16,22 +17,26 @@
         </v-btn>
 
 
-        <v-overlay v-model="overlay" class="align-center justify-center">
+        <v-overlay v-model="overlay" class="popup">
             <v-card class="edit-user">
                 <div class="scroll">
-                    <h3>{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
-
-
-                    <v-sheet class="mx-auto" width="300">
+                    <v-sheet class="form">
 
                         <v-form ref="form">
+                            <h3>{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
                             <div>
+                                <h3>Assigned Roles:</h3>
                                 <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma=1" color="primary"
-                                    rounded="lg">
-                                    {{ formatRole(role.role_type) }}
+                                    rounded="lg" :text="formatRole(role.role_type)">
                                 </v-chip>
-                                <v-select v-model="roleData.addRole" :items="roleData.roles" label="Role" required
-                                    variant="solo"></v-select>
+
+                                <h3>Available Roles</h3>
+                                <v-chip-group v-model="roleData.rolesToAdd" multiple>
+                                    <v-chip v-for="role in roles" :key="role.id" class="ma-1" color="primary"
+                                        rounded="lg" :value="role.role_type">
+                                        {{ formatRole(role.role_type) }}
+                                    </v-chip>
+                                </v-chip-group>
                             </div>
                             <div>
                                 <v-select v-model="userData.prefix" :items="userData.prefixes" label="Prefix" required
@@ -75,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch, watchEffect } from "vue";
 
 const props = defineProps({
     user: Object,
@@ -85,13 +90,12 @@ const props = defineProps({
 
 const emit = defineEmits(['save-user', 'delete-user', 'cancel-edit']);
 
-const roleData = ({
-    addRole: props.user.prefix,
-    roles: props.roles.map((role) => role.role_type),
-    rolesToAdd: null
+const roleData = ref({
+    rolesToAdd: [],
 })
 
-const userData = ({
+const userData = ref({
+    id: props.user.id,
     prefix: props.user.prefix,
     prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
     firstName: props.user.fName,
@@ -115,10 +119,24 @@ const userData = ({
 
 const specificUserRoles = ref([]);
 
-
 onMounted(() => {
-    getSpecificUserRoles();
+    refresh();
 });
+
+watch(() => props.user, () => {
+  refresh();
+  updateUserData();
+}, { deep: true });
+
+watchEffect(() => props.userRoles, () => {
+    refresh();
+    updateUserData();
+}), { deep: true };
+
+const refresh = () => {
+    getSpecificUserRoles();
+    prePopulateRolesToAdd();
+}
 
 const overlay = ref(false);
 
@@ -150,10 +168,13 @@ const action3 = () => {
 };
 
 const saveUser = () => {
-    emit('save-user', { user: userData, roles: roleData });
+    overlay.value = false;
+    //check if form is valid
+    emit('save-user', { user: userData.value, newRoles: roleData.value.rolesToAdd });
 };
 
 const deleteUser = () => {
+    overlay.value = false;
     emit('delete-user', props.user.id);
 };
 
@@ -171,9 +192,40 @@ const getSpecificUserRoles = () => {
         (userRole) => props.roles.find((role) => role.id === userRole.roleId));
 };
 
+const prePopulateRolesToAdd = () => {
+  roleData.value.rolesToAdd = specificUserRoles.value.map(role => role.role_type);
+};
+
 const hasRole = (role) => {
     return specificUserRoles.value.some((userRole) => userRole.role_type === role);
 };
+
+const updateUserData = () => {
+  userData.value = {
+    id: props.user.id,
+    prefix: props.user.prefix,
+    prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
+    firstName: props.user.fName,
+    lastName: props.user.lName,
+    email: props.user.email,
+    phoneNumeber: props.user.phone_number,
+    nameRules: [
+      v => !!v || 'Name is required',
+      v => (v && v.length <= 10) || 'Name must be 10 characters or less',
+    ],
+    studentId: props.user.studentId,
+    select: null,
+    items: [
+      'Item 1',
+      'Item 2',
+      'Item 3',
+      'Item 4',
+    ],
+    checkbox: false,
+  };
+};
+
+
 </script>
 
 <style scoped>
@@ -216,5 +268,16 @@ const hasRole = (role) => {
 .scroll {
     overflow-y: auto;
     max-height: 100%;
+}
+
+.form {
+    width: 50vw;
+    margin: auto;
+}
+
+.popup {
+    align-items: center;
+    justify-content: center;
+
 }
 </style>
