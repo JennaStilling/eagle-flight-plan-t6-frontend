@@ -42,7 +42,7 @@ import FlightPlanMaintenance from './views/flightPlanViews/admin/maintenance/Fli
 import LifeAfterTheNestFP from './views/flightPlanViews/admin/LifeAfterTheNest.vue';
 import TaskMaintenance from './views/flightPlanViews/admin/maintenance/TaskMaintenance.vue';
 import TransactionLogs from './views/flightPlanViews/admin/TransactionLogs.vue';
-import UserMaintenance from './views/flightPlanViews/admin/maintenance/userMaintenance.vue';
+import UserMaintenance from './views/flightPlanViews/admin/maintenance/UserMaintenance.vue';
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
