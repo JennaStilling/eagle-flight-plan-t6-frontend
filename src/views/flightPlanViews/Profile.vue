@@ -30,7 +30,7 @@
       </div>
       <div class="badge-buffer"></div>
       <!-- For loop displaying students badges here -->
-      <div class="badge-display" >
+      <div class="badge-display" v-if="studentBadges">
         <div v-for="(badge, index) in badges" :key="index">
           <div class="badge-item">
             <div class="badge-image">
@@ -195,7 +195,6 @@ const getBadges = () => {
   studentBadgeServices.getAllStudentBadges(student.value.id)
     .then((res) => {
       studentBadges.value = res.data;
-      console.log(studentBadges.value);
       getBadgeDetails(studentBadges.value);
     })
     .catch((error) => {
@@ -208,7 +207,6 @@ const getBadgeDetails = (badgeArray) => {
     badgeServices.getBadge(studentBadge.badgeId)
       .then((res) => {
         badges.value.push(res.data);
-        console.log(badges.value);
       })
       .catch((error) => {
         console.log("Error: " + error);
@@ -228,6 +226,7 @@ const settings = () => {
   router.push({ name: 'settings' });
 }
 
+// Update Functionality
 const toggleUpdateModal = () => {
   showProfileUpdate.value = !showProfileUpdate.value;
 }
@@ -248,7 +247,7 @@ const updateUserInfo = () => {
   userServices.updateUser(userInfo.value.id, updateUser)
     .then((res) => {
       console.log("User updated successfully" + res);
-      getUser();
+      window.location.reload();
     })
     .catch((error) => {
       console.log("Error: " + error);
