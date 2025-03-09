@@ -7,8 +7,8 @@ export default {
     createSystemStudentBadge(data) {
         return apiClient.post(`flightPlan-t6/studentBadge`, data);
     },
-    getAllStudentBadges(studentId, badgeId) {
-        return apiClient.get(`flightPlan-t6/student/${studentId}/badge/${badgeId}/studentBadge`);
+    getAllStudentBadges(studentId) {
+        return apiClient.get(`flightPlan-t6/student/${studentId}/studentBadge`);
     },
     getStudentBadge(studentId, badgeId, id) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/badge/${badgeId}/studentBadge/${id}`);
