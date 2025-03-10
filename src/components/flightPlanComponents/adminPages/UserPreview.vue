@@ -1,5 +1,5 @@
 <template>
-    <div class="user-preview" @click="handleClick" @mouseover="handleMouseover" @mouseleave="handleMouseleave">
+    <div class="user-preview" @click="selectUser" @mouseover="handleMouseover" @mouseleave="handleMouseleave">
         <h3>{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
         <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma=1" color="primary" rounded="lg"
             :text="formatRole(role.role_type)">
@@ -33,8 +33,7 @@
                                 <h3>Available Roles</h3>
                                 <v-chip-group v-model="roleData.rolesToAdd" multiple>
                                     <v-chip v-for="role in roles" :key="role.id" class="ma-1" color="primary"
-                                        rounded="lg" :value="role.role_type">
-                                        {{ formatRole(role.role_type) }}
+                                        rounded="lg" :value="role.role_type" :text="formatRole(role.role_type)">
                                     </v-chip>
                                 </v-chip-group>
                             </div>
@@ -124,8 +123,8 @@ onMounted(() => {
 });
 
 watch(() => props.user, () => {
-  refresh();
-  updateUserData();
+    refresh();
+    updateUserData();
 }, { deep: true });
 
 watchEffect(() => props.userRoles, () => {
@@ -150,9 +149,8 @@ const handleMouseleave = () => {
     //console.log("MOUSE OFF");
 };
 
-const handleClick = () => {
+const selectUser = () => {
     overlay.value = !overlay.value;
-    console.log("CLICKED");
 };
 
 const quickAction1 = () => {
@@ -193,7 +191,7 @@ const getSpecificUserRoles = () => {
 };
 
 const prePopulateRolesToAdd = () => {
-  roleData.value.rolesToAdd = specificUserRoles.value.map(role => role.role_type);
+    roleData.value.rolesToAdd = specificUserRoles.value.map(role => role.role_type);
 };
 
 const hasRole = (role) => {
@@ -201,28 +199,28 @@ const hasRole = (role) => {
 };
 
 const updateUserData = () => {
-  userData.value = {
-    id: props.user.id,
-    prefix: props.user.prefix,
-    prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
-    firstName: props.user.fName,
-    lastName: props.user.lName,
-    email: props.user.email,
-    phoneNumeber: props.user.phone_number,
-    nameRules: [
-      v => !!v || 'Name is required',
-      v => (v && v.length <= 10) || 'Name must be 10 characters or less',
-    ],
-    studentId: props.user.studentId,
-    select: null,
-    items: [
-      'Item 1',
-      'Item 2',
-      'Item 3',
-      'Item 4',
-    ],
-    checkbox: false,
-  };
+    userData.value = {
+        id: props.user.id,
+        prefix: props.user.prefix,
+        prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
+        firstName: props.user.fName,
+        lastName: props.user.lName,
+        email: props.user.email,
+        phoneNumeber: props.user.phone_number,
+        nameRules: [
+            v => !!v || 'Name is required',
+            v => (v && v.length <= 10) || 'Name must be 10 characters or less',
+        ],
+        studentId: props.user.studentId,
+        select: null,
+        items: [
+            'Item 1',
+            'Item 2',
+            'Item 3',
+            'Item 4',
+        ],
+        checkbox: false,
+    };
 };
 
 

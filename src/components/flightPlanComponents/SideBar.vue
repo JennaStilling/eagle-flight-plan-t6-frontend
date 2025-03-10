@@ -21,6 +21,8 @@
       <li @click="toggleMaintenanceDropdown"> Maintenance <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'" class="dropdown-arrow" />
 
       <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
+        <li v-if="hasUserPermission" @click="toggleMenu"><router-link :to="{ name: 'userMaintenance' }"><span
+              class='black-text'>Users</span></router-link></li>
         <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }"><span
               class='black-text'>Events</span></router-link></li>
         <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }"><span

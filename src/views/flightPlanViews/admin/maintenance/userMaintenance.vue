@@ -115,6 +115,7 @@ const addUser = () => {
 };
 
 const getAllRoles = () => {
+  loadingRoles.value = true;
   RoleServices.getAllRoles()
     .then((res) => {
       roles.value = res.data;
@@ -128,6 +129,7 @@ const getAllRoles = () => {
 };
 
 const getAllUserRoles = () => {
+  loadingUserRoles.value = true;
   UserRoleServices.getEveryUserRole()
     .then((res) => {
       userRoles.value = res.data;
@@ -141,6 +143,7 @@ const getAllUserRoles = () => {
 };
 
 const getUsers = () => {
+  loadingUsers.value = true;
   UserServices.getAllUsers()
     .then((res) => {
       users.value = res.data;
