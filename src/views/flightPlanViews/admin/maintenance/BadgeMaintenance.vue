@@ -74,6 +74,7 @@
     <!-- Badge Add/Edit Modal -->
     <div v-if="showBadgeDetails" class="modal">
       <v-card class="edit-popup">
+        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
           <v-card-title class="popup-header">
               <!-- Badge Image -->
               <div class="add-edit-image-container" @click="triggerFileInput">
@@ -176,6 +177,8 @@ const badgeName = ref(null);
 const badgeDescription = ref(null);
 const badgeType = ref(null);
 const badgePoints = ref(null);
+const hasError = ref(false);
+const errorMessage = ref("");
 
 // Badge Image Variables
 const badgeImage = ref(null);
@@ -224,6 +227,8 @@ const getAllBadges = () => {
 
 // Add Functionality
 const addBadgePopup = () => {
+  errorMessage.value = "";
+  hasError.value = false;
   showBadgeDetails.value = true;
   badgeAdd.value = true;
   badgeEdit.value = false;
@@ -238,6 +243,29 @@ const addBadgePopup = () => {
 };
 
 const addBadge = () => {
+    hasError.value = false;
+    if (badgeImage.value == null) {
+      errorMessage.value += "Add an Image before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgeName.value == null) {
+      errorMessage.value += "Add a name before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgeDescription.value == null) {
+      errorMessage.value += "Add a description before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgeType.value == null) {
+      errorMessage.value += "Assign a type before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgePoints.value == null) {
+      errorMessage.value += "Add points before creating badge\n";
+      hasError.value = true;
+    }
+    if (hasError.value) return;
+
     if (badgeType.value === 'Task Completion') badgeType.value = 'task_completion';
     else if (badgeType.value === 'Experience Completion') badgeType.value = 'experience_completion';
     else if (badgeType.value === 'Flightplan Completion') badgeType.value = 'flightplan_completion';
@@ -255,6 +283,8 @@ const addBadge = () => {
         .then((res) => {
             showBadgeDetails.value = false;
             console.log("Badge added successfully: " + res.data);
+            errorMessage.value = "";
+            hasError.value = false;
             getAllBadges();
         })
         .catch((error) => {
@@ -264,6 +294,8 @@ const addBadge = () => {
 
 // Edit Functionality
 const editBadgePopup = (item) => {
+  errorMessage.value = "";
+  hasError.value = false;
   badgeToEdit.value = item;
   showBadgeDetails.value = true;
   badgeEdit.value = true;
@@ -282,6 +314,29 @@ const editBadgePopup = (item) => {
 };
 
 const editBadge = () => {
+    hasError.value = false;
+    if (badgeImage.value == null) {
+      errorMessage.value += "Add an Image before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgeName.value == null) {
+      errorMessage.value += "Add a name before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgeDescription.value == null) {
+      errorMessage.value += "Add a description before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgeType.value == null) {
+      errorMessage.value += "Assign a type before creating badge\n";
+      hasError.value = true;
+    }
+    if (badgePoints.value == null) {
+      errorMessage.value += "Add points before creating badge\n";
+      hasError.value = true;
+    }
+    if (hasError.value) return;
+
     if (badgeType.value === 'Task Completion') badgeType.value = 'task_completion';
     else if (badgeType.value === 'Experience Completion') badgeType.value = 'experience_completion';
     else if (badgeType.value === 'Flightplan Completion') badgeType.value = 'flightplan_completion';
@@ -299,6 +354,8 @@ const editBadge = () => {
         .then((res) => {
             console.log("Badge Updated Successfully: " + res.data);
             showBadgeDetails.value = false;
+            errorMessage.value = "";
+            hasError.value = false;
             getAllBadges();
         })
         .catch((error) => {
