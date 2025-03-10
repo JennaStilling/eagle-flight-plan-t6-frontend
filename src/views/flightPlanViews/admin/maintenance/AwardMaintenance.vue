@@ -272,7 +272,7 @@ const editItemPopup = (item) => {
   if (itemToEdit.value.redemption_type === 'online') itemRedemptionType.value = 'Online';
   itemRedemptionInfo.value = itemToEdit.value.redemption_info;
   itemImage.value = itemToEdit.value.image;
-  itemImageType.value = itemToEdit.value.itemImageType;
+  itemImageType.value = itemToEdit.value.image_type;
 };
 
 // Work in here
