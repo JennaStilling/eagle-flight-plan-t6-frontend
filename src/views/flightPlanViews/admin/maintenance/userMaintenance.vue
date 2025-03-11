@@ -20,19 +20,33 @@
     </div>
 
     <v-card class="stuff">
-      <div class="user-previews" v-if="!loadingUserRoles && !loadingUsers && !loadingRoles">
-        <UserPreview v-for="user in filteredUsers"
-        :key="user.id"
-        :user="user"
-        :userRoles="getUserRoles(user.id)"
-        :roles="roles"
-        @save-user="handleSaveUser"
-        @delete-user="handleDeleteUser"
-        />
-      </div>
-    </v-card>
-    <v-card class="pager">
-      <h3>Page 1 of 1</h3>
+      <v-data-iterator :items="filteredUsers" :items-per-page="9"
+        v-if="!loadingUserRoles && !loadingUsers && !loadingRoles">
+        <template v-slot:default="{ items }">
+          <v-container class="pa-2" fluid>
+            <v-row dense>
+              <v-col v-for="user in items" :key="user.id" cols="auto" md="4" W>
+                <UserPreview :key="user.id" :user="user.raw" :userRoles="getUserRoles(user.raw.id)" :roles="roles"
+                  @save-user="handleSaveUser" @delete-user="handleDeleteUser" />
+              </v-col>
+            </v-row>
+          </v-container>
+        </template>
+
+        <template v-slot:footer="{ page, pageCount, prevPage, nextPage }">
+          <div class="d-flex align-center justify-center pa-4">
+            <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
+              @click="prevPage"></v-btn>
+
+            <div class="mx-2 text-caption">
+              Page {{ page }} of {{ pageCount }}
+            </div>
+
+            <v-btn :disabled="page >= pageCount" density="comfortable" icon="mdi-arrow-right" variant="tonal" rounded
+              @click="nextPage"></v-btn>
+          </div>
+        </template>
+      </v-data-iterator>
     </v-card>
   </div>
 </template>
@@ -266,6 +280,7 @@ const removeRole = (userId, roleName) => {
   height: 100vh;
   margin: 0 auto;
   padding-top: 15px;
+  overflow-y: auto;
 }
 
 .user-previews {
