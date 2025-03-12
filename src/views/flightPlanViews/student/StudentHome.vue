@@ -20,7 +20,7 @@
                 <div class="task-content">{{ task.taskName }} - {{ task.taskPoints }}pts</div>
               </td>
             </tr>
-            <!--Change this to event instead of tasks???-->
+            <!--Maybe add more besides just tasks in the future??-->
             <!-- <tr v-for="task in taskDetails" :key="task.taskId">
               <td class="task-card" @click="openTaskModal(task)">
                 <div class="task-content">{{ task.taskName }} - {{ task.taskPoints }}pts</div>
@@ -75,10 +75,10 @@
       <h2>{{ selectedTask.taskName }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedTask.taskDescription }}</div>
       <div v-if="selectedTask.taskVideoLink" style="margin-top: 15px;">
-        <a :href="selectedTask.taskVideoLink" target="_blank">Watch Video</a>
+        <a :href="selectedTask.taskVideoLink" target="_blank">Access resource</a>
       </div>
       <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.taskPoints }}</span> points</div>
-      <div style="margin-top: 15px;">Status: {{ selectedTask.status }}</div>
+      <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' : selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{ selectedTask.unapprove_reason }}</div>
     </div>
   </div>
@@ -87,7 +87,7 @@
     <div class="modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
-      <div style="font-size: 20px;">{{ selectedEvent.description }}</div>
+      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
       <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points</div>
       <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
       <div style="margin-bottom: 15px;">
@@ -120,6 +120,7 @@ import eventServices from "@/services/flightPlanServices/eventServices";
 import semesterServices from '@/services/flightPlanServices/semesterServices';
 import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTaskServices';
 import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
+import { get } from '@vueuse/core';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -146,15 +147,8 @@ const flightPlans = ref([]);
 const unapprovedOrInProgressTasks = ref([]);
 const taskDetails = ref([]);
 
-/* // dummy tasks
-const dummytasks = ref([
-  { taskName: 'Resume Creation', taskPoints: 13 },
-  { taskName: 'Lunch & Learn', taskPoints: 7 },
-  { taskName: 'Clifton Strengths', taskPoints: 8 }
-]); */
-
 onMounted(async () => {
-  console.log('Home Page Mounted---------------------------------');
+  //console.log('Home Page Mounted---------------------------------');
   try {
     user.value = Utils.getStore("user");
     const userRes = await UserServices.getAllStudentUsers(user.value.userId);
@@ -177,6 +171,7 @@ onMounted(async () => {
       if (futureSemesterIndex !== -1) {
         currentIndex.value = futureSemesterIndex;
         currentSemester.value = semesters.value[currentIndex.value].name;
+        //console.log('Current Semester id:', semesters.value[currentIndex.value].id);
         await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
       } else {
         currentSemester.value = 'No future semester data available';
@@ -195,8 +190,8 @@ onMounted(async () => {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
-      console.log("events");
-      console.log(events.value);
+      //console.log("events");
+      //console.log(events.value);
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -231,15 +226,17 @@ const getFlightPlansBySemester = async (semesterId) => {
 
 const getFlightPlanTasks = async (flightPlanId) => {
   try {
+    //console.log('THE Flight Plan ID:', flightPlanId);
     const response = await flightPlanTaskServices.getAllFlightPlanTasksByFlightPlanId(flightPlanId);
     if (response.data) {
       //console.log(`Tasks for Flight Plan ${flightPlanId}:`, response.data);
       // Fetch task details for each flight plan task
       const userRes = await UserServices.getAllStudentUsers(user.value.userId);
       const studentId = userRes.data[0].id;
-      console.log('Student ID in getFlightPlanTasks:', studentId);
+      //console.log('Student ID in getFlightPlanTasks:', studentId);
       for (const flightPlanTask of response.data) {
         await getTaskDetails(flightPlanTask.taskId);
+        //console.log('Task ID here', taskId);
         const studentFlightPlanId = await getStudentFlightPlanId(studentId, flightPlanId);
         await getStudentFlightPlanTask(studentFlightPlanId, flightPlanTask.taskId, user.value.userId);
       }
@@ -253,20 +250,25 @@ const getTaskDetails = async (taskId) => {
   try {
     const response = await taskServices.getTask(taskId);
     if (response.data) {
-     // console.log(`Task Name for Task ID ${taskId}:`, response.data.name);
+      //console.log('Task NAME in getTaskDetails:', response.data.name);
+      return {
+        taskName: response.data.name,
+        taskDescription: response.data.description,
+        taskVideoLink: response.data.video_link,
+        taskPoints: response.data.point_value,
+        taskId: taskId
+      };
     }
   } catch (error) {
     console.error(`Error fetching task details for task ID ${taskId}:`, error);
+    return null;
   }
 };
 
 const getStudentFlightPlanId = async (studentId, flightPlanId) => {
   try {
-   /*  console.log('Student ID:', studentId);
-    console.log('Flight Plan ID:', flightPlanId); */
     const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
     if (response.data) {
-      //console.log(`Student Flight Plan ID for Student ID ${studentId} and Flight Plan ID ${flightPlanId}:`, response.data[0].id);
       return response.data[0].id;
     }
   } catch (error) {
@@ -275,16 +277,15 @@ const getStudentFlightPlanId = async (studentId, flightPlanId) => {
 };
 
 const getStudentFlightPlanTask = async (studentFlightPlanId, taskId, userId) => {
-  console.log('Student Flight Plan ID:', studentFlightPlanId);
+  //console.log('Student Flight Plan ID:', studentFlightPlanId);
   try {
-    const response = await studentFlightPlanTaskServices.getStudentFlightPlanTask(studentFlightPlanId, taskId, userId);
+    const response = await studentFlightPlanTaskServices.getStudentFlightPlanTasks(studentFlightPlanId, taskId, userId);
     if (response.data) {
-     /*  console.log(`Points Earned for Student Flight Plan ID ${studentFlightPlanId}, Task ID ${taskId}, User ID ${userId}:`, response.data.points_earned);
-      console.log('Get student flight plan data:', response.data); */
-      if (response.data.status === 'unapproved' || response.data.status === 'in_progress') {
-        unapprovedOrInProgressTasks.value.push(response.data);
+      //console.log(`Points Earned for Student Flight Plan ID ${studentFlightPlanId}, Task ID ${taskId}, User ID ${userId}:`, response.data[0].points_earned);
+      if (response.data[0].userId === userId && (response.data[0].status === 'unapproved' || response.data[0].status === 'in_progress')) {
+        unapprovedOrInProgressTasks.value.push(response.data[0]);
       }
-      fetchTaskDetailsForUnapprovedOrInProgressTasks();
+      await fetchTaskDetailsForUnapprovedOrInProgressTasks();
     }
   } catch (error) {
     console.error(`Error fetching student flight plan task for student flight plan ID ${studentFlightPlanId}, task ID ${taskId}, and user ID ${userId}:`, error);
@@ -293,22 +294,25 @@ const getStudentFlightPlanTask = async (studentFlightPlanId, taskId, userId) => 
 
 // Fetch task details for unapproved or in-progress tasks
 const fetchTaskDetailsForUnapprovedOrInProgressTasks = async () => {
-  for (const task of unapprovedOrInProgressTasks.value) {
+  taskDetails.value = []; // Clear task details before fetching new ones
+  const promises = unapprovedOrInProgressTasks.value.map(async (task) => {
     try {
-      const response = await taskServices.getTask(task.taskId);
-      if (response.data) {
-        taskDetails.value.push({
-          taskName: response.data.name,
-          taskDescription: response.data.description,
-          taskVideoLink: response.data.video_link,
-          taskPoints: response.data.point_value,
-          taskId: task.taskId
-        });
+      const taskDetail = await getTaskDetails(task.taskId);
+      if (taskDetail) {
+        return {
+          ...taskDetail,
+          status: task.status,
+          unapprove_reason: task.unapprove_reason
+        };
       }
     } catch (error) {
       console.error(`Error fetching task details for task ID ${task.taskId}:`, error);
+      return null;
     }
-  }
+  });
+
+  const results = await Promise.all(promises);
+  taskDetails.value = results.filter(Boolean); // Remove null values
 };
 
 // SIMPLE METHODS
@@ -463,6 +467,7 @@ const getNextSemester = async () => {
   height: 90%;
   background-color: #FAFAFA;
   padding-left: 10%;
+  overflow-y: auto;
 }
 .event-data-table, .task-data-table{
   width: 100%;
