@@ -33,6 +33,7 @@ import StudentWorkerHomePageFP from '@/views/flightPlanViews/studentWorker/Stude
 import ProfessorHomePageFP from '@/views/flightPlanViews/professor/ProfessorHome.vue';
 import settings from '@/views/flightPlanViews/Settings.vue';
 import profile from '@/views/flightPlanViews/Profile.vue';
+// Maintenance & Admin Pages
 import AwardMaintenance from './views/flightPlanViews/admin/maintenance/AwardMaintenance.vue';
 import BadgeMaintenance from './views/flightPlanViews/admin/maintenance/BadgeMaintenance.vue';
 import CliftonStrength from './views/flightPlanViews/admin/CliftonStrength.vue';
@@ -43,6 +44,9 @@ import LifeAfterTheNestFP from './views/flightPlanViews/admin/LifeAfterTheNest.v
 import TaskMaintenance from './views/flightPlanViews/admin/maintenance/TaskMaintenance.vue';
 import TransactionLogs from './views/flightPlanViews/admin/TransactionLogs.vue';
 import UserMaintenance from './views/flightPlanViews/admin/maintenance/userMaintenance.vue';
+// Student Pages
+import Shop from './views/flightPlanViews/student/Shop.vue';
+import Events from './views/flightPlanViews/student/Events.vue';
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
@@ -178,6 +182,8 @@ const routes = [
   { path: "/flightPlan/settings", name: "settings", component: settings },
   { path: "/flightPlan/profile", name: "profile", component: profile },
 
+
+  // Maintenance & Admin Pages
   { path: '/flightPlan/award/Maintenance', name: 'award', component: AwardMaintenance },
   { path: '/flightPlan/badge/Maintenance', name: 'badge', component: BadgeMaintenance },
   { path: '/flightPlan/event/Maintenance', name: 'event', component: EventMaintenance },
@@ -188,6 +194,10 @@ const routes = [
   { path: '/flightPlan/transaction/logs', name: 'transactionLog', component: TransactionLogs },
   { path: '/flightPlan/user/Maintenance', name: 'userMaintenance', component: UserMaintenance },
   { path: '/flightPlan/cliftonStrength', name: 'cliftonStrength', component: CliftonStrength },
+
+  //Student Pages
+  { path: '/flightPlan/shop', name: 'shop', component: Shop },
+  { path: '/flightPlan/events', name: 'events', component: Events },
 ];
 
 const router = createRouter({
@@ -237,6 +247,9 @@ router.beforeEach(async (to, from) => {
     "skillsEdit",
     "project",
     "projectEdit",
+    "shop",
+    "events",
+    "helpfulResources",
   ];
   
   const adminPages = [

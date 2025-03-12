@@ -251,6 +251,7 @@ const getAllFutureEvents = () => {
     .then((res) => {
       upcomingEvents.value = res.data.filter((event) => event.date > currentDate.value);
       upcomingEvents.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+      console.log("Upcoming Events:", upcomingEvents.value); // Log the events here
     })
     .catch((error) => {
       console.log("Error: " + error);

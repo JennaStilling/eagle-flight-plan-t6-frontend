@@ -1,3 +1,4 @@
+import { get } from "@vueuse/core";
 import apiClient from "../services";
 
 export default {
@@ -6,6 +7,9 @@ export default {
     },
     getAllFlightPlanTasks(flightPlanId, taskId) {
         return apiClient.get(`flightPlan-t6/flightPlan/${flightPlanId}/task/${taskId}/flightPlanTask`);
+    },
+    getAllFlightPlanTasksByFlightPlanId(flightPlanId) {
+        return apiClient.get(`flightPlan-t6/flightPlan/${flightPlanId}/flightPlanTask`);
     },
     getAllSystemFlightPlanTasks() {
         return apiClient.get(`flightPlan-t6/flightPlanTask`);
