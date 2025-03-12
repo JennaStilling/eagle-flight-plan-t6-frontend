@@ -8,7 +8,7 @@ export default {
         return apiClient.post(`flightPlan-t6/transaction`, data);
     },
     getAllTransactions(userId, studentId, awardId) {
-        return apiClient.get(`flightPlan-t6/user/${userId}/student/${studentId}/award/${awardId}/transaction`);
+        return apiClient.get(`flightPlan-t6/transaction`);
     },
     getTransaction(userId, studentId, awardId, id) {
         return apiClient.get(`flightPlan-t6/user/${userId}/student/${studentId}/award/${awardId}/transaction/${id}`);

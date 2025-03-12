@@ -215,7 +215,6 @@ const getAllBadges = () => {
   badgeServices.getAllBadges()
     .then((res) => {
       badges.value = res.data;
-      console.log(badges.value);
     })
     .catch((error) => {
       console.log("Error: " + error);
