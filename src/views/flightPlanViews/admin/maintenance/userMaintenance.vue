@@ -1,5 +1,5 @@
 <template>
-  <div class="modified-width">
+  <div>
     <div class="title-row">
       <h1 class="table-title">Manage Users</h1>
       <div class="search-filter-button-group">
@@ -12,22 +12,19 @@
 
         <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" variant="solo" hide-details
           density="compact" class="filter-menu"></v-select>
-
-        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addUser()">
-          Add User
-        </v-btn>
+        <AddUser :roles="roles" />
       </div>
     </div>
 
     <v-card class="stuff">
       <v-data-iterator :items="filteredUsers" :items-per-page="9"
-        v-if="!loadingUserRoles && !loadingUsers && !loadingRoles">
+        v-if="!loadingUserRoles && !loadingUsers && !loadingRoles && !loadingStudents">
         <template v-slot:default="{ items }">
           <v-container class="pa-2" fluid>
             <v-row dense>
               <v-col v-for="user in items" :key="user.id" cols="auto" md="4" W>
                 <UserPreview :key="user.id" :user="user.raw" :userRoles="getUserRoles(user.raw.id)" :roles="roles"
-                  @save-user="handleSaveUser" @delete-user="handleDeleteUser" />
+                  :student="getStudent(user.raw.id)" @save-user="handleSaveUser" @delete-user="handleDeleteUser" />
               </v-col>
             </v-row>
           </v-container>
@@ -36,14 +33,15 @@
         <template v-slot:footer="{ page, pageCount, prevPage, nextPage }">
           <div class="d-flex align-center justify-center pa-4">
             <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
-              @click="prevPage"></v-btn>
+              @click="prevPage">
+              < </v-btn>
 
-            <div class="mx-2 text-caption">
-              Page {{ page }} of {{ pageCount }}
-            </div>
+                <div class="mx-2 text-caption">
+                  Page {{ page }} of {{ pageCount }}
+                </div>
 
-            <v-btn :disabled="page >= pageCount" density="comfortable" icon="mdi-arrow-right" variant="tonal" rounded
-              @click="nextPage"></v-btn>
+                <v-btn :disabled="page >= pageCount" density="comfortable" icon="mdi-arrow-right" variant="tonal"
+                  rounded @click="nextPage"> > </v-btn>
           </div>
         </template>
       </v-data-iterator>
@@ -57,6 +55,7 @@ import { ref, computed, onMounted } from "vue";
 
 // Services Files
 import UserServices from "@/services/resumeBuilderServices/userServices";
+import StudentServices from "@/services/resumeBuilderServices/studentServices";
 import RoleServices from "@/services/resumeBuilderServices/roleServices";
 import RolePermissionServices from "@/services/flightPlanServices/rolePermissionServices";
 import UserRolePermissionServices from "@/services/flightPlanServices/userRolePermissionServices";
@@ -64,6 +63,7 @@ import UserRoleServices from "@/services/resumeBuilderServices/userRoleServices"
 
 // Components 
 import UserPreview from '@/components/flightPlanComponents/adminPages/UserPreview.vue';
+import AddUser from '@/components/flightPlanComponents/adminPages/AddUser.vue';
 
 import { useRouter } from "vue-router";
 import Utils from "@/config/utils.js";
@@ -82,9 +82,12 @@ const filterType = ref("All");
 const roles = ref([]);
 const userRoles = ref([]);
 
+const students = ref([]);
+
 const loadingUserRoles = ref(true);
 const loadingUsers = ref(true);
 const loadingRoles = ref(true);
+const loadingStudents = ref(true);
 
 const addingUser = ref(false);
 
@@ -94,38 +97,56 @@ onMounted(() => {
 });
 
 const refresh = () => {
-  getUsers();
+  getAllUsers();
   getAllRoles();
   getAllUserRoles();
+  getAllStudents();
 }
 
 const getUserRoles = (userId) => {
   return userRoles.value.filter((userRole) => userRole.userId === userId);
 }
 
-const handleSaveUser = async ({ user, newRoles }) => {
-  const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
-  const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
+const getStudent = (userId) => {
+  return students.value.find((student) => student.id === userId);
+}
 
-  newRoles.forEach((role) => {
-    if (!specificUserRoles.includes(role)) {
-      addRole(user.id, role);
-    }
-  })
+const handleSaveUser = async ({ user, student, cliftonStrengths, newRoles }) => {
+  // saving user roles
+  {
+    const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
+    const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
 
-  specificUserRoles.forEach((role) => {
-    if (!newRoles.includes(role)) {
-      removeRole(user.id, role);
-    }
-  })
+    newRoles.forEach((role) => {
+      if (!specificUserRoles.includes(role)) {
+        addRole(user.id, role);
+      }
+    })
+
+    specificUserRoles.forEach((role) => {
+      if (!newRoles.includes(role)) {
+        removeRole(user.id, role);
+      }
+    })
+  }
+
+  console.log(student);
+  // saving student
+  updateStudent(student);
+
+  console.log(user);
+  // saving user
+  updateUser(user);
+
+  console.log(cliftonStrengths);
+  // saving user clifton strengths
+  updateCliftonStrengths(cliftonStrengths);
+
+
 };
 
 const handleDeleteUser = async (userId) => {
   console.log(userId);
-};
-
-const addUser = () => {
-  addingUser.value = true;
 };
 
 const getAllRoles = () => {
@@ -156,7 +177,7 @@ const getAllUserRoles = () => {
     });
 };
 
-const getUsers = () => {
+const getAllUsers = () => {
   loadingUsers.value = true;
   UserServices.getAllUsers()
     .then((res) => {
@@ -170,6 +191,20 @@ const getUsers = () => {
       console.log(err);
     });
 };
+
+const getAllStudents = () => {
+  loadingStudents.value = true;
+  StudentServices.getAllStudents()
+    .then((res) => {
+      students.value = res.data;
+      message.value = "";
+      loadingStudents.value = false;
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
+}
 
 const orderUsers = (val) => {
   users.value.sort((a, b) => {
@@ -273,6 +308,33 @@ const removeRole = (userId, roleName) => {
       refresh();
     })
 };
+
+
+const updateUser = (userData) => {
+  UserServices.updateUser(userData.id, userData)
+    .then((response) => {
+      console.log("User updated successfully:", response.data);
+      refresh();
+    })
+    .catch((e) => {
+      message.value = e.response.data.message;
+    });
+}
+
+const updateStudent = (studentData) => {
+  StudentServices.updateStudent(studentData.id, studentData)
+    .then((response) => {
+      console.log("Student updated successfully:", response.data);
+      refresh();
+    })
+    .catch((e) => {
+      message.value = e.response.data.message;
+    });
+}
+
+const updateCliftonStrengths = (cliftonStrengthData) => {
+
+}
 </script>
 
 <style scoped>
