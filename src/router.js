@@ -56,8 +56,6 @@ const user = computed(() => Utils.getStore("user"));
 
 // Define routes
 const routes = [
-  { path: "/login", name: "login" },
-
   // Flight Plan
   { path: "/", name: "homeFP", component: HomepageRouterFP },
 
@@ -118,6 +116,7 @@ const routes = [
 
   //Login/out:
   { path: "/login", name: "login", component: Login },
+
   {
     path: "/resumeBuilder/studentHome",
     name: "studentHome",
