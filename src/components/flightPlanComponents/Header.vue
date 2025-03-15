@@ -122,13 +122,10 @@ const getUserRoles = async () => {
 const getAllUserRoles = () => {
   userRolePermissionServices.getAllPermissionsForUser(user.value.userId).then((res) => {
     userRoles.value = res.data;
-    console.log(userRoles.value);
     // id 7 - admin
     // id 8 - student
     // id 9 - professor
     userRoles.value.forEach(role => {
-      console.log(role.permissionId)
-
       if(role.permissionId == 7)
         adminAccess.value = true
       if(role.permissionId == 8)
