@@ -261,7 +261,7 @@ import { createEventModalPlugin } from "@schedule-x/event-modal";
 
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 
-import { ref, computed, shallowRef, onMounted } from 'vue';
+import { ref, computed, shallowRef, onMounted, watch } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO } from 'date-fns';
@@ -284,9 +284,7 @@ const eventAdd = ref(false);
 const eventName = ref("");
 const eventType = ref("");
 const eventScheduleType = ref("");
-const eventRationale = ref("");
 const eventDescription = ref("");
-const eventVerificationType = ref("")
 const eventDate = ref("")
 const eventStartTime = ref("")
 const eventEndTime = ref("")
@@ -315,6 +313,7 @@ const formattedEndTime = computed(() => {
 });
 
 const showCalendarView = ref(true);
+const calendarFormattedEvents = ref([]);
 
 const toggleCalendarView = computed(() => {
   showCalendarView.value = true;
@@ -336,15 +335,8 @@ const headers = ref([
 
 const filterOptions = ref(['All']);
 const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class'];
-//('club','extra_curricular','career_fair','mentoring','career_services','lunch_and_learn','galup_strengths_class'
-const typeOptions = ['Automatic', 'Manual']
-const frequencyOptions = ['One Time', 'Every Semester', 'Special Event']
 const statusOptions = ['Scheduled', 'In Progress', 'Completed', 'Finished']
-// 'scheduled','in_progress','completed','finished'
 const attendanceTypes = ['In Person', 'Online']
-// 'in_person', 'online'
-
-const isRequired = ref(false);
 
 const labels = {
   description: "Description",
@@ -382,20 +374,29 @@ const filteredEvents = computed(() => {
   }));
 });
 
-onMounted(() => {
+const populateFormattedEvents = () => {
+  if (!events.value) return
+  calendarFormattedEvents.value = events.value.map(event => ({
+    id: event.id,
+    title: event.name,
+    start: formatCalendarDate(event.start_date_time),
+    end: formatCalendarDate(event.end_date_time)
+  }))
+}
+
+onMounted(async () => {
   showCalendarView.value = false;
-  getAllEvents();
+  await getAllEvents();
+  console.log(calendarFormattedEvents.value)
 });
 
 const formatDate = (dateTimeStr) => {
   if (!dateTimeStr) return '';
   try {
-    // Handle ISO date string from API
     if (dateTimeStr.includes('T')) {
       const date = parseISO(dateTimeStr);
       return format(date, 'MM-dd-yyyy');
     }
-    // Handle date picker string (YYYY-MM-DD)
     const date = parseISO(dateTimeStr);
     return format(date, 'MM-dd-yyyy');
   } catch (error) {
@@ -407,12 +408,10 @@ const formatDate = (dateTimeStr) => {
 const formatTime = (dateTimeStr) => {
   if (!dateTimeStr) return '';
   try {
-    // Handle ISO date string from API
     if (dateTimeStr.includes('T')) {
       const date = parseISO(dateTimeStr);
       return format(date, 'HH:mm');
     }
-    // Handle direct time input
     return dateTimeStr;
   } catch (error) {
     console.error('Error formatting time:', error);
@@ -424,11 +423,9 @@ const formatTimeForInput = (dateTimeStr) => {
   if (!dateTimeStr) return '';
   try {
     if (dateTimeStr.includes('T')) {
-      // Handle ISO date string from API
       const date = parseISO(dateTimeStr);
       return format(date, 'HH:mm');
     }
-    // Handle direct time input
     return dateTimeStr;
   } catch (error) {
     console.error('Error formatting time:', error);
@@ -437,10 +434,11 @@ const formatTimeForInput = (dateTimeStr) => {
 };
 
 const getAllEvents = () => {
-  EventServices.getAllEvents()
+  return EventServices.getAllEvents()
     .then((res) => {
       events.value = res.data;
       message.value = '';
+      populateFormattedEvents();
     })
     .catch((err) => {
       message.value = `Error: ${err.code}: ${err.message}`;
@@ -458,22 +456,17 @@ const editEventPopup = (task) => {
   eventDescription.value = eventToEdit.value.description;
   eventType.value = capitalize(eventToEdit.value.event_type);
 
-  // Extract date from start_date_time or date field
   if (eventToEdit.value.start_date_time) {
-    // For start_date_time, extract just the date part (yyyy-MM-dd)
     eventDate.value = eventToEdit.value.start_date_time.split('T')[0];
   } else if (eventToEdit.value.date) {
-    // For date field, try to parse and format if needed
     try {
       const dateTime = parseISO(eventToEdit.value.date);
       eventDate.value = format(dateTime, 'yyyy-MM-dd');
     } catch (error) {
-      // If parsing fails, use the date as is (it might already be in yyyy-MM-dd format)
       eventDate.value = eventToEdit.value.date;
     }
   }
 
-  // Extract time from start_date_time and end_date_time
   if (eventToEdit.value.start_date_time) {
     const startDateTime = parseISO(eventToEdit.value.start_date_time);
     eventStartTime.value = format(startDateTime, 'HH:mm');
@@ -507,7 +500,7 @@ const editEvent = () => {
     eventScheduleType.value = 'every_semester'
   }
 
-  // Combine date and time for start_date_time and end_date_time
+
   const date = parseISO(eventDate.value);
   const [startHours, startMinutes] = eventStartTime.value.split(':');
   const [endHours, endMinutes] = eventEndTime.value.split(':');
@@ -609,7 +602,6 @@ const addEvent = () => {
     eventAttendanceType.value = 'in_person'
   }
 
-  // Combine date and time for start_date_time and end_date_time
   const date = parseISO(eventDate.value);
   const [startHours, startMinutes] = eventStartTime.value.split(':');
   const [endHours, endMinutes] = eventEndTime.value.split(':');
@@ -634,11 +626,8 @@ const addEvent = () => {
     point_value: eventPointValue.value
   };
 
-  console.log(newEvent)
-
   EventServices.createEvent(newEvent).then((response) => {
     showEventDetails.value = false;
-    console.log("Task added successfully:", response.data);
     getAllEvents();
   })
     .catch((e) => {
@@ -690,8 +679,17 @@ const eventsService = createEventsServicePlugin();
 const calendarControls = createCalendarControlsPlugin();
 const eventModal = createEventModalPlugin();
 
+const formatCalendarDate = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return `${date.getFullYear()}-
+  ${String(date.getMonth() + 1).padStart(2, '0')}-
+  ${String(date.getDate()).padStart(2, '0')} 
+  ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
 const calendarApp = shallowRef(createCalendar({
-  selectedDate: '2024-06-28',
+  selectedDate: '2025-03-15',
   locale: 'en-US',
   views: [viewMonthAgenda, viewMonthGrid, viewWeek],
   defaultView: viewWeek.name,
@@ -701,31 +699,11 @@ const calendarApp = shallowRef(createCalendar({
   },
   firstDayOfWeek: 0,
   plugins: [
-    eventModal,
-    createDragAndDropPlugin(),
-    createScrollControllerPlugin({
-      initialScroll: '07:00'
-    }),
-    createEventRecurrencePlugin(),
     eventsService,
-    calendarControls
+    calendarControls,
+    eventModal
   ],
-  events: [
-    {
-      id: 1,
-      start: '2024-06-28',
-      end: '2024-06-28',
-      title: 'hi',
-      calendarId: 'work',
-    },
-    {
-      id: 2,
-      start: '2024-06-28 08:00',
-      end: '2024-06-28 10:00',
-      title: 'hi again',
-      calendarId: 'work',
-    },
-  ],
+  events: calendarFormattedEvents.value,
   monthGridOptions: {
     nEventsPerDay: 6,
   },
