@@ -498,9 +498,6 @@ const editEventPopup = (task) => {
   eventCustomEvent.value = eventToEdit.value.custom;
   eventStatus.value = eventToEdit.value.status;
   eventPointValue.value = eventToEdit.value.point_value;
-
-  // Log the date value for debugging
-  console.log('Event date set to:', eventDate.value);
 };
 
 const editEvent = () => {
@@ -532,12 +529,10 @@ const editEvent = () => {
   endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
 
   const updatedEvent = {
-    type: eventType.value.toLowerCase(),
-    req_reflection: isRequired.value,
-    schedule_type: eventScheduleType.value.toLowerCase(),
     name: eventName.value,
     description: eventDescription.value,
-    date: eventDate.value, // Keep the original date format
+    event_type: eventType.value.toLowerCase(),
+    date: eventDate.value,
     start_date_time: startDateTime.toISOString(),
     end_date_time: endDateTime.toISOString(),
     location: eventLocation.value,
@@ -547,13 +542,16 @@ const editEvent = () => {
     point_value: eventPointValue.value
   };
 
-  EventServices.updateEventType(eventToEdit.value.id, updatedEvent)
+  console.log("Id: " + eventToEdit.value.id + " " + eventToEdit.value.verificationId)
+
+  EventServices.updateEvent(eventToEdit.value.id, updatedEvent)
     .then((response) => {
       console.log("Event updated successfully:", response.data);
       showEventDetails.value = false;
       getAllEvents();
     })
     .catch((e) => {
+      console.log(e.value)
       message.value = e.response.data.message;
       deleteError.value = true;
     });
@@ -564,13 +562,18 @@ const addEventPopup = () => {
   eventAdd.value = true;
   eventEdit.value = false;
   eventToEdit.value = null;
-  eventVerificationType.value = ""
+
   eventName.value = "";
-  eventType.value = "";
-  eventRationale.value = "";
   eventDescription.value = "";
-  isRequired.value = false;
-  eventScheduleType.value = "";
+  eventType.value = "";
+  eventDate.value = "";
+  eventStartTime.value = "";
+  eventEndTime.value = "";
+  eventLocation.value = "";
+  eventAttendanceType.value = "";
+  eventCustomEvent.value = false;
+  eventStatus.value = "";
+  eventPointValue.value = "";
 };
 
 const addEvent = () => {
@@ -602,7 +605,7 @@ const addEvent = () => {
 
   console.log(newEvent)
 
-  EventServices.createEventType(newEvent).then((response) => {
+  EventServices.createEvent(newEvent).then((response) => {
     showEventDetails.value = false;
     console.log("Task added successfully:", response.data);
     getAllEvents();
@@ -621,7 +624,7 @@ const deleteEventConfirmatoin = (task) => {
 };
 
 const deleteEvent = () => {
-  EventServices.deleteEventType(typeToDelete.value.id)
+  EventServices.deleteEvent(typeToDelete.value.id)
     .then((res) => {
       showDeleteItem.value = false;
       getAllEvents();
