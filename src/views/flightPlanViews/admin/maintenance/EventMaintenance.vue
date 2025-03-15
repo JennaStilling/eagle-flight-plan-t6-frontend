@@ -155,13 +155,8 @@
           </v-col>
 
           <v-col cols="7">
-            <v-text-field
-              v-model="eventStartTime"
-              type="time"
-              variant="outlined"
-              density="compact"
-              hide-details
-            ></v-text-field>
+            <v-text-field v-model="eventStartTime" type="time" variant="outlined" density="compact"
+              hide-details></v-text-field>
           </v-col>
         </v-row>
 
@@ -172,13 +167,8 @@
           </v-col>
 
           <v-col cols="7">
-            <v-text-field
-              v-model="eventEndTime"
-              type="time"
-              variant="outlined"
-              density="compact"
-              hide-details
-            ></v-text-field>
+            <v-text-field v-model="eventEndTime" type="time" variant="outlined" density="compact"
+              hide-details></v-text-field>
           </v-col>
         </v-row>
 
@@ -200,8 +190,8 @@
           </v-col>
 
           <v-col cols="7">
-            <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled" density="compact" hide-details
-              class="filter-menu"></v-select>
+            <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled" density="compact"
+              hide-details class="filter-menu"></v-select>
           </v-col>
         </v-row>
 
@@ -345,11 +335,11 @@ const headers = ref([
 ]);
 
 const filterOptions = ref(['All']);
-const eventTypes = ['Club','Extra Curricular','Career Fair','Mentoring','Career Services','Lunch and Learn','Galup Strengths Class'];
+const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class'];
 //('club','extra_curricular','career_fair','mentoring','career_services','lunch_and_learn','galup_strengths_class'
 const typeOptions = ['Automatic', 'Manual']
 const frequencyOptions = ['One Time', 'Every Semester', 'Special Event']
-const statusOptions = ['Scheduled','In Progress','Completed','Finished']
+const statusOptions = ['Scheduled', 'In Progress', 'Completed', 'Finished']
 // 'scheduled','in_progress','completed','finished'
 const attendanceTypes = ['In Person', 'Online']
 // 'in_person', 'online'
@@ -363,7 +353,7 @@ const labels = {
   start: "Start Time",
   end: "End Time",
   location: "Location",
-  attendance: "Attendance Time",
+  attendance: "Attendance Type",
   custom: "Custom Event?",
   status: "Status",
   points: "Point Value",
@@ -467,7 +457,7 @@ const editEventPopup = (task) => {
   eventName.value = eventToEdit.value.name;
   eventDescription.value = eventToEdit.value.description;
   eventType.value = capitalize(eventToEdit.value.event_type);
-  
+
   // Extract date from start_date_time or date field
   if (eventToEdit.value.start_date_time) {
     // For start_date_time, extract just the date part (yyyy-MM-dd)
@@ -482,7 +472,7 @@ const editEventPopup = (task) => {
       eventDate.value = eventToEdit.value.date;
     }
   }
-  
+
   // Extract time from start_date_time and end_date_time
   if (eventToEdit.value.start_date_time) {
     const startDateTime = parseISO(eventToEdit.value.start_date_time);
@@ -521,10 +511,10 @@ const editEvent = () => {
   const date = parseISO(eventDate.value);
   const [startHours, startMinutes] = eventStartTime.value.split(':');
   const [endHours, endMinutes] = eventEndTime.value.split(':');
-  
+
   const startDateTime = new Date(date);
   startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
-  
+
   const endDateTime = new Date(date);
   endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
 
@@ -541,8 +531,6 @@ const editEvent = () => {
     status: eventStatus.value,
     point_value: eventPointValue.value
   };
-
-  console.log("Id: " + eventToEdit.value.id + " " + eventToEdit.value.verificationId)
 
   EventServices.updateEvent(eventToEdit.value.id, updatedEvent)
     .then((response) => {
@@ -593,14 +581,57 @@ const addEvent = () => {
     eventScheduleType.value = 'every_semester'
   }
 
+  if (eventType.value === 'Extra Curricular') {
+    eventType.value = 'extra_curricular'
+  }
+
+  if (eventType.value === 'Career Fair') {
+    eventType.value = 'career_fair'
+  }
+
+  if (eventType.value === 'Career Services') {
+    eventType.value = 'career_services'
+  }
+
+  if (eventType.value === 'Lunch and Learn') {
+    eventType.value = 'lunch_and_learn'
+  }
+
+  if (eventType.value === 'Galup Strengths Class') {
+    eventType.value = 'galup_strengths_class'
+  }
+
+  if (eventStatus.value === 'In Progress') {
+    eventStatus.value = 'in_progress'
+  }
+
+  if(eventAttendanceType.value === 'In Person') {
+    eventAttendanceType.value = 'in_person'
+  }
+
+  // Combine date and time for start_date_time and end_date_time
+  const date = parseISO(eventDate.value);
+  const [startHours, startMinutes] = eventStartTime.value.split(':');
+  const [endHours, endMinutes] = eventEndTime.value.split(':');
+
+  const startDateTime = new Date(date);
+  startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+
+  const endDateTime = new Date(date);
+  endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+
   const newEvent = {
-    type: eventType.value.toLowerCase(),
-    type: eventVerificationType.value.toLowerCase(),
-    req_reflection: isRequired.value,
-    schedule_type: eventScheduleType.value.toLowerCase(),
     name: eventName.value,
     description: eventDescription.value,
-    rational: eventRationale.value,
+    event_type: eventType.value.toLowerCase(),
+    date: eventDate.value,
+    start_date_time: startDateTime.toISOString(),
+    end_date_time: endDateTime.toISOString(),
+    location: eventLocation.value,
+    attendance_type: eventAttendanceType.value.toLowerCase(),
+    custom: eventCustomEvent.value,
+    status: eventStatus.value.toLowerCase(),
+    point_value: eventPointValue.value
   };
 
   console.log(newEvent)
@@ -611,7 +642,7 @@ const addEvent = () => {
     getAllEvents();
   })
     .catch((e) => {
-      console.log(e)
+      console.log(e.response.data)
       message.value = e.response.data.message;
       deleteError.value = true;
     });
