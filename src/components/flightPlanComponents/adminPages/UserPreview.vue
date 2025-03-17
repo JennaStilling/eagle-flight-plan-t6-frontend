@@ -319,7 +319,7 @@ const fixImageData = () => {
 
 const deleteUser = () => {
     overlay.value = false;
-    emit('delete-user', props.user.id);
+    emit('delete-user', props.user);
 };
 
 const cancelEdit = () => {

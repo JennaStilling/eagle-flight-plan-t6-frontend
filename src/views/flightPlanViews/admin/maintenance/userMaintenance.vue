@@ -24,7 +24,8 @@
             <v-row dense>
               <v-col v-for="user in items" :key="user.id" cols="auto" md="4" W>
                 <UserPreview :key="user.id" :user="user.raw" :userRoles="getUserRoles(user.raw.id)" :roles="roles"
-                  :student="getStudent(user.raw.id)" @save-user="handleSaveUser" @delete-user="handleDeleteUser" />
+                  :student="getStudent(user.raw.studentId)" @save-user="handleSaveUser"
+                  @delete-user="handleDeleteUser" />
               </v-col>
             </v-row>
           </v-container>
@@ -105,51 +106,56 @@ const getUserRoles = (userId) => {
   return userRoles.value.filter((userRole) => userRole.userId === userId);
 }
 
-const getStudent = (userId) => {
-  return students.value.find((student) => student.id === userId);
+const getStudent = (studentId) => {
+  return students.value.find((student) => student.id === studentId);
 }
 
 const handleAddUser = async ({ user, student, cliftonStrengths, newRoles }) => {
   if (student) {
     addStudent(student)
-    .then((response) => {
-      console.log(response);
+      .then((response) => {
+        user.studentId = response.id;
+        addUser(user)
+          .then((response) => {
+            addRoles(response, newRoles);
+          })
 
-      user.studentId = response.id;
-      addUser(user)
-        .then((response) => {
-          addRoles(response, newRoles);
-        })
-
-      addCliftonStrengths(student, cliftonStrengths);
-    })
+        addCliftonStrengths(student, cliftonStrengths);
+      })
   }
   else {
     addUser(user)
-    .then((response) => {
-      console.log(response);
-      addRoles(response, newRoles);
-    })
+      .then((response) => {
+        console.log(response);
+        addRoles(response, newRoles);
+      })
   }
-  
+
 }
 
 const handleSaveUser = async ({ user, student, cliftonStrengths, newRoles }) => {
   updateUserRoles(user, newRoles);
 
-  // if there is the student role, and user does not have a student id, create a student and assign the id to the user
-  //if (newRoles.includes)
-  // else if there is a student role and the user has a student id, update the student
-
-  updateStudent(student);
-
-  updateUser(user);
-
-  updateCliftonStrengths(cliftonStrengths);
+  if (newRoles.find((role) => role === "student" && !user.studentId)) {
+    addStudent(student)
+      .then(((response) => {
+        user.studentId = response.id;
+        updateUser(user);
+        updateCliftonStrengths(response.id, cliftonStrengths);
+      }))
+  }
+  else if (newRoles.find((role) => role === "student" && user.studentId)) {
+    updateStudent(student);
+    updateUser(user);
+    updateCliftonStrengths(user.studentId, cliftonStrengths);
+  }
 };
 
-const handleDeleteUser = async (userId) => {
-  deleteUser(userId);
+const handleDeleteUser = async (user) => {
+  if (user.studentId) {
+    deleteStudent(user.studentId);
+  }
+  deleteUser(user.id);
 };
 
 const getAllRoles = () => {
@@ -379,7 +385,7 @@ const updateUser = (userData) => {
     });
 }
 
-const updateCliftonStrengths = (cliftonStrengthData) => {
+const updateCliftonStrengths = (studentId, cliftonStrengthData) => {
 
 }
 
@@ -390,6 +396,15 @@ const deleteUser = (userId) => {
     })
     .catch((e) => {
       message.value = e.response.data.message;
+    })
+}
+
+const deleteStudent = (studentId) => {
+  StudentServices.deleteStudent(studentId)
+    .then((response) => {
+      refresh();
+    }).catch((e) => {
+      message.value = e.reponse.data.message;
     })
 }
 </script>
