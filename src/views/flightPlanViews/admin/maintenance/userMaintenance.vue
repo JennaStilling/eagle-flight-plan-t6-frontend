@@ -12,7 +12,7 @@
 
         <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" variant="solo" hide-details
           density="compact" class="filter-menu"></v-select>
-        <AddUser :roles="roles" />
+        <AddUser :roles="roles" @add-user="handleAddUser" />
       </div>
     </div>
 
@@ -89,8 +89,6 @@ const loadingUsers = ref(true);
 const loadingRoles = ref(true);
 const loadingStudents = ref(true);
 
-const addingUser = ref(false);
-
 onMounted(() => {
   user.value = Utils.getStore("user");
   refresh();
@@ -111,42 +109,47 @@ const getStudent = (userId) => {
   return students.value.find((student) => student.id === userId);
 }
 
-const handleSaveUser = async ({ user, student, cliftonStrengths, newRoles }) => {
-  // saving user roles
-  {
-    const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
-    const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
+const handleAddUser = async ({ user, student, cliftonStrengths, newRoles }) => {
+  if (student) {
+    addStudent(student)
+    .then((response) => {
+      console.log(response);
 
-    newRoles.forEach((role) => {
-      if (!specificUserRoles.includes(role)) {
-        addRole(user.id, role);
-      }
-    })
+      user.studentId = response.id;
+      addUser(user)
+        .then((response) => {
+          addRoles(response, newRoles);
+        })
 
-    specificUserRoles.forEach((role) => {
-      if (!newRoles.includes(role)) {
-        removeRole(user.id, role);
-      }
+      addCliftonStrengths(student, cliftonStrengths);
     })
   }
+  else {
+    addUser(user)
+    .then((response) => {
+      console.log(response);
+      addRoles(response, newRoles);
+    })
+  }
+  
+}
 
-  console.log(student);
-  // saving student
+const handleSaveUser = async ({ user, student, cliftonStrengths, newRoles }) => {
+  updateUserRoles(user, newRoles);
+
+  // if there is the student role, and user does not have a student id, create a student and assign the id to the user
+  //if (newRoles.includes)
+  // else if there is a student role and the user has a student id, update the student
+
   updateStudent(student);
 
-  console.log(user);
-  // saving user
   updateUser(user);
 
-  console.log(cliftonStrengths);
-  // saving user clifton strengths
   updateCliftonStrengths(cliftonStrengths);
-
-
 };
 
 const handleDeleteUser = async (userId) => {
-  console.log(userId);
+  deleteUser(userId);
 };
 
 const getAllRoles = () => {
@@ -309,11 +312,56 @@ const removeRole = (userId, roleName) => {
     })
 };
 
-
-const updateUser = (userData) => {
-  UserServices.updateUser(userData.id, userData)
+const addUser = async (user) => {
+  return UserServices.createUser(user)
     .then((response) => {
-      console.log("User updated successfully:", response.data);
+      refresh();
+      return response.data;
+    }).catch((e) => {
+      message.value = e.response.data.message;
+    })
+}
+
+const addStudent = async (student) => {
+  return StudentServices.createStudent(student)
+    .then((response) => {
+      refresh();
+      return response.data;
+    }).catch((e) => {
+      message.value = e.response.data.message;
+    })
+}
+
+const addCliftonStrengths = async (student, cliftonStrengths) => {
+
+}
+
+const addRoles = async (user, newRoles) => {
+  newRoles.forEach((role) => {
+    addRole(user.id, role);
+  })
+}
+
+const updateUserRoles = (user, newRoles) => {
+  const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
+  const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
+
+  newRoles.forEach((role) => {
+    if (!specificUserRoles.includes(role)) {
+      addRole(user.id, role);
+    }
+  })
+
+  specificUserRoles.forEach((role) => {
+    if (!newRoles.includes(role)) {
+      removeRole(user.id, role);
+    }
+  })
+}
+
+const updateStudent = (studentData) => {
+  StudentServices.updateStudent(studentData.id, studentData)
+    .then((response) => {
       refresh();
     })
     .catch((e) => {
@@ -321,10 +369,9 @@ const updateUser = (userData) => {
     });
 }
 
-const updateStudent = (studentData) => {
-  StudentServices.updateStudent(studentData.id, studentData)
+const updateUser = (userData) => {
+  UserServices.updateUser(userData.id, userData)
     .then((response) => {
-      console.log("Student updated successfully:", response.data);
       refresh();
     })
     .catch((e) => {
@@ -334,6 +381,16 @@ const updateStudent = (studentData) => {
 
 const updateCliftonStrengths = (cliftonStrengthData) => {
 
+}
+
+const deleteUser = (userId) => {
+  UserServices.deleteUser(userId)
+    .then((response) => {
+      refresh();
+    })
+    .catch((e) => {
+      message.value = e.response.data.message;
+    })
 }
 </script>
 

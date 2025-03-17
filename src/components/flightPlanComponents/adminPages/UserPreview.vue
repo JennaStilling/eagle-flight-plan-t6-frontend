@@ -51,7 +51,7 @@
                                 <div>
                                     <h1 class="ma-1">{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h1>
 
-                                    <h3>Assigned Roles:</h3>
+                                    <h3>Assigned Roles</h3>
                                     <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma-1"
                                         color="primary" rounded="lg" :text="formatRole(role.role_type)">
                                     </v-chip>
@@ -64,6 +64,9 @@
                                     </v-chip-group>
                                 </div>
                             </v-row>
+
+                            <v-divider />
+                            <br />
 
                             <div>
                                 <v-row class="form-row">
@@ -117,6 +120,8 @@
                                 </v-row>
                             </div>
                             <div v-if="hasRole('student')">
+                                <v-divider />
+                                <br />
                                 <v-row class="form-row">
                                     <v-col cols="2" class="label-column">
                                         <label class="label-description">Student ID</label>
@@ -191,7 +196,7 @@ const props = defineProps({
     student: Object,
 });
 
-const emit = defineEmits(['save-user', 'delete-user', 'cancel-edit']);
+const emit = defineEmits(['save-user', 'delete-user']);
 
 const roleData = ref({
     rolesToAdd: [],
@@ -210,12 +215,12 @@ const newUser = ref({
 })
 
 const newStudent = ref({
-    id: props.student.id,
-    address: props.student.address,
-    graduation_date: props.student.graduation_date,
-    points: props.student.points,
-    student_issued_id: props.student.student_issued_id,
-    total_points: props.student.total_points,
+    id: props.student?.id,
+    address: props.student?.address,
+    graduation_date: props.student?.graduation_date,
+    points: props.student?.points,
+    student_issued_id: props.student?.student_issued_id,
+    total_points: props.student?.total_points,
 })
 
 const newCliftonStrengths = ref({
@@ -272,8 +277,6 @@ const triggerFileInput = () => {
 const fileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-        console.log(newUser.value.image);
-        console.log(newUser.value.image_type);
         const reader = new FileReader();
         reader.readAsDataURL(file); // Converts the file to Base64
         reader.onload = () => {
@@ -281,8 +284,6 @@ const fileUpload = (event) => {
             newUser.value.image = base64String; // Preview
             newUser.value.image_type = file.type; // Saves the file type whenever the image changes
         };
-        console.log(newUser.value.image);
-        console.log(newUser.value.image_type);
     }
 };
 
@@ -332,7 +333,7 @@ const formatRole = (role) => {
 
 const getSpecificUserRoles = () => {
     specificUserRoles.value = props.userRoles.map(
-        (userRole) => props.roles.find((role) => role.id === userRole.roleId));
+        (userRole) => props.roles.find((role) => role?.id === userRole.roleId));
 };
 
 const prePopulateRolesToAdd = () => {
@@ -340,7 +341,7 @@ const prePopulateRolesToAdd = () => {
 };
 
 const hasRole = (role) => {
-    return specificUserRoles.value.some((userRole) => userRole.role_type === role);
+    return roleData.value.rolesToAdd.some((userRole) => userRole === role);
 };
 
 const updateUserData = () => {
@@ -359,12 +360,12 @@ const updateUserData = () => {
 
 const updateStudentData = () => {
     newStudent.value = {
-        id: props.student.id,
-        address: props.student.address,
-        graduation_date: props.student.graduation_date,
-        points: props.student.points,
-        student_issued_id: props.student.student_issued_id,
-        total_points: props.student.total_points,
+        id: props.student?.id,
+        address: props.student?.address,
+        graduation_date: props.student?.graduation_date,
+        points: props.student?.points,
+        student_issued_id: props.student?.student_issued_id,
+        total_points: props.student?.total_points,
     }
 }
 
