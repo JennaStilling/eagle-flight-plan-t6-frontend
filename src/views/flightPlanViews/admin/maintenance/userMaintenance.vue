@@ -126,7 +126,6 @@ const handleAddUser = async ({ user, student, cliftonStrengths, newRoles }) => {
   else {
     addUser(user)
       .then((response) => {
-        console.log(response);
         addRoles(response, newRoles);
       })
   }
