@@ -174,7 +174,7 @@
                             <v-btn class="button" variant="elevated" color="#D9D9D9" @click="cancelEdit">
                                 Cancel
                             </v-btn>
-                            <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteUser">
+                            <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteButton">
                                 Delete
                             </v-btn>
                         </v-card-actions>
@@ -182,7 +182,50 @@
                 </div>
             </v-card>
         </v-overlay>
+
+        <v-overlay v-model="showDeleteItem" class="popup">
+            <v-card class="delete-user">
+                <div class="scroll">
+                    <div class="modal-header">
+                        <br />
+                        <p v-if="!deleteError">
+                            Do you want to DELETE user<br />
+                        </p>
+                        <p v-if="deleteError">
+                            Error deleting<br />{{ user.fName + " " + user.lName }}.
+                        </p>
+                    </div>
+
+                    <v-row class="profile-image-row-delete">
+                        <div v-if="props.user.image" class="image-container">
+                            <img :src="props.user.image" alt="Uploaded Image" />
+                        </div>
+                        <div v-else class="image-container">
+                            <img :src="blankImage">
+                        </div>
+                        <div>
+                            <h3 class="ma-1">{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
+                            <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma-1" color="primary"
+                                rounded="lg" :text="formatRole(role.role_type)">
+                            </v-chip>
+                        </div>
+                    </v-row>
+
+                    <v-card-actions class="button-row-delete">
+                        <v-btn v-if="!deleteError" color="#D9D9D9" variant="elevated" class="button"
+                            @click="showDeleteItem = false">CANCEL</v-btn>
+                        <v-btn v-if="!deleteError" color="#F04E3E" variant="elevated" class="error"
+                            @click="deleteUser(user)">DELETE</v-btn>
+                        <v-btn v-if="deleteError" @click="
+                            deleteError = false;
+                        showDeleteItem = false;
+                        ">CLOSE</v-btn>
+                    </v-card-actions>
+                </div>
+            </v-card>
+        </v-overlay>
     </div>
+
 </template>
 
 <script setup>
@@ -317,6 +360,13 @@ const fixImageData = () => {
     }
 }
 
+const showDeleteItem = ref(false);
+const deleteError = ref(false);
+
+const deleteButton = () => {
+    showDeleteItem.value = true;
+}
+
 const deleteUser = () => {
     overlay.value = false;
     emit('delete-user', props.user);
@@ -394,7 +444,6 @@ const updateCliftonStrengths = () => {
 }
 
 .edit-user {
-
     background-color: rgb(255, 255, 255);
 
     width: 70vw;
@@ -422,7 +471,22 @@ const updateCliftonStrengths = () => {
 .popup {
     align-items: center;
     justify-content: center;
+}
 
+.delete-user {
+    background-color: rgb(255, 255, 255);
+
+    width: 30vw;
+    /* Set width to resemble a piece of paper */
+    height: 30vh;
+    /* Set height */
+    padding: 10px;
+    /* Padding inside the box */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+    margin-bottom: 10px;
+    /* Space below the shortcut area */
+    border-radius: 20px;
 }
 
 .profile-image-row {
@@ -430,9 +494,21 @@ const updateCliftonStrengths = () => {
     margin: auto;
 }
 
+.profile-image-row-delete {
+    align-items: center;
+    margin: auto;
+    justify-content: center;
+}
+
 .button-row {
     align-items: center;
     margin: auto;
+}
+
+.button-row-delete {
+    align-items: center;
+    margin: auto;
+    justify-content: center;
 }
 
 .image-container {
@@ -463,5 +539,14 @@ const updateCliftonStrengths = () => {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
+}
+
+.modal-header {
+    width: 100%;
+    /* Ensure full width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 </style>
