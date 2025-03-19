@@ -34,7 +34,7 @@
             <v-card class="edit-user">
                 <div class="scroll">
                     <v-sheet class="form">
-                        <v-form ref="form">
+                        <v-form ref="formReference" v-model="formValid">
                             <v-row class="profile-image-row">
 
                                 <div class="image-container" @click="triggerFileInput">
@@ -75,7 +75,8 @@
                                     </v-col>
                                     <v-col cols="10">
                                         <v-select v-model="newUser.prefix" :items="formData.prefixes" required
-                                            variant="solo" hide-details density="compact"></v-select>
+                                            variant="solo" density="compact">
+                                        </v-select>
                                     </v-col>
                                 </v-row>
 
@@ -84,8 +85,8 @@
                                         <label class="label-description">First Name</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newUser.fName" required variant="solo" hide-details
-                                            density="compact"></v-text-field>
+                                        <v-text-field v-model="newUser.fName" required variant="solo" density="compact">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -94,8 +95,8 @@
                                         <label class="label-description">Last Name</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newUser.lName" required variant="solo" hide-details
-                                            density="compact"></v-text-field>
+                                        <v-text-field v-model="newUser.lName" required variant="solo" density="compact">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -104,8 +105,9 @@
                                         <label class="label-description">Email</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newUser.email" required variant="solo" hide-details
-                                            density="compact"></v-text-field>
+                                        <v-text-field v-model="newUser.email" :rules="formData.emailRules" required
+                                            variant="solo" density="compact">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -114,8 +116,10 @@
                                         <label class="label-description">Phone Number</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newUser.phone_number" required variant="solo"
-                                            hide-details density="compact"></v-text-field>
+                                        <v-text-field v-model="newUser.phone_number" :rules="formData.phoneRules"
+                                            required variant="solo" density="compact"
+                                            @input="newUser.phone_number = formatPhoneNumber(newUser.phone_number)">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
                             </div>
@@ -127,8 +131,9 @@
                                         <label class="label-description">Student ID</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newStudent.student_issued_id" required variant="solo"
-                                            hide-details density="compact"></v-text-field>
+                                        <v-text-field v-model="newStudent.student_issued_id"
+                                            :rules="formData.studentIdRules" required variant="solo" density="compact">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -137,8 +142,10 @@
                                         <label class="label-description">Graduation Date</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newStudent.graduation_date" required variant="solo"
-                                            hide-details density="compact"></v-text-field>
+                                        <v-text-field v-model="newStudent.graduation_date" :rules="formData.dateRules"
+                                            required variant="solo" density="compact"
+                                            @input="newStudent.graduation_date = formatDate(newStudent.graduation_date)">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -147,8 +154,9 @@
                                         <label class="label-description">Points Available</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newStudent.points" required variant="solo" hide-details
-                                            density="compact"></v-text-field>
+                                        <v-text-field v-model="newStudent.points" :rules="formData.pointsRules" required
+                                            variant="solo" density="compact">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -157,8 +165,9 @@
                                         <label class="label-description">Points Earned</label>
                                     </v-col>
                                     <v-col cols="10">
-                                        <v-text-field v-model="newStudent.total_points" required variant="solo"
-                                            hide-details density="compact"></v-text-field>
+                                        <v-text-field v-model="newStudent.total_points" :rules="formData.pointsRules"
+                                            required variant="solo" density="compact">
+                                        </v-text-field>
                                     </v-col>
                                 </v-row>
                             </div>
@@ -270,13 +279,81 @@ const newCliftonStrengths = ref({
     cliftonStrengthsToAdd: [],
 })
 
+const formValid = ref(false);
+const formReference = ref(null);
+
 const formData = ref({
     prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
     nameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be 10 characters or less',
     ],
+    emailRules: [
+        v => !!v || 'Email is required',
+        v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Invalid email address',
+    ],
+    phoneRules: [
+        v => !!v || 'Phone number is required',
+        v => /^(\+1\s?)?(\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}$/.test(v) || 'Invalid phone number',
+    ],
+    studentIdRules: [
+        v => !!v || 'Student ID is required',
+        v => /^\d+$/.test(v) || 'Student ID must be numerical',
+    ],
+    pointsRules: [
+        v => !!v || 'Points are required',
+        v => /^\d+$/.test(v) || 'Points must be numerical',
+    ],
+    dateRules: [
+        v => !!v || 'Date is required',
+        v => /^\d{2}\/\d{2}\/\d{4}$/.test(v) || 'Date must be in the format MM/DD/YYYY',
+        v => {
+            const [month, day, year] = v.split('/').map(Number);
+            const date = new Date(year, month - 1, day);
+            return (
+                !isNaN(date.getTime()) &&
+                date.getFullYear() === year &&
+                date.getMonth() === month - 1 &&
+                date.getDate() === day
+            ) || 'Invalid date';
+        },
+    ],
 })
+
+const formatPhoneNumber = (value) => {
+    if (!value) return '';
+    // Remove all non-numeric characters
+    const cleaned = value.replace(/\D/g, '');
+    // Format as (123) 456-7890
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+        return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return value; // Return the original value if it doesn't match
+};
+
+const formatDate = (value) => {
+    if (!value) return '';
+    const cleaned = value.replace(/[^\d/]/g, '');
+    const match = cleaned.match(/^(\d{2})\/?(\d{2})?\/?(\d{4})?$/);
+    if (match) {
+        const month = match[1] || '';
+        const day = match[2] || '';
+        const year = match[3] || '';
+        return `${month}${day ? `/${day}` : ''}${year ? `/${year}` : ''}`;
+    }
+    return value;
+};
+
+const formatSQLDateToMMDDYYYY = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return '';
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+};
 
 const specificUserRoles = ref([]);
 
@@ -348,10 +425,16 @@ const action3 = () => {
 };
 
 const saveUser = () => {
-    overlay.value = false;
-    //check if form is valid
-    fixImageData();
-    emit('save-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value, newRoles: roleData.value.rolesToAdd });
+    const form = formReference.value;
+    const valid = formValid.value
+    form.validate();
+    if (form && valid) {
+        newUser.value.phone_number = newUser.value.phone_number.replace(/\D/g, '');
+        fixImageData();
+        overlay.value = false;
+        emit('save-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value, newRoles: roleData.value.rolesToAdd });
+    }
+
 };
 
 const fixImageData = () => {
@@ -401,7 +484,7 @@ const updateUserData = () => {
         fName: props.user.fName,
         lName: props.user.lName,
         email: props.user.email,
-        phone_number: props.user.phone_number,
+        phone_number: formatPhoneNumber(props.user.phone_number),
         image: props.user.image,
         image_type: props.user.image_type,
         studentId: props.user.studentId
@@ -412,7 +495,7 @@ const updateStudentData = () => {
     newStudent.value = {
         id: props.student?.id,
         address: props.student?.address,
-        graduation_date: props.student?.graduation_date,
+        graduation_date: formatSQLDateToMMDDYYYY(props.student?.graduation_date),
         points: props.student?.points,
         student_issued_id: props.student?.student_issued_id,
         total_points: props.student?.total_points,
@@ -518,14 +601,24 @@ const updateCliftonStrengths = () => {
     cursor: pointer;
 }
 
+.label-column {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    text-align: right;
+    margin-top: 0px;
+    padding-top: 0;
+    height: 50px;
+}
+
 .label-description {
     color: #202020;
-    text-align: right;
     font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    margin: 0;
 }
 
 .label-column p {
