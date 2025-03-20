@@ -106,7 +106,7 @@
                                     </v-col>
                                     <v-col cols="10">
                                         <v-text-field v-model="newUser.email" :rules="formData.emailRules" required
-                                            variant="solo" density="compact">
+                                            variant="solo" density="compact" disabled>
                                         </v-text-field>
                                     </v-col>
                                 </v-row>
