@@ -27,7 +27,7 @@ import HomePageRouterRB from "@/views/resumeBuilderViews/HomePageRouter.vue";
 import HomepageRouterFP from "@/views/flightPlanViews/HomePageRouter.vue";
 
 // Flight Plan components and the like
-import AdminHomePageFP from '@/views/flightPlanViews/admin/maintenance/AdminHome.vue';
+import AdminHomePageFP from '@/views/flightPlanViews/admin/AdminHome.vue';
 import StudentHomePageFP from '@/views/flightPlanViews/student/StudentHome.vue';
 import StudentWorkerHomePageFP from '@/views/flightPlanViews/studentWorker/StudentWorkerHome.vue';
 import ProfessorHomePageFP from '@/views/flightPlanViews/professor/ProfessorHome.vue';

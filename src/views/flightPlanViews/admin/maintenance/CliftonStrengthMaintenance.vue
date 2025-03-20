@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
     <div class="title-row">
-      <h1 class="table-title">Strengths</h1>
+      <h1 class="table-title">Clifton Strengths</h1>
       <div class="search-filter-button-group">
         <v-text-field v-model="search" label="Search" variant="solo-filled" hide-details single-line density="compact"
           class="search-bar">
@@ -48,9 +48,9 @@
         </p>
       </div>
       <div class="modal-body">
-        <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-        <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteStrength(strength)">DELETE</v-btn>
-        <v-btn v-if="deleteError" @click="
+        <v-btn v-if="!deleteError" class="button" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
+        <v-btn v-if="!deleteError" color="#F04E3E" class="error button" @click="deleteStrength(strength)">DELETE</v-btn>
+        <v-btn v-if="deleteError" class="button" @click="
           deleteError = false;
         showDeleteItem = false;
         ">CLOSE</v-btn>
@@ -89,7 +89,13 @@
             <label>{{ labels.description }}</label>
           </v-col>
           <v-col cols="7">
-            <v-textarea v-model="strengthDescription" rows="16" variant="outlined" density="compact"></v-textarea>
+            <v-textarea 
+              v-model="strengthDescription" 
+              rows="12" 
+              auto-grow
+              variant="outlined" 
+              density="compact"
+            ></v-textarea>
           </v-col>
         </v-row>
 
@@ -99,9 +105,9 @@
 
       <v-card-actions class="popup-actions">
         <v-spacer></v-spacer>
-        <v-btn v-if="strengthEdit" color="#F04E3E" variant="flat">Delete</v-btn>
-        <v-btn color="#708E9A" variant="flat" @click="showStrengthDetails = false">Cancel</v-btn>
-        <v-btn color="#5EC4B6" variant="flat" @click="strengthEdit ? editStrength() : addStrength()">Save</v-btn>
+        <v-btn v-if="strengthEdit" class="button" color="#F04E3E" variant="flat">Delete</v-btn>
+        <v-btn color="#708E9A" class="button" variant="flat" @click="showStrengthDetails = false">Cancel</v-btn>
+        <v-btn color="#5EC4B6" class="button" variant="flat" @click="strengthEdit ? editStrength() : addStrength()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </div>
