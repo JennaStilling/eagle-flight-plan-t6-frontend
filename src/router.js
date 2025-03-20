@@ -27,7 +27,7 @@ import HomePageRouterRB from "@/views/resumeBuilderViews/HomePageRouter.vue";
 import HomepageRouterFP from "@/views/flightPlanViews/HomePageRouter.vue";
 
 // Flight Plan components and the like
-import AdminHomePageFP from '@/views/flightPlanViews/admin/AdminHome.vue';
+import AdminHomePageFP from '@/views/flightPlanViews/admin/maintenance/AdminHome.vue';
 import StudentHomePageFP from '@/views/flightPlanViews/student/StudentHome.vue';
 import StudentWorkerHomePageFP from '@/views/flightPlanViews/studentWorker/StudentWorkerHome.vue';
 import ProfessorHomePageFP from '@/views/flightPlanViews/professor/ProfessorHome.vue';
@@ -36,7 +36,7 @@ import profile from '@/views/flightPlanViews/Profile.vue';
 // Maintenance & Admin Pages
 import AwardMaintenance from './views/flightPlanViews/admin/maintenance/AwardMaintenance.vue';
 import BadgeMaintenance from './views/flightPlanViews/admin/maintenance/BadgeMaintenance.vue';
-import CliftonStrength from './views/flightPlanViews/admin/CliftonStrength.vue';
+import CliftonStrength from './views/flightPlanViews/admin/maintenance/CliftonStrengthMaintenance.vue';
 import EventMaintenance from './views/flightPlanViews/admin/maintenance/EventMaintenance.vue';
 import ExperienceMaintenance from './views/flightPlanViews/admin/maintenance/ExperienceMaintenance.vue';
 import FlightPlanMaintenance from './views/flightPlanViews/admin/maintenance/FlightPlanMaintenance.vue';
