@@ -352,6 +352,18 @@ const labels = {
   verification: "Verification Type",
 };
 
+
+const testList = [{id: 1, title: 'Public Speaking Workshop', start: '2025-03-23 11:17', end: '2025-03-22 13:17'},
+{id: 2, title: 'Art Therapy Session', start: '2025-03-23 11:17', end: '2025-03-23 12:47'},
+{id: 3, title: 'Business Networking Social', start: '2025-03-24 11:17', end: '2025-03-24 13:17'},
+{id: 4, title: 'Environmental Sustainability Panel', start: '2025-03-25 11:17', end: '2025-03-25 14:17'},
+{id: 5, title: 'Music Appreciation Night', start: '2025-03-26 11:17', end: '2025-03-26 13:47'},
+{id: 6, title: 'Cybersecurity Panel', start: '2025-03-22 11:17', end: '2025-03-22 13:17'},
+{id: 7, title: 'Cloud Computing Workshop', start: '2025-03-23 11:17', end: '2025-03-23 14:17'},
+{id: 8, title: 'Game Development Jam', start: '2025-03-24 11:17', end: '2025-03-25 11:17'},
+{id: 9, title: 'Soft Skills Training', start: '2025-03-25 11:17', end: '2025-03-25 14:17'},
+{id: 10, title: 'Hackathon Bootcamp', start: '2025-03-26 11:17', end: '2025-03-26 16:17'},];
+
 const filteredEvents = computed(() => {
   if (selectedFilter.value === 'All') {
     return events.value.map(event => ({
@@ -682,10 +694,7 @@ const eventModal = createEventModalPlugin();
 const formatCalendarDate = (dateStr) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return `${date.getFullYear()}-
-  ${String(date.getMonth() + 1).padStart(2, '0')}-
-  ${String(date.getDate()).padStart(2, '0')} 
-  ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
 const calendarApp = shallowRef(createCalendar({
@@ -703,7 +712,7 @@ const calendarApp = shallowRef(createCalendar({
     calendarControls,
     eventModal
   ],
-  events: calendarFormattedEvents.value,
+  events: calendarFormattedEvents,
   monthGridOptions: {
     nEventsPerDay: 6,
   },
