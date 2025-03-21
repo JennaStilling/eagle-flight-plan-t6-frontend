@@ -33,13 +33,54 @@
 
     <div v-if="showCalendarView">
       <div class="sx-calendar-container">
-        <ScheduleXCalendar
-          v-if="calendarApp"
-          :calendar-app="calendarApp"
-        >
+        <ScheduleXCalendar v-if="calendarApp" :calendar-app="calendarApp">
+          <!-- Week view event on calendar -->
           <template #timeGridEvent="{ calendarEvent }">
-            <div class="event-item">
+            <div class="event-item" :style="getEventColor(calendarEvent.type)" @click="openEventModal(calendarEvent)">
+              <div class="event-header">
+                <div class="event-title">{{ calendarEvent.title }}</div>
+              </div>
+              <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{ formatEventTime(calendarEvent.end)
+                }}</div>
+              <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
+            </div>
+          </template>
+
+          <!-- Multi day events -->
+          <template #dateGridEvent="{ calendarEvent }">
+            <div :style="eventStyles">
               {{ calendarEvent.title }}
+            </div>
+          </template>
+
+          <!-- Event display on month view -->
+          <template #monthGridEvent="{ calendarEvent }">
+            <div :style="eventStyles">
+              {{ calendarEvent.title }}
+              this is the month grid event
+            </div>
+          </template>
+
+          <!-- Event modal after click -->
+          <template #eventModal="{ calendarEvent }">
+            <div :style="eventModalStyles">
+              <div @click="openEventModal(calendarEvent)">
+                <div class="event-header">
+                  <div class="event-title">{{ calendarEvent.title }}</div>
+                  <v-btn variant="plain" size="x-small" density="compact" @click.stop="editEventPopup(calendarEvent)">
+                    <Icon icon="material-symbols:edit-outline" width="16" height="16" />
+                  </v-btn>
+                  <v-btn variant="plain" size="x-small" density="compact"
+                    @click.stop="deleteEventConfirmatoin(calendarEvent)">
+                    <Icon icon="material-symbols:delete-outline" width="16" height="16" />
+                  </v-btn>
+                </div>
+                <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
+                  formatEventTime(calendarEvent.end)
+                }}</div>
+                <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
+              </div>
+              <button @click="closeModal"></button>
             </div>
           </template>
         </ScheduleXCalendar>
@@ -47,7 +88,8 @@
     </div>
 
     <div v-if="!showCalendarView">
-      <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected" show-select>
+      <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected"
+        show-select>
         <template v-slot:[`item.actions`]="{ item }">
           <v-btn variant="plain" size="small" @click="editEventPopup(item)">
             <Icon icon="material-symbols:edit-outline" width="24" height="24" />
@@ -57,7 +99,6 @@
           </v-btn>
         </template>
       </v-data-table>
-
     </div>
 
     <div v-if="showDeleteItem" class="modal">
@@ -74,7 +115,7 @@
         </div>
         <div class="modal-body">
           <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-          <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteEvent(task)">DELETE</v-btn>
+          <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteEvent()">DELETE</v-btn>
           <v-btn v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">CLOSE</v-btn>
         </div>
       </div>
@@ -83,14 +124,14 @@
     <div v-if="showEventDetails" class="modal edit-form-body">
       <v-card class="edit-popup mx-auto">
         <v-card-title class="popup-header">
-          <v-text-field v-model="eventName">
-            <Icon icon="material-symbols:edit-outline" width="24" height="24" />
+          <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details>
+            <template v-slot:append-inner>
+              <Icon icon="material-symbols:edit-outline" width="24" height="24" />
+            </template>
           </v-text-field>
-
         </v-card-title>
 
-        <v-divider></v-divider>
-        <v-container class="popup-content">
+        <v-container>
           <!-- Description-->
           <v-row class="form-row">
             <v-col cols="5" class="label-column">
@@ -113,22 +154,44 @@
             </v-col>
           </v-row>
 
-          <!-- Date -->
+          <!-- Start Date -->
           <v-row class="form-row">
             <v-col cols="5" class="label-column">
-              <label>{{ labels.date }}</label>
+              <label>Start Date</label>
             </v-col>
-
             <v-col cols="7">
-              <v-text-field v-model="eventDate" type="date" variant="outlined" density="compact"
-                hide-details></v-text-field>
+              <v-text-field 
+                v-model="eventStartDate" 
+                type="date" 
+                variant="outlined" 
+                density="compact"
+                hide-details
+                @update:model-value="updateEndDate"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- End Date -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>End Date</label>
+            </v-col>
+            <v-col cols="7">
+              <v-text-field 
+                v-model="eventEndDate" 
+                type="date" 
+                variant="outlined" 
+                density="compact"
+                hide-details
+                :min="eventStartDate"
+              ></v-text-field>
             </v-col>
           </v-row>
 
           <!-- Start Time -->
           <v-row class="form-row">
             <v-col cols="5" class="label-column">
-              <label>{{ labels.start }}</label>
+              <label>Start Time</label>
             </v-col>
 
             <v-col cols="7">
@@ -140,7 +203,7 @@
           <!-- End Time  -->
           <v-row class="form-row">
             <v-col cols="5" class="label-column">
-              <label>{{ labels.end }}</label>
+              <label>End Time</label>
             </v-col>
 
             <v-col cols="7">
@@ -189,8 +252,8 @@
             </v-col>
 
             <v-col cols="7">
-              <v-select v-model="eventStatus" :items="statusOptions" variant="solo-filled" density="compact" hide-details
-                class="filter-menu"></v-select>
+              <v-select v-model="eventStatus" :items="statusOptions" variant="solo-filled" density="compact"
+                hide-details class="filter-menu"></v-select>
             </v-col>
           </v-row>
 
@@ -232,16 +295,13 @@ import {
   viewWeek
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
-import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
-import { createScrollControllerPlugin } from "@schedule-x/scroll-controller";
-import { createEventRecurrencePlugin } from "@schedule-x/event-recurrence";
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import { Icon } from "@iconify/vue";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, set } from 'date-fns';
 
 const search = ref('');
 const events = ref([]);
@@ -262,7 +322,8 @@ const eventName = ref("");
 const eventType = ref("");
 const eventScheduleType = ref("");
 const eventDescription = ref("");
-const eventDate = ref("")
+const eventStartDate = ref("")
+const eventEndDate = ref("")
 const eventStartTime = ref("")
 const eventEndTime = ref("")
 const eventLocation = ref("")
@@ -270,25 +331,6 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("")
-const dateMenu = ref(false)
-const startTimeMenu = ref(false);
-const endTimeMenu = ref(false);
-
-const formattedDate = computed(() => {
-  if (!eventDate.value) return '';
-  return formatDate(eventDate.value);
-});
-
-const formattedStartTime = computed(() => {
-  if (!eventStartTime.value) return '';
-  return formatTime(eventStartTime.value);
-});
-
-const formattedEndTime = computed(() => {
-  if (!eventEndTime.value) return '';
-  return formatTime(eventEndTime.value);
-});
-
 const showCalendarView = ref(false);
 
 const toggleCalendarView = () => {
@@ -336,6 +378,25 @@ const labels = {
   verification: "Verification Type",
 };
 
+const eventTypeColors = {
+  'club': '#5EC4B6',
+  'extra_curricular': '#FF6B6B',
+  'career_fair': '#4ECDC4',
+  'mentoring': '#45B7D1',
+  'career_services': '#4A90E2',
+  'lunch_and_learn': '#F6B93B',
+  'galup_strengths_class': '#A569BD'
+};
+
+const getEventColor = (eventType) => {
+  const color = eventTypeColors[eventType?.toLowerCase()] || '#5EC4B6';
+  const lightColors = ['#FFEEAD', '#F6B93B'];
+  return {
+    backgroundColor: color,
+    color: lightColors.includes(color) ? '#2C3E50' : 'white'
+  };
+};
+
 const filteredEvents = computed(() => {
   if (selectedFilter.value === 'All') {
     return events.value.map(event => ({
@@ -357,8 +418,6 @@ const filteredEvents = computed(() => {
     formatted_time: formatTime(event.start_date_time)
   }));
 });
-
-const calendarEvents = ref([]);
 
 const calendarControls = createCalendarControlsPlugin();
 const eventModal = createEventModalPlugin();
@@ -392,12 +451,12 @@ const initializeCalendar = (events) => {
   };
 
   calendarApp.value = createCalendar(config);
-  
+
   nextTick(() => {
     calendarControls.setView(viewWeek.name);
     calendarControls.setDate(today);
   });
-  
+
   console.log('Calendar instance created with events:', calendarApp.value);
 };
 
@@ -421,9 +480,9 @@ const getAllEvents = () => {
     .then((res) => {
       events.value = res.data;
       const formattedEvents = events.value.map(event => {
-        const startDate = new Date(event.date);
-        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-        
+        const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
+        const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
         const formatDateTime = (date) => {
           return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
         };
@@ -434,17 +493,18 @@ const getAllEvents = () => {
           start: formatDateTime(startDate),
           end: formatDateTime(endDate),
           description: event.description || '',
-          location: event.location || ''
+          location: event.location || '',
+          type: event.event_type
         };
       });
-      
+
       calendarFormattedEvents.value = formattedEvents;
       console.log('Final calendar events:', calendarFormattedEvents.value);
 
       if (!calendarApp.value) {
         initializeCalendar(formattedEvents);
       }
-      
+
       message.value = '';
     })
     .catch((err) => {
@@ -486,61 +546,86 @@ const formatTime = (dateTimeStr) => {
   }
 };
 
-const formatTimeForInput = (dateTimeStr) => {
+const formatEventTime = (dateTimeStr) => {
   if (!dateTimeStr) return '';
   try {
-    if (dateTimeStr.includes('T')) {
-      const date = parseISO(dateTimeStr);
-      return format(date, 'HH:mm');
-    }
-    return dateTimeStr;
+    const date = new Date(dateTimeStr);
+    return format(date, 'h:mm a');
   } catch (error) {
-    console.error('Error formatting time:', error);
+    console.error('Error formatting event time:', error);
     return '';
   }
 };
 
-const formatScheduleDate = (dateStr) => {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+const formatEventForCalendar = (event) => {
+  const startDate = new Date(event.date);
+  const endDate = new Date(new Date(event.date).getTime() + 60 * 60 * 1000);
+  return {
+    id: event.id,
+    title: event.name,
+    start: startDate.toISOString().split('T')[0],  // Format as YYYY-MM-DD
+    time: `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`,
+    end: endDate.toISOString().split('T')[0],  // Format as YYYY-MM-DD
+    description: event.description,
+    type: event.type
+  };
 };
 
 const editEventPopup = (task) => {
-  eventToEdit.value = task;
-  showEventDetails.value = true;
-  eventEdit.value = true;
-  eventAdd.value = false;
+  console.log("Passed in: " + task)
+  EventServices.getEvent(task.id)
+    .then((res) => {
+      eventToEdit.value = res.data;
+      showEventDetails.value = true;
+      eventEdit.value = true;
+      eventAdd.value = false;
 
-  eventName.value = eventToEdit.value.name;
-  eventDescription.value = eventToEdit.value.description;
-  eventType.value = capitalize(eventToEdit.value.event_type);
+      eventName.value = eventToEdit.value.name;
+      eventDescription.value = eventToEdit.value.description;
+      eventType.value = capitalize(eventToEdit.value.event_type);
 
-  if (eventToEdit.value.start_date_time) {
-    eventDate.value = eventToEdit.value.start_date_time.split('T')[0];
-  } else if (eventToEdit.value.date) {
-    try {
-      const dateTime = parseISO(eventToEdit.value.date);
-      eventDate.value = format(dateTime, 'yyyy-MM-dd');
-    } catch (error) {
-      eventDate.value = eventToEdit.value.date;
-    }
-  }
+      if (eventToEdit.value.start_date_time) {
+        eventStartDate.value = eventToEdit.value.start_date_time.split('T')[0];
+      } else if (eventToEdit.value.date) {
+        try {
+          const dateTime = parseISO(eventToEdit.value.date);
+          eventStartDate.value = format(dateTime, 'yyyy-MM-dd');
+        } catch (error) {
+          eventStartDate.value = eventToEdit.value.date;
+        }
+      }
 
-  if (eventToEdit.value.start_date_time) {
-    const startDateTime = parseISO(eventToEdit.value.start_date_time);
-    eventStartTime.value = format(startDateTime, 'HH:mm');
-  }
-  if (eventToEdit.value.end_date_time) {
-    const endDateTime = parseISO(eventToEdit.value.end_date_time);
-    eventEndTime.value = format(endDateTime, 'HH:mm');
-  }
+      if (eventToEdit.value.end_date_time) {
+        eventEndDate.value = eventToEdit.value.end_date_time.split('T')[0];
+      } else if (eventToEdit.value.date) {
+        try {
+          const dateTime = parseISO(eventToEdit.value.date);
+          eventEndDate.value = format(dateTime, 'yyyy-MM-dd');
+        } catch (error) {
+          eventEndDate.value = eventToEdit.value.date;
+        }
+      }
 
-  eventLocation.value = eventToEdit.value.location;
-  eventAttendanceType.value = eventToEdit.value.attendance_type;
-  eventCustomEvent.value = eventToEdit.value.custom;
-  eventStatus.value = eventToEdit.value.status;
-  eventPointValue.value = eventToEdit.value.point_value;
+      if (eventToEdit.value.start_date_time) {
+        const startDateTime = parseISO(eventToEdit.value.start_date_time);
+        eventStartTime.value = format(startDateTime, 'HH:mm');
+      }
+      if (eventToEdit.value.end_date_time) {
+        const endDateTime = parseISO(eventToEdit.value.end_date_time);
+        eventEndTime.value = format(endDateTime, 'HH:mm');
+      }
+
+      eventLocation.value = eventToEdit.value.location;
+      eventAttendanceType.value = eventToEdit.value.attendance_type;
+      eventCustomEvent.value = eventToEdit.value.custom;
+      eventStatus.value = eventToEdit.value.status;
+      eventPointValue.value = eventToEdit.value.point_value;
+    })
+    .catch((err) => {
+      message.value = `Error: ${err.code}: ${err.message}`;
+      console.error(err);
+    });
+
 };
 
 const editEvent = () => {
@@ -561,21 +646,28 @@ const editEvent = () => {
   }
 
 
-  const date = parseISO(eventDate.value);
+  const startDate = parseISO(eventStartDate.value);
+  const endDate = parseISO(eventEndDate.value);
   const [startHours, startMinutes] = eventStartTime.value.split(':');
   const [endHours, endMinutes] = eventEndTime.value.split(':');
 
-  const startDateTime = new Date(date);
-  startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+  const startDateTime = set(startDate, {
+    hours: parseInt(startHours),
+    minutes: parseInt(startMinutes),
+    seconds: 0
+  });
 
-  const endDateTime = new Date(date);
-  endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+  const endDateTime = set(endDate, {
+    hours: parseInt(endHours),
+    minutes: parseInt(endMinutes),
+    seconds: 0
+  });
 
   const updatedEvent = {
     name: eventName.value,
     description: eventDescription.value,
     event_type: eventType.value.toLowerCase(),
-    date: eventDate.value,
+    date: startDateTime.toISOString(),
     start_date_time: startDateTime.toISOString(),
     end_date_time: endDateTime.toISOString(),
     location: eventLocation.value,
@@ -607,7 +699,8 @@ const addEventPopup = () => {
   eventName.value = "";
   eventDescription.value = "";
   eventType.value = "";
-  eventDate.value = "";
+  eventStartDate.value = "";
+  eventEndDate.value = "";
   eventStartTime.value = "";
   eventEndTime.value = "";
   eventLocation.value = "";
@@ -658,25 +751,32 @@ const addEvent = () => {
     eventStatus.value = 'in_progress'
   }
 
-  if(eventAttendanceType.value === 'In Person') {
+  if (eventAttendanceType.value === 'In Person') {
     eventAttendanceType.value = 'in_person'
   }
 
-  const date = parseISO(eventDate.value);
+  const startDate = parseISO(eventStartDate.value);
+  const endDate = parseISO(eventEndDate.value);
   const [startHours, startMinutes] = eventStartTime.value.split(':');
   const [endHours, endMinutes] = eventEndTime.value.split(':');
 
-  const startDateTime = new Date(date);
-  startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+  const startDateTime = set(startDate, {
+    hours: parseInt(startHours),
+    minutes: parseInt(startMinutes),
+    seconds: 0
+  });
 
-  const endDateTime = new Date(date);
-  endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+  const endDateTime = set(endDate, {
+    hours: parseInt(endHours),
+    minutes: parseInt(endMinutes),
+    seconds: 0
+  });
 
   const newEvent = {
     name: eventName.value,
     description: eventDescription.value,
     event_type: eventType.value.toLowerCase(),
-    date: eventDate.value,
+    date: startDateTime.toISOString(),
     start_date_time: startDateTime.toISOString(),
     end_date_time: endDateTime.toISOString(),
     location: eventLocation.value,
@@ -698,42 +798,74 @@ const addEvent = () => {
 }
 
 const deleteEventConfirmatoin = (task) => {
-  typeToDelete.value = task;
+  EventServices.getEvent(task.id)
+  .then((res) => {
+  typeToDelete.value = res.data;
   showDeleteItem.value = true
   console.log('Delete item:', typeToDelete.value.name);
-};
-
-const deleteEvent = () => {
-  EventServices.deleteEvent(typeToDelete.value.id)
-    .then((res) => {
-      showDeleteItem.value = false;
-      getAllEvents();
-    })
-    .catch((e) => {
-      message.value = e.res.data.message;
+  })
+  .catch((e) => {
+      console.log(e.response.data)
+      message.value = e.response.data.message;
       deleteError.value = true;
     });
 };
 
-const deleteSelectedEvents = (selected) => {
-  if (selected.length > 0) {
-    console.log("Deleting selected type: ", selected);
-    selected.forEach(type => {
-      console.log("Deleting type: ", type.name);
-      EventServices.deleteEventType(type.id)
-        .then((res) => {
-          showDeleteItem.value = false;
-          getAllEvents();
-        })
-        .catch((e) => {
-          message.value = e.res.data.message;
-          deleteError.value = true;
-        });
-    });
-  } else {
-    console.log("No tasks selected.");
+const deleteEvent = async () => {
+  try {
+    await EventServices.deleteEvent(typeToDelete.value.id);
+    // Remove from events list
+    events.value = events.value.filter(event => event.id !== typeToDelete.value.id);
+    // Update calendar events
+    if (calendarApp.value) {
+      calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
+      calendarApp.value.events = calendarFormattedEvents.value;
+    }
+    showDeleteItem.value = false;
+    typeToDelete.value = null;
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    deleteError.value = true;
   }
-}
+};
+
+const deleteSelectedEvents = async (selected) => {
+  if (selected.length > 0) {
+    try {
+      const deletePromises = selected.map(event => EventServices.deleteEvent(event.id));
+      await Promise.all(deletePromises);
+
+      // Remove from events list
+      const deletedIds = selected.map(event => event.id);
+      events.value = events.value.filter(event => !deletedIds.includes(event.id));
+
+      // Update calendar events
+      if (calendarApp.value) {
+        calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
+        calendarApp.value.events = calendarFormattedEvents.value;
+      }
+
+      selected.length = 0; // Clear selection
+    } catch (error) {
+      console.error('Error deleting selected events:', error);
+      deleteError.value = true;
+    }
+  } else {
+    console.log("No events selected.");
+  }
+};
+
+// Update the watcher to use proper date formatting
+watch(calendarFormattedEvents, (newEvents) => {
+  if (calendarApp.value) {
+    console.log('Updating calendar events:', newEvents);
+    calendarApp.value.events = newEvents.map(event => ({
+      ...event,
+      start: new Date(event.start).toISOString().split('T')[0],
+      end: new Date(event.end).toISOString().split('T')[0]
+    }));
+  }
+}, { deep: true });
 
 const closeModal = () => {
   eventModal.close();
@@ -759,42 +891,91 @@ const eventModalStyles = {
 function capitalize(s) {
   return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
+
+function updateEndDate() {
+  if (eventEndDate.value < eventStartDate.value) {
+    eventEndDate.value = eventStartDate.value;
+  }
+}
 </script>
 
 <style>
 .sx-calendar-container {
-  height: 600px;
+  height: 100%;
   width: 100%;
   margin: 20px 0;
   padding: 0 20px;
 }
 
 .event-item {
+  height: 100%;
+  width: 100%;
   padding: 4px 8px;
   background-color: #5EC4B6;
   color: white;
   border-radius: 4px;
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.event-item .event-title {
+  font-weight: 500;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-</style>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+  line-height: 1.2;
 }
 
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.event-item .event-time {
+  font-size: 12px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.event-item .event-location {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.event-actions {
+  display: none;
+  gap: 2px;
+}
+
+.event-item:hover .event-actions {
+  display: flex;
+}
+
+.event-actions .v-btn {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+.event-item .event-title {
+  flex: 1;
+  margin-right: 8px;
 }
 
 .title-row {
@@ -893,5 +1074,124 @@ function capitalize(s) {
 .v-text-field,
 .v-textarea {
   width: 100%;
+}
+
+.v-card-text {
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content {
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal {
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 4px;
+  width: 80%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  margin-bottom: 20px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.v-dialog {
+  .v-card {
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+.edit-form-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.edit-popup {
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.popup-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.form-row {
+  margin-bottom: 16px;
+}
+
+.label-column {
+  display: flex;
+  align-items: center;
+}
+
+.popup-actions {
+  padding: 16px 24px;
+  gap: 8px;
+}
+
+.v-card-text {
+  padding: 20px;
+}
+
+.v-container {
+  padding: 24px;
+}
+
+.v-row {
+  margin: 0 -12px;
+}
+
+.v-col {
+  padding: 12px;
 }
 </style>

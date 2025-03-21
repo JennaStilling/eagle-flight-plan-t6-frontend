@@ -7,6 +7,9 @@ export default {
     getAllEvents() {
         return apiClient.get(`flightPlan-t6/event`);
     },
+    getEvent(id) {
+        return apiClient.get(`flightPlan-t6/event/${id}`);
+      },
     updateEvent(id, data) {
         return apiClient.put(`flightPlan-t6/event/${id}`, data);
     },
