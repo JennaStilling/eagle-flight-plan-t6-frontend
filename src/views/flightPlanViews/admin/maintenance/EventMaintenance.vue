@@ -1,247 +1,225 @@
 <template>
-  <v-card flat>
-    <div class="title-row">
-      <h1 class="table-title">Events</h1>
-      <div class="search-filter-button-group">
-        <v-text-field v-model="search" label="Search" variant="solo-filled" hide-details single-line density="compact"
-          class="search-bar">
-          <template v-slot:prepend-inner>
-            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
-          </template>
-        </v-text-field>
+  <div>
+    <v-card flat>
+      <div class="title-row">
+        <h1 class="table-title">Events</h1>
+        <div class="search-filter-button-group">
+          <v-text-field v-model="search" label="Search" variant="solo-filled" hide-details single-line density="compact"
+            class="search-bar">
+            <template v-slot:prepend-inner>
+              <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+            </template>
+          </v-text-field>
 
-        <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type" variant="solo-filled"
-          density="compact" hide-details class="filter-menu"></v-select>
+          <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type" variant="solo-filled"
+            density="compact" hide-details class="filter-menu"></v-select>
 
-        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
-          Add Events
-        </v-btn>
-        <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteSelectedEvents(selected)">
-          Delete Selected Events
-        </v-btn>
+          <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
+            Add Events
+          </v-btn>
+          <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteSelectedEvents(selected)">
+            Delete Selected Events
+          </v-btn>
 
-        <v-btn variant="plain" size="small" @click="toggleCalendarView()">
-          <Icon icon="material-symbols:calendar-month-outline" width="24" height="24" />
-        </v-btn>
-        <v-btn variant="plain" size="small" @click="toggleListView()">
-          <Icon icon="material-symbols:format-list-bulleted" width="24" height="24" />
-        </v-btn>
+          <v-btn variant="plain" size="small" @click="toggleCalendarView()">
+            <Icon icon="material-symbols:calendar-month-outline" width="24" height="24" />
+          </v-btn>
+          <v-btn variant="plain" size="small" @click="toggleListView()">
+            <Icon icon="material-symbols:format-list-bulleted" width="24" height="24" />
+          </v-btn>
+        </div>
       </div>
-    </div>
-  </v-card>
-
-  <div v-if="showCalendarView">
-
-    <div>
-      <ScheduleXCalendar :calendar-app="calendarApp">
-        <template #dateGridEvent="{ calendarEvent }">
-          <div :style="eventStyles">
-            {{ calendarEvent.title }}
-            this is the date grid event template area
-          </div>
-        </template>
-
-        <template #timeGridEvent="{ calendarEvent }">
-          <div :style="eventStyles">
-            {{ calendarEvent.title }}
-            this is the time grid event template area
-          </div>
-        </template>
-
-        <template #monthGridEvent="{ calendarEvent }">
-          <div :style="eventStyles">
-            {{ calendarEvent.title }}
-            this is the month grid event template area
-          </div>
-        </template>
-
-        <template #eventModal="{ calendarEvent }">
-          <div :style="eventModalStyles">
-            {{ calendarEvent.title }}
-            this is the event modal template area
-            <button @click="closeModal"></button>
-          </div>
-        </template>
-      </ScheduleXCalendar>
-    </div>
-  </div>
-
-  <div v-else>
-    <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected" show-select>
-      <template v-slot:[`item.actions`]="{ item }">
-        <v-btn variant="plain" size="small" @click="editEventPopup(item)">
-          <Icon icon="material-symbols:edit-outline" width="24" height="24" />
-        </v-btn>
-        <v-btn variant="plain" size="small" @click="deleteEventConfirmatoin(item)">
-          <Icon icon="material-symbols:delete-outline" width="24" height="24" />
-        </v-btn>
-      </template>
-    </v-data-table>
-
-  </div>
-
-  <div v-if="showDeleteItem" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span @click="showDeleteItem = false" class="close">&times;</span>
-        <p v-if="!deleteError">
-          Do you want to DELETE <br />
-          {{ typeToDelete.name }}?
-        </p>
-        <p v-if="deleteError">
-          Error deleting<br />{{ typeToDelete.name }}.
-        </p>
-      </div>
-      <div class="modal-body">
-        <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-        <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteEvent(task)">DELETE</v-btn>
-        <v-btn v-if="deleteError" @click="
-          deleteError = false;
-        showDeleteItem = false;
-        ">CLOSE</v-btn>
-      </div>
-    </div>
-  </div>
-
-  <div v-if="showEventDetails" class="modal edit-form-body">
-    <v-card class="edit-popup mx-auto">
-      <v-card-title class="popup-header">
-        <v-text-field v-model="eventName">
-          <Icon icon="material-symbols:edit-outline" width="24" height="24" />
-        </v-text-field>
-
-      </v-card-title>
-
-      <v-divider></v-divider>
-      <v-container class="popup-content">
-        <!-- Description-->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.description }}</label>
-          </v-col>
-          <v-col cols="7">
-            <v-textarea v-model="eventDescription" rows="3" variant="outlined" density="compact"></v-textarea>
-          </v-col>
-        </v-row>
-
-        <!-- Type-->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.type }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-select v-model="eventType" :items="eventTypes" variant="solo-filled" density="compact" hide-details
-              class="filter-menu"></v-select>
-          </v-col>
-        </v-row>
-
-        <!-- Date -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.date }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-text-field v-model="eventDate" type="date" variant="outlined" density="compact"
-              hide-details></v-text-field>
-          </v-col>
-        </v-row>
-
-        <!-- Start Time -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.start }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-text-field v-model="eventStartTime" type="time" variant="outlined" density="compact"
-              hide-details></v-text-field>
-          </v-col>
-        </v-row>
-
-        <!-- End Time  -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.end }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-text-field v-model="eventEndTime" type="time" variant="outlined" density="compact"
-              hide-details></v-text-field>
-          </v-col>
-        </v-row>
-
-        <!-- Location  -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.location }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-text-field v-model="eventLocation" variant="outlined" density="compact" hide-details></v-text-field>
-          </v-col>
-        </v-row>
-
-        <!-- Attendance Type -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.attendance }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled" density="compact"
-              hide-details class="filter-menu"></v-select>
-          </v-col>
-        </v-row>
-
-        <!-- Custom Event -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.custom }}</label>
-          </v-col>
-          <v-col cols="7">
-            <v-checkbox v-model="eventCustomEvent" hide-details></v-checkbox>
-          </v-col>
-        </v-row>
-
-        <!-- Status - -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.status }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-select v-model="eventStatus" :items="statusOptions" variant="solo-filled" density="compact" hide-details
-              class="filter-menu"></v-select>
-          </v-col>
-        </v-row>
-
-        <!-- Point Value -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.points }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-text-field v-model="eventPointValue" variant="outlined" density="compact" hide-details></v-text-field>
-          </v-col>
-        </v-row>
-      </v-container>
-
-      <v-divider></v-divider>
-
-      <v-card-actions class="popup-actions">
-        <v-spacer></v-spacer>
-        <v-btn v-if="eventEdit" color="#F04E3E" variant="flat">Delete</v-btn>
-        <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Cancel</v-btn>
-        <v-btn color="#5EC4B6" variant="flat" style="color: white;"
-          @click="eventEdit ? editEvent() : addEvent()">Save</v-btn>
-
-      </v-card-actions>
     </v-card>
-  </div>
 
+    <div v-if="showCalendarView">
+      <div class="sx-calendar-container">
+        <ScheduleXCalendar
+          v-if="calendarApp"
+          :calendar-app="calendarApp"
+        >
+          <template #timeGridEvent="{ calendarEvent }">
+            <div class="event-item">
+              {{ calendarEvent.title }}
+            </div>
+          </template>
+        </ScheduleXCalendar>
+      </div>
+    </div>
+
+    <div v-if="!showCalendarView">
+      <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected" show-select>
+        <template v-slot:[`item.actions`]="{ item }">
+          <v-btn variant="plain" size="small" @click="editEventPopup(item)">
+            <Icon icon="material-symbols:edit-outline" width="24" height="24" />
+          </v-btn>
+          <v-btn variant="plain" size="small" @click="deleteEventConfirmatoin(item)">
+            <Icon icon="material-symbols:delete-outline" width="24" height="24" />
+          </v-btn>
+        </template>
+      </v-data-table>
+
+    </div>
+
+    <div v-if="showDeleteItem" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span @click="showDeleteItem = false" class="close">&times;</span>
+          <p v-if="!deleteError">
+            Do you want to DELETE <br />
+            {{ typeToDelete.name }}?
+          </p>
+          <p v-if="deleteError">
+            Error deleting<br />{{ typeToDelete.name }}.
+          </p>
+        </div>
+        <div class="modal-body">
+          <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
+          <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteEvent(task)">DELETE</v-btn>
+          <v-btn v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">CLOSE</v-btn>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showEventDetails" class="modal edit-form-body">
+      <v-card class="edit-popup mx-auto">
+        <v-card-title class="popup-header">
+          <v-text-field v-model="eventName">
+            <Icon icon="material-symbols:edit-outline" width="24" height="24" />
+          </v-text-field>
+
+        </v-card-title>
+
+        <v-divider></v-divider>
+        <v-container class="popup-content">
+          <!-- Description-->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.description }}</label>
+            </v-col>
+            <v-col cols="7">
+              <v-textarea v-model="eventDescription" rows="3" variant="outlined" density="compact"></v-textarea>
+            </v-col>
+          </v-row>
+
+          <!-- Type-->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.type }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-select v-model="eventType" :items="eventTypes" variant="solo-filled" density="compact" hide-details
+                class="filter-menu"></v-select>
+            </v-col>
+          </v-row>
+
+          <!-- Date -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.date }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-text-field v-model="eventDate" type="date" variant="outlined" density="compact"
+                hide-details></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Start Time -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.start }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-text-field v-model="eventStartTime" type="time" variant="outlined" density="compact"
+                hide-details></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- End Time  -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.end }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-text-field v-model="eventEndTime" type="time" variant="outlined" density="compact"
+                hide-details></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Location  -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.location }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-text-field v-model="eventLocation" variant="outlined" density="compact" hide-details></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Attendance Type -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.attendance }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled" density="compact"
+                hide-details class="filter-menu"></v-select>
+            </v-col>
+          </v-row>
+
+          <!-- Custom Event -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.custom }}</label>
+            </v-col>
+            <v-col cols="7">
+              <v-checkbox v-model="eventCustomEvent" hide-details></v-checkbox>
+            </v-col>
+          </v-row>
+
+          <!-- Status - -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.status }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-select v-model="eventStatus" :items="statusOptions" variant="solo-filled" density="compact" hide-details
+                class="filter-menu"></v-select>
+            </v-col>
+          </v-row>
+
+          <!-- Point Value -->
+          <v-row class="form-row">
+            <v-col cols="5" class="label-column">
+              <label>{{ labels.points }}</label>
+            </v-col>
+
+            <v-col cols="7">
+              <v-text-field v-model="eventPointValue" variant="outlined" density="compact" hide-details></v-text-field>
+            </v-col>
+          </v-row>
+        </v-container>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="popup-actions">
+          <v-spacer></v-spacer>
+          <v-btn v-if="eventEdit" color="#F04E3E" variant="flat">Delete</v-btn>
+          <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Cancel</v-btn>
+          <v-btn color="#5EC4B6" variant="flat" style="color: white;"
+            @click="eventEdit ? editEvent() : addEvent()">Save</v-btn>
+
+        </v-card-actions>
+      </v-card>
+    </div>
+
+  </div>
 </template>
 
 <script setup>
@@ -256,12 +234,11 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
 import { createScrollControllerPlugin } from "@schedule-x/scroll-controller";
-import { createEventRecurrencePlugin, createEventsServicePlugin } from "@schedule-x/event-recurrence";
+import { createEventRecurrencePlugin } from "@schedule-x/event-recurrence";
 import { createEventModalPlugin } from "@schedule-x/event-modal";
-
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 
-import { ref, computed, shallowRef, onMounted, watch } from 'vue';
+import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO } from 'date-fns';
@@ -312,16 +289,23 @@ const formattedEndTime = computed(() => {
   return formatTime(eventEndTime.value);
 });
 
-const showCalendarView = ref(true);
-const calendarFormattedEvents = ref([]);
+const showCalendarView = ref(false);
 
-const toggleCalendarView = computed(() => {
+const toggleCalendarView = () => {
   showCalendarView.value = true;
-})
+  nextTick(() => {
+    if (calendarApp.value) {
+      const currentEvents = [...calendarFormattedEvents.value];
+      calendarApp.value.events = currentEvents;
+      calendarControls.setView(viewWeek.name);
+      calendarControls.setDate(new Date());
+    }
+  });
+};
 
-const toggleListView = computed(() => {
+const toggleListView = () => {
   showCalendarView.value = false;
-})
+};
 
 const headers = ref([
   { align: 'start', key: 'name', title: 'Name' },
@@ -352,18 +336,6 @@ const labels = {
   verification: "Verification Type",
 };
 
-
-const testList = [{id: 1, title: 'Public Speaking Workshop', start: '2025-03-23 11:17', end: '2025-03-22 13:17'},
-{id: 2, title: 'Art Therapy Session', start: '2025-03-23 11:17', end: '2025-03-23 12:47'},
-{id: 3, title: 'Business Networking Social', start: '2025-03-24 11:17', end: '2025-03-24 13:17'},
-{id: 4, title: 'Environmental Sustainability Panel', start: '2025-03-25 11:17', end: '2025-03-25 14:17'},
-{id: 5, title: 'Music Appreciation Night', start: '2025-03-26 11:17', end: '2025-03-26 13:47'},
-{id: 6, title: 'Cybersecurity Panel', start: '2025-03-22 11:17', end: '2025-03-22 13:17'},
-{id: 7, title: 'Cloud Computing Workshop', start: '2025-03-23 11:17', end: '2025-03-23 14:17'},
-{id: 8, title: 'Game Development Jam', start: '2025-03-24 11:17', end: '2025-03-25 11:17'},
-{id: 9, title: 'Soft Skills Training', start: '2025-03-25 11:17', end: '2025-03-25 14:17'},
-{id: 10, title: 'Hackathon Bootcamp', start: '2025-03-26 11:17', end: '2025-03-26 16:17'},];
-
 const filteredEvents = computed(() => {
   if (selectedFilter.value === 'All') {
     return events.value.map(event => ({
@@ -386,20 +358,103 @@ const filteredEvents = computed(() => {
   }));
 });
 
-const populateFormattedEvents = () => {
-  if (!events.value) return
-  calendarFormattedEvents.value = events.value.map(event => ({
-    id: event.id,
-    title: event.name,
-    start: formatCalendarDate(event.start_date_time),
-    end: formatCalendarDate(event.end_date_time)
-  }))
-}
+const calendarEvents = ref([]);
+
+const calendarControls = createCalendarControlsPlugin();
+const eventModal = createEventModalPlugin();
+
+const calendarApp = shallowRef(null);
+const calendarFormattedEvents = ref([]);
+
+const initializeCalendar = (events) => {
+  const today = new Date();
+  const config = {
+    selectedDate: today.toISOString().split('T')[0],
+    locale: 'en-US',
+    views: [viewMonthAgenda, viewMonthGrid, viewWeek],
+    defaultView: viewWeek.name,
+    dayBoundaries: {
+      start: '06:00',
+      end: '21:00',
+    },
+    firstDayOfWeek: 0,
+    plugins: [
+      calendarControls,
+      eventModal
+    ],
+    events: events,
+    monthGridOptions: {
+      nEventsPerDay: 6,
+    },
+    weekOptions: {
+      gridHeight: screen.height * .5,
+    }
+  };
+
+  calendarApp.value = createCalendar(config);
+  
+  nextTick(() => {
+    calendarControls.setView(viewWeek.name);
+    calendarControls.setDate(today);
+  });
+  
+  console.log('Calendar instance created with events:', calendarApp.value);
+};
+
+watch(calendarFormattedEvents, (newEvents) => {
+  console.log('Calendar events updated:', newEvents);
+  if (calendarApp.value && newEvents && newEvents.length > 0) {
+    console.log('Setting calendar events...');
+    nextTick(() => {
+      try {
+        calendarApp.value.events = [...newEvents];
+        console.log('Calendar events set');
+      } catch (error) {
+        console.error('Error setting events:', error);
+      }
+    });
+  }
+}, { deep: true });
+
+const getAllEvents = () => {
+  return EventServices.getAllEvents()
+    .then((res) => {
+      events.value = res.data;
+      const formattedEvents = events.value.map(event => {
+        const startDate = new Date(event.date);
+        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+        
+        const formatDateTime = (date) => {
+          return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        };
+
+        return {
+          id: event.id,
+          title: event.name,
+          start: formatDateTime(startDate),
+          end: formatDateTime(endDate),
+          description: event.description || '',
+          location: event.location || ''
+        };
+      });
+      
+      calendarFormattedEvents.value = formattedEvents;
+      console.log('Final calendar events:', calendarFormattedEvents.value);
+
+      if (!calendarApp.value) {
+        initializeCalendar(formattedEvents);
+      }
+      
+      message.value = '';
+    })
+    .catch((err) => {
+      message.value = `Error: ${err.code}: ${err.message}`;
+      console.error(err);
+    });
+};
 
 onMounted(async () => {
-  showCalendarView.value = false;
   await getAllEvents();
-  console.log(calendarFormattedEvents.value)
 });
 
 const formatDate = (dateTimeStr) => {
@@ -445,18 +500,11 @@ const formatTimeForInput = (dateTimeStr) => {
   }
 };
 
-const getAllEvents = () => {
-  return EventServices.getAllEvents()
-    .then((res) => {
-      events.value = res.data;
-      message.value = '';
-      populateFormattedEvents();
-    })
-    .catch((err) => {
-      message.value = `Error: ${err.code}: ${err.message}`;
-      console.error(err);
-    });
-}
+const formatScheduleDate = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+};
 
 const editEventPopup = (task) => {
   eventToEdit.value = task;
@@ -687,46 +735,6 @@ const deleteSelectedEvents = (selected) => {
   }
 }
 
-const eventsService = createEventsServicePlugin();
-const calendarControls = createCalendarControlsPlugin();
-const eventModal = createEventModalPlugin();
-
-const formatCalendarDate = (dateStr) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-}
-
-const calendarApp = shallowRef(createCalendar({
-  selectedDate: '2025-03-15',
-  locale: 'en-US',
-  views: [viewMonthAgenda, viewMonthGrid, viewWeek],
-  defaultView: viewWeek.name,
-  dayBoundaries: {
-    start: '06:00',
-    end: '21:00',
-  },
-  firstDayOfWeek: 0,
-  plugins: [
-    eventsService,
-    calendarControls,
-    eventModal
-  ],
-  events: calendarFormattedEvents,
-  monthGridOptions: {
-    nEventsPerDay: 6,
-  },
-  weekOptions: {
-    gridHeight: screen.height * .5,
-  },
-  callbacks: {
-    onClickDate(date) {
-      calendarControls.setView(viewWeek.name);
-      calendarControls.setDate(date);
-    }
-  }
-}))
-
 const closeModal = () => {
   eventModal.close();
 }
@@ -751,11 +759,26 @@ const eventModalStyles = {
 function capitalize(s) {
   return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
-
 </script>
 
 <style>
-/* @import "insert style sheet here later" */
+.sx-calendar-container {
+  height: 600px;
+  width: 100%;
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.event-item {
+  padding: 4px 8px;
+  background-color: #5EC4B6;
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
 
 <style scoped>
