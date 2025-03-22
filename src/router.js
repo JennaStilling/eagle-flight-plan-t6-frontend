@@ -36,7 +36,7 @@ import profile from '@/views/flightPlanViews/Profile.vue';
 // Maintenance & Admin Pages
 import AwardMaintenance from './views/flightPlanViews/admin/maintenance/AwardMaintenance.vue';
 import BadgeMaintenance from './views/flightPlanViews/admin/maintenance/BadgeMaintenance.vue';
-import CliftonStrength from './views/flightPlanViews/admin/CliftonStrength.vue';
+import CliftonStrength from './views/flightPlanViews/admin/maintenance/CliftonStrengthMaintenance.vue';
 import EventMaintenance from './views/flightPlanViews/admin/maintenance/EventMaintenance.vue';
 import ExperienceMaintenance from './views/flightPlanViews/admin/maintenance/ExperienceMaintenance.vue';
 import FlightPlanMaintenance from './views/flightPlanViews/admin/maintenance/FlightPlanMaintenance.vue';

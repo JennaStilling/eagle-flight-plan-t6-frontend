@@ -48,9 +48,9 @@
                 </p>
             </div>
             <div class="modal-body">
-                <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-                <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteExperience(task)">DELETE</v-btn>
-                <v-btn v-if="deleteError" @click="
+                <v-btn v-if="!deleteError" class="button" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
+                <v-btn v-if="!deleteError" color="#F04E3E" class="error button" @click="deleteExperience(task)">DELETE</v-btn>
+                <v-btn v-if="deleteError" class="button" @click="
                     deleteError = false;
                 showDeleteItem = false;
                 ">CLOSE</v-btn>
@@ -143,9 +143,9 @@
 
             <v-card-actions class="popup-actions">
                 <v-spacer></v-spacer>
-                <v-btn v-if="experienceEdit" color="#F04E3E" variant="flat">Delete</v-btn>
-                <v-btn color="#708E9A" variant="flat" @click="showExperienceDetails = false">Cancel</v-btn>
-                <v-btn color="#5EC4B6" variant="flat" style="color: white;"
+                <v-btn v-if="experienceEdit" class="button" color="#F04E3E" variant="flat">Delete</v-btn>
+                <v-btn color="#708E9A" class="button" variant="flat" @click="showExperienceDetails = false">Cancel</v-btn>
+                <v-btn color="#5EC4B6" class="button" variant="flat" style="color: white;"
                     @click="experienceEdit ? editExperience() : addExperience()">Save</v-btn>
 
             </v-card-actions>
