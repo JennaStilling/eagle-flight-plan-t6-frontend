@@ -60,7 +60,9 @@
   <div v-if="showTaskDetails" class="modal edit-form-body">
     <v-card class="edit-popup mx-auto">
       <v-card-title class="popup-header">
-        <v-text-field v-model="taskName"><Icon icon="material-symbols:edit-outline" width="24" height="24" /></v-text-field>
+        <v-text-field v-model="taskName">
+          <Icon icon="material-symbols:edit-outline" width="24" height="24" />
+        </v-text-field>
 
       </v-card-title>
 
@@ -73,7 +75,8 @@
           </v-col>
 
           <v-col cols="7">
-              <v-select v-model="taskCategory" :items="categoryOptions" variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
+            <v-select v-model="taskCategory" :items="categoryOptions" variant="solo-filled" density="compact"
+              hide-details class="filter-menu"></v-select>
           </v-col>
         </v-row>
 
@@ -94,7 +97,8 @@
           </v-col>
 
           <v-col cols="7">
-            <v-select v-model="scheduleType" :items="frequencyOptions" variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
+            <v-select v-model="scheduleType" :items="frequencyOptions" variant="solo-filled" density="compact"
+              hide-details class="filter-menu"></v-select>
           </v-col>
         </v-row>
 
@@ -115,8 +119,7 @@
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskRationale" variant="outlined" density="compact"
-              hide-details></v-text-field>
+            <v-text-field v-model="taskRationale" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
@@ -127,8 +130,7 @@
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="semFromGrad" variant="outlined" density="compact"
-              hide-details></v-text-field>
+            <v-text-field v-model="semFromGrad" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
@@ -182,7 +184,8 @@
 
       <v-card-actions class="popup-actions">
         <v-spacer></v-spacer>
-        <v-btn v-if="taskEdit" color="#F04E3E" class="button" variant="flat" >Delete</v-btn>
+        <v-btn v-if="taskEdit" color="#F04E3E" class="button" variant="flat"
+          @click="deleteTaskConfirmation(taskToEdit)">Delete</v-btn>
         <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
         <v-btn color="#5EC4B6" variant="flat" class="button" @click="taskEdit ? editTask() : addTask()">Save</v-btn>
       </v-card-actions>
@@ -302,9 +305,8 @@ const editTaskPopup = (task) => {
   scheduleType.value = capitalize(taskToEdit.value.schedule_type);
 };
 
-function capitalize(s)
-{
-    return s && String(s[0]).toUpperCase() + String(s).slice(1);
+function capitalize(s) {
+  return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
 
 const editTask = () => {
@@ -312,11 +314,11 @@ const editTask = () => {
     taskCategory.value = 'career_prep'
   }
 
-  if(scheduleType.value === 'One Time') {
+  if (scheduleType.value === 'One Time') {
     scheduleType.value = 'one_time'
   }
 
-  if(scheduleType.value === 'Special Event') {
+  if (scheduleType.value === 'Special Event') {
     scheduleType.value = 'special_event'
   }
 
@@ -372,11 +374,11 @@ const addTask = () => {
     taskCategory.value = 'career_prep'
   }
 
-  if(scheduleType.value === 'One Time') {
+  if (scheduleType.value === 'One Time') {
     scheduleType.value = 'one_time'
   }
 
-  if(scheduleType.value === 'Special Event') {
+  if (scheduleType.value === 'Special Event') {
     scheduleType.value = 'special_event'
   }
 
@@ -412,6 +414,7 @@ const addTask = () => {
 const deleteTaskConfirmation = (task) => {
   taskToDelete.value = task;
   showDeleteItem.value = true
+  showTaskDetails.value = false;
   console.log('Delete item:', taskToDelete.value.name);
 };
 

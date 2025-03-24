@@ -89,13 +89,8 @@
             <label>{{ labels.description }}</label>
           </v-col>
           <v-col cols="7">
-            <v-textarea 
-              v-model="strengthDescription" 
-              rows="12" 
-              auto-grow
-              variant="outlined" 
-              density="compact"
-            ></v-textarea>
+            <v-textarea v-model="strengthDescription" rows="12" auto-grow variant="outlined"
+              density="compact"></v-textarea>
           </v-col>
         </v-row>
 
@@ -105,9 +100,11 @@
 
       <v-card-actions class="popup-actions">
         <v-spacer></v-spacer>
-        <v-btn v-if="strengthEdit" class="button" color="#F04E3E" variant="flat">Delete</v-btn>
-        <v-btn color="#708E9A" class="button" variant="flat" @click="showStrengthDetails = false">Cancel</v-btn>
-        <v-btn color="#5EC4B6" class="button" variant="flat" @click="strengthEdit ? editStrength() : addStrength()">Save</v-btn>
+        <v-btn v-if="strengthEdit" class="button" color="#F04E3E" variant="flat"
+          @click="deleteStrengthConfirmation(strengthToEdit)">Delete</v-btn>
+        <v-btn color=" #708E9A" class="button" variant="flat" @click="showStrengthDetails = false">Cancel</v-btn>
+        <v-btn color="#5EC4B6" class="button" variant="flat"
+          @click="strengthEdit ? editStrength() : addStrength()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </div>
@@ -277,6 +274,8 @@ const addStrength = () => {
 const deleteStrengthConfirmation = (strength) => {
   strengthToDelete.value = strength;
   showDeleteItem.value = true
+  showStrengthDetails.value = false;
+
   console.log('Delete item:', strengthToDelete.value.name);
 };
 
