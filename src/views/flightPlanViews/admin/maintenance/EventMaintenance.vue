@@ -36,7 +36,7 @@
                 <ScheduleXCalendar v-if="calendarApp" :calendar-app="calendarApp">
                     <!-- Week view event on calendar -->
                     <template #timeGridEvent="{ calendarEvent }">
-                        <div class="event-item" :style="getEventColor(calendarEvent.type)"
+                        <div class="event-item" :style="{ ...eventStyles, ...getEventColor(calendarEvent.type) }"
                             @click="openEventModal(calendarEvent)">
                             <div class="event-header">
                                 <div class="event-title">{{ calendarEvent.title }}</div>
@@ -50,16 +50,15 @@
 
                     <!-- Multi day events -->
                     <template #dateGridEvent="{ calendarEvent }">
-                        <div :style="eventStyles">
+                        <div :style="{ ...eventStyles, ...getEventColor(calendarEvent.type) }">
                             {{ calendarEvent.title }}
                         </div>
                     </template>
 
                     <!-- Event display on month view -->
                     <template #monthGridEvent="{ calendarEvent }">
-                        <div :style="eventStyles">
+                        <div :style="{ ...eventStyles, ...getEventColor(calendarEvent.type) }">
                             {{ calendarEvent.title }}
-                            this is the month grid event
                         </div>
                     </template>
 
@@ -276,7 +275,6 @@
                 </v-card-actions>
             </v-card>
         </div>
-
     </div>
 </template>
 
