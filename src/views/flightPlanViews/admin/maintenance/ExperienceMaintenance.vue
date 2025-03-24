@@ -49,7 +49,8 @@
             </div>
             <div class="modal-body">
                 <v-btn v-if="!deleteError" class="button" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-                <v-btn v-if="!deleteError" color="#F04E3E" class="error button" @click="deleteExperience(task)">DELETE</v-btn>
+                <v-btn v-if="!deleteError" color="#F04E3E" class="error button"
+                    @click="deleteExperience(task)">DELETE</v-btn>
                 <v-btn v-if="deleteError" class="button" @click="
                     deleteError = false;
                 showDeleteItem = false;
@@ -143,8 +144,10 @@
 
             <v-card-actions class="popup-actions">
                 <v-spacer></v-spacer>
-                <v-btn v-if="experienceEdit" class="button" color="#F04E3E" variant="flat">Delete</v-btn>
-                <v-btn color="#708E9A" class="button" variant="flat" @click="showExperienceDetails = false">Cancel</v-btn>
+                <v-btn v-if="experienceEdit" class="button" color="#F04E3E" variant="flat"
+                    @click="deleteExperienceConfirmatoin(experienceToEdit)">Delete</v-btn>
+                <v-btn color="#708E9A" class="button" variant="flat"
+                    @click="showExperienceDetails = false">Cancel</v-btn>
                 <v-btn color="#5EC4B6" class="button" variant="flat" style="color: white;"
                     @click="experienceEdit ? editExperience() : addExperience()">Save</v-btn>
 
@@ -371,6 +374,7 @@ const addExperience = () => {
 const deleteExperienceConfirmatoin = (task) => {
     categoryToDelete.value = task;
     showDeleteItem.value = true
+    showExperienceDetails.value = false;
     console.log('Delete item:', categoryToDelete.value.name);
 };
 
