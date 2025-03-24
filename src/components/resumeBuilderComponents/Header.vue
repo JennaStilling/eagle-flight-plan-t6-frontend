@@ -30,6 +30,7 @@
       <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
           <li @click="updateProfile">Update Profile</li>
+          <li @click="returnToFlightPlan">Return to Flight Plan</li>
           <li @click="signOut">Sign Out</li>
         </ul>
       </div>
@@ -44,6 +45,7 @@ import AuthServices from "@/services/resumeBuilderServices/authServices";
 import { useRouter, useRoute } from "vue-router";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import { Icon } from '@iconify/vue';
+import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
 
 const user = ref(null);
 const initials = ref("");
@@ -58,6 +60,7 @@ const homeMenuOpen = ref(false);
 const profileMenuOpen = ref(false);
 
 const route = useRoute();
+const homeStore = useHomePageStore();
 const currentRouteName = computed(() => route.name);
 
 // Close menu when clicking outside
@@ -103,6 +106,10 @@ const updateProfile = () => {
   router.push({ name: 'contactInfo' });
   profileMenuOpen.value = false;
 };
+
+const returnToFlightPlan = () => {
+  homeStore.routeToView(router)
+}
 
 const updateHomePage = (loc) => {
   const roleMap = {
