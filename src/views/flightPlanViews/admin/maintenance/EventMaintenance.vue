@@ -373,21 +373,21 @@ const labels = {
 };
 
 const eventTypeColors = {
-    'club': '#5EC4B6',
-    'extra_curricular': '#FF6B6B',
-    'career_fair': '#4ECDC4',
-    'mentoring': '#45B7D1',
-    'career_services': '#4A90E2',
-    'lunch_and_learn': '#F6B93B',
-    'galup_strengths_class': '#A569BD'
+    'club': '#F9C634',
+    'extra_curricular': '#F68D76',
+    'career_fair': '#708E9A',
+    'mentoring': '#118ACB',
+    'career_services': '#F04E3E',
+    'lunch_and_learn': '#004761',
+    'galup_strengths_class': '#27575A'
 };
 
 const getEventColor = (eventType) => {
-    const color = eventTypeColors[eventType?.toLowerCase()] || '#5EC4B6';
-    const lightColors = ['#FFEEAD', '#F6B93B'];
+    const color = eventTypeColors[eventType?.toLowerCase()] || '#F9C634';
+    const darkColors = ['#27575A', '#004761'];
     return {
         backgroundColor: color,
-        color: lightColors.includes(color) ? '#2C3E50' : 'white'
+        color: darkColors.includes(color) ? '#2C3E50' : 'white'
     };
 };
 
