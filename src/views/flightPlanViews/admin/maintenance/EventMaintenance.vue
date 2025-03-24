@@ -43,7 +43,7 @@
                             </div>
                             <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                 formatEventTime(calendarEvent.end)
-                                }}</div>
+                            }}</div>
                             <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                     formatEventTime(calendarEvent.end)
-                                    }}</div>
+                                }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
                             </div>
