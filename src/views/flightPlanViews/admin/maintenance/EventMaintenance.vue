@@ -267,7 +267,8 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
-                    <v-btn v-if="eventEdit" color="#F04E3E" variant="flat">Delete</v-btn>
+                    <v-btn v-if="eventEdit" color="#F04E3E" variant="flat" fix-jfs-maintenance-page-delete-while-editing
+                        @click="deleteEventConfirmation(eventToEdit)">Delete</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Cancel</v-btn>
                     <v-btn color="#5EC4B6" variant="flat" style="color: white;"
                         @click="eventEdit ? editEvent() : addEvent()">Save</v-btn>
@@ -789,6 +790,7 @@ const deleteEventConfirmation = (task) => {
         .then((res) => {
             typeToDelete.value = res.data;
             showDeleteItem.value = true
+            showEventDetails.value = false;
             console.log('Delete item:', typeToDelete.value.name);
         })
         .catch((e) => {
