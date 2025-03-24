@@ -153,7 +153,6 @@ const settings = () => {
 }
 
 const updateHomePage = (loc) => {
-  console.log(`Selected ${loc} role`);
   toggleRoleSwitchMenu();
   toggleProfileMenu();
   switch (loc) {
