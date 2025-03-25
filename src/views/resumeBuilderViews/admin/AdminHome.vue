@@ -65,10 +65,6 @@ const getUserRoles = () => {
   UserServices.getUser(user.value.userId)
     .then((res) => {
       user.value = res.data;
-      console.log("ID: " + user.value.id);
-      console.log("Student ID: " + user.value.studentId);
-      console.log("Admin ID: " + user.value.adminId);
-      console.log("Reviewer ID: " + user.value.reviewerId);
 
       studentId.value = user.value.studentId;
       adminId.value = user.value.adminId;
@@ -262,10 +258,6 @@ const getSpecificUserRoles = (specificUserId) => {
   UserServices.getUser(specificUserId).then((res) => {
     userSpecificRoles.value = "";
     specificUser.value = res.data;
-    console.log("ID: " + specificUser.value.id);
-    console.log("Student ID: " + specificUser.value.studentId);
-    console.log("Admin ID: " + specificUser.value.adminId);
-    console.log("Reviewer ID: " + specificUser.value.reviewerId);
 
     selectedStudentId.value = specificUser.value.studentId;
     selectedAdminId.value = specificUser.value.adminId;
