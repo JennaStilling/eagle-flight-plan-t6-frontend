@@ -561,7 +561,6 @@ const formatEventForCalendar = (event) => {
 };
 
 const editEventPopup = (task) => {
-    console.log("Passed in: " + task)
     EventServices.getEvent(task.id)
         .then((res) => {
             eventToEdit.value = res.data;
@@ -632,6 +631,34 @@ const editEvent = () => {
 
     if (eventScheduleType.value === 'Every Semester') {
         eventScheduleType.value = 'every_semester'
+    }
+
+    if (eventType.value === 'Extra Curricular') {
+        eventType.value = 'extra_curricular'
+    }
+
+    if (eventType.value === 'Career Fair') {
+        eventType.value = 'career_fair'
+    }
+
+    if (eventType.value === 'Career Services') {
+        eventType.value = 'career_services'
+    }
+
+    if (eventType.value === 'Lunch and Learn') {
+        eventType.value = 'lunch_and_learn'
+    }
+
+    if (eventType.value === 'Galup Strengths Class') {
+        eventType.value = 'galup_strengths_class'
+    }
+
+    if (eventStatus.value === 'In Progress') {
+        eventStatus.value = 'in_progress'
+    }
+
+    if (eventAttendanceType.value === 'In Person') {
+        eventAttendanceType.value = 'in_person'
     }
 
 
@@ -791,7 +818,6 @@ const deleteEventConfirmation = (task) => {
             typeToDelete.value = res.data;
             showDeleteItem.value = true
             showEventDetails.value = false;
-            console.log('Delete item:', typeToDelete.value.name);
         })
         .catch((e) => {
             console.log(e.response.data)
