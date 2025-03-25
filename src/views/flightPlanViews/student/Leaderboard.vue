@@ -41,6 +41,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { Icon } from "@iconify/vue";
 import StudentServices from '@/services/resumeBuilderServices/studentServices.js';
 import UserServices from '@/services/resumeBuilderServices/userServices.js';
 import Utils from '@/config/utils';
