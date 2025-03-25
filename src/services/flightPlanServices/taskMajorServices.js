@@ -7,8 +7,8 @@ export default {
     createSystemTaskMajor(data) {
         return apiClient.post(`flightPlan-t6/taskMajor`, data);
     },
-    getAllTaskMajors(taskId, majorId) {
-        return apiClient.get(`flightPlan-t6/task/${taskId}/major/${majorId}/taskMajor`);
+    getAllTaskMajors() {
+        return apiClient.get(`flightPlan-t6/taskMajor`);
     },
     getTaskMajor(taskId, majorId, id) {
         return apiClient.get(`flightPlan-t6/task/${taskId}/major/${majorId}/taskMajor/${id}`);

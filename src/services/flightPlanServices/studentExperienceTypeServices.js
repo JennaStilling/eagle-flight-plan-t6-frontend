@@ -10,6 +10,9 @@ export default {
     getAllStudentExperienceTypes(studentId, experienceTypeId) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/experienceType/${experienceTypeId}/studentExperienceType`);
     },
+    getAllExperienceTypesForStudent(studentId) {
+        return apiClient.get(`flightPlan-t6/student/${studentId}/studentExperienceType`);
+    },
     getStudentExperienceType(studentId, experienceTypeId, id) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/experienceType/${experienceTypeId}/studentExperienceType/${id}`);
     },

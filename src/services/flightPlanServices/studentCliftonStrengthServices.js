@@ -7,8 +7,8 @@ export default {
     createSystemStudentCliftonStrength(data) {
         return apiClient.post(`flightPlan-t6/studentCliftonStrength`, data);
     },
-    getAllStudentCliftonStrengths(studentId, cliftonStrengthId) {
-        return apiClient.get(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength`);
+    getAllStudentCliftonStrengths(studentId) {
+        return apiClient.get(`flightPlan-t6/student/${studentId}/studentCliftonStrength`);
     },
     getStudentCliftonStrength(studentId, cliftonStrengthId, id) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength/${id}`);

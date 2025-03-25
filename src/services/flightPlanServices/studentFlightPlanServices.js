@@ -10,6 +10,9 @@ export default {
     getAllStudentFlightPlans(studentId, flightPlanId) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/flightPlan/${flightPlanId}/studentFlightPlan`);
     },
+    getAllFlightPlansForStudent(studentId) {
+        return apiClient.get(`flightPlan-t6/student/${studentId}/studentFlightPlan`);
+    },
     getStudentFlightPlan(id) {
         return apiClient.get(`flightPlan-t6/studentFlightPlan/${id}`);
     },

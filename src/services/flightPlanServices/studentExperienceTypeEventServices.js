@@ -13,6 +13,9 @@ export default {
     getStudentExperienceType(id) {
       return apiClient.get(`flightPlan-t6/student/${studentId}/experienceType/${experienceTypeId}/studentExperienceType/${id}`);
     },
+    getStudentExperienceTypeEvents(studentExperienceTypeId) {
+      return apiClient.get(`flightPlan-t6/studentExperienceType/${studentExperienceTypeId}/studentExperienceTypeEvent`);
+    },
     updateStudentExperienceType(id, data) {
       return apiClient.put(`flightPlan-t6/student/${studentId}/experienceType/${experienceTypeId}/studentExperienceType/${id}`, data);
     },

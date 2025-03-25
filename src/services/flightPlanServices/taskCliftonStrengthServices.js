@@ -7,8 +7,8 @@ export default {
     createSystemTaskCliftonStrength(data) {
         return apiClient.post(`flightPlan-t6/taskCliftonStrength`, data);
     },
-    getAllTaskCliftonStrengths(taskId, cliftonStrengthId) {
-        return apiClient.get(`flightPlan-t6/task/${taskId}/cliftonStrength/${cliftonStrengthId}/taskCliftonStrength`);
+    getAllTaskCliftonStrengths() {
+        return apiClient.get(`flightPlan-t6/taskCliftonStrength`);
     },
     getTaskCliftonStrength(taskId, cliftonStrengthId, id) {
         return apiClient.get(`flightPlan-t6/task/${taskId}/cliftonStrength/${cliftonStrengthId}/taskCliftonStrength/${id}`);
