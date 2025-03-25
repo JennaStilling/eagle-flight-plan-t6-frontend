@@ -80,11 +80,11 @@ const fetchStudents = async () => {
     // Fetch current user data
     currentUser.value = Utils.getStore("user");
     const currentUserRes = await UserServices.getAllStudentUsers(currentUser.value.userId);
-    studentId.value = currentUserRes.data[0].id;
+    studentId.value = currentUserRes.data[0].studentId;
 
     const userRes = await UserServices.getAllUsers();
     const users = userRes.data || [];
-
+    
     // Filter out users without a studentId
     const studentUsers = users.filter(user => user.studentId);
 
@@ -159,7 +159,7 @@ const toggleView = () => {
 };
 
 const isCurrentUser = (item) => {
-  return item.studentId === studentId.value;
+  return item.studentId == studentId.value;
 };
 </script>
 
