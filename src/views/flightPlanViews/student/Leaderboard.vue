@@ -197,16 +197,16 @@ const isCurrentUser = (item) => {
 
 .toggle-btn {
   margin-left: 8px;
-  background-color:white;
-  color: #811429;
+  background-color: #5EC4B6;
+  color: white;
   font-weight: 550;
-  transition: box-shadow 0.3s ease, background-color 0.3s ease, border 0.3s ease;
-  box-shadow: 0 2px 2px rgba(129, 20, 41, 0.5);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 0.3, transform 0.5s;
 }
 
 .toggle-btn:hover {
-  background-color: #811429;
-  color:white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
 }
 
 /* Data table section ----------------------------------------------------*/
