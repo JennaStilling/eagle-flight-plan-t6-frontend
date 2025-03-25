@@ -8,7 +8,9 @@
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'" class="dropdown-arrow" />
+          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons
+            <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
+              class="dropdown-arrow" />
             <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
           <li>Students</li>
           <li>Student Workers</li>
@@ -18,45 +20,48 @@
       </li>
 
       <!-- Admin Maintenance -->
-      <li @click="toggleMaintenanceDropdown"> Maintenance <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'" class="dropdown-arrow" />
+      <li @click="toggleMaintenanceDropdown"> Maintenance
+        <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
+          class="dropdown-arrow" />
 
-      <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
-        <li v-if="hasUserPermission" @click="toggleMenu"><router-link :to="{ name: 'userMaintenance' }"><span
-              class='black-text'>Users</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }"><span
-              class='black-text'>Events</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }"><span
-              class='black-text'>Tasks</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }"><span
-              class='black-text'>Experiences</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'flightPlan' }"><span
-              class='black-text'>Flight Plans</span></router-link></li>
-        <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'award' }"><span
-              class='black-text'>Shop Items</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'badge' }"><span
-              class='black-text'>Badges</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'cliftonStrength' }"><span
-              class='black-text'>Clifton Strengths</span></router-link></li>
-        <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'lifeAfterTheNest' }"><span
-              class='black-text'>Life After the Nest</span></router-link></li>
-        <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'transactionLog' }"><span
-              class='black-text'>Transaction History</span></router-link></li>
-      </div>
-      </li>
-
-      <!-- Resume Builder -->
-      <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
-
-      <!-- Student Pages -->
-
-
-      <!-- Professor Pages -->
-
-
-      <!-- Student Worker Pages -->
-
-      </ul>
+        <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
+      <li v-if="hasUserPermission" @click="toggleMenu"><router-link :to="{ name: 'userMaintenance' }"><span
+            class='black-text'>Users</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }"><span
+            class='black-text'>Events</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }"><span
+            class='black-text'>Tasks</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }"><span
+            class='black-text'>Experiences</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'flightPlan' }"><span
+            class='black-text'>Flight Plans</span></router-link></li>
+      <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'award' }"><span
+            class='black-text'>Shop Items</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'badge' }"><span
+            class='black-text'>Badges</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'cliftonStrength' }"><span
+            class='black-text'>Clifton Strengths</span></router-link></li>
+      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'lifeAfterTheNest' }"><span
+            class='black-text'>Life After the Nest</span></router-link></li>
+      <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'transactionLog' }"><span
+            class='black-text'>Transaction History</span></router-link></li>
     </div>
+    </li>
+
+    <!-- Resume Builder -->
+    <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
+
+    <!-- Student Pages -->
+    <li><router-link :to="{ name: 'student-events' }"> <span>Student Events</span></router-link></li>
+
+
+    <!-- Professor Pages -->
+
+
+    <!-- Student Worker Pages -->
+
+    </ul>
+  </div>
   </div>
   </div>
 </template>
