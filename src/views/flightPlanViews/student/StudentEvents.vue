@@ -192,14 +192,14 @@
                     </v-row>
 
                     <!-- Custom Event -->
-                    <v-row class="form-row">
+                    <!-- <v-row class="form-row">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.custom }}</label>
                         </v-col>
                         <v-col cols="7">
                             <v-checkbox v-model="eventCustomEvent" hide-details disabled></v-checkbox>
                         </v-col>
-                    </v-row>
+                    </v-row> -->
 
                     <!-- Status - -->
                     <v-row class="form-row">

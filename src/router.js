@@ -45,8 +45,8 @@ import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaint
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
 // Student Pages
-import Shop from './views/flightPlanViews/student/Shop.vue';
-import Events from './views/flightPlanViews/student/Events.vue';
+// import Shop from './views/flightPlanViews/student/Shop.vue';
+// import Events from './views/flightPlanViews/student/Events.vue';
 import Leaderboard from "./views/flightPlanViews/student/Leaderboard.vue";
 import Shop from "./views/flightPlanViews/student/Shop.vue";
 import Events from "./views/flightPlanViews/student/StudentEvents.vue";
