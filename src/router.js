@@ -47,6 +47,7 @@ import UserMaintenance from './views/flightPlanViews/admin/maintenance/userMaint
 // Student Pages
 import Shop from './views/flightPlanViews/student/Shop.vue';
 import Events from './views/flightPlanViews/student/Events.vue';
+import Leaderboard from "./views/flightPlanViews/student/Leaderboard.vue";
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
@@ -197,6 +198,7 @@ const routes = [
   //Student Pages
   { path: '/flightPlan/shop', name: 'shop', component: Shop },
   { path: '/flightPlan/events', name: 'events', component: Events },
+  { path: '/flightPlan/leaderboard', name: 'leaderboard', component: Leaderboard },
 ];
 
 const router = createRouter({
@@ -249,6 +251,7 @@ router.beforeEach(async (to, from) => {
     "shop",
     "events",
     "helpfulResources",
+    "leaderboard",
   ];
   
   const adminPages = [
