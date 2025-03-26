@@ -20,9 +20,9 @@ export default {
     return apiClient.delete(`flightPlan-t6/studentEvent`);
   },
   getAllEventsByStudent(id) {
-    return apiClient.get(`flightPlan-t6/studentEvent/student/${id}/events`);
+    return apiClient.get(`flightPlan-t6/student/${id}/events`);
   },
   getAllStudentsByEvent(id) {
-    return apiClient.get(`flightPlan-t6/studentEvent/event/${id}/students`)
+    return apiClient.get(`flightPlan-t6/event/${id}/students`)
   }
 };
