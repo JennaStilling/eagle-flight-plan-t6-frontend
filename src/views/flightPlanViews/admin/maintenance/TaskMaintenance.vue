@@ -47,9 +47,9 @@
         </p>
       </div>
       <div class="modal-body">
-        <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-        <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteTask(task)">DELETE</v-btn>
-        <v-btn v-if="deleteError" @click="
+        <v-btn v-if="!deleteError" class="button" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
+        <v-btn v-if="!deleteError" color="#F04E3E" class="error button" @click="deleteTask(task)">DELETE</v-btn>
+        <v-btn v-if="deleteError" class="button" @click="
           deleteError = false;
         showDeleteItem = false;
         ">CLOSE</v-btn>
@@ -182,9 +182,9 @@
 
       <v-card-actions class="popup-actions">
         <v-spacer></v-spacer>
-        <v-btn v-if="taskEdit" color="#F04E3E" variant="flat">Delete</v-btn>
-        <v-btn color="#708E9A" variant="flat" @click="showTaskDetails = false">Cancel</v-btn>
-        <v-btn color="#5EC4B6" variant="flat" @click="taskEdit ? editTask() : addTask()">Save</v-btn>
+        <v-btn v-if="taskEdit" color="#F04E3E" class="button" variant="flat" >Delete</v-btn>
+        <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
+        <v-btn color="#5EC4B6" variant="flat" class="button" @click="taskEdit ? editTask() : addTask()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </div>

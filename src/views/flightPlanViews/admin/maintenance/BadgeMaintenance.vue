@@ -38,8 +38,8 @@
                   
                   <!-- Buttons -->
                   <div class="button-container">
-                    <button @click="editBadgePopup(item)">Edit</button>
-                    <button @click="deleteBadgeConfirmation(item)">Delete</button>
+                    <button class="button" @click="editBadgePopup(item)">Edit</button>
+                    <button class="button" @click="deleteBadgeConfirmation(item)">Delete</button>
                   </div>
                 </div>
               </div>
@@ -60,9 +60,9 @@
                     </p>
                 </div>
                 <div class="modal-body">
-                    <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteBadge = false">CANCEL</v-btn>
-                    <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteBadge(badge)">DELETE</v-btn>
-                    <v-btn v-if="deleteError" @click="
+                    <v-btn v-if="!deleteError" class="button" color="#708E9A" @click="showDeleteBadge = false">CANCEL</v-btn>
+                    <v-btn v-if="!deleteError" color="#F04E3E" class="error button" @click="deleteBadge(badge)">DELETE</v-btn>
+                    <v-btn v-if="deleteError" class="button" @click="
                         deleteError = false;
                         showDeleteBadge = false;
                     ">CLOSE</v-btn>
@@ -144,9 +144,9 @@
 
         <v-card-actions class="popup-actions">
           <v-spacer></v-spacer>
-          <v-btn v-if="badgeEdit" color="red" variant="outlined" @click="deleteBadgeConfirmation(badgeToEdit)">Delete</v-btn>
-          <v-btn color="grey" variant="outlined" @click="showBadgeDetails = false">Cancel</v-btn>
-          <v-btn color="green" variant="flat" @click="badgeEdit ? editBadge() : addBadge()">Save</v-btn>
+          <v-btn v-if="badgeEdit" class="button" color="red" variant="outlined" @click="deleteBadgeConfirmation(badgeToEdit)">Delete</v-btn>
+          <v-btn class="button" color="grey" variant="outlined" @click="showBadgeDetails = false">Cancel</v-btn>
+          <v-btn class="button" color="green" variant="flat" @click="badgeEdit ? editBadge() : addBadge()">Save</v-btn>
         </v-card-actions>
       </v-card>
     </div>
