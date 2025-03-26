@@ -285,49 +285,53 @@ async function getPossibleExperiences(student, studentsMajors, studentCliftonStr
     }
 }
 
-// Returns a list of tasks that will be added to this semester's flight plan
-async function createTaskList(numOfTasksToAdd, availableTasks, studentsPreviousTasks) {
+async function createTaskList(numOfTasks, availableTasks, studentsPreviousTasks) {
     try {
         const tasksToFlightPlan = [];
         const addedTaskIds = new Set(); // Tracks the tasks IDs to see if a prereq task has been added or not
+        let trackNumberOfTasks = numOfTasks;
     
-        for (let i = 0; i < numOfTasksToAdd; i++) {
+        for (let i = 0; i < numOfTasks; i++) {
             const task = availableTasks[i];
-    
-            let addedPrereq = false;
-            if (task.taskId != null) {
-                if (!addedTaskIds.has(task.taskId)) {
-                    const prereqTask = studentsPreviousTasks.find(preTask => preTask.taskId === task.taskId);
-                    if (prereqTask == null) {
-                        const fetchedTask = (await taskServices.getTask(task.taskId)).data;
-                        tasksToFlightPlan.push(fetchedTask); // Add both the prereq task and the task itself, 
-                        tasksToFlightPlan.push(task);
-                        // Since we are adding 2, subtract one from numOfTasks to add so there is still the right number of tasks in the flightplan
-                        numOfTasksToAdd--;
-                        addedTaskIds.add(fetchedTask.id);
-                        addedPrereq = true;
-                    }
-                    else{
-                        if (prereqTask?.status !== 'approved') {
-                            const fetchedTask = (await taskServices.getTask(prereqTask.taskId)).data;
-                            tasksToFlightPlan.push(fetchedTask);
-                            tasksToFlightPlan.push(task);
-                            numOfTasksToAdd--;
-                            addedTaskIds.add(fetchedTask.id);
-                            addedPrereq = true;
-                        }
-                    }   
-                }
-            }
-            if (!addedPrereq) {
+            if (!task.taskId) {
                 tasksToFlightPlan.push(task);
+                continue;
             }
+
+            if (addedTaskIds.has(task.taskId)) {
+                tasksToFlightPlan.push(task);
+                continue;
+            }
+
+            const prereqTask = studentsPreviousTasks.find(preTask => preTask.taskId === task.taskId);
+            if (await shouldFetchPrereqTask(prereqTask)) {
+                const fetchedTask = (await taskServices.getTask(task.taskId)).data;
+                tasksToFlightPlan.push(fetchedTask);
+                addedTaskIds.add(fetchedTask.id);
+                adjustTaskCount(trackNumberOfTasks, numOfTasks);
+            }
+
+            tasksToFlightPlan.push(task);
         }
     
         return tasksToFlightPlan;
-    }
-    catch (error) {
+    } catch (error) {
         console.log("Error, could not create a list of tasks: " + error);
+    }
+}
+
+// Checks to see if there is a prereq task and if it has been completed or not
+async function shouldFetchPrereqTask(prereqTask) {
+    if (!prereqTask) return true;
+    return prereqTask.status !== 'approved';
+}
+
+// Adjusts the number of tasks added to the list depending on if there are prereqs
+function adjustTaskCount(trackNumberOfTasks, numOfTasks) {
+    if (trackNumberOfTasks >= numOfTasks) {
+        numOfTasks--;
+    } else {
+        trackNumberOfTasks++;
     }
 }
 
