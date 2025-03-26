@@ -121,6 +121,7 @@ import semesterServices from '@/services/flightPlanServices/semesterServices';
 import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTaskServices';
 import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import { get } from '@vueuse/core';
+import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -152,13 +153,20 @@ onMounted(async () => {
   try {
     user.value = Utils.getStore("user");
     const userRes = await UserServices.getAllStudentUsers(user.value.userId);
-    studentId.value = userRes.data[0].id;
+    studentId.value = userRes.data[0].studentId;
     currentDate.value = new Date().toJSON().slice(0, 24);
     const studentRes = await studentServices.getStudent(studentId.value);
     studentPoints.value = studentRes.data.points;
-    //console.log("Student ID is: " + studentId.value);
   } catch (error) {
     console.error('Error fetching student ID: ', error);
+  }
+
+  // Check for flight plan
+  try {
+    await checkForFlightPlan();
+  }
+  catch (error) {
+    console.log("Unable to retrieve student flight plan information: " + error);
   }
 
   // Get Semesters
@@ -171,7 +179,6 @@ onMounted(async () => {
       if (futureSemesterIndex !== -1) {
         currentIndex.value = futureSemesterIndex;
         currentSemester.value = semesters.value[currentIndex.value].name;
-        //console.log('Current Semester id:', semesters.value[currentIndex.value].id);
         await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
       } else {
         currentSemester.value = 'No future semester data available';
@@ -190,8 +197,6 @@ onMounted(async () => {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
-      //console.log("events");
-      //console.log(events.value);
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -213,7 +218,6 @@ const getFlightPlansBySemester = async (semesterId) => {
     const response = await flightPlanServices.getAllFlightPlans(semesterId);
     if (response.data) {
       flightPlans.value = response.data;
-      //console.log("Flight Plans:", flightPlans.value);
       // Fetch tasks for each flight plan
       for (const flightPlan of flightPlans.value) {
         await getFlightPlanTasks(flightPlan.id);
@@ -226,19 +230,14 @@ const getFlightPlansBySemester = async (semesterId) => {
 
 const getFlightPlanTasks = async (flightPlanId) => {
   try {
-    //console.log('THE Flight Plan ID:', flightPlanId);
-    const response = await flightPlanTaskServices.getAllFlightPlanTasksByFlightPlanId(flightPlanId);
-    if (response.data) {
-      //console.log(`Tasks for Flight Plan ${flightPlanId}:`, response.data);
-      // Fetch task details for each flight plan task
-      const userRes = await UserServices.getAllStudentUsers(user.value.userId);
-      const studentId = userRes.data[0].id;
-      //console.log('Student ID in getFlightPlanTasks:', studentId);
-      for (const flightPlanTask of response.data) {
-        await getTaskDetails(flightPlanTask.taskId);
-        //console.log('Task ID here', taskId);
-        const studentFlightPlanId = await getStudentFlightPlanId(studentId, flightPlanId);
-        await getStudentFlightPlanTask(studentFlightPlanId, flightPlanTask.taskId, user.value.userId);
+    const studentFlightPlans = (await studentFlightPlanServices.getAllFlightPlansForStudent(studentId.value)).data;
+    for (const studentFlightPlan of studentFlightPlans) {
+      const response = await studentFlightPlanTaskServices.getStudentFlightPlanTasks(studentFlightPlan.id);
+      if (response.data) {
+        for (const studentFlightPlanTask of response.data) {
+          await getTaskDetails(studentFlightPlanTask.taskId);
+          await getStudentFlightPlanTask(studentFlightPlanTask.id);
+        }
       }
     }
   } catch (error) {
@@ -250,7 +249,6 @@ const getTaskDetails = async (taskId) => {
   try {
     const response = await taskServices.getTask(taskId);
     if (response.data) {
-      //console.log('Task NAME in getTaskDetails:', response.data.name);
       return {
         taskName: response.data.name,
         taskDescription: response.data.description,
@@ -276,19 +274,17 @@ const getStudentFlightPlanId = async (studentId, flightPlanId) => {
   }
 };
 
-const getStudentFlightPlanTask = async (studentFlightPlanId, taskId, userId) => {
-  //console.log('Student Flight Plan ID:', studentFlightPlanId);
+const getStudentFlightPlanTask = async (studentFlightPlanTaskId) => {
   try {
-    const response = await studentFlightPlanTaskServices.getStudentFlightPlanTasks(studentFlightPlanId, taskId, userId);
+    const response = await studentFlightPlanTaskServices.getStudentFlightPlanTask(studentFlightPlanTaskId);
     if (response.data) {
-      //console.log(`Points Earned for Student Flight Plan ID ${studentFlightPlanId}, Task ID ${taskId}, User ID ${userId}:`, response.data[0].points_earned);
-      if (response.data[0].userId === userId && (response.data[0].status === 'unapproved' || response.data[0].status === 'in_progress')) {
-        unapprovedOrInProgressTasks.value.push(response.data[0]);
+      if (response.data.status === 'unapproved' || response.data.status === 'in_progress') {
+        unapprovedOrInProgressTasks.value.push(response.data);
       }
       await fetchTaskDetailsForUnapprovedOrInProgressTasks();
     }
   } catch (error) {
-    console.error(`Error fetching student flight plan task for student flight plan ID ${studentFlightPlanId}, task ID ${taskId}, and user ID ${userId}:`, error);
+    console.error("Error fetching student flight plan task for student: " + error);
   }
 };
 
@@ -365,6 +361,15 @@ const getNextSemester = async () => {
     await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
   }
 };
+
+// Check for flight plan
+const checkForFlightPlan = async () => {
+  const semester = await getSemester();
+  const flightPlan = await getFlightPlan(semester);
+  const studentFlightPlan = (await studentFlightPlanServices.getAllStudentFlightPlans(studentId.value, flightPlan.id)).data;
+  const student = (await studentServices.getStudent(studentId.value)).data;
+  if (studentFlightPlan.length < 1) await generateFlightPlan(student);
+}
 </script>
 
 <style scoped>
