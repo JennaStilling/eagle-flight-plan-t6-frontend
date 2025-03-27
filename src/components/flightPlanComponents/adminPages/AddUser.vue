@@ -140,6 +140,52 @@
                                     </v-text-field>
                                 </v-col>
                             </v-row>
+
+                            <v-row class="form-row">
+                                <v-col cols="2" class="label-column">
+                                    <label class="label-description">Clifton Strengths</label>
+                                </v-col>
+                                <v-col cols="10">
+
+                                    <v-row align="center" justify="start">
+                                        <v-col v-for="(selection, i) in selections" :key="selection.name"
+                                            class="py-1 pe-0" cols="auto">
+                                            <v-chip :disabled="loading" closable class="ma-1" color="primary"
+                                                rounded="lg"
+                                                @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
+
+                                                {{ selection.name }}
+                                            </v-chip>
+                                        </v-col>
+
+                                        <v-col cols="12">
+                                            <v-menu v-model="menu" close-on-content-click>
+                                                <template v-slot:activator="{ props }">
+                                                    <v-text-field ref="searchField" v-model="search" label="Search"
+                                                        hide-details single-line variant="solo" density="compact"
+                                                        v-bind="props">
+                                                    </v-text-field>
+                                                </template>
+
+                                                <v-list style="max-height: 300px; overflow-y: auto;">
+                                                    <template v-for="cliftonStrengths in filteredCliftonStrengths">
+                                                        <v-list-item
+                                                            v-if="!newCliftonStrengths.cliftonStrengthsToAdd.includes(cliftonStrengths)"
+                                                            :key="cliftonStrengths.id" :disabled="loading"
+                                                            @click="newCliftonStrengths.cliftonStrengthsToAdd.push(cliftonStrengths)">
+                                                            <template v-slot:prepend>
+                                                            </template>
+
+                                                            <v-list-item-title v-text="cliftonStrengths.name">
+                                                            </v-list-item-title>
+                                                        </v-list-item>
+                                                    </template>
+                                                </v-list>
+                                            </v-menu>
+                                        </v-col>
+                                    </v-row>
+                                </v-col>
+                            </v-row>
                         </div>
 
                         <v-divider />
@@ -160,11 +206,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import blankImage from "@/assets/blankProfile.jpg";
 
 const props = defineProps({
     roles: Object,
+    cliftonStrengths: Object,
 });
 
 const emit = defineEmits(['add-user']);
@@ -259,6 +306,7 @@ const formatDate = (value) => {
     }
     return value;
 };
+
 onMounted(() => {
 
 });
@@ -271,6 +319,8 @@ const clear = () => {
 }
 
 const overlay = ref(false);
+
+const menu = ref(false);
 
 const triggerFileInput = () => {
     const fileInput = document.querySelector('input[type="file"]');
@@ -297,24 +347,17 @@ const showAddUser = () => {
 
 const addUser = () => {
     const form = formReference.value;
-    const valid = formValid.value
-
-    console.log(form);
-    console.log(valid);
-
-    form.resetValidation()
+    const valid = formValid.value;
+    form.resetValidation();
     form.validate();
     if (form && valid) {
         overlay.value = false;
         fixImageData();
         if (!roleData.value.rolesToAdd.includes('student')) {
             newStudent.value = null;
-            newCliftonStrengths.value = null;
+            newCliftonStrengths.value.cliftonStrengthsToAdd = null;
         }
-        else {
-
-        }
-        emit('add-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value, newRoles: roleData.value.rolesToAdd });
+        emit('add-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value.cliftonStrengthsToAdd, newRoles: roleData.value.rolesToAdd });
     }
 };
 
@@ -336,6 +379,32 @@ const formatRole = (role) => {
 const hasRole = (role) => {
     return roleData.value.rolesToAdd.some((userRole) => userRole === role);
 };
+
+const searchField = ref()
+
+const loading = ref(false)
+const search = ref('')
+
+const filteredCliftonStrengths = computed(() => {
+    const _search = search.value.toLowerCase()
+    if (!_search) return props.cliftonStrengths
+    return props.cliftonStrengths.filter(item => {
+        const text = item.name.toLowerCase()
+        return text.indexOf(_search) > -1
+    })
+})
+
+const selections = computed(() => {
+    const selections = []
+    for (const selection of newCliftonStrengths.value.cliftonStrengthsToAdd) {
+        selections.push(selection)
+    }
+    return selections
+})
+
+watch(newCliftonStrengths.value.cliftonStrengthsToAdd, () => {
+    search.value = ''
+})
 
 const clearUserData = () => {
     newUser.value = {
@@ -363,7 +432,7 @@ const clearStudentData = () => {
 }
 
 const clearCliftonStrengths = () => {
-
+    newCliftonStrengths.value.cliftonStrengthsToAdd = [];
 }
 
 const clearNewRoles = () => {

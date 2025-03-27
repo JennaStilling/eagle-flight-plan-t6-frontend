@@ -18,14 +18,15 @@
 
         <br>
         <v-row class="button-row">
-            <v-btn color="#5EC4B6" class="me-2" @click.stop="manage" rounded="lg">
+            <v-btn color="#5EC4B6" class="button me-2" variant="elevated" @click.stop="manage" rounded="lg">
                 Manage
             </v-btn>
-            <v-btn color="#5EC4B6" class="me-2" @click.stop="action2" rounded="lg">
-                Action 2
+            <v-btn color="#F04E3E" class="button me-2" variant="elevated" @click.stop="deleteButton" rounded="lg">
+                Delete
             </v-btn>
-            <v-btn color="#5EC4B6" class="me-2" @click.stop="action3" rounded="lg">
-                3
+            <v-btn color="#5EC4B6" class="button me-2" variant="elevated" @click.stop="action3" rounded="lg"
+                v-if="hasRole('student')">
+                Manage Flight Plan
             </v-btn>
         </v-row>
 
@@ -170,9 +171,53 @@
                                         </v-text-field>
                                     </v-col>
                                 </v-row>
+
+                                <v-row class="form-row">
+                                    <v-col cols="2" class="label-column">
+                                        <label class="label-description">Clifton Strengths</label>
+                                    </v-col>
+                                    <v-col cols="10">
+
+                                        <v-row align="center" justify="start">
+                                            <v-col v-for="(selection, i) in selections" :key="selection.name"
+                                                class="py-1 pe-0" cols="auto">
+                                                <v-chip :disabled="loading" closable class="ma-1" color="primary"
+                                                    rounded="lg"
+                                                    @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
+
+                                                    {{ selection.name }}
+                                                </v-chip>
+                                            </v-col>
+
+                                            <v-col cols="12">
+                                                <v-menu v-model="menu" close-on-content-click>
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-text-field ref="searchField" v-model="search" label="Search"
+                                                            hide-details single-line variant="solo" density="compact"
+                                                            v-bind="props">
+                                                        </v-text-field>
+                                                    </template>
+
+                                                    <v-list style="max-height: 300px; overflow-y: auto;">
+                                                        <template v-for="cliftonStrengths in filteredCliftonStrengths">
+                                                            <v-list-item
+                                                                v-if="!newCliftonStrengths.cliftonStrengthsToAdd.includes(cliftonStrengths)"
+                                                                :key="cliftonStrengths.id" :disabled="loading"
+                                                                @click="newCliftonStrengths.cliftonStrengthsToAdd.push(cliftonStrengths)">
+                                                                <template v-slot:prepend>
+                                                                </template>
+
+                                                                <v-list-item-title v-text="cliftonStrengths.name">
+                                                                </v-list-item-title>
+                                                            </v-list-item>
+                                                        </template>
+                                                    </v-list>
+                                                </v-menu>
+                                            </v-col>
+                                        </v-row>
+                                    </v-col>
+                                </v-row>
                             </div>
-
-
                         </v-form>
                         <v-divider />
                         <v-card-actions>
@@ -246,6 +291,8 @@ const props = defineProps({
     userRoles: Object,
     roles: Object,
     student: Object,
+    cliftonStrengths: Object,
+    studentCliftonStrengths: Object,
 });
 
 const emit = defineEmits(['save-user', 'delete-user']);
@@ -371,15 +418,15 @@ watchEffect(() => props.userRoles, () => {
 
 const refresh = () => {
     getSpecificUserRoles();
-    prePopulateRolesToAdd();
     updateUserData();
     updateStudentData();
-    updateCliftonStrengths();
+    prePopulateRolesToAdd();
+    prePopulateCliftonStrengthsToAdd();
 }
 
 const overlay = ref(false);
 
-
+const menu = ref(false);
 
 const handleMouseover = () => {
     //console.log("MOUSE ON");
@@ -416,12 +463,8 @@ const manage = () => {
     selectUser();
 };
 
-const action2 = () => {
-    console.log("Action 2");
-};
-
 const action3 = () => {
-    console.log("Action 3");
+    console.log("Manage Flight Plan, please make this another component or something, or I guess just route to another page, pop up makes a little more sense though");
 };
 
 const saveUser = () => {
@@ -432,7 +475,7 @@ const saveUser = () => {
         newUser.value.phone_number = newUser.value.phone_number.replace(/\D/g, '');
         fixImageData();
         overlay.value = false;
-        emit('save-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value, newRoles: roleData.value.rolesToAdd });
+        emit('save-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value.cliftonStrengthsToAdd, newRoles: roleData.value.rolesToAdd });
     }
 
 };
@@ -473,6 +516,11 @@ const prePopulateRolesToAdd = () => {
     roleData.value.rolesToAdd = specificUserRoles.value.map(role => role.role_type);
 };
 
+const prePopulateCliftonStrengthsToAdd = () => {
+    newCliftonStrengths.value.cliftonStrengthsToAdd = props.studentCliftonStrengths?.map(
+        (studentCliftonStrength) => props.cliftonStrengths.find((cliftonStrength) => cliftonStrength?.id === studentCliftonStrength.cliftonStrengthId));
+}
+
 const hasRole = (role) => {
     return roleData.value.rolesToAdd.some((userRole) => userRole === role);
 };
@@ -502,9 +550,32 @@ const updateStudentData = () => {
     }
 }
 
-const updateCliftonStrengths = () => {
+const searchField = ref()
 
-}
+const loading = ref(false)
+const search = ref('')
+
+const filteredCliftonStrengths = computed(() => {
+    const _search = search.value.toLowerCase()
+    if (!_search) return props.cliftonStrengths
+    return props.cliftonStrengths.filter(item => {
+        const text = item.name.toLowerCase()
+        return text.indexOf(_search) > -1
+    })
+})
+
+const selections = computed(() => {
+    const selections = []
+    for (const selection of newCliftonStrengths.value.cliftonStrengthsToAdd) {
+        selections.push(selection)
+    }
+    return selections
+})
+
+watch(newCliftonStrengths.value.cliftonStrengthsToAdd, () => {
+    search.value = ''
+})
+
 </script>
 
 <style scoped>
@@ -524,6 +595,11 @@ const updateCliftonStrengths = () => {
     /* Space below the shortcut area */
     border-radius: 20px;
     cursor: pointer;
+}
+
+.user-preview:hover {
+    background-color: rgba(230, 230, 230, 1);
+    transition: background-color 0.3s ease;
 }
 
 .edit-user {
