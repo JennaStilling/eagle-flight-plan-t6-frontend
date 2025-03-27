@@ -18,14 +18,15 @@
 
         <br>
         <v-row class="button-row">
-            <v-btn color="#5EC4B6" class="me-2" @click.stop="manage" rounded="lg">
+            <v-btn color="#5EC4B6" class="button me-2" variant="elevated" @click.stop="manage" rounded="lg">
                 Manage
             </v-btn>
-            <v-btn color="#5EC4B6" class="me-2" @click.stop="action2" rounded="lg">
-                Action 2
+            <v-btn color="#F04E3E" class="button me-2" variant="elevated" @click.stop="deleteButton" rounded="lg">
+                Delete
             </v-btn>
-            <v-btn color="#5EC4B6" class="me-2" @click.stop="action3" rounded="lg">
-                3
+            <v-btn color="#5EC4B6" class="button me-2" variant="elevated" @click.stop="action3" rounded="lg"
+                v-if="hasRole('student')">
+                Manage Flight Plan
             </v-btn>
         </v-row>
 
@@ -180,7 +181,8 @@
                                         <v-row align="center" justify="start">
                                             <v-col v-for="(selection, i) in selections" :key="selection.name"
                                                 class="py-1 pe-0" cols="auto">
-                                                <v-chip :disabled="loading" closable
+                                                <v-chip :disabled="loading" closable class="ma-1" color="primary"
+                                                    rounded="lg"
                                                     @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
 
                                                     {{ selection.name }}
@@ -461,12 +463,8 @@ const manage = () => {
     selectUser();
 };
 
-const action2 = () => {
-    console.log("Action 2");
-};
-
 const action3 = () => {
-    console.log("Action 3");
+    console.log("Manage Flight Plan, please make this another component or something, or I guess just route to another page, pop up makes a little more sense though");
 };
 
 const saveUser = () => {
