@@ -150,7 +150,8 @@
                                     <v-row align="center" justify="start">
                                         <v-col v-for="(selection, i) in selections" :key="selection.name"
                                             class="py-1 pe-0" cols="auto">
-                                            <v-chip :disabled="loading" closable
+                                            <v-chip :disabled="loading" closable class="ma-1" color="primary"
+                                                rounded="lg"
                                                 @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
 
                                                 {{ selection.name }}
