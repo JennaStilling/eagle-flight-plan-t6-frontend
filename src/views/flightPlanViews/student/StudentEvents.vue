@@ -15,10 +15,11 @@
                         variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
 
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
-                        Add Events
+                        Request Custom Event
                     </v-btn>
-                    <v-btn class="button" variant="elevated" color="#F04E3E" @click="deleteSelectedEvents(selected)">
-                        Delete Selected Events
+                    <v-btn class="button" variant="elevated" color="#F68D76"
+                        @click="viewPersonalCalendar = !viewPersonalCalendar">
+                        Switch To {{ viewPersonalCalendar ? "All Events" : "Personal Calendar" }}
                     </v-btn>
 
                     <v-btn variant="plain" size="small" @click="toggleCalendarView()">
@@ -43,7 +44,7 @@
                             </div>
                             <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                 formatEventTime(calendarEvent.end)
-                            }}</div>
+                                }}</div>
                             <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
@@ -68,20 +69,13 @@
                             <div @click="openEventModal(calendarEvent)">
                                 <div class="event-header">
                                     <div class="event-title">{{ calendarEvent.title }}</div>
-                                    <v-btn variant="plain" size="x-small" density="compact"
-                                        @click.stop="editEventPopup(calendarEvent)">
-                                        <Icon icon="material-symbols:edit-outline" width="16" height="16" />
-                                    </v-btn>
-                                    <v-btn variant="plain" size="x-small" density="compact"
-                                        @click.stop="deleteEventConfirmation(calendarEvent)">
-                                        <Icon icon="material-symbols:delete-outline" width="16" height="16" />
-                                    </v-btn>
                                 </div>
                                 <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                     formatEventTime(calendarEvent.end)
-                                }}</div>
+                                    }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
+                                <v-btn style="margin-left: 75%" color="#F68D76">Sign Up</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -91,46 +85,15 @@
         </div>
 
         <div v-if="!showCalendarView">
-            <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected"
-                show-select>
-                <template v-slot:[`item.actions`]="{ item }">
-                    <v-btn variant="plain" size="small" @click="editEventPopup(item)">
-                        <Icon icon="material-symbols:edit-outline" width="24" height="24" />
-                    </v-btn>
-                    <v-btn variant="plain" size="small" @click="deleteEventConfirmation(item)">
-                        <Icon icon="material-symbols:delete-outline" width="24" height="24" />
-                    </v-btn>
-                </template>
+            <v-data-table :headers="headers" :items="filteredEvents" :search="search"
+                @click:row="(event, { item }) => editEventPopup(item)">
             </v-data-table>
-        </div>
-
-        <div v-if="showDeleteItem" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span @click="showDeleteItem = false" class="close">&times;</span>
-                    <p v-if="!deleteError">
-                        Do you want to DELETE <br />
-                        {{ typeToDelete.name }}?
-                    </p>
-                    <p v-if="deleteError">
-                        Error deleting<br />{{ typeToDelete.name }}.
-                    </p>
-                </div>
-                <div class="modal-body">
-                    <v-btn v-if="!deleteError" color="#708E9A" @click="showDeleteItem = false">CANCEL</v-btn>
-                    <v-btn v-if="!deleteError" color="#F04E3E" class="error" @click="deleteEvent()">DELETE</v-btn>
-                    <v-btn v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">CLOSE</v-btn>
-                </div>
-            </div>
         </div>
 
         <div v-if="showEventDetails" class="modal edit-form-body">
             <v-card class="edit-popup mx-auto">
                 <v-card-title class="popup-header">
-                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details>
-                        <template v-slot:append-inner>
-                            <Icon icon="material-symbols:edit-outline" width="24" height="24" />
-                        </template>
+                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details disabled>
                     </v-text-field>
                 </v-card-title>
 
@@ -141,8 +104,12 @@
                             <label>{{ labels.description }}</label>
                         </v-col>
                         <v-col cols="7">
-                            <v-textarea v-model="eventDescription" rows="3" variant="outlined"
-                                density="compact" auto-grow></v-textarea>
+                            <v-textarea v-model="eventDescription" 
+                                auto-grow
+                                variant="outlined" 
+                                density="compact"
+                                disabled>
+                            </v-textarea>
                         </v-col>
                     </v-row>
 
@@ -154,7 +121,7 @@
 
                         <v-col cols="7">
                             <v-select v-model="eventType" :items="eventTypes" variant="solo-filled" density="compact"
-                                hide-details class="filter-menu"></v-select>
+                                hide-details class="filter-menu" disabled></v-select>
                         </v-col>
                     </v-row>
 
@@ -165,7 +132,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-text-field v-model="eventStartDate" type="date" variant="outlined" density="compact"
-                                hide-details @update:model-value="updateEndDate"></v-text-field>
+                                hide-details @update:model-value="updateEndDate" disabled></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -176,7 +143,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-text-field v-model="eventEndDate" type="date" variant="outlined" density="compact"
-                                hide-details :min="eventStartDate"></v-text-field>
+                                hide-details :min="eventStartDate" disabled></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -188,7 +155,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventStartTime" type="time" variant="outlined" density="compact"
-                                hide-details></v-text-field>
+                                hide-details disabled></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -200,7 +167,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventEndTime" type="time" variant="outlined" density="compact"
-                                hide-details></v-text-field>
+                                hide-details disabled></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -211,8 +178,8 @@
                         </v-col>
 
                         <v-col cols="7">
-                            <v-text-field v-model="eventLocation" variant="outlined" density="compact"
-                                hide-details></v-text-field>
+                            <v-text-field v-model="eventLocation" variant="outlined" density="compact" hide-details
+                                disabled></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -224,17 +191,7 @@
 
                         <v-col cols="7">
                             <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled"
-                                density="compact" hide-details class="filter-menu"></v-select>
-                        </v-col>
-                    </v-row>
-
-                    <!-- Custom Event -->
-                    <v-row class="form-row">
-                        <v-col cols="5" class="label-column">
-                            <label>{{ labels.custom }}</label>
-                        </v-col>
-                        <v-col cols="7">
-                            <v-checkbox v-model="eventCustomEvent" hide-details></v-checkbox>
+                                density="compact" hide-details class="filter-menu" disabled></v-select>
                         </v-col>
                     </v-row>
 
@@ -246,7 +203,7 @@
 
                         <v-col cols="7">
                             <v-select v-model="eventStatus" :items="statusOptions" variant="solo-filled"
-                                density="compact" hide-details class="filter-menu"></v-select>
+                                density="compact" hide-details class="filter-menu" disabled></v-select>
                         </v-col>
                     </v-row>
 
@@ -257,8 +214,8 @@
                         </v-col>
 
                         <v-col cols="7">
-                            <v-text-field v-model="eventPointValue" variant="outlined" density="compact"
-                                hide-details></v-text-field>
+                            <v-text-field v-model="eventPointValue" variant="outlined" density="compact" hide-details
+                                disabled></v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -267,11 +224,7 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
-                    <v-btn v-if="eventEdit" color="#F04E3E" variant="flat" fix-jfs-maintenance-page-delete-while-editing
-                        @click="deleteEventConfirmation(eventToEdit)">Delete</v-btn>
-                    <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Cancel</v-btn>
-                    <v-btn color="#5EC4B6" variant="flat" style="color: white;"
-                        @click="eventEdit ? editEvent() : addEvent()">Save</v-btn>
+                    <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
 
                 </v-card-actions>
             </v-card>
@@ -325,9 +278,10 @@ const eventLocation = ref("")
 const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
-const eventPointValue = ref("")
+const eventPointValue = ref("");
 
 const showCalendarView = ref(localStorage.getItem('showCalendarView') === 'false' ? false : true);
+const viewPersonalCalendar = ref(localStorage.getItem('viewPersonalCalendar') === 'false' ? false : true);
 
 const toggleCalendarView = () => {
     showCalendarView.value = true;
@@ -352,10 +306,10 @@ const headers = ref([
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
     { key: 'event_type', title: 'Tags', sortable: false },
-    { key: 'actions', title: '', sortable: false },
+    { key: 'point_value', title: 'Points'}
 ]);
 
-const filterOptions = ref(['All']);
+const filterOptions = ref(['All', 'Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class']);
 const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class'];
 const statusOptions = ['Scheduled', 'In Progress', 'Completed', 'Finished']
 const attendanceTypes = ['In Person', 'Online']
@@ -397,6 +351,7 @@ const filteredEvents = computed(() => {
     if (selectedFilter.value === 'All') {
         return events.value.map(event => ({
             ...event,
+            id: event.id,
             formatted_date: formatDate(event.start_date_time || event.date),
             formatted_time: formatTime(event.start_date_time)
         }));
@@ -406,10 +361,31 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'career_prep'
     }
 
+    if (selectedFilter.value === 'Extra Curricular') {
+        selectedFilter.value = 'extra_curricular'
+    }
+
+    if (selectedFilter.value === 'Career Fair') {
+        selectedFilter.value = 'career_fair'
+    }
+
+    if (selectedFilter.value === 'Career Services') {
+        selectedFilter.value = 'career_services'
+    }
+
+    if (selectedFilter.value === 'Lunch and Learn') {
+        selectedFilter.value = 'lunch_and_learn'
+    }
+
+    if (selectedFilter.value === 'Galup Strengths Class') {
+        selectedFilter.value = 'galup_strengths_class'
+    }
+
     return events.value.filter(event => {
-        return event.type === selectedFilter.value.toLowerCase();
+        return event.category === selectedFilter.value.toLowerCase();
     }).map(event => ({
         ...event,
+        id: event.id,
         formatted_date: formatDate(event.start_date_time || event.date),
         formatted_time: formatTime(event.start_date_time)
     }));
@@ -770,6 +746,7 @@ const addEvent = () => {
     if (eventAttendanceType.value === 'In Person') {
         eventAttendanceType.value = 'in_person'
     }
+
 
     const startDate = parseISO(eventStartDate.value);
     const endDate = parseISO(eventEndDate.value);
