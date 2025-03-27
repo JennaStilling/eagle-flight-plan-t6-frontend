@@ -142,7 +142,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-textarea v-model="eventDescription" rows="3" variant="outlined"
-                                density="compact"></v-textarea>
+                                density="compact" auto-grow></v-textarea>
                         </v-col>
                     </v-row>
 
@@ -286,7 +286,8 @@ import {
     createCalendar,
     viewMonthAgenda,
     viewMonthGrid,
-    viewWeek
+    viewWeek,
+    viewDay,
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
@@ -425,7 +426,7 @@ const initializeCalendar = (events) => {
     const config = {
         selectedDate: today.toISOString().split('T')[0],
         locale: 'en-US',
-        views: [viewMonthAgenda, viewMonthGrid, viewWeek],
+        views: [viewMonthAgenda, viewMonthGrid, viewWeek, viewDay],
         defaultView: viewWeek.name,
         dayBoundaries: {
             start: '06:00',

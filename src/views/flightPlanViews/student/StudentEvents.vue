@@ -75,7 +75,7 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn>Sign Up</v-btn>
+                                <v-btn style="margin-left: 75%" color="#F68D76">Sign Up</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -104,8 +104,12 @@
                             <label>{{ labels.description }}</label>
                         </v-col>
                         <v-col cols="7">
-                            <v-textarea v-model="eventDescription" rows="8" variant="outlined" density="compact"
-                                disabled></v-textarea>
+                            <v-textarea v-model="eventDescription" 
+                                auto-grow
+                                variant="outlined" 
+                                density="compact"
+                                disabled>
+                            </v-textarea>
                         </v-col>
                     </v-row>
 
@@ -191,16 +195,6 @@
                         </v-col>
                     </v-row>
 
-                    <!-- Custom Event -->
-                    <!-- <v-row class="form-row">
-                        <v-col cols="5" class="label-column">
-                            <label>{{ labels.custom }}</label>
-                        </v-col>
-                        <v-col cols="7">
-                            <v-checkbox v-model="eventCustomEvent" hide-details disabled></v-checkbox>
-                        </v-col>
-                    </v-row> -->
-
                     <!-- Status - -->
                     <v-row class="form-row">
                         <v-col cols="5" class="label-column">
@@ -245,7 +239,8 @@ import {
     createCalendar,
     viewMonthAgenda,
     viewMonthGrid,
-    viewWeek
+    viewWeek,
+    viewDay,
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
@@ -314,7 +309,7 @@ const headers = ref([
     { key: 'point_value', title: 'Points'}
 ]);
 
-const filterOptions = ref(['All']);
+const filterOptions = ref(['All', 'Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class']);
 const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class'];
 const statusOptions = ['Scheduled', 'In Progress', 'Completed', 'Finished']
 const attendanceTypes = ['In Person', 'Online']
@@ -366,8 +361,28 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'career_prep'
     }
 
+    if (selectedFilter.value === 'Extra Curricular') {
+        selectedFilter.value = 'extra_curricular'
+    }
+
+    if (selectedFilter.value === 'Career Fair') {
+        selectedFilter.value = 'career_fair'
+    }
+
+    if (selectedFilter.value === 'Career Services') {
+        selectedFilter.value = 'career_services'
+    }
+
+    if (selectedFilter.value === 'Lunch and Learn') {
+        selectedFilter.value = 'lunch_and_learn'
+    }
+
+    if (selectedFilter.value === 'Galup Strengths Class') {
+        selectedFilter.value = 'galup_strengths_class'
+    }
+
     return events.value.filter(event => {
-        return event.type === selectedFilter.value.toLowerCase();
+        return event.category === selectedFilter.value.toLowerCase();
     }).map(event => ({
         ...event,
         id: event.id,
@@ -387,7 +402,7 @@ const initializeCalendar = (events) => {
     const config = {
         selectedDate: today.toISOString().split('T')[0],
         locale: 'en-US',
-        views: [viewMonthAgenda, viewMonthGrid, viewWeek],
+        views: [viewMonthAgenda, viewMonthGrid, viewWeek, viewDay],
         defaultView: viewWeek.name,
         dayBoundaries: {
             start: '06:00',

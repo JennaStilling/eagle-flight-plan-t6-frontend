@@ -343,7 +343,7 @@ const goToShop = () => {
   router.push({ name: 'shop' });
 };
 const viewMoreEvents = () => {
-  router.push({ name: 'events' });
+  router.push({ name: 'student-events' });
 };
 
 // semester navigation ----------------------------------------------
