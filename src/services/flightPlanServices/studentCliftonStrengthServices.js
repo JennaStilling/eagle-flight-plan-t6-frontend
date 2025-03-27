@@ -10,6 +10,12 @@ export default {
     getAllStudentCliftonStrengths(studentId) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/studentCliftonStrength`);
     },
+    getAllSystemStudentCliftonStrengths() {
+        return apiClient.get(`flightPlan-t6/studentCliftonStrength`);
+    },
+    getAllStudentCliftonStrengths(studentId, cliftonStrengthId) {
+        return apiClient.get(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength`);
+    },
     getStudentCliftonStrength(studentId, cliftonStrengthId, id) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength/${id}`);
     },
@@ -18,6 +24,9 @@ export default {
     },
     updateSystemStudentCliftonStrength(id, data) {
         return apiClient.put(`flightPlan-t6/studentCliftonStrength/${id}`, data);
+    },
+    deleteStudentCliftonStrengthTwoIds(studentId, cliftonStrengthId) {
+        return apiClient.delete(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength/`);
     },
     deleteStudentCliftonStrength(studentId, cliftonStrengthId, id) {
         return apiClient.delete(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength/${id}`);

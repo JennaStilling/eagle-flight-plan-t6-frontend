@@ -12,19 +12,19 @@
 
         <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" variant="solo" hide-details
           density="compact" class="filter-menu"></v-select>
-        <AddUser :roles="roles" @add-user="handleAddUser" />
+        <AddUser :roles="roles" :cliftonStrengths="cliftonStrengths" @add-user="handleAddUser" />
       </div>
     </div>
 
     <v-card class="stuff">
-      <v-data-iterator :items="filteredUsers" :items-per-page="9"
-        v-if="!loadingUserRoles && !loadingUsers && !loadingRoles && !loadingStudents">
+      <v-data-iterator :items="filteredUsers" :items-per-page="9" v-if="!loading">
         <template v-slot:default="{ items }">
-          <v-container class="pa-2" fluid>
+          <v-container class="pa-5" fluid>
             <v-row dense>
               <v-col v-for="user in items" :key="user.id" cols="auto" md="4" W>
                 <UserPreview :key="user.id" :user="user.raw" :userRoles="getUserRoles(user.raw.id)" :roles="roles"
-                  :student="getStudent(user.raw.studentId)" @save-user="handleSaveUser"
+                  :student="getStudent(user.raw.studentId)" :cliftonStrengths="cliftonStrengths"
+                  :studentCliftonStrengths="getStudentCliftonStrengths(user.raw.studentId)" @save-user="handleSaveUser"
                   @delete-user="handleDeleteUser" />
               </v-col>
             </v-row>
@@ -60,6 +60,8 @@ import StudentServices from "@/services/resumeBuilderServices/studentServices";
 import RoleServices from "@/services/resumeBuilderServices/roleServices";
 import RolePermissionServices from "@/services/flightPlanServices/rolePermissionServices";
 import UserRolePermissionServices from "@/services/flightPlanServices/userRolePermissionServices";
+import CliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
+import StudentCliftonStrengthServices from "@/services/flightPlanServices/studentCliftonStrengthServices";
 import UserRoleServices from "@/services/resumeBuilderServices/userRoleServices";
 
 // Components 
@@ -85,20 +87,33 @@ const userRoles = ref([]);
 
 const students = ref([]);
 
-const loadingUserRoles = ref(true);
-const loadingUsers = ref(true);
-const loadingRoles = ref(true);
-const loadingStudents = ref(true);
+const cliftonStrengths = ref([]);
+const studentCliftonStrengths = ref([]);
+
+const loading = computed(() => {
+  return Object.values(loadingData.value).some(value => value);
+});
+
+const loadingData = ref({
+  users: true,
+  userRoles: true,
+  roles: true,
+  students: true,
+  cliftonStrengths: true,
+  studentCliftonStrengths: true,
+});
 
 onMounted(() => {
   user.value = Utils.getStore("user");
+  getAllRoles();
+  getAllCliftonStrengths();
   refresh();
 });
 
 const refresh = () => {
   getAllUsers();
-  getAllRoles();
   getAllUserRoles();
+  getAllStudentCliftonStrengths();
   getAllStudents();
 }
 
@@ -106,78 +121,85 @@ const getUserRoles = (userId) => {
   return userRoles.value.filter((userRole) => userRole.userId === userId);
 }
 
+const getStudentCliftonStrengths = (studentId) => {
+  return studentCliftonStrengths.value.filter((studentCliftonStrength) => studentCliftonStrength.studentId === studentId);
+}
+
 const getStudent = (studentId) => {
   return students.value.find((student) => student.id === studentId);
 }
 
-const handleAddUser = async ({ user, student, cliftonStrengths, newRoles }) => {
-  if (student) {
-    addStudent(student)
-      .then((response) => {
-        user.studentId = response.id;
-        addUser(user)
-          .then((response) => {
-            addRoles(response, newRoles);
+const handleAddUser = async ({ user: userData, student: studentData, cliftonStrengths, newRoles }) => {
+  if (studentData) {
+    addStudent(studentData)
+      .then((newStudent) => {
+        userData.studentId = newStudent.id;
+        addUser(userData)
+          .then((newUser) => {
+            addRoles(newUser, newRoles);
           })
 
-        addCliftonStrengths(student, cliftonStrengths);
+        addCliftonStrengths(newStudent, cliftonStrengths);
       })
   }
   else {
-    addUser(user)
+    addUser(userData)
       .then((response) => {
         addRoles(response, newRoles);
       })
   }
-
 }
 
-const handleSaveUser = async ({ user, student, cliftonStrengths, newRoles }) => {
-  updateUserRoles(user, newRoles);
+const handleSaveUser = async ({ user: userData, student: studentData, cliftonStrengths, newRoles }) => {
+  updateUserRoles(userData, newRoles);
 
-  if (newRoles.find((role) => role === "student" && !user.studentId)) {
-    addStudent(student)
-      .then(((response) => {
-        user.studentId = response.id;
-        updateUser(user);
-        updateCliftonStrengths(response.id, cliftonStrengths);
+  if (newRoles.find((role) => role === "student" && !userData.studentId)) {
+    addStudent(studentData)
+      .then(((newStudent) => {
+        userData.studentId = newStudent.id;
+        updateUser(userData);
+        updateCliftonStrengths(newStudent.id, cliftonStrengths);
       }))
   }
-  else if (newRoles.find((role) => role === "student" && user.studentId)) {
-    updateStudent(student);
-    updateUser(user);
-    updateCliftonStrengths(user.studentId, cliftonStrengths);
+  else if (newRoles.find((role) => role === "student" && userData.studentId)) {
+    updateStudent(studentData);
+    updateUser(userData);
+    updateCliftonStrengths(userData.studentId, cliftonStrengths);
   }
 };
 
 const handleDeleteUser = async (user) => {
   if (user.studentId) {
-    deleteStudent(user.studentId);
+    deleteStudent(user.studentId).then(() => {
+      deleteUser(user.id);
+    })
   }
-  deleteUser(user.id);
+  else {
+    deleteUser(user.id);
+  }
 };
 
 const getAllRoles = () => {
-  loadingRoles.value = true;
+  loadingData.value.roles = true;
   RoleServices.getAllRoles()
     .then((res) => {
       roles.value = res.data;
       message.value = "";
-      loadingRoles.value = false;
+      loadingData.value.roles = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
       console.log(err);
-    });
+    })
 };
 
 const getAllUserRoles = () => {
-  loadingUserRoles.value = true;
+  loadingData.value.userRoles = true;
   UserRoleServices.getEveryUserRole()
     .then((res) => {
       userRoles.value = res.data;
       message.value = "";
-      loadingUserRoles.value = false;
+      loadingData.value.userRoles = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -185,14 +207,42 @@ const getAllUserRoles = () => {
     });
 };
 
+const getAllCliftonStrengths = () => {
+  loadingData.value.cliftonStrengths = true;
+  CliftonStrengthServices.getAllCliftonStrengths()
+    .then((res) => {
+      cliftonStrengths.value = res.data;
+      message.value = "";
+      loadingData.value.cliftonStrengths = false;
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
+}
+
+const getAllStudentCliftonStrengths = () => {
+  loadingData.value.studentCliftonStrengths = true;
+  StudentCliftonStrengthServices.getAllSystemStudentCliftonStrengths()
+    .then((res) => {
+      studentCliftonStrengths.value = res.data;
+      message.value = "";
+      loadingData.value.studentCliftonStrengths = false;
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
+}
+
 const getAllUsers = () => {
-  loadingUsers.value = true;
+  loadingData.value.users = true;
   UserServices.getAllUsers()
     .then((res) => {
       users.value = res.data;
       message.value = "";
       orderUsers("asc");
-      loadingUsers.value = false;
+      loadingData.value.users = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -201,12 +251,12 @@ const getAllUsers = () => {
 };
 
 const getAllStudents = () => {
-  loadingStudents.value = true;
+  loadingData.value.students = true;
   StudentServices.getAllStudents()
     .then((res) => {
       students.value = res.data;
       message.value = "";
-      loadingStudents.value = false;
+      loadingData.value.students = false;
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -309,36 +359,58 @@ const removeRole = (userId, roleName) => {
   const userRoleId = userRoles.value.find((userRole) => userRole.userId === userId && userRole.roleId === specificRoleId).id;
 
   UserRoleServices.deleteUserRole(userId, userRoleId)
-    .then(() => {
-    })
     .catch((err) => console.error(err))
     .finally(() => {
       refresh();
     })
 };
 
+const addStudentCliftonStrength = (studentId, cliftonStrength) => {
+  let data = {
+    studentId: studentId,
+    cliftonStrengthId: cliftonStrength.id
+  }
+  StudentCliftonStrengthServices.createSystemStudentCliftonStrength(data)
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    })
+    .finally(() => {
+      refresh();
+    })
+}
+
+const removeStudentCliftonStrength = (studentId, cliftonStrength) => {
+
+  StudentCliftonStrengthServices.deleteStudentCliftonStrengthTwoIds(studentId, cliftonStrength.id)
+    .catch((err) => console.error(err))
+    .finally(() => {
+      refresh();
+    })
+}
+
 const addUser = async (user) => {
   return UserServices.createUser(user)
     .then((response) => {
-      refresh();
       return response.data;
     }).catch((e) => {
       message.value = e.response.data.message;
+    })
+    .finally(() => {
+      refresh();
     })
 }
 
 const addStudent = async (student) => {
   return StudentServices.createStudent(student)
     .then((response) => {
-      refresh();
       return response.data;
     }).catch((e) => {
       message.value = e.response.data.message;
     })
-}
-
-const addCliftonStrengths = async (student, cliftonStrengths) => {
-
+    .finally(() => {
+      refresh();
+    })
 }
 
 const addRoles = async (user, newRoles) => {
@@ -364,46 +436,66 @@ const updateUserRoles = (user, newRoles) => {
   })
 }
 
+const addCliftonStrengths = async (student, cliftonStrengths) => {
+  cliftonStrengths.forEach((cliftonStrength) => {
+    addStudentCliftonStrength(student.id, cliftonStrength);
+  })
+}
+
+const updateCliftonStrengths = (studentId, newCliftonStrengths) => {
+  const specificStudentStudentCliftonStrengths = studentCliftonStrengths.value.filter((studentCliftonStrength) => studentCliftonStrength.studentId === studentId);
+  const specificStudentCliftonStrengths = specificStudentStudentCliftonStrengths.map((studentCliftonStrength) => cliftonStrengths.value.find((cliftonStrength) => cliftonStrength.id === studentCliftonStrength.cliftonStrengthId));
+
+  newCliftonStrengths.forEach((cliftonStrength) => {
+    if (!specificStudentCliftonStrengths.includes(cliftonStrength)) {
+      addStudentCliftonStrength(studentId, cliftonStrength);
+    }
+  })
+
+  specificStudentCliftonStrengths.forEach((cliftonStrength) => {
+    if (!newCliftonStrengths.includes(cliftonStrength)) {
+      removeStudentCliftonStrength(studentId, cliftonStrength);
+    }
+  })
+}
+
 const updateStudent = (studentData) => {
   StudentServices.updateStudent(studentData.id, studentData)
-    .then((response) => {
-      refresh();
-    })
     .catch((e) => {
       message.value = e.response.data.message;
-    });
+    })
+    .finally(() => {
+      refresh();
+    })
 }
 
 const updateUser = (userData) => {
   UserServices.updateUser(userData.id, userData)
-    .then((response) => {
-      refresh();
-    })
-    .catch((e) => {
-      message.value = e.response.data.message;
-    });
-}
-
-const updateCliftonStrengths = (studentId, cliftonStrengthData) => {
-
-}
-
-const deleteUser = (userId) => {
-  UserServices.deleteUser(userId)
-    .then((response) => {
-      refresh();
-    })
     .catch((e) => {
       message.value = e.response.data.message;
     })
+    .finally(() => {
+      refresh();
+    })
 }
 
-const deleteStudent = (studentId) => {
-  StudentServices.deleteStudent(studentId)
-    .then((response) => {
+const deleteUser = async (userId) => {
+  return UserServices.deleteUser(userId)
+    .catch((e) => {
+      message.value = e.response.data.message;
+    })
+    .finally(() => {
       refresh();
-    }).catch((e) => {
+    })
+}
+
+const deleteStudent = async (studentId) => {
+  return StudentServices.deleteStudent(studentId)
+    .catch((e) => {
       message.value = e.reponse.data.message;
+    })
+    .finally(() => {
+      refresh();
     })
 }
 </script>
