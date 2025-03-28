@@ -75,7 +75,7 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn style="margin-left: 75%" color="#F68D76">Sign Up</v-btn>
+                                <v-btn style="margin-left: 75%" @click="studentSignUpForEvent(calendarEvent.id)"color="#F68D76">Sign Up</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -315,6 +315,27 @@ const togglePersonalCalendar = () => {
     reloadPage();
 }
 
+const studentSignUpForEvent = (id) => {
+    console.log(id)
+    if (!userStudentId.value) {
+        return
+    }
+    else {
+        const newStudentEvent = {
+            eventId: id,
+            studentId: userStudentId.value
+        }
+        console.log(newStudentEvent)
+        StudentEventServices.createStudentEvent(newStudentEvent)
+            .then((res) => {
+                console.log(res.data);
+            })
+            .catch((error) => {
+                console.log("error", error);
+            });
+    }
+}
+
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
     { key: 'description', title: 'Description' },
@@ -534,13 +555,14 @@ const getAllStudentEvents = () => {
 }
 
 onMounted(async () => {
+    user.value = Utils.getStore("user");
+    await getCurrentUser();
     if (!viewPersonalCalendar.value) {
         await getAllEvents();
     }
 
     else {
-        user.value = Utils.getStore("user");
-        await getCurrentUser();
+        await getAllStudentEvents();
     }
 
 });
@@ -558,7 +580,7 @@ const getCurrentUser = () => {
             if (!userStudentId.value) {
                 return;
             } else {
-                getAllStudentEvents();
+                
             }
         })
         .catch((error) => {
