@@ -74,10 +74,10 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn v-if="!viewPersonalCalendar" style="margin-left: 75%"
-                                    @click="studentSignUpForEvent(calendarEvent.id)" color="#F68D76">Register</v-btn>
-                                <v-btn v-if="viewPersonalCalendar" style="margin-left: 70%"
-                                    @click="studentDeleteStudentEvent(calendarEvent.id)" color="#F68D76">Unregister</v-btn>
+                                <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 75%"
+                                    @click="closeModal(); studentSignUpForEvent(calendarEvent.id)" color="#F68D76">Register</v-btn>
+                                <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 70%"
+                                    @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)" color="#F68D76">Unregister</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -319,6 +319,13 @@ const toggleListView = () => {
 const togglePersonalCalendar = () => {
     viewPersonalCalendar.value = !viewPersonalCalendar.value;
     reloadPage();
+}
+
+const checkIfStudentIsSignedUp = (id) => {
+    const studentSpecificEvent = studentEvents.value.find(studentEvent => {
+        return studentEvent.eventId === id || studentEvent.id === id;
+    });
+    return !!studentSpecificEvent;
 }
 
 const studentSignUpForEvent = (id) => {
@@ -594,9 +601,7 @@ onMounted(async () => {
         await getAllEvents();
     }
 
-    else {
         await getAllStudentEvents();
-    }
 
 });
 
