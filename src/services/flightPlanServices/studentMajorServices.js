@@ -7,8 +7,8 @@ export default {
     createSystemStudentMajor(data) {
         return apiClient.post(`flightPlan-t6/studentMajor`, data);
     },
-    getAllStudentMajors(studentId, majorId) {
-        return apiClient.get(`flightPlan-t6/student/${studentId}/major/${majorId}/studentMajor`);
+    getAllStudentMajors(studentId) {
+        return apiClient.get(`flightPlan-t6/student/${studentId}/studentMajor`);
     },
     getStudentMajor(studentId, majorId, id) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/major/${majorId}/studentMajor/${id}`);
