@@ -283,6 +283,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, onMounted, computed, watch, watchEffect } from "vue";
 import blankImage from "@/assets/blankProfile.jpg";
 
@@ -695,19 +696,6 @@ watch(newCliftonStrengths.value.cliftonStrengthsToAdd, () => {
     font-weight: 400;
     line-height: normal;
     margin: 0;
-}
-
-.label-column p {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 12px;
-    color: #555;
-}
-
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
 }
 
 .modal-header {
