@@ -18,7 +18,7 @@
                         Request Custom Event
                     </v-btn>
                     <v-btn class="button" variant="elevated" color="#F68D76"
-                        @click="viewPersonalCalendar = !viewPersonalCalendar">
+                        @click="togglePersonalCalendar()">
                         Switch To {{ viewPersonalCalendar ? "All Events" : "Personal Calendar" }}
                     </v-btn>
 
@@ -257,8 +257,10 @@ import Utils from '@/config/utils';
 import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 
 const search = ref('');
+
 const events = ref([]);
 const studentEvents = ref([]);
+
 const message = ref('');
 const selected = ref([]);
 const showEventDetails = ref(false);
@@ -286,7 +288,6 @@ const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("");
 
-const currentUser = ref(null)
 const user = ref(null);
 const userStudentId = ref("")
 
@@ -308,6 +309,11 @@ const toggleCalendarView = () => {
 const toggleListView = () => {
     showCalendarView.value = false;
 };
+
+const togglePersonalCalendar = () => {
+    viewPersonalCalendar.value = !viewPersonalCalendar.value;
+    reloadPage();
+}
 
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
@@ -490,10 +496,37 @@ const getAllEvents = () => {
 };
 
 const getAllStudentEvents = () => {
-    console.log("In getAllStudentEvents")
     return StudentEventServices.getAllEventsByStudent(userStudentId.value)
         .then((res) => {
-            console.log(res)
+            console.log(res);
+            studentEvents.value = res.data;
+            const formattedEvents = studentEvents.value.map(event => {
+                const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
+                const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+                const formatDateTime = (date) => {
+                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                };
+
+                return {
+                    id: event.id,
+                    title: event.name,
+                    start: formatDateTime(startDate),
+                    end: formatDateTime(endDate),
+                    description: event.description || '',
+                    location: event.location || '',
+                    type: event.event_type
+                };
+            });
+
+            calendarFormattedEvents.value = formattedEvents;
+            console.log(calendarFormattedEvents.value)
+
+            if (!calendarApp.value) {
+                initializeCalendar(formattedEvents);
+            }
+
+            message.value = '';
         })
         .catch((error) => {
             console.log("error", error);
@@ -501,9 +534,15 @@ const getAllStudentEvents = () => {
 }
 
 onMounted(async () => {
-    await getAllEvents();
-    user.value = Utils.getStore("user");
-    await getCurrentUser();
+    if (!viewPersonalCalendar.value) {
+        await getAllEvents();
+    }
+
+    else {
+        user.value = Utils.getStore("user");
+        await getCurrentUser();
+    }
+
 });
 
 const getCurrentUser = () => {
@@ -511,11 +550,11 @@ const getCurrentUser = () => {
         .then((res) => {
             if (res.data.studentId) {
                 userStudentId.value = res.data.studentId;
-                console.log(userStudentId.value)
             }
             else {
-                console.log("Student id not found)")
+                console.log("Student id not found")
             }
+
             if (!userStudentId.value) {
                 return;
             } else {
@@ -896,6 +935,7 @@ const deleteSelectedEvents = async (selected) => {
 
 const reloadPage = () => {
     localStorage.setItem('showCalendarView', showCalendarView.value)
+    localStorage.setItem('viewPersonalCalendar', viewPersonalCalendar.value)
     location.reload()
 }
 
