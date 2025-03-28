@@ -329,7 +329,6 @@ const checkIfStudentIsSignedUp = (id) => {
 }
 
 const studentSignUpForEvent = (id) => {
-    console.log(id)
     if (!userStudentId.value) {
         return
     }
@@ -338,11 +337,7 @@ const studentSignUpForEvent = (id) => {
             eventId: id,
             studentId: userStudentId.value
         }
-        console.log(newStudentEvent)
         StudentEventServices.createStudentEvent(newStudentEvent)
-            .then((res) => {
-                console.log(res.data);
-            })
             .catch((error) => {
                 console.log("error", error);
             });
@@ -360,16 +355,12 @@ const studentDeleteStudentEvent = (id) => {
                 if (eventToDelete) {
                     StudentEventServices.deleteStudentEvent(eventToDelete.id)
                         .then((res) => {
-                            console.log(res.data);
                             reloadPage();
                         })
                         .catch((error) => {
                             console.log("error", error);
                         });
                 }
-            }
-            else {
-                console.log("ERROR")
             }
         })
 
@@ -558,7 +549,6 @@ const getAllEvents = () => {
 const getAllStudentEvents = () => {
     return StudentEventServices.getAllEventsByStudent(userStudentId.value)
         .then((res) => {
-            console.log(res);
             events.value = res.data;
             studentEvents.value = res.data;
             const formattedEvents = studentEvents.value.map(event => {
@@ -581,7 +571,6 @@ const getAllStudentEvents = () => {
             });
 
             calendarFormattedEvents.value = formattedEvents;
-            console.log(calendarFormattedEvents.value)
 
             if (!calendarApp.value) {
                 initializeCalendar(formattedEvents);
