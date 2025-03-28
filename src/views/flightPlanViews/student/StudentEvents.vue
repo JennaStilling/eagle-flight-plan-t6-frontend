@@ -520,6 +520,7 @@ const getAllStudentEvents = () => {
     return StudentEventServices.getAllEventsByStudent(userStudentId.value)
         .then((res) => {
             console.log(res);
+            events.value=res.data;
             studentEvents.value = res.data;
             const formattedEvents = studentEvents.value.map(event => {
                 const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
