@@ -17,8 +17,7 @@
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
                         Request Custom Event
                     </v-btn>
-                    <v-btn class="button" variant="elevated" color="#F68D76"
-                        @click="togglePersonalCalendar()">
+                    <v-btn class="button" variant="elevated" color="#F68D76" @click="togglePersonalCalendar()">
                         Switch To {{ viewPersonalCalendar ? "All Events" : "Personal Calendar" }}
                     </v-btn>
 
@@ -75,7 +74,10 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn style="margin-left: 75%" @click="studentSignUpForEvent(calendarEvent.id)"color="#F68D76">Sign Up</v-btn>
+                                <v-btn v-if="!viewPersonalCalendar" style="margin-left: 75%"
+                                    @click="studentSignUpForEvent(calendarEvent.id)" color="#F68D76">Register</v-btn>
+                                <v-btn v-if="viewPersonalCalendar" style="margin-left: 70%"
+                                    @click="studentDeleteStudentEvent(calendarEvent.id)" color="#F68D76">Unregister</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -104,10 +106,7 @@
                             <label>{{ labels.description }}</label>
                         </v-col>
                         <v-col cols="7">
-                            <v-textarea v-model="eventDescription" 
-                                auto-grow
-                                variant="outlined" 
-                                density="compact"
+                            <v-textarea v-model="eventDescription" auto-grow variant="outlined" density="compact"
                                 disabled>
                             </v-textarea>
                         </v-col>
@@ -224,6 +223,12 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
+                    <v-btn v-if="viewPersonalCalendar"
+                        @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
+                        variant="flat">Unregister</v-btn>
+                    <v-btn v-if="!viewPersonalCalendar"
+                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#708E9A"
+                        variant="flat">Register</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
 
                 </v-card-actions>
@@ -250,11 +255,9 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import UserServices from '@/services/resumeBuilderServices/userServices';
-import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import Utils from '@/config/utils';
-import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 
 const search = ref('');
 
@@ -274,6 +277,7 @@ const typeToDelete = ref(null);
 const eventEdit = ref(false);
 const eventAdd = ref(false);
 
+const eventId = ref("")
 const eventName = ref("");
 const eventType = ref("");
 const eventScheduleType = ref("");
@@ -290,6 +294,8 @@ const eventPointValue = ref("");
 
 const user = ref(null);
 const userStudentId = ref("")
+
+const specificStudentEvents = ref([])
 
 const showCalendarView = ref(localStorage.getItem('showCalendarView') === 'false' ? false : true);
 const viewPersonalCalendar = ref(localStorage.getItem('viewPersonalCalendar') === 'false' ? false : true);
@@ -336,6 +342,32 @@ const studentSignUpForEvent = (id) => {
     }
 }
 
+const studentDeleteStudentEvent = (id) => {
+    StudentEventServices.getAllStudentEvents()
+        .then((res) => {
+            specificStudentEvents.value = res.data;
+
+            if (specificStudentEvents.value) {
+
+                const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+                if (eventToDelete) {
+                    StudentEventServices.deleteStudentEvent(eventToDelete.id)
+                        .then((res) => {
+                            console.log(res.data);
+                            reloadPage();
+                        })
+                        .catch((error) => {
+                            console.log("error", error);
+                        });
+                }
+            }
+            else {
+                console.log("ERROR")
+            }
+        })
+
+}
+
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
     { key: 'description', title: 'Description' },
@@ -343,7 +375,7 @@ const headers = ref([
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
     { key: 'event_type', title: 'Tags', sortable: false },
-    { key: 'point_value', title: 'Points'}
+    { key: 'point_value', title: 'Points' }
 ]);
 
 const filterOptions = ref(['All', 'Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class']);
@@ -520,7 +552,7 @@ const getAllStudentEvents = () => {
     return StudentEventServices.getAllEventsByStudent(userStudentId.value)
         .then((res) => {
             console.log(res);
-            events.value=res.data;
+            events.value = res.data;
             studentEvents.value = res.data;
             const formattedEvents = studentEvents.value.map(event => {
                 const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
@@ -581,7 +613,7 @@ const getCurrentUser = () => {
             if (!userStudentId.value) {
                 return;
             } else {
-                
+
             }
         })
         .catch((error) => {
@@ -651,6 +683,7 @@ const editEventPopup = (task) => {
             eventEdit.value = true;
             eventAdd.value = false;
 
+            eventId.value = eventToEdit.value.id;
             eventName.value = eventToEdit.value.name;
             eventDescription.value = eventToEdit.value.description;
             eventType.value = capitalize(eventToEdit.value.event_type);
