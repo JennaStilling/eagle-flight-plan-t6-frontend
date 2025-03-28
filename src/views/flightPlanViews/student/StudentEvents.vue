@@ -17,8 +17,7 @@
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
                         Request Custom Event
                     </v-btn>
-                    <v-btn class="button" variant="elevated" color="#F68D76"
-                        @click="viewPersonalCalendar = !viewPersonalCalendar">
+                    <v-btn class="button" variant="elevated" color="#F68D76" @click="togglePersonalCalendar()">
                         Switch To {{ viewPersonalCalendar ? "All Events" : "Personal Calendar" }}
                     </v-btn>
 
@@ -75,7 +74,10 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn style="margin-left: 75%" color="#F68D76">Sign Up</v-btn>
+                                <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 75%"
+                                    @click="closeModal(); studentSignUpForEvent(calendarEvent.id)" color="#F68D76">Register</v-btn>
+                                <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 70%"
+                                    @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)" color="#F68D76">Unregister</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -104,10 +106,7 @@
                             <label>{{ labels.description }}</label>
                         </v-col>
                         <v-col cols="7">
-                            <v-textarea v-model="eventDescription" 
-                                auto-grow
-                                variant="outlined" 
-                                density="compact"
+                            <v-textarea v-model="eventDescription" auto-grow variant="outlined" density="compact"
                                 disabled>
                             </v-textarea>
                         </v-col>
@@ -224,6 +223,12 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
+                    <v-btn v-if="viewPersonalCalendar"
+                        @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
+                        variant="flat">Unregister</v-btn>
+                    <v-btn v-if="!viewPersonalCalendar"
+                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#708E9A"
+                        variant="flat">Register</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
 
                 </v-card-actions>
@@ -248,11 +253,17 @@ import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
+import UserServices from '@/services/resumeBuilderServices/userServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
+import Utils from '@/config/utils';
 
 const search = ref('');
+
 const events = ref([]);
+const studentEvents = ref([]);
+
 const message = ref('');
 const selected = ref([]);
 const showEventDetails = ref(false);
@@ -266,6 +277,7 @@ const typeToDelete = ref(null);
 const eventEdit = ref(false);
 const eventAdd = ref(false);
 
+const eventId = ref("")
 const eventName = ref("");
 const eventType = ref("");
 const eventScheduleType = ref("");
@@ -279,6 +291,11 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("");
+
+const user = ref(null);
+const userStudentId = ref("")
+
+const specificStudentEvents = ref([])
 
 const showCalendarView = ref(localStorage.getItem('showCalendarView') === 'false' ? false : true);
 const viewPersonalCalendar = ref(localStorage.getItem('viewPersonalCalendar') === 'false' ? false : true);
@@ -299,6 +316,56 @@ const toggleListView = () => {
     showCalendarView.value = false;
 };
 
+const togglePersonalCalendar = () => {
+    viewPersonalCalendar.value = !viewPersonalCalendar.value;
+    reloadPage();
+}
+
+const checkIfStudentIsSignedUp = (id) => {
+    const studentSpecificEvent = studentEvents.value.find(studentEvent => {
+        return studentEvent.eventId === id || studentEvent.id === id;
+    });
+    return !!studentSpecificEvent;
+}
+
+const studentSignUpForEvent = (id) => {
+    if (!userStudentId.value) {
+        return
+    }
+    else {
+        const newStudentEvent = {
+            eventId: id,
+            studentId: userStudentId.value
+        }
+        StudentEventServices.createStudentEvent(newStudentEvent)
+            .catch((error) => {
+                console.log("error", error);
+            });
+    }
+}
+
+const studentDeleteStudentEvent = (id) => {
+    StudentEventServices.getAllStudentEvents()
+        .then((res) => {
+            specificStudentEvents.value = res.data;
+
+            if (specificStudentEvents.value) {
+
+                const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+                if (eventToDelete) {
+                    StudentEventServices.deleteStudentEvent(eventToDelete.id)
+                        .then((res) => {
+                            reloadPage();
+                        })
+                        .catch((error) => {
+                            console.log("error", error);
+                        });
+                }
+            }
+        })
+
+}
+
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
     { key: 'description', title: 'Description' },
@@ -306,7 +373,7 @@ const headers = ref([
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
     { key: 'event_type', title: 'Tags', sortable: false },
-    { key: 'point_value', title: 'Points'}
+    { key: 'point_value', title: 'Points' }
 ]);
 
 const filterOptions = ref(['All', 'Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class']);
@@ -479,9 +546,74 @@ const getAllEvents = () => {
         });
 };
 
+const getAllStudentEvents = () => {
+    return StudentEventServices.getAllEventsByStudent(userStudentId.value)
+        .then((res) => {
+            events.value = res.data;
+            studentEvents.value = res.data;
+            const formattedEvents = studentEvents.value.map(event => {
+                const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
+                const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+                const formatDateTime = (date) => {
+                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                };
+
+                return {
+                    id: event.id,
+                    title: event.name,
+                    start: formatDateTime(startDate),
+                    end: formatDateTime(endDate),
+                    description: event.description || '',
+                    location: event.location || '',
+                    type: event.event_type
+                };
+            });
+
+            calendarFormattedEvents.value = formattedEvents;
+
+            if (!calendarApp.value) {
+                initializeCalendar(formattedEvents);
+            }
+
+            message.value = '';
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
+}
+
 onMounted(async () => {
-    await getAllEvents();
+    user.value = Utils.getStore("user");
+    await getCurrentUser();
+    if (!viewPersonalCalendar.value) {
+        await getAllEvents();
+    }
+
+        await getAllStudentEvents();
+
 });
+
+const getCurrentUser = () => {
+    return UserServices.getUser(user.value.userId)
+        .then((res) => {
+            if (res.data.studentId) {
+                userStudentId.value = res.data.studentId;
+            }
+            else {
+                console.log("Student id not found")
+            }
+
+            if (!userStudentId.value) {
+                return;
+            } else {
+
+            }
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
+}
 
 const formatDate = (dateTimeStr) => {
     if (!dateTimeStr) return '';
@@ -545,6 +677,7 @@ const editEventPopup = (task) => {
             eventEdit.value = true;
             eventAdd.value = false;
 
+            eventId.value = eventToEdit.value.id;
             eventName.value = eventToEdit.value.name;
             eventDescription.value = eventToEdit.value.description;
             eventType.value = capitalize(eventToEdit.value.event_type);
@@ -852,6 +985,7 @@ const deleteSelectedEvents = async (selected) => {
 
 const reloadPage = () => {
     localStorage.setItem('showCalendarView', showCalendarView.value)
+    localStorage.setItem('viewPersonalCalendar', viewPersonalCalendar.value)
     location.reload()
 }
 
