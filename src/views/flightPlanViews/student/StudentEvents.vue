@@ -248,11 +248,17 @@ import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
+import UserServices from '@/services/resumeBuilderServices/userServices';
+import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
+import Utils from '@/config/utils';
+import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 
 const search = ref('');
 const events = ref([]);
+const studentEvents = ref([]);
 const message = ref('');
 const selected = ref([]);
 const showEventDetails = ref(false);
@@ -279,6 +285,10 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("");
+
+const currentUser = ref(null)
+const user = ref(null);
+const userStudentId = ref("")
 
 const showCalendarView = ref(localStorage.getItem('showCalendarView') === 'false' ? false : true);
 const viewPersonalCalendar = ref(localStorage.getItem('viewPersonalCalendar') === 'false' ? false : true);
@@ -479,9 +489,43 @@ const getAllEvents = () => {
         });
 };
 
+const getAllStudentEvents = () => {
+    console.log("In getAllStudentEvents")
+    return StudentEventServices.getAllEventsByStudent(userStudentId.value)
+        .then((res) => {
+            console.log(res)
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
+}
+
 onMounted(async () => {
     await getAllEvents();
+    user.value = Utils.getStore("user");
+    await getCurrentUser();
 });
+
+const getCurrentUser = () => {
+    return UserServices.getUser(user.value.userId)
+        .then((res) => {
+            if (res.data.studentId) {
+                userStudentId.value = res.data.studentId;
+                console.log(userStudentId.value)
+            }
+            else {
+                console.log("Student id not found)")
+            }
+            if (!userStudentId.value) {
+                return;
+            } else {
+                getAllStudentEvents();
+            }
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
+}
 
 const formatDate = (dateTimeStr) => {
     if (!dateTimeStr) return '';
