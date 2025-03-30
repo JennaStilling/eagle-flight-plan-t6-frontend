@@ -172,8 +172,25 @@ const updateHomePage = (loc) => {
 };
 
 const goToHome = () => {
-  homeStore.routeToView(router);
-}
+  //console.log("Navigating to last visited home page:", homeStore.currentHome);
+
+  switch (homeStore.currentHome) {
+    case HomePages.ADMIN:
+      router.push({ name: "adminHomeFP" });
+      break;
+    case HomePages.STUDENT:
+      router.push({ name: "studentHomeFP" });
+      break;
+    case HomePages.STUDENT_WORKER:
+      router.push({ name: "studentWorkerHomeFP" });
+      break;
+    case HomePages.PROFESSOR:
+      router.push({ name: "professorHomeFP" });
+      break;
+    default:
+      console.error("No valid home page found for currentHome:", homeStore.currentHome);
+  }
+};
 
 const signOut = async () => {
   user.value = Utils.getStore("user");

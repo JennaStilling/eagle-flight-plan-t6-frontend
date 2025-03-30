@@ -8,61 +8,55 @@
       <div v-if="!menuOpen" class="menu">
         <br>
         <ul>
-          <li v-if="hasUserPermission" @click="toggleRoleDropdown"> Persons
-            <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
-              class="dropdown-arrow" />
-            <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-          <li>Students</li>
-          <li>Student Workers</li>
-          <li>Professors</li>
-          <li>Admins</li>
+          <!-- Admin Pages ---------------------------------------------------------------------------------->
+          <template v-if="isAdminViewActive">
+            <li @click="toggleRoleDropdown">Persons
+              <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
+                class="dropdown-arrow" />
+              <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
+                <li>Students</li>
+                <li>Student Workers</li>
+                <li>Professors</li>
+                <li>Admins</li>
+              </div>
+            </li>
+            <li @click="toggleMaintenanceDropdown">Maintenance
+              <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
+                class="dropdown-arrow" />
+                <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
+                <li v-if="hasUserPermission"><router-link :to="{ name: 'userMaintenance' }" @click="closeSidebar">Users</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'event' }" @click="closeSidebar">Events</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'task' }" @click="closeSidebar">Tasks</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'experience' }" @click="closeSidebar">Experiences</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight Plans</router-link></li>
+                <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop Items</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'badge' }" @click="closeSidebar">Badges</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'cliftonStrength' }" @click="closeSidebar">Clifton Strengths</router-link></li>
+                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link></li>
+                <li v-if="hasShopPermission"><router-link :to="{ name: 'transactionLog' }" @click="closeSidebar">Transaction History</router-link></li>
+              </div>
+            </li>
+            <!-- Other Admin Pages -->
+            <template v-if="isAdminViewActive">
+              <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
+              <li><router-link :to="{ name: 'adminHome' }" @click="closeSidebar">Resume Builder</router-link></li>
+            </template>
+          </template>
+
+          <!-- Student Pages -------------------------------------------------------------------------------------------------->
+          <template v-else-if="isStudentViewActive">
+            <li><router-link :to="{ name: 'studentHomeFP' }" @click="closeSidebar">Home</router-link></li>
+            <li><router-link :to="{ name: 'profile' }" @click="closeSidebar">Profile</router-link></li>
+            <li><router-link :to="{ name: 'student-events' }" @click="closeSidebar">Events</router-link></li>
+            <li><router-link :to="{ name: 'shop' }" @click="closeSidebar">Shop</router-link></li>
+            <li><router-link :to="{ name: 'leaderboard' }" @click="closeSidebar">Leaderboard</router-link></li>
+            <li><router-link :to="{ name: 'student-transactions' }" @click="closeSidebar">Spending History</router-link></li>
+            <li><router-link :to="{ name: 'student-lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link></li>
+            <li><router-link :to="{ name: 'studentHome' }" @click="closeSidebar">Resume Builder</router-link></li>
+          </template>
+        </ul>
       </div>
-      </li>
-
-      <!-- Admin Maintenance -->
-      <li @click="toggleMaintenanceDropdown"> Maintenance
-        <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
-          class="dropdown-arrow" />
-
-        <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
-      <li v-if="hasUserPermission" @click="toggleMenu"><router-link :to="{ name: 'userMaintenance' }"><span
-            class='black-text'>Users</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'event' }"><span
-            class='black-text'>Events</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'task' }"><span
-            class='black-text'>Tasks</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'experience' }"><span
-            class='black-text'>Experiences</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'flightPlan' }"><span
-            class='black-text'>Flight Plans</span></router-link></li>
-      <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'award' }"><span
-            class='black-text'>Shop Items</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'badge' }"><span
-            class='black-text'>Badges</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'cliftonStrength' }"><span
-            class='black-text'>Clifton Strengths</span></router-link></li>
-      <li v-if="hasFlightPlanPermission" @click="toggleMenu"><router-link :to="{ name: 'lifeAfterTheNest' }"><span
-            class='black-text'>Life After the Nest</span></router-link></li>
-      <li v-if="hasShopPermission" @click="toggleMenu"><router-link :to="{ name: 'transactionLog' }"><span
-            class='black-text'>Transaction History</span></router-link></li>
     </div>
-    </li>
-
-    <!-- Resume Builder -->
-    <li><router-link :to="{ name: 'homeRB' }">Resume Builder</router-link></li>
-
-    <!-- Student Pages -->
-    <li><router-link :to="{ name: 'student-events' }"> <span>Student Events</span></router-link></li>
-
-
-    <!-- Professor Pages -->
-
-
-    <!-- Student Worker Pages -->
-
-    </ul>
-  </div>
-  </div>
   </div>
 </template>
 
@@ -88,8 +82,10 @@ const roleDropdown = ref(false);
 const homeMenuOpen = ref(false);
 const maintenanceDropdown = ref(false);
 
-import { useHomePageStore } from '@/store/homePageStore';
+import { useHomePageStore, HomePages } from '@/store/homePageStore';
 const homeStore = useHomePageStore();
+const isAdminViewActive = computed(() => homeStore.getHomePage === HomePages.ADMIN);
+const isStudentViewActive = computed(() => homeStore.getHomePage === HomePages.STUDENT);
 
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
@@ -190,6 +186,10 @@ const toggleMaintenanceDropdown = () => {
   maintenanceDropdown.value = !maintenanceDropdown.value;
 }
 
+const closeSidebar = () => {
+  menuOpen.value = true;
+};
+
 </script>
 
 <style scoped>
@@ -205,7 +205,7 @@ const toggleMaintenanceDropdown = () => {
   top: 0;
   left: 0;
   height: 100vh;
-  width: 250px;
+  width: 290px;
   background-color: #5D6D73;
   color: white;
   padding: 20px;
@@ -243,7 +243,10 @@ ul {
 li {
   margin: 15px 0;
   font-size: 24px;
-  /* font-family: 'Poppins'; */
+}
+
+.dropdown-menu li:hover{
+  text-decoration: underline; 
 }
 
 a {
@@ -255,16 +258,25 @@ a:hover {
   text-decoration: underline;
 }
 
+.dropdown-menu a {
+  color: black !important; 
+  text-decoration: none; 
+}
+
+.dropdown-menu a:hover {
+  color: #333; 
+  text-decoration: underline; 
+}
+
 .user-menu,
 .home-menu {
   position: relative;
 }
 
 .dropdown-menu {
-  /* position: absolute; */
   left: 0;
   transform: translateX(-20px);
-  width: 250px;
+  width: 290px;
   background-color: #FFFFFF;
   color: #202020;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
@@ -274,6 +286,7 @@ a:hover {
 .dropdown-menu li {
   padding-left: 40px;
   font-size: 16px;
+  color: black;
 }
 
 .arrow-down {
