@@ -61,6 +61,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import menuIcon from '@/assets/menuIcon.svg';
 import closeIcon from '@/assets/closeIcon.svg';
 import dropDownArrow from '@/assets/arrowDropdown.svg';
@@ -193,13 +194,6 @@ const closeSidebar = () => {
 </script>
 
 <style scoped>
-.user-icon {
-  width: 50px;
-  height: auto;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
 .sidebar {
   position: fixed;
   top: 0;
@@ -245,10 +239,6 @@ li {
   font-size: 24px;
 }
 
-.dropdown-menu li:hover{
-  text-decoration: underline; 
-}
-
 a {
   color: white;
   text-decoration: none;
@@ -277,7 +267,6 @@ a:hover {
   left: 0;
   transform: translateX(-20px);
   width: 290px;
-  background-color: #FFFFFF;
   color: #202020;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
   padding: 1px;
@@ -295,9 +284,5 @@ a:hover {
 
 .arrow-up {
   transform: rotate(180deg);
-}
-
-.black-text {
-  color: #202020;
 }
 </style>

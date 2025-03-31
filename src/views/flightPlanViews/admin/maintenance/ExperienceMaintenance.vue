@@ -157,6 +157,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, computed, onMounted } from 'vue';
 import ExperienceTypeServices from '@/services/flightPlanServices/experienceTypeServices';
 import { Icon } from "@iconify/vue";
@@ -411,11 +412,6 @@ const deleteSelectedExperiences = (selected) => {
 }
 
 </script>
-
-
-<style>
-/* @import "insert style sheet here later" */
-</style>
 
 <style scoped>
 .title-row {

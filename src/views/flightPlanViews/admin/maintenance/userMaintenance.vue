@@ -51,6 +51,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
 

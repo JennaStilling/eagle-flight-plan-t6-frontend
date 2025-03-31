@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, onMounted } from "vue";
 import Utils from '@/config/utils.js';
 import { UserRoles, HomePages, useHomePageStore } from '@/store/homePageStore';
@@ -97,21 +98,4 @@ const logout = () => {
     font-weight: 400;
     line-height: normal;
 }
-
-.logout-button {
-    margin-top: 40px;
-    width: 120px;
-    height: 50px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: #F04E3E;
-    color: #FFF;
-    text-align: center;
-    /* font-family: Poppins; */
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
 </style>

@@ -194,6 +194,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, computed, onMounted } from 'vue';
 import TaskServices from '@/services/flightPlanServices/taskServices';
 import { Icon } from "@iconify/vue";
