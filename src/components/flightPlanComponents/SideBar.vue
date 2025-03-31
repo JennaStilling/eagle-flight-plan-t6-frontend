@@ -39,7 +39,7 @@
             <!-- Other Admin Pages -->
             <template v-if="isAdminViewActive">
               <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
-              <li><router-link :to="{ name: 'adminHome' }" @click="closeSidebar">Resume Builder</router-link></li>
+              <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar">Resume Builder</router-link></li>
             </template>
           </template>
 
