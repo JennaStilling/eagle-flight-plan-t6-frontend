@@ -134,6 +134,8 @@ import studentFlightPlanServices from "@/services/flightPlanServices/studentFlig
 import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
+// CSS Files
+import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
 const studentTasks = ref({
@@ -430,14 +432,6 @@ const clearArrays = () => {
   height: 75vh; 
   overflow-y: auto;
 }
-
-/* .student-tasks-body {
-  height: 725px;
-}
-
-.upcoming-events-body {
-  height: 725px;
-} */
 
 .list-text {
   display: flex;

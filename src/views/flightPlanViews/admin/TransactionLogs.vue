@@ -215,6 +215,7 @@ import transactionServices from '@/services/flightPlanServices/transactionServic
 import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 import userRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import permissionServices from '@/services/flightPlanServices/permissionServices';
+import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
 const name = ref(null);

@@ -533,9 +533,7 @@ const deleteStudent = async (studentId) => {
 }
 
 .card-outlines {
-
   background-color: rgb(255, 255, 255);
-
   width: 100%;
   /* Set width to resemble a piece of paper */
   height: 100;
@@ -550,54 +548,8 @@ const deleteStudent = async (studentId) => {
   cursor: pointer;
 }
 
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  flex-wrap: wrap;
-}
-
-.table-title {
-  font-family: 'Poppins', sans-serif !important;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.search-filter-button-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-grow: 1;
-  justify-content: flex-start;
-}
-
-.search-bar {
-  width: 250px;
-  min-width: 180px;
-  max-width: 300px;
-  flex-shrink: 1;
-}
-
-.filter-menu {
-  width: 180px;
-  min-width: 150px;
-  max-width: 200px;
-}
-
-.button {
-  width: auto;
-  color: white !important;
-  white-space: nowrap;
-}
-
 .add-user {
-
   background-color: rgb(255, 255, 255);
-
   width: 70vw;
   /* Set width to resemble a piece of paper */
   height: 70vh;
