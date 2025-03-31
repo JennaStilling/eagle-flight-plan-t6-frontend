@@ -43,7 +43,7 @@
                             </div>
                             <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                 formatEventTime(calendarEvent.end)
-                            }}</div>
+                                }}</div>
                             <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                     formatEventTime(calendarEvent.end)
-                                }}</div>
+                                    }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
                             </div>
@@ -141,8 +141,8 @@
                             <label>{{ labels.description }}</label>
                         </v-col>
                         <v-col cols="7">
-                            <v-textarea v-model="eventDescription" rows="3" variant="outlined"
-                                density="compact" auto-grow></v-textarea>
+                            <v-textarea v-model="eventDescription" rows="3" variant="outlined" density="compact"
+                                auto-grow></v-textarea>
                         </v-col>
                     </v-row>
 
@@ -263,6 +263,14 @@
                     </v-row>
                 </v-container>
 
+
+
+                <div class="d-flex justify-center pa-4">
+                    <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false; showStudentNamesList = true;">
+                        View Attendees
+                    </v-btn>
+                </div>
+
                 <v-divider></v-divider>
 
                 <v-card-actions class="popup-actions">
@@ -272,9 +280,45 @@
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Cancel</v-btn>
                     <v-btn color="#5EC4B6" variant="flat" style="color: white;"
                         @click="eventEdit ? editEvent() : addEvent()">Save</v-btn>
-
                 </v-card-actions>
             </v-card>
+        </div>
+
+        <div v-if="showStudentNamesList" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Registered Students</h3>
+                </div>
+                <div class="search-container">
+                    <v-text-field
+                        v-model="studentSearchResult"
+                        label="Search"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
+                        class="search-field"
+                    >
+                    <template v-slot:prepend-inner>
+                            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+                        </template>
+                    </v-text-field>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
+                    <v-list class="w-100">
+                        <v-list-item v-for="(name, index) in filteredStudentList" :key="index">
+                            <v-list-item-title>{{ name }}</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                    <div v-if="filteredStudentList.length === 0" class="text-center pa-4">
+                        {{ studentSearchResult ? 'No matching students found' : 'No students registered for this event' }}
+                    </div>
+                </div>
+                <v-divider></v-divider>
+                <v-card-actions class="popup-actions">
+                    <v-spacer></v-spacer>
+                    <v-btn color="#708E9A" variant="flat" @click="showStudentNamesList = false; showEventDetails = true;">Close</v-btn>
+                </v-card-actions>
+            </div>
         </div>
     </div>
 </template>
@@ -295,6 +339,8 @@ import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
+import UserServices from '@/services/resumeBuilderServices/userServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 
@@ -304,6 +350,7 @@ const message = ref('');
 const selected = ref([]);
 const showEventDetails = ref(false);
 const showDeleteItem = ref(false);
+const showStudentNamesList = ref(false);
 const deleteError = ref(false);
 const editError = ref(false);
 const selectedFilter = ref('All');
@@ -326,6 +373,19 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("")
+
+const eventAttendees = ref("")
+const studentNameList = ref([])
+const attendeeMap = ref([])
+
+const studentSearchResult = ref('');
+
+const filteredStudentList = computed(() => {
+    if (!studentSearchResult.value) return studentNameList.value;
+    return studentNameList.value.filter(name => 
+        name.toLowerCase().includes(studentSearchResult.value.toLowerCase())
+    );
+});
 
 const showCalendarView = ref(localStorage.getItem('showCalendarView') === 'false' ? false : true);
 
@@ -352,6 +412,7 @@ const headers = ref([
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
     { key: 'event_type', title: 'Tags', sortable: false },
+    { key: 'eventAttendees', title: '# Registered', sortable: false },
     { key: 'actions', title: '', sortable: false },
 ]);
 
@@ -398,7 +459,8 @@ const filteredEvents = computed(() => {
         return events.value.map(event => ({
             ...event,
             formatted_date: formatDate(event.start_date_time || event.date),
-            formatted_time: formatTime(event.start_date_time)
+            formatted_time: formatTime(event.start_date_time),
+            eventAttendees: attendeeMap.value.find(a => a.id === event.id)?.attendees || 0
         }));
     }
 
@@ -411,7 +473,9 @@ const filteredEvents = computed(() => {
     }).map(event => ({
         ...event,
         formatted_date: formatDate(event.start_date_time || event.date),
-        formatted_time: formatTime(event.start_date_time)
+        formatted_time: formatTime(event.start_date_time),
+        eventAttendees: attendeeMap.value.find(a => a.id === event.id)?.attendees || 0
+
     }));
 });
 
@@ -420,6 +484,26 @@ const eventModal = createEventModalPlugin();
 
 const calendarApp = shallowRef(null);
 const calendarFormattedEvents = ref([]);
+
+const getNumberAttendees = () => {
+    events.value.forEach(event => {
+        StudentEventServices.getAllStudentsByEvent(event.id)
+            .then((res) => {
+                const index = attendeeMap.value.findIndex(a => a.id === event.id);
+                if (index >= 0) {
+                    attendeeMap.value[index].attendees = res.data.length;
+                } else {
+                    attendeeMap.value.push({
+                        id: event.id,
+                        attendees: res.data.length
+                    });
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+}
 
 const initializeCalendar = (events) => {
     const today = new Date();
@@ -505,6 +589,7 @@ const getAllEvents = () => {
 
 onMounted(async () => {
     await getAllEvents();
+    await getNumberAttendees();
 });
 
 const formatDate = (dateTimeStr) => {
@@ -561,7 +646,7 @@ const formatEventForCalendar = (event) => {
     };
 };
 
-const editEventPopup = (task) => {
+const editEventPopup = async (task) => {
     EventServices.getEvent(task.id)
         .then((res) => {
             eventToEdit.value = res.data;
@@ -609,6 +694,27 @@ const editEventPopup = (task) => {
             eventCustomEvent.value = eventToEdit.value.custom;
             eventStatus.value = eventToEdit.value.status;
             eventPointValue.value = eventToEdit.value.point_value;
+            
+            StudentEventServices.getAllStudentsByEvent(eventToEdit.value.id)
+            .then((res) => {
+                const students = res.data;
+                studentNameList.value = []
+                console.log(students)
+                students.forEach(async student => {
+                    UserServices.getAllStudentUsers(student.id)
+                        .then((res) => {
+                            studentNameList.value.push(res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName)
+                        })
+                        .catch((err) => {
+                            message.value = `Error: ${err.code}: ${err.message}`;
+                            console.error(err);
+                        })
+                });
+            })
+            .catch((err) => {
+                message.value = `Error: ${err.code}: ${err.message}`;
+                console.error(err);
+            })
         })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
@@ -1103,12 +1209,6 @@ function updateEndDate() {
     overflow-y: auto;
 }
 
-.modal-content {
-    padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
 .modal {
     position: fixed;
     z-index: 999;
@@ -1214,5 +1314,27 @@ function updateEndDate() {
 
 .v-col {
     padding: 12px;
+}
+
+.modal-body {
+    box-sizing: border-box;
+}
+
+.modal-body .v-list {
+    padding: 0;
+}
+
+.search-field {
+    margin-bottom: 8px;
+}
+
+.search-container {
+    padding: 16px 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.search-field {
+    width: 100%;
 }
 </style>
