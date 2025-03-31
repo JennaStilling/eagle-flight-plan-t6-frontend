@@ -14,17 +14,17 @@
                     text="Admin Home">
                 </v-btn>
 
-                <v-btn v-if="professorAccess"  color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)"
+                <!-- <v-btn v-if="professorAccess"  color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)"
                     text="Professor Home">
-                </v-btn>
+                </v-btn> -->
 
                 <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT)"
                     text="Student Home">
                 </v-btn>
 
-                <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)"
+                <!-- <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)"
                     text="Student Worker Home">
-                </v-btn>
+                </v-btn> -->
             </v-card-actions>
         </v-card>
     </div>
