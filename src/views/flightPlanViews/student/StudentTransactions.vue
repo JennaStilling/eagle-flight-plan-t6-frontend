@@ -134,17 +134,14 @@ const filteredStudentOptions = computed(() => {
   );
 });
 
-// Combines the dropdown selections and text search to display only a list of Transactions that match all criteria
 const filteredTransactions = computed(() => {
   return transactionList.value.filter(item => {
-    const matchesSearch = !search.value || item.student.toLowerCase().includes(search.value.toLowerCase()) 
-                                        || item.approver.toLowerCase().includes(search.value.toLowerCase()) 
-                                        || item.shopItem.toLowerCase().includes(search.value.toLowerCase());
+    const matchesSearch = !search.value || item.shopItem.toLowerCase().includes(search.value.toLowerCase()) 
+                                        || item.approver.toLowerCase().includes(search.value.toLowerCase());
     const matchesAwardCategory = selectedAwardFilter.value === "All" || !selectedAwardFilter.value || item.shopItem === selectedAwardFilter.value;
     const matchesApproverCategory = selectedApproverFilter.value === "All" || !selectedApproverFilter.value || item.approver === selectedApproverFilter.value;
-    const matchesStudentCategory = selectedStudentFilter.value === "All" || !selectedStudentFilter.value || item.student === selectedStudentFilter.value;
-    return matchesSearch && matchesAwardCategory && matchesApproverCategory && matchesStudentCategory;
-  })
+    return matchesSearch && matchesAwardCategory && matchesApproverCategory;
+  });
 });
 
 // Computed Values for add/edit modal
