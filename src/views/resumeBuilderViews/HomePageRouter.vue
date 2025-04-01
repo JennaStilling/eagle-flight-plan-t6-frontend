@@ -19,10 +19,6 @@ const HandleRoute = () => {
     UserServices.getUser(user.value.userId)
         .then((res) => {
             currentUser.value = res.data;
-            // console.log("ID: " + currentUser.value.id);
-            // console.log("Student ID: " + currentUser.value.studentId);
-            // console.log("Admin ID: " + currentUser.value.adminId);
-            // console.log("Reviewer ID: " + currentUser.value.reviewerId);
             let studentId = currentUser.value.studentId;
             let adminId = currentUser.value.adminId;
             let reviewerId = currentUser.value.reviewerId;
@@ -30,14 +26,7 @@ const HandleRoute = () => {
 
             if (studentId != null && adminId == null && reviewerId == null)
                 router.push({ name: "studentHome" });
-            else if ((adminId != null && studentId == null && reviewerId == null)
-                || (studentId != null && reviewerId != null && adminId != null)
-                || (studentId != null && adminId != null && reviewerId == null)
-                || (reviewerId != null && adminId != null && studentId == null))
-                router.push({ name: "adminHome" });
-            else if (reviewerId != null && adminId == null && studentId == null
-                || (reviewerId != null && studentId != null && adminId == null)
-            )
+            else if (adminId != null || reviewerId != null)
                 router.push({ name: "reviewerHome" });
             else 
                 console.log("User has not been assigned a role");
