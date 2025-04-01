@@ -672,53 +672,6 @@ const refundTransaction = () => {
 </script>
 
 <style scope>
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  flex-wrap: wrap;
-}
-
-.table-title {
-  font-family: 'Poppins', sans-serif !important;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.search-filter-button-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-grow: 1;
-  justify-content: flex-start;
-}
-
-.search-bar {
-  width: 250px;
-  min-width: 180px;
-  max-width: 300px;
-  flex-shrink: 1;
-}
-
-.filter-menu {
-  width: 180px;
-  min-width: 150px;
-  max-width: 200px;
-}
-
-.button {
-  width: auto;
-  color: white !important;
-  white-space: nowrap;
-}
-
-.button-white-text {
-  color: white !important;
-}
-
 /* Redeem points modal */
 .modal {
   display: flex;
@@ -744,14 +697,6 @@ const refundTransaction = () => {
   align-items: center;
 }
 
-.popup-header {
-  display: flex;
-  text-align: center;
-  width: 100%;
-  gap: 16px;
-  margin-bottom: 10px;
-}
-
 .popup-content {
     text-align: center;
     width: 100%;
@@ -761,11 +706,6 @@ const refundTransaction = () => {
 
 .label-column {
   width: 150px;
-  white-space: nowrap;
-  text-align: right;
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
 }
 
 .label-description {
@@ -835,10 +775,8 @@ textarea,
 }
 
 .form-row {
-  display: flex;
   justify-content: flex-start;
   display: flex;
-  align-items: center;
   margin-bottom: 0px;
 }
 

@@ -122,6 +122,7 @@ import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTask
 import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import { get } from '@vueuse/core';
 import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
+import "@/assets/generic-stylesheet.css";
 
 // CONSTS
 const homeStore = useHomePageStore();

@@ -6,6 +6,7 @@ import roleServices from "@/services/resumeBuilderServices/roleServices";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import InitialLogin from '@/components/flightPlanComponents/InitialLogin.vue'
+import "@/assets/generic-stylesheet.css";
 
 const currentUser = ref(null);
 const allRoles = ref(null);

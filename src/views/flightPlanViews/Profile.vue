@@ -118,6 +118,7 @@ import userServices from "@/services/resumeBuilderServices/userServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import studentBadgeServices from "@/services/flightPlanServices/studentBadgeServices";
 import badgeServices from "@/services/flightPlanServices/badgeServices";
+import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
 const router = useRouter();
@@ -362,19 +363,6 @@ const fileUpload = (event) => {
 .image-container {
   width: 312px; 
   height: 312px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  border-radius: 50%;
-  background: rgba(32, 32, 32, 0.15);
-  flex-shrink: 0; 
-}
-
-.image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 /* Update Profile */
@@ -416,22 +404,7 @@ const fileUpload = (event) => {
   overflow: hidden;
 }
 
-.image-preview img {
-  position: absolute;
-  top: 50%;  
-  left: 50%; 
-  transform: translate(-50%, -50%); 
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
 .popup-header {
-  display: flex;
-  text-align: center;
-  width: 100%;
-  gap: 16px;
   margin-bottom: 10px;
 }
 
@@ -443,17 +416,11 @@ const fileUpload = (event) => {
 }
 
 .form-row {
-    display: flex;
     justify-content: flex-start;
 }
 
 .label-column {
   width: 150px;
-  white-space: nowrap;
-  text-align: right;
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
 }
 
 .label-description {

@@ -8,6 +8,7 @@
   </template>
   
   <script setup>
+  import "@/assets/generic-stylesheet.css";
   import { useHomePageStore } from '@/store/homePageStore';
   import { onMounted } from 'vue';
   

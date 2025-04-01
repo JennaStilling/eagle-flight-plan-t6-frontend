@@ -9,7 +9,8 @@
   <script setup>
   import { useHomePageStore } from '@/store/homePageStore';
   import { onMounted } from 'vue';
-  
+  import "@/assets/generic-stylesheet.css";
+
   const homeStore = useHomePageStore();
 
   </script>
