@@ -25,20 +25,6 @@
                   clearable
                   :menu-props="{ auto: true }"
                 ></v-autocomplete>
-                
-
-                <!-- Filter by Approver -->
-                <v-autocomplete
-                  v-model="selectedApproverFilter"
-                  :items="filteredApproverOptions"
-                  label="Filter By Approver"
-                  variant="solo-filled"
-                  density="compact"
-                  hide-details
-                  class="filter-menu"
-                  clearable
-                  :menu-props="{ auto: true }"
-                ></v-autocomplete>
             </div>
         </div>
 
