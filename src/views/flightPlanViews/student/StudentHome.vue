@@ -380,10 +380,12 @@ const checkForFlightPlan = async () => {
   height: 100vh;
   background-color: #ffffff;
 }
+
 .left-side, .right-side {
   width: 50%;
   padding: 17px;
 }
+
 .left-side {
   margin-left: 2%;
 }
@@ -518,24 +520,29 @@ const checkForFlightPlan = async () => {
   margin-top: 2%;
   font-size: 24px;
 }
+
 .month {
   font-size: 16px; 
   text-align: center;
 }
+
 .day {
   font-size: 30px;
   text-align: center;
   font-weight: 650;
 }
+
 .time {
   text-align: left;
   user-select: none;
 }
+
 .event-name {
   font-size: 24px;
   text-align: left;
   user-select: none;
 }
+
 /* - Divider */
 .event-line {
   border: none;
@@ -544,11 +551,13 @@ const checkForFlightPlan = async () => {
   padding: 10;
   margin: 0 auto;
 }
+
 .clickable-row:hover {
   cursor: pointer;
   background-color: white;
   transform: scale(1.0009);
 }
+
 .view-more {
   font-size: 23px;
   color: black;
@@ -572,6 +581,7 @@ const checkForFlightPlan = async () => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
   min-width: 400px;
   min-height: 100px; 
@@ -598,15 +608,18 @@ const checkForFlightPlan = async () => {
   margin-top: 3%;
   cursor: pointer;
 }
+
 .task-card:hover {
   box-shadow: 0px 6px 6px #81142966;
   border: 2px solid #811429;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   transform: scale(1.03);
 }
+
 .task-card:hover .task-content {
   font-weight: 401;
 }
+
 .task-content {
   color: #811429;
   font-size: 120%; 

@@ -6,6 +6,7 @@ import roleServices from "@/services/resumeBuilderServices/roleServices";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import InitialLogin from '@/components/flightPlanComponents/InitialLogin.vue'
+import "@/assets/dark-mode.css";
 import "@/assets/generic-stylesheet.css";
 
 const currentUser = ref(null);
@@ -83,8 +84,6 @@ const routeToHomePage = () => {
 </template>
 
 <style scoped>
-@import "@/assets/dark-mode.css";
-
 .home-page {
     color: black;
     padding: 70px;

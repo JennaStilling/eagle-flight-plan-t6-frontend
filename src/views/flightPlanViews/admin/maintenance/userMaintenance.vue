@@ -503,9 +503,6 @@ const deleteStudent = async (studentId) => {
 
 <style scoped>
 .modified-width {
-  height: 100vh;
-  margin: 0 auto;
-  padding-top: 15px;
   overflow-y: auto;
 }
 
@@ -535,37 +532,11 @@ const deleteStudent = async (studentId) => {
 .card-outlines {
   background-color: rgb(255, 255, 255);
   width: 100%;
-  /* Set width to resemble a piece of paper */
   height: 100;
-  /* Set height */
   padding: 10px;
-  /* Padding inside the box */
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
   margin-bottom: 10px;
-  /* Space below the shortcut area */
   border-radius: 20px;
   cursor: pointer;
-}
-
-.add-user {
-  background-color: rgb(255, 255, 255);
-  width: 70vw;
-  /* Set width to resemble a piece of paper */
-  height: 70vh;
-  /* Set height */
-  padding: 10px;
-  /* Padding inside the box */
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
-  margin-bottom: 10px;
-  /* Space below the shortcut area */
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.scroll {
-  overflow-y: auto;
-  max-height: 100%;
 }
 </style>

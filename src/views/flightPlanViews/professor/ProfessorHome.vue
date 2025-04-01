@@ -15,11 +15,3 @@
   const homeStore = useHomePageStore();
   
   </script>
-  
-  <style scoped>
-  .modified-width {
-    height: 100vh;
-    margin: 0 auto;
-    padding-top: 15px;
-  }
-  </style>

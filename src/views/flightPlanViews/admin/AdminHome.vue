@@ -439,7 +439,6 @@ const clearArrays = () => {
 }
 
 .list-title {
-  /* font-weight: bold; */
   font-size: clamp(14px, 1.5vw, 22px);
 }
 
@@ -530,7 +529,6 @@ const clearArrays = () => {
     flex-shrink: 0;
     color: #000;
     text-align: center;
-    /* font-family: Poppins; */
     font-size: 20px;
 }
 

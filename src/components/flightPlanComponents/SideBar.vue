@@ -258,11 +258,6 @@ a:hover {
   text-decoration: underline; 
 }
 
-.user-menu,
-.home-menu {
-  position: relative;
-}
-
 .dropdown-menu {
   left: 0;
   transform: translateX(-20px);

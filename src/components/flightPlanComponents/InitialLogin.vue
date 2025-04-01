@@ -144,7 +144,6 @@ const handleRoute = (loc) => {
     margin-top: 16px;
 }
 
-
 .button {
     padding: 16px 24px;
     font-size: clamp(16px, 2vw, 18px);

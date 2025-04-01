@@ -790,7 +790,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #5EC4B6;
-
   /* Typography */
   color: #FFF;
   text-align: center;
@@ -806,7 +805,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: rgba(32, 32, 32, 0.25);
-
   /* Typography */
   color: #FFF;
   text-align: center;
@@ -822,7 +820,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #F04E3E;
-
   /* Typography */
   color: #FFF;
   text-align: center;

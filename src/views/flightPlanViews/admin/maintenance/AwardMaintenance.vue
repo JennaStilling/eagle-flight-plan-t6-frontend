@@ -410,12 +410,6 @@ const fileUpload = (event) => {
 </script>
 
 <style scope>
-.v-text-field,
-.v-textarea {
-  width: 100%;
-  /* Ensures input fields take up full width */
-}
-
 .modal-title {
   display: flex;
   align-items: center;

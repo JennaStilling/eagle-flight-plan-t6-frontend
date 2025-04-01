@@ -75,25 +75,7 @@ const logout = () => {
     flex-shrink: 0;
     color: #000;
     text-align: center;
-    /* font-family: Poppins; */
     font-size: 60px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.cancel-button {
-    margin-top: 40px;
-    margin-right: 100px;
-    width: 120px;
-    height: 50px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: rgba(32, 32, 32, 0.25);
-    color: #FFF;
-    text-align: center;
-    /* font-family: Poppins; */
-    font-size: 24px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;

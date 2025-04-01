@@ -477,8 +477,6 @@ textarea,
 }
 
 .form-row {
-  display: flex;
-  align-items: center;
   margin-bottom: 0px;
 }
 
@@ -487,7 +485,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #5EC4B6;
-
   /* Typography */
   color: #FFF;
   text-align: center;
@@ -503,7 +500,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: rgba(32, 32, 32, 0.25);
-
   /* Typography */
   color: #FFF;
   text-align: center;
@@ -526,7 +522,6 @@ textarea,
   border-radius: 33px;
   background: #FAFAFA;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
   display: flex;
   flex-direction: column; 
   justify-content: center;
@@ -542,12 +537,10 @@ textarea,
   border-radius: 33px;
   background: #5EC4B6;
   z-index: 2; 
-
   display: flex;
   align-items: center;  
   justify-content: flex-start; 
   padding-left: 20px;
-
   /* Typography */
   color: #FAFAFA;
   font-family: Poppins;

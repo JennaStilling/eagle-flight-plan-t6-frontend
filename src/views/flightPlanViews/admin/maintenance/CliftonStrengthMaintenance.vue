@@ -314,16 +314,3 @@ const deleteSelectedStrengths = (selected) => {
 }
 
 </script>
-
-<style scoped>
-.popup-header {
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.v-text-field,
-.v-textarea {
-  width: 100%;
-}
-</style>
