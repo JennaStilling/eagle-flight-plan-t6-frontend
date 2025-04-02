@@ -1039,12 +1039,6 @@ function updateEndDate() {
     overflow-y: auto;
 }
 
-.modal-content {
-    padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
 .modal {
     position: fixed;
     z-index: 999;

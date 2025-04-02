@@ -402,3 +402,61 @@ const fileUpload = (event) => {
     }
 };
 </script>
+
+<style scope>
+.card-holder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr)); /* Responsive grid */
+  gap: 16px;
+  justify-content: start;
+  padding: 16px;
+  border-radius: 10px;
+  background: #FFF;
+  box-shadow: 0px 4px 8px 0px rgba(32, 32, 32, 0.25);
+  margin-bottom: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+  max-height: calc(5 * (105px + 20px)); /* 5 rows * (card height + gap) */
+  overflow-y: auto;
+}
+
+/* Scroll Bar */
+.card-holder::-webkit-scrollbar {
+  width: 8px; /* Thin scrollbar */
+}
+
+.card-holder::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* Visible only when scrolling */
+  border-radius: 4px;
+}
+
+.card-holder::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5); /* Darker when hovered */
+}
+
+.card-holder::-webkit-scrollbar-track {
+  background: transparent; /* Hide track */
+}
+
+.image-container {
+  width: 90px; 
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(32, 32, 32, 0.15);
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Add and Edit */
+.popup-header {
+  display: flex;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  gap: 16px;
+}
+</style>

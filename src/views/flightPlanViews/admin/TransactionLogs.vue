@@ -776,7 +776,6 @@ textarea,
 
 .form-row {
   justify-content: flex-start;
-  display: flex;
   margin-bottom: 0px;
 }
 

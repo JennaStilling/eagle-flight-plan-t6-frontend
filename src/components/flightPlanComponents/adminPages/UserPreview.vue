@@ -580,6 +580,18 @@ watch(newCliftonStrengths.value.cliftonStrengthsToAdd, () => {
 </script>
 
 <style scoped>
+.button-row {
+    align-items: center;
+    margin: auto;
+}
+
+.image-container {
+    width: 20%;
+    height: 20%;
+    margin: 1%;
+    cursor: pointer;
+}
+
 .label-column {
     display: flex;
     align-items: flex-start;
