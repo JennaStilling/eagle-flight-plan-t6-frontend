@@ -10,16 +10,6 @@
         <ul>
           <!-- Admin Pages ---------------------------------------------------------------------------------->
           <template v-if="isAdminViewActive">
-            <li @click="toggleRoleDropdown">Persons
-              <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
-                class="dropdown-arrow" />
-              <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-                <li>Students</li>
-                <li>Student Workers</li>
-                <li>Professors</li>
-                <li>Admins</li>
-              </div>
-            </li>
             <li @click="toggleMaintenanceDropdown">Maintenance
               <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
                 class="dropdown-arrow" />
@@ -39,7 +29,7 @@
             <!-- Other Admin Pages -->
             <template v-if="isAdminViewActive">
               <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
-              <li><router-link :to="{ name: 'adminHome' }" @click="closeSidebar">Resume Builder</router-link></li>
+              <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar">Resume Builder</router-link></li>
             </template>
           </template>
 

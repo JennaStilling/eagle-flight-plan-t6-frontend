@@ -34,9 +34,9 @@
             <Icon class="arrow-icon" :icon="roleSwitchMenuOpen ? dropDownUpIcon : dropDownIcon" :alt="'arrow'" />
           </li>
           <li v-if="roleSwitchMenuOpen && adminAccess" @click="updateHomePage(UserRoles.ADMIN)" class="role-menu">Admin</li>
-          <li v-if="roleSwitchMenuOpen && professorAccess" @click="updateHomePage(UserRoles.PROFESSOR)" class="role-menu">Professor</li>
+          <!-- <li v-if="roleSwitchMenuOpen && professorAccess" @click="updateHomePage(UserRoles.PROFESSOR)" class="role-menu">Professor</li> -->
           <li v-if="roleSwitchMenuOpen && studentAccess" @click="updateHomePage(UserRoles.STUDENT)" class="role-menu">Student</li>
-          <li v-if="roleSwitchMenuOpen && studentAccess" @click="updateHomePage(UserRoles.STUDENT_WORKER)" class="role-menu">Student Worker</li>
+          <!-- <li v-if="roleSwitchMenuOpen && studentAccess" @click="updateHomePage(UserRoles.STUDENT_WORKER)" class="role-menu">Student Worker</li> -->
           <li @click="toggleLogout">Sign Out</li>
 
         </ul>
