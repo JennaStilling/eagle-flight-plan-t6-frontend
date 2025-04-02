@@ -10,16 +10,6 @@
         <ul>
           <!-- Admin Pages ---------------------------------------------------------------------------------->
           <template v-if="isAdminViewActive">
-            <li @click="toggleRoleDropdown">Persons
-              <Icon :icon="roleDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
-                class="dropdown-arrow" />
-              <div v-if="roleDropdown" class="dropdown-menu" @click.stop>
-                <li>Students</li>
-                <li>Student Workers</li>
-                <li>Professors</li>
-                <li>Admins</li>
-              </div>
-            </li>
             <li @click="toggleMaintenanceDropdown">Maintenance
               <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
                 class="dropdown-arrow" />
