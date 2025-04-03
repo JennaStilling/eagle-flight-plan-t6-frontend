@@ -152,8 +152,8 @@ onMounted(async () => {
   //console.log('Home Page Mounted---------------------------------');
   try {
     user.value = Utils.getStore("user");
-    const userRes = await UserServices.getAllStudentUsers(user.value.userId);
-    studentId.value = userRes.data[0].studentId;
+    const userRes = await UserServices.getUser(user.value.userId);
+    studentId.value = userRes.data.studentId;
     currentDate.value = new Date().toJSON().slice(0, 24);
     const studentRes = await studentServices.getStudent(studentId.value);
     studentPoints.value = studentRes.data.points;
@@ -192,7 +192,7 @@ onMounted(async () => {
   }
 
   try {
-    const eventResponse = await eventServices.getAllSystemEvents();
+    const eventResponse = await eventServices.getAllEvents();
     if (eventResponse.data) {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -368,7 +368,7 @@ const checkForFlightPlan = async () => {
   const flightPlan = await getFlightPlan(semester);
   const studentFlightPlan = (await studentFlightPlanServices.getAllStudentFlightPlans(studentId.value, flightPlan.id)).data;
   const student = (await studentServices.getStudent(studentId.value)).data;
-  if (studentFlightPlan.length < 1) await generateFlightPlan(student);
+  if (studentFlightPlan.length < 1) await generateFlightPlan(student, semester);
 }
 </script>
 
