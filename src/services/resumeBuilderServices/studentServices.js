@@ -19,4 +19,10 @@ export default {
     deleteAllStudents() {
       return apiClient.delete(`resume-t6/student/`);
     },
+    getRecommendedEvents(id) {
+      return apiClient.get(`resume-t6/student/${id}/recommended-events`);
+    },
+    getRegisteredEvents(id) {
+      return apiClient.get(`resume-t6/student/${id}/registered-events`);
+    }
 };
