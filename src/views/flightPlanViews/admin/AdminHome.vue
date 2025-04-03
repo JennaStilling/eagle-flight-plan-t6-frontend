@@ -326,7 +326,7 @@ const getSelectedTask = (name, task, reflection, id) => {
 }
 
 const getSelectedEvent = (index) => {
-  selectedEvent.value = upcomingEvents.value[index];
+  selectedEvent.value = upcomingEvents.value[(currentEventPage.value - 1) * itemsPerPage + index];
   viewingEvent.value = !viewingEvent.value;
 }
 
