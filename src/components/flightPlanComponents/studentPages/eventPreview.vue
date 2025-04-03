@@ -56,7 +56,6 @@ const menu = ref(false);
 const loading = ref(false)
 
 onMounted(() => {
-    console.log(props.event);
 });
 
 const handleMouseover = () => {

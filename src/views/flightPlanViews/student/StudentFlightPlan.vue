@@ -174,7 +174,6 @@ const getSemesters = async () => {
     const studentFlightPlans = await StudentFlightPlanServices.getAllFlightPlansForStudent(student.value.id);
     for (const studentFlightPlan of studentFlightPlans.data) {
         const flightPlan = await FlightPlanServices.getFlightPlanById(studentFlightPlan.flightPlanId);
-        console.log(flightPlan.data)
         const semester = await SemesterServices.getSemester(flightPlan.data.semesterId);
         semesters.value.push(semester.data);
     }
