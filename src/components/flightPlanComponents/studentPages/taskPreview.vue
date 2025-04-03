@@ -2,8 +2,7 @@
     <div class="preview" :class="{
         'task-approved': task.status === 'approved',
         'task-ready-for-review': task.status === 'ready_for_review',
-        'task-unapproved': task.status === 'unapproved',
-        'task-in-progress': task.status === 'in_progress'
+        'task-unapproved': task.status === 'unapproved'
     }" @click="selectTask" @mouseover="handleMouseover" @mouseleave="handleMouseleave">
 
         <v-row class="task-details">
@@ -104,28 +103,16 @@ const loading = ref(false)
 }
 
 /* Task Colors */
-.task-in-progress {
-    background-color: rgba(249, 247, 247, 1);
-    color: black;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
 .task-approved {
-    background-color: #4caf50;
-    color: white;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 2px 2px 5px #4caf50;
 }
 
 .task-ready-for-review {
-    background-color: #ffeb3b;
-    color: black;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 2px 2px 5px #ffeb3b;
 }
 
 .task-unapproved {
-    background-color: #f44336;
-    color: white;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 2px 2px 5px #f44336;
 }
 
 /* Task Details */

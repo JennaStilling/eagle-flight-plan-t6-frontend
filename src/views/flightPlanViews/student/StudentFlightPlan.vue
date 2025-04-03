@@ -44,7 +44,9 @@
 
     <div v-for="(experienceType) in experienceTypesForStudent" :key="experienceType.id">
         <v-divider />
-        <v-card class="stuff">
+        <v-card class="stuff" :class="{
+            'experience-completed': experienceType.experienceCompleted === true,
+        }">
             <div class="title-row">
                 <h1>{{ experienceType.name }}</h1>
                 <div class="search-filter-button-group">
@@ -107,6 +109,7 @@ import StudentFlightPlanServices from "@/services/flightPlanServices/studentFlig
 import StudentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
 import TaskServices from "@/services/flightPlanServices/taskServices";
 //Experiences
+import StudentExperienceTypeEventServices from "@/services/flightPlanServices/studentExperienceTypeEventServices";
 import StudentExperienceTypeServices from "@/services/flightPlanServices/studentExperienceTypeServices";
 import ExperienceTypeServices from "@/services/flightPlanServices/experienceTypeServices";
 import ExperienceTypeEventServices from "@/services/flightPlanServices/experienceTypeEventServices";
@@ -229,9 +232,17 @@ const getStudentExperiences = async (studentExperienceTypes) => {
 }
 
 const getExperienceTypes = async (studentExperienceTypes, experienceTypesForStudent) => {
+    const studentEventIsComplete = (studentEvent) => !!studentEvent.completed_date;
+
     for (const studentExperienceType of studentExperienceTypes.value) {
         const experienceType = await ExperienceTypeServices.getExperienceType(studentExperienceType.experienceTypeId);
-        experienceTypesForStudent.value.push(experienceType.data);
+
+        const studentExperienceTypeEvents = await StudentExperienceTypeEventServices.getStudentExperienceTypeEvents(experienceType.data.id);
+
+        experienceTypesForStudent.value.push({
+            ...experienceType.data,
+            experienceCompleted: studentExperienceTypeEvents.data.some(studentEventIsComplete),
+        });
     }
 }
 
@@ -281,6 +292,10 @@ const ViewEventsPage = () => {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     grid-auto-flow: dense;
+}
+
+.experience-completed {
+    box-shadow: 2px 2px 5px #4caf50;
 }
 
 .title-row {
