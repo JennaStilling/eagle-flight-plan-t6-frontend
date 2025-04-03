@@ -1,18 +1,18 @@
 <template>
   <div class="container">
     <div class="left-side">
-       <!-- Semesters -->
+      <!-- Semesters -->
       <div class="semester-navigation">
         <button @click="getPreviousSemester">
-          <img :src="BackArrow"  alt="Previous Semester" />
+          <img :src="BackArrow" alt="Previous Semester" />
         </button>
         <h1>{{ currentSemester }}</h1>
         <button @click="getNextSemester">
           <img :src="ForwardArrow" alt="Next Semester" />
         </button>
       </div>
-       <!-- Tasks -->
-       <div class="task-data-table-container">
+      <!-- Tasks -->
+      <div class="task-data-table-container">
         <table class="task-data-table">
           <tbody>
             <tr v-for="task in taskDetails" :key="task.taskId">
@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="right-side">
-       <!-- Shop Card -->
+      <!-- Shop Card -->
       <div class="shop-card" @click="goToShop">
         <img src="@/assets/navigation/shoppingCart.png" alt="Shopping Cart" class="shopping-cart-icon" />
         <div class="shop-info">
@@ -39,30 +39,36 @@
           <p>You have <strong style="color: #811429; font-weight: 700;">{{ studentPoints }}</strong> points</p>
         </div>
       </div>
-       <div class="events-navigation">
-        <h1>Upcoming Events</h1>
+      <div class="events-navigation">
+        <h1>Upcoming Recommended Events</h1>
       </div>
-      <div class="event-data-table-container"> 
+      <div class="event-data-table-container">
         <table class="event-data-table">
           <tbody>
             <template v-for="event in limitedEvents" :key="event.id">
               <tr @click="openEventModal(event)" class="clickable-row">
                 <td class="date">
-                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toLocaleUpperCase() }}</div>
+                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', { month: 'short'
+                    }).toLocaleUpperCase() }}</div>
                   <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
                 </td>
                 <td style="user-select: none;">
-                    {{ new Date(event.start_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new Date(event.end_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).replace('AM', 'am').replace('PM', 'pm') }}
+                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric',
+                  hour12: true }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                  Date(event.end_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12:
+                  true }).replace('AM', 'am').replace('PM', 'pm') }}
                   <br>
-                    <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                 </td>
                 <td></td>
               </tr>
               <tr>
-                <td colspan="3"><hr class="event-line"></td>
+                <td colspan="3">
+                  <hr class="event-line">
+                </td>
               </tr>
             </template>
-          </tbody>   
+          </tbody>
         </table>
         <p class="view-more" @click.self="viewMoreEvents">View More 🡺</p>
       </div>
@@ -77,26 +83,37 @@
       <div v-if="selectedTask.taskVideoLink" style="margin-top: 15px;">
         <a :href="selectedTask.taskVideoLink" target="_blank">Access resource</a>
       </div>
-      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.taskPoints }}</span> points</div>
-      <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' : selectedTask.status }}</div>
-      <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{ selectedTask.unapprove_reason }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.taskPoints }}</span> points
+      </div>
+      <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' :
+        selectedTask.status }}</div>
+      <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
+        selectedTask.unapprove_reason }}</div>
     </div>
   </div>
- <!-- Event Modal -->
+  <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
     <div class="modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
-      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
       <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
       <div style="margin-bottom: 15px;">
-        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) }}
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
       </div>
-      <div style="margin-bottom: 15px;"> 
-        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }} - 
-        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit',
+        hour12: true }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit',
+        hour12: true }) }}
       </div>
+      <v-btn v-if="!isStudentSignedUp"
+        @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)" color="#F68D76">Register</v-btn>
+      <v-btn v-if="isStudentSignedUp"
+        @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)" color="#F68D76">Unregister</v-btn>
     </div>
   </div>
 </template>
@@ -117,6 +134,7 @@ import studentFlightPlanServices from "@/services/flightPlanServices/studentFlig
 import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
+import StudentEventServices from "@/services/flightPlanServices/studentEventServices"
 import semesterServices from '@/services/flightPlanServices/semesterServices';
 import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTaskServices';
 import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
@@ -147,6 +165,8 @@ const flightPlans = ref([]);
 // flight plan consts
 const unapprovedOrInProgressTasks = ref([]);
 const taskDetails = ref([]);
+const specificStudentEvents = ref([]);
+const isStudentSignedUp = ref(false);
 
 onMounted(async () => {
   //console.log('Home Page Mounted---------------------------------');
@@ -192,11 +212,12 @@ onMounted(async () => {
   }
 
   try {
-    const eventResponse = await eventServices.getAllEvents();
+    const eventResponse = await studentServices.getRecommendedEvents(studentId.value);
     if (eventResponse.data) {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
+      console.log(limitedEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -263,6 +284,64 @@ const getTaskDetails = async (taskId) => {
   }
 };
 
+const studentSignUpForEvent = (id) => {
+  if (!studentId.value) {
+    return
+  }
+  else {
+    const newStudentEvent = {
+      eventId: id,
+      studentId: studentId.value
+    }
+    StudentEventServices.createStudentEvent(newStudentEvent)
+    .then((res) => {
+      console.log("Student event added")
+      closeEventModal();
+    })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  }
+}
+
+const studentDeleteStudentEvent = (id) => {
+  StudentEventServices.getAllStudentEvents()
+    .then((res) => {
+      specificStudentEvents.value = res.data;
+
+      if (specificStudentEvents.value) {
+
+        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+        if (eventToDelete) {
+          StudentEventServices.deleteStudentEvent(eventToDelete.id)
+            .then((res) => {
+              console.log("Student event deleted")
+              closeEventModal();
+            })
+            .catch((error) => {
+              console.log("error", error);
+            });
+        }
+      }
+    })
+}
+
+const checkIfStudentIsSignedUp = async (id) => {
+  try {
+    const res = await StudentEventServices.getAllEventsByStudent(studentId.value);
+    const studentEvents = res.data;
+    const studentSpecificEvent = studentEvents.find(studentEvent => 
+      studentEvent.id === id
+    );
+    console.log(studentSpecificEvent);
+    isStudentSignedUp.value = !!studentSpecificEvent;
+    return isStudentSignedUp.value;
+  } catch (error) {
+    console.error('Error checking student signup:', error);
+    return false;
+  }
+}
+
 const getStudentFlightPlanId = async (studentId, flightPlanId) => {
   try {
     const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
@@ -314,8 +393,9 @@ const fetchTaskDetailsForUnapprovedOrInProgressTasks = async () => {
 // SIMPLE METHODS
 
 // modals --------------------
-const openEventModal = (event) => {
+const openEventModal = async (event) => {
   selectedEvent.value = event;
+  await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
 const closeEventModal = () => {
