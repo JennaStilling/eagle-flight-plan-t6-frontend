@@ -339,6 +339,7 @@ const goToShop = () => {
   router.push({ name: 'shop' });
 };
 const viewMoreEvents = () => {
+  localStorage.setItem('viewPersonalCalendar', true);
   router.push({ name: 'student-events' });
 };
 
