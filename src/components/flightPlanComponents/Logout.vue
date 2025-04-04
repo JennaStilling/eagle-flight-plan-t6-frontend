@@ -51,7 +51,7 @@ const logout = () => {
 </script>
 
 <style scoped>
-.modal {
+.modal { /* Same as in AdminHome.vue*/
     width: 100%;
     height: 100%;
     flex-shrink: 0;
@@ -66,12 +66,8 @@ const logout = () => {
     background: #FFF;
 }
 
-.modal-header {
-    display: flex;
-    width: 100%;
+.modal-header { /*done*/
     height: 100%;
-    flex-direction: column;
-    justify-content: center;
     flex-shrink: 0;
     color: #000;
     text-align: center;

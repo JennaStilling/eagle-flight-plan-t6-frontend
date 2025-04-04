@@ -366,7 +366,7 @@ const fileUpload = (event) => {
 }
 
 /* Update Profile */
-.modal {
+.modal { /* Same as in TransactionLogs.vue*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -378,7 +378,7 @@ const fileUpload = (event) => {
   background: rgba(0, 0, 0, 0.5); 
 }
 
-.modal-content {
+.modal-content { /* Same as in TransactionLogs.vue*/
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -404,23 +404,11 @@ const fileUpload = (event) => {
   overflow: hidden;
 }
 
-.popup-header {
-  margin-bottom: 10px;
-}
-
 .popup-content {
     text-align: center;
     width: 100%;
     display: flex;
     flex-direction: column;
-}
-
-.form-row {
-    justify-content: flex-start;
-}
-
-.label-column {
-  width: 150px;
 }
 
 .label-description {
@@ -466,18 +454,6 @@ textarea,
 
 .input-field {
   font-family: 'Inter', sans-serif;
-}
-
-.v-row + .v-row {
-    margin-top: 0px;
-}
-
-.v-col{
-  padding: 0px 12px 0px 12px;
-}
-
-.form-row {
-  margin-bottom: 0px;
 }
 
 .save-btn {

@@ -501,17 +501,17 @@ const clearArrays = () => {
   cursor: auto;
 }
 
-.modal {
+.modal { /* Same as in Logout.vue*/
     width: 100%;
     height: 100%;
     flex-shrink: 0;
 }
 
-.modal-content {
+.modal-content { /* Mostly same as in StudentHome.vue*/
   min-width: 400px;
   min-height: 100px; 
   border-radius: 10px;
-  background: #FFF;
+  background: #FAFAFA;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -522,10 +522,7 @@ const clearArrays = () => {
   overflow-x: auto;
 }
 
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.modal-header { /*done*/
     flex-shrink: 0;
     color: #000;
     text-align: center;

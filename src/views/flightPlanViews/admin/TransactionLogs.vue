@@ -673,7 +673,7 @@ const refundTransaction = () => {
 
 <style scope>
 /* Redeem points modal */
-.modal {
+.modal { /* Same as in Profile.vue*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -685,7 +685,7 @@ const refundTransaction = () => {
   background: rgba(0, 0, 0, 0.5); 
 }
 
-.modal-content {
+.modal-content { /* Same as in Profile.vue*/
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -702,10 +702,6 @@ const refundTransaction = () => {
     width: 100%;
     display: flex;
     flex-direction: column;
-}
-
-.label-column {
-  width: 150px;
 }
 
 .label-description {
@@ -768,15 +764,6 @@ textarea,
 
 .v-row + .v-row {
     margin-top: 0px;
-}
-
-.v-col{
-  padding: 0px 12px 0px 12px;
-}
-
-.form-row {
-  justify-content: flex-start;
-  margin-bottom: 0px;
 }
 
 .btn-container {

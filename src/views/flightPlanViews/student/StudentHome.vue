@@ -384,13 +384,11 @@ const checkForFlightPlan = async () => {
 .left-side, .right-side {
   width: 50%;
   padding: 17px;
-}
-
-.left-side {
   margin-left: 2%;
 }
 
 /* SEMESTER NAVIGATION --------------*/
+/* Ask about how to balance the buttons on the screen */
 .semester-navigation {
   display: flex;
   align-items: center;
@@ -403,6 +401,7 @@ const checkForFlightPlan = async () => {
   width: 95%;
   margin-top: 2%;
 }
+
 .semester-navigation button {
   background-color: #D9D9D9;
   border: none;
@@ -412,10 +411,7 @@ const checkForFlightPlan = async () => {
   margin-top: 1%;
   user-select: none;
 }
-.semester-navigation img {
-  width: 2.6rem;
-  height: 2.6rem;
-}
+
 .semester-navigation h1 {
   margin: 0;
   color: black;
@@ -442,11 +438,13 @@ const checkForFlightPlan = async () => {
   cursor: pointer;
   border: 2px solid transparent;
 }
+
 .shop-card:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   border: 4px solid #811429;
   background-color:white;
 }
+
 /* - Icons and Info */
 .shop-card .shopping-cart-icon {
   width: 67px;
@@ -582,7 +580,7 @@ const checkForFlightPlan = async () => {
   align-items: center;
 }
 
-.modal-content {
+.modal-content { /* Contained in AdminHome.vue*/
   min-width: 400px;
   min-height: 100px; 
   border-radius: 10px;

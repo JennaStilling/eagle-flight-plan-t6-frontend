@@ -1027,12 +1027,7 @@ function updateEndDate() {
 </script>
 
 <style>
-.v-card-text {
-    padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
+/* Ask Jenna abt this, since it's not used anywhere*/
 .modal {
     position: fixed;
     z-index: 999;
@@ -1059,83 +1054,6 @@ function updateEndDate() {
 
 .modal-header {
     margin-bottom: 20px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.v-dialog {
-    .v-card {
-        padding: 20px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-}
-
-.edit-form-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.edit-popup {
-    width: 100%;
-    max-width: 600px;
-    padding: 24px;
-}
-
-.popup-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.form-row {
-    margin-bottom: 16px;
-}
-
-.label-column {
-    display: flex;
-    align-items: center;
-}
-
-.popup-actions {
-    padding: 16px 24px;
-    gap: 8px;
-}
-
-.v-card-text {
-    padding: 20px;
-}
-
-.v-container {
-    padding: 24px;
-}
-
-.v-row {
-    margin: 0 -12px;
-}
-
-.v-col {
-    padding: 12px;
 }
 
 .modal-body {
