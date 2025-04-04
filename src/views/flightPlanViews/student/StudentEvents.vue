@@ -11,15 +11,15 @@
                         </template>
                     </v-text-field>
 
-                    <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
-                        variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
+                    <!-- <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
+                        variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select> -->
 
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
                         Request Custom Event
                     </v-btn>
-                    <v-btn class="button" variant="elevated" color="#F68D76" @click="togglePersonalCalendar()">
-                        Switch To {{ viewPersonalCalendar ? "All Events" : "Personal Calendar" }}
-                    </v-btn>
+
+                    <v-checkbox v-model="viewPersonalCalendar" label="Show Only My Events"
+                        @click="togglePersonalCalendar()" density="compact" class="my-auto" hide-details></v-checkbox>
 
                     <v-btn variant="plain" size="small" @click="toggleCalendarView()">
                         <Icon icon="material-symbols:calendar-month-outline" width="24" height="24" />
@@ -40,6 +40,11 @@
                             @click="openEventModal(calendarEvent)">
                             <div class="event-header">
                                 <div class="event-title">{{ calendarEvent.title }}</div>
+                                <Icon v-if="calendarEvent.isRegistered" icon="material-symbols:bookmark-rounded"
+                                    width="24" height="24" />
+                                <Icon v-if="!calendarEvent.isRegistered" icon="material-symbols:bookmark-outline-rounded"
+                                    width="24" height="24" />
+                                <Icon v-if="calendarEvent.isRecommended"icon="material-symbols:kid-star" width="24" height="24" />
                             </div>
                             <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                 formatEventTime(calendarEvent.end)
@@ -75,9 +80,11 @@
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
                                 <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 75%"
-                                    @click="closeModal(); studentSignUpForEvent(calendarEvent.id)" color="#F68D76">Register</v-btn>
+                                    @click="closeModal(); studentSignUpForEvent(calendarEvent.id)"
+                                    color="#F68D76">Register</v-btn>
                                 <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 70%"
-                                    @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)" color="#F68D76">Unregister</v-btn>
+                                    @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)"
+                                    color="#F68D76">Unregister</v-btn>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -255,6 +262,7 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import UserServices from '@/services/resumeBuilderServices/userServices';
+import StudentServices from '@/services/resumeBuilderServices/studentServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import Utils from '@/config/utils';
@@ -263,6 +271,7 @@ const search = ref('');
 
 const events = ref([]);
 const studentEvents = ref([]);
+const recommendedEvents = ref([]);
 
 const message = ref('');
 const selected = ref([]);
@@ -318,13 +327,14 @@ const toggleListView = () => {
 
 const togglePersonalCalendar = () => {
     viewPersonalCalendar.value = !viewPersonalCalendar.value;
+    localStorage.setItem('viewPersonalCalendar', viewPersonalCalendar.value)
+    console.log(viewPersonalCalendar.value)
+    console.log(localStorage.getItem('viewPersonalCalendar'))
     reloadPage();
 }
 
 const checkIfStudentIsSignedUp = (id) => {
-    const studentSpecificEvent = studentEvents.value.find(studentEvent => {
-        return studentEvent.eventId === id || studentEvent.id === id;
-    });
+    const studentSpecificEvent = studentEvents.value.find(studentEvent => studentEvent.id === id);
     return !!studentSpecificEvent;
 }
 
@@ -513,6 +523,12 @@ const getAllEvents = () => {
     return EventServices.getAllEvents()
         .then((res) => {
             events.value = res.data;
+            console.log("Events: ")
+            console.log(events.value);
+            console.log("Student Events: ")
+            console.log(studentEvents.value);
+            console.log("Recommended Events: ")
+            console.log(recommendedEvents.value);
             const formattedEvents = events.value.map(event => {
                 const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
                 const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
@@ -521,6 +537,11 @@ const getAllEvents = () => {
                     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                 };
 
+                const isStudentRegistered = studentEvents.value.some(se => se.studentEvent[0].eventId === event.id);
+                const isStudentRecommended = recommendedEvents.value.some(recommendedEvent => recommendedEvent.id === event.id);
+                if(isStudentRecommended){console.log(event.id);
+                console.log("Recommended: " + isStudentRecommended)}
+
                 return {
                     id: event.id,
                     title: event.name,
@@ -528,14 +549,17 @@ const getAllEvents = () => {
                     end: formatDateTime(endDate),
                     description: event.description || '',
                     location: event.location || '',
-                    type: event.event_type
+                    type: event.event_type,
+                    isRecommended: isStudentRecommended,
+                    isRegistered: isStudentRegistered,
                 };
             });
 
-            calendarFormattedEvents.value = formattedEvents;
-
-            if (!calendarApp.value) {
-                initializeCalendar(formattedEvents);
+            if (!viewPersonalCalendar.value) {
+                calendarFormattedEvents.value = formattedEvents;
+                console.log("Calendar Formatted Events")
+                console.log(calendarFormattedEvents.value)
+                initializeCalendar(calendarFormattedEvents.value);
             }
 
             message.value = '';
@@ -549,9 +573,48 @@ const getAllEvents = () => {
 const getAllStudentEvents = () => {
     return StudentEventServices.getAllEventsByStudent(userStudentId.value)
         .then((res) => {
-            events.value = res.data;
             studentEvents.value = res.data;
             const formattedEvents = studentEvents.value.map(event => {
+                const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
+                const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+                const formatDateTime = (date) => {
+                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                };
+
+                const isStudentRecommended = recommendedEvents.value.some(recommendedEvent => recommendedEvent.id === event.studentEvent[0].eventId);
+                console.log("Recommended: " + isStudentRecommended)
+
+                return {
+                    id: event.id,
+                    title: event.name,
+                    start: formatDateTime(startDate),
+                    end: formatDateTime(endDate),
+                    description: event.description || '',
+                    location: event.location || '',
+                    type: event.event_type,
+                    isRecommended: isStudentRecommended,
+                    isRegistered: true,
+                };
+            });
+
+            if (viewPersonalCalendar.value) {
+                calendarFormattedEvents.value = formattedEvents;
+                initializeCalendar(calendarFormattedEvents.value);
+            }
+
+            message.value = '';
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
+}
+
+const getAllStudentRecommendedEvents = () => {
+    return StudentServices.getRecommendedEvents(userStudentId.value)
+        .then((res) => {
+            recommendedEvents.value = res.data;
+            const formattedEvents = recommendedEvents.value.map(event => {
                 const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
                 const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
 
@@ -570,12 +633,6 @@ const getAllStudentEvents = () => {
                 };
             });
 
-            calendarFormattedEvents.value = formattedEvents;
-
-            if (!calendarApp.value) {
-                initializeCalendar(formattedEvents);
-            }
-
             message.value = '';
         })
         .catch((error) => {
@@ -586,11 +643,14 @@ const getAllStudentEvents = () => {
 onMounted(async () => {
     user.value = Utils.getStore("user");
     await getCurrentUser();
+
+    await getAllStudentRecommendedEvents();
+    await getAllStudentEvents();
+
+    console.log(viewPersonalCalendar.value)
     if (!viewPersonalCalendar.value) {
         await getAllEvents();
     }
-
-        await getAllStudentEvents();
 
 });
 
