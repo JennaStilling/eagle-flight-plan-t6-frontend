@@ -4,10 +4,13 @@ export default {
     createFlightPlan(semesterId, data) {
         return apiClient.post(`flightPlan-t6/semester/${semesterId}/flightPlan`, data);
     },
+    getFlightPlanById(id) {
+        return apiClient.get(`flightPlan-t6/flightPlan/${id}`);
+    },
     getAllFlightPlans(semesterId) {
         return apiClient.get(`flightPlan-t6/semester/${semesterId}/flightPlan`);
     },
-    getAllSystemFlightPlans(){
+    getAllSystemFlightPlans() {
         return apiClient.get(`flightPlan-t6/flightPlan`);
     },
     getFlightPlan(semesterId, id) {

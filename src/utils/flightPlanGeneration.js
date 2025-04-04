@@ -33,16 +33,16 @@ export function setNumberOfTasks(numOfTasks, numOfExperiences, offset) {
 }
 
 // Generates a student flight plan for the semester
-export async function generateFlightPlan(student) {
+export async function generateFlightPlan(student, semester) {
     try {
         const majors = (await majorServices.getAllMajors()).data;
         const allMajor = majors.filter(major => major.name === "All");
-    
+
         const cliftonStrengths = (await cliftonStrengthServices.getAllCliftonStrengths()).data;
         const allCliftonStrengths = cliftonStrengths.filter(cliftonStrength => cliftonStrength.name === "All");
-    
+
         const semestersUntilGrad = getSemestersUntilGraduation(student.graduation_date);
-        
+
         // Get Major(s) (StudentMajor Bridge Table)
         const studentsMajors = (await studentMajorServices.getAllStudentMajors(student.id)).data;
         const allMajorObject = {
@@ -51,7 +51,7 @@ export async function generateFlightPlan(student) {
             studentId: student.id
         };
         studentsMajors.push(allMajorObject); // Used to get the tasks that are for all majors
-    
+
         // Get Clifton Strengths (StudentCliftonStrength Bridge Table)
         const studentsCliftonStrengths = (await studentCliftonStrengthServices.getAllStudentCliftonStrengths(student.id)).data;
         const allCliftonStrengthsObject = {
@@ -60,31 +60,31 @@ export async function generateFlightPlan(student) {
             studentId: student.id
         };
         studentsCliftonStrengths.push(allCliftonStrengthsObject); // Used to get the tasks that for all Clifton Strengths
-        
+
         const elgibleTasks = await getPossibleTasks(student, studentsMajors, studentsCliftonStrengths);
         const elgibleExperiences = await getPossibleExperiences(student, studentsMajors, studentsCliftonStrengths);
-    
+
         const tasks = (
             await Promise.all(
                 elgibleTasks.map(task => taskServices.getTask(task.taskId))
             )
         ).map(res => res.data);
-    
+
         const experiences = (
             await Promise.all(
                 elgibleExperiences.map(experience => experienceTypeServices.getExperienceType(experience.experienceTypeId))
             )
         ).map(res => res.data);
         tasks.sort((a, b) => b.semester_from_grad - a.semester_from_grad);
-        
+
         const oneTimeTasks = tasks.filter(task => task.schedule_type != 'semesterly');
         const semesterlyTasks = tasks.filter(task => task.schedule_type === 'semesterly');
-    
+
         const oneTimeExperiences = experiences.filter(experience => experience.schedule_type != 'every_semester');
         const semesterlyExperiences = experiences.filter(experience => experience.schedule_type === 'every_semester');
-    
+
         const highestSemester = Math.max(...oneTimeTasks.map(task => task.semester_from_grad));
-    
+
         // Get previous flight plans to look for tasks that are prereqs
         const studentsFlightPlans = (await studentFlightPlanServices.getAllFlightPlansForStudent(student.id)).data;
         const studentsPreviousTasks = ((
@@ -92,40 +92,39 @@ export async function generateFlightPlan(student) {
                 studentsFlightPlans.map(studentFlightPlan => studentFlightPlanTaskServices.getStudentFlightPlanTasks(studentFlightPlan.id))
             )
         ).map(res => res.data)).flat();
-    
+
         let tasksToFlightPlan;
         let experiencesToFlightPlan = [];
         if (highestSemester > semestersUntilGrad) { // Behind
             // If there are not enough tasks, just add the rest of them into this flight plan
             if (oneTimeTasks.length < behindOffsetTask) tasksToFlightPlan = await createTaskList(oneTimeTasks.length, oneTimeTasks, studentsPreviousTasks);
             else tasksToFlightPlan = await createTaskList(behindOffsetTask, oneTimeTasks, studentsPreviousTasks);
-    
+
             if (oneTimeExperiences.length < behindOffsetExperience) experiencesToFlightPlan = createExperienceList(oneTimeExperiences.length, oneTimeExperiences);
             else experiencesToFlightPlan = createExperienceList(behindOffsetExperience, oneTimeExperiences);
         }
         else if (highestSemester < semestersUntilGrad) { // Ahead
             if (oneTimeTasks.length < aheadOffsetTask) tasksToFlightPlan = await createTaskList(oneTimeTasks.length, oneTimeTasks, studentsPreviousTasks);
             else tasksToFlightPlan = await createTaskList(aheadOffsetTask, oneTimeTasks, studentsPreviousTasks);
-    
+
             if (oneTimeExperiences.length < aheadOffsetExperience) experiencesToFlightPlan = createExperienceList(oneTimeExperiences.length, oneTimeExperiences);
             else experiencesToFlightPlan = createExperienceList(aheadOffsetExperience, oneTimeExperiences);
         }
         else { // On Pace
             if (oneTimeTasks.length < numOfTasksToAdd) tasksToFlightPlan = await createTaskList(oneTimeTasks.length, oneTimeTasks, studentsPreviousTasks);
             else tasksToFlightPlan = await createTaskList(numOfTasksToAdd, oneTimeTasks, studentsPreviousTasks);
-    
+
             if (oneTimeExperiences.length < numOfExperiencesToAdd) experiencesToFlightPlan = createExperienceList(oneTimeExperiences.length, oneTimeExperiences);
             else experiencesToFlightPlan = createExperienceList(numOfExperiencesToAdd, oneTimeExperiences);
         }
-    
+
         tasksToFlightPlan = tasksToFlightPlan.concat(semesterlyTasks);
         experiencesToFlightPlan = experiencesToFlightPlan.concat(semesterlyExperiences);
-    
-        tasksToFlightPlan = Array.from( new Map(tasksToFlightPlan.map(item => [item.id, item])).values() );
-        experiencesToFlightPlan = Array.from( new Map(experiencesToFlightPlan.map(item => [item.id, item])).values() );
-    
+
+        tasksToFlightPlan = Array.from(new Map(tasksToFlightPlan.map(item => [item.id, item])).values());
+        experiencesToFlightPlan = Array.from(new Map(experiencesToFlightPlan.map(item => [item.id, item])).values());
+
         // Create the flight plan and assign the correct number of tasks/experiences depending on their pace
-        const semester = await getSemester();
         const flightPlan = await getFlightPlan(semester);
         const studentFlightPlan = (await studentFlightPlanServices.createStudentFlightPlan(student.id, flightPlan.id, {})).data;
 
@@ -141,7 +140,7 @@ export async function generateFlightPlan(student) {
 export async function getFlightPlan(semester) {
     try {
         const flightPlans = (await flightPlanServices.getAllFlightPlans(semester.id)).data;
-    
+
         if (flightPlans.length < 1) { // Meaning there is no flight plan in the database
             const res = await flightPlanServices.createFlightPlan(semester.id, {});
             flightPlans.push(res.data);
@@ -172,7 +171,7 @@ export async function getSemester() {
                     end_date: new Date(year + "-05-10")
                 }
             }
-            else if(month > 8 && month < 12) {
+            else if (month > 8 && month < 12) {
                 semester = {
                     name: "Fall " + year,
                     start_date: new Date(year + "-09-01"),
@@ -195,23 +194,23 @@ export async function getSemester() {
 function getSemestersUntilGraduation(date) {
     const gradDate = new Date(date);
     const today = new Date();
-    
+
     let count = 0;
     let year = today.getFullYear();
     let month = today.getMonth() + 1; // Offset
 
     while (year < gradDate.getFullYear() || (year === gradDate.getFullYear() && month <= 5)) {
-            // Spring Semester
-            if (month <= 5) {
+        // Spring Semester
+        if (month <= 5) {
             count++;
             month = 8;
-            } 
-            // Fall semester
-            else {
+        }
+        // Fall semester
+        else {
             count++;
-            year++; 
-            month = 1; 
-            }
+            year++;
+            month = 1;
+        }
     }
 
     return count;
@@ -228,7 +227,7 @@ async function getPossibleTasks(student, studentsMajors, studentCliftonStrengths
 
         const combinedTaskList = applicableTasksFromMajors.concat(applicableTasksFromCliftonStrengths);
 
-        const allElgibleTasks = Array.from( new Map(combinedTaskList.map(item => [item.taskId, item])).values() );
+        const allElgibleTasks = Array.from(new Map(combinedTaskList.map(item => [item.taskId, item])).values());
 
         const studentsFlightPlans = (await studentFlightPlanServices.getAllFlightPlansForStudent(student.id)).data;
 
@@ -239,7 +238,7 @@ async function getPossibleTasks(student, studentsMajors, studentCliftonStrengths
         ).map(res => res.data)).flat();
 
         const completedTasks = studentFlightPlanTasks.filter(task => task.status === 'approved');
-        
+
         const tasksToRemove = new Set(completedTasks.map(item => item.taskId));
         const incompleteElgibleTasks = allElgibleTasks.filter(item => !tasksToRemove.has(item.taskId));
 
@@ -261,9 +260,9 @@ async function getPossibleExperiences(student, studentsMajors, studentCliftonStr
         const applicableExperienesFromCliftonStrengths = allExperiencesByCliftonStrengths.filter(experience => studentCliftonStrengths.some(strength => experience.cliftonStrengthId === strength.cliftonStrengthId));
 
         const combinedExperienceList = applicableExperiencesFromMajors.concat(applicableExperienesFromCliftonStrengths);
-        
-        const allElgibleExperiences = Array.from( new Map(combinedExperienceList.map(item => [item.experienceTypeId, item])).values() );
-        
+
+        const allElgibleExperiences = Array.from(new Map(combinedExperienceList.map(item => [item.experienceTypeId, item])).values());
+
         const studentExperiences = (await studentExperienceTypeServices.getAllExperienceTypesForStudent(student.id)).data;
 
         const studentEvents = (
@@ -290,7 +289,7 @@ async function createTaskList(numOfTasks, availableTasks, studentsPreviousTasks)
         const tasksToFlightPlan = [];
         const addedTaskIds = new Set(); // Tracks the tasks IDs to see if a prereq task has been added or not
         let trackNumberOfTasks = numOfTasks;
-    
+
         for (let i = 0; i < numOfTasks; i++) {
             const task = availableTasks[i];
             if (!task.taskId) {
@@ -313,7 +312,7 @@ async function createTaskList(numOfTasks, availableTasks, studentsPreviousTasks)
 
             tasksToFlightPlan.push(task);
         }
-    
+
         return tasksToFlightPlan;
     } catch (error) {
         console.log("Error, could not create a list of tasks: " + error);
@@ -358,7 +357,7 @@ async function addTasksToStudentFlightPlan(studentFlightPlan, tasksToFlightPlan)
             status: 'in_progress',
             reflection: null,
         }
-    
+
         for (let i = 0; i < tasksToFlightPlan.length; i++) {
             template.taskId = tasksToFlightPlan[i].id;
             await studentFlightPlanTaskServices.createSystemStudentFlightPlanTask(template)

@@ -45,6 +45,7 @@ import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaint
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
 // Student Pages
+import StudentFlightPlan from "./views/flightPlanViews/student/StudentFlightPlan.vue";
 import Leaderboard from "./views/flightPlanViews/student/Leaderboard.vue";
 import Shop from "./views/flightPlanViews/student/Shop.vue";
 import Events from "./views/flightPlanViews/student/StudentEvents.vue";
@@ -219,6 +220,11 @@ const routes = [
     component: FlightPlanMaintenance,
   },
   {
+    path: "/flightPlan/flightPlan/studentFlightPlan",
+    name: "studentFlightPlan",
+    component: StudentFlightPlan,
+  },
+  {
     path: "/flightPlan/lifeAfterTheNest",
     name: "lifeAfterTheNest",
     component: LifeAfterTheNestFP,
@@ -248,9 +254,9 @@ const routes = [
   { path: '/flightPlan/shop', name: 'shop', component: Shop },
   // { path: '/flightPlan/events', name: 'events', component: Events },
   { path: '/flightPlan/leaderboard', name: 'leaderboard', component: Leaderboard },
-  { path: "/flightPlan/student-events", name: "student-events", component: Events},
+  { path: "/flightPlan/student-events", name: "student-events", component: Events },
   { path: "/flightPlan/student-transactions", name: "student-transactions", component: Transactions },
-  { path  : "/flightPlan/student-lifeAfterTheNest", name: "student-lifeAfterTheNest", component: StudentLifeAfterTheNest },
+  { path: "/flightPlan/student-lifeAfterTheNest", name: "student-lifeAfterTheNest", component: StudentLifeAfterTheNest },
 ];
 
 const router = createRouter({
