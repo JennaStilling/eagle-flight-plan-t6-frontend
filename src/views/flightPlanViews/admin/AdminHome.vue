@@ -71,7 +71,7 @@
 
   <!-- Student Task View Modal -->
   <div v-if="viewingTask" class="modal">
-    <div class="modal-content"> 
+    <div class="homepage-modal-content"> 
       <span @click="toggleTaskView()" class="close">&times;</span>
       <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div> 
       {{ currentTask.name }}  
@@ -105,7 +105,7 @@
 
   <!-- Event Viewer modal -->
   <div v-if="viewingEvent" class="modal">
-    <div class="modal-content"> 
+    <div class="homepage-modal-content"> 
       <span @click="toggleEventView()" class="close">&times;</span>
       <div class="modal-header" style="font-size: 30px; font-weight: bold;"> 
         {{ selectedEvent.name }} 
@@ -507,17 +507,7 @@ const clearArrays = () => {
     flex-shrink: 0;
 }
 
-.modal-content { /* Mostly same as in StudentHome.vue*/
-  min-width: 400px;
-  min-height: 100px; 
-  border-radius: 10px;
-  background: #FAFAFA;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px;
-  max-height: 90vh; 
+.homepage-modal-content {
   overflow-y: auto;
   overflow-x: auto;
 }

@@ -277,44 +277,6 @@ const getAllAwards = () => {
   max-width: 200px;
 }
 
-textarea,  
-.input-field {
-  width: 70%;
-  min-width: 400px;
-  height: 42px !important; 
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  font-size: 16px;
-  color: #202020;
-  padding: 8px 12px;
-  transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  resize: none;
-  text-align: left;
-}
-
-.transaction-title {
-  font-family: 'Poppins', sans-serif; 
-  font-size: 32px; 
-  padding-left: 10px;
-  height: 150px; 
-  text-align: center;
-  width: 100%;
-  min-width: 400px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.v-row + .v-row {
-    margin-top: 0px;
-}
-
 .v-col{
   padding: 0px 12px 0px 12px;
 }

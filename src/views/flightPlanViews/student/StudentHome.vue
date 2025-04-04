@@ -70,7 +70,7 @@
   </div>
   <!-- Task Modal -->
   <div v-if="taskModalVisible" class="modal-overlay" @click.self="closeTaskModal">
-    <div class="modal-content">
+    <div class="homepage-modal-content">
       <span @click="closeTaskModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedTask.taskName }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedTask.taskDescription }}</div>
@@ -84,7 +84,7 @@
   </div>
  <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
-    <div class="modal-content">
+    <div class="homepage-modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
@@ -578,19 +578,6 @@ const checkForFlightPlan = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.modal-content { /* Contained in AdminHome.vue*/
-  min-width: 400px;
-  min-height: 100px; 
-  border-radius: 10px;
-  background: #FAFAFA;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px;
-  max-height: 90vh;
 }
 
 /* Events task cards */

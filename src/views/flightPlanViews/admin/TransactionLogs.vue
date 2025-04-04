@@ -704,35 +704,6 @@ const refundTransaction = () => {
     flex-direction: column;
 }
 
-.label-description {
-  color: #202020;
-  text-align: right;
-  font-family: Poppins;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-textarea,  
-.input-field {
-  width: 70%;
-  min-width: 400px;
-  height: 42px !important; 
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  font-size: 16px;
-  color: #202020;
-  padding: 8px 12px;
-  transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  resize: none;
-  text-align: left;
-}
-
 .dropdown-input-field {
   width: 70%;
   min-width: 400px;
@@ -743,32 +714,8 @@ textarea,
   border-radius: 10px !important; 
 }
 
-.transaction-title {
-  font-family: 'Poppins', sans-serif; 
-  font-size: 32px; 
-  padding-left: 10px;
-  height: 150px; 
-  text-align: center;
-  width: 100%;
-  min-width: 400px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .input-field {
-  font-family: 'Inter', sans-serif;
-}
-
-.v-row + .v-row {
-    margin-top: 0px;
-}
-
-.btn-container {
-  display: flex;
-  gap: 20px; 
+  font-family: 'Poppins', sans-serif;
 }
 
 .add-btn {
@@ -776,21 +723,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #5EC4B6;
-  /* Typography */
-  color: #FFF;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-.cancel-btn {
-  width: 160px;
-  height: 60px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.25);
   /* Typography */
   color: #FFF;
   text-align: center;
