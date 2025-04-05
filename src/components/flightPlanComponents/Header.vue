@@ -249,6 +249,7 @@ const toggleLogout = () => {
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.234);
   z-index: 1000;
   /* Ensure header is above other elements */
+  user-select: none;
 }
 
 .logo-title {
