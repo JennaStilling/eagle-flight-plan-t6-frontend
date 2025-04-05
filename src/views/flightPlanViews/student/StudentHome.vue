@@ -48,10 +48,10 @@
             <template v-for="event in limitedEvents" :key="event.id">
               <tr @click="openEventModal(event)" class="clickable-row">
                 <td class="date">
-                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
-                    month: 'short'
-                  }).toLocaleUpperCase() }}</div>
-                  <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { month: 'short'
+                    }).toLocaleUpperCase() }}</div>
+                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+
                 </td>
                 <td style="user-select: none;">
                   {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
@@ -75,7 +75,7 @@
             </template>
           </tbody>
         </table>
-        <p class="view-more" @click.self="viewMoreEvents">View More 🡺</p>
+        <p class="view-more" @click.self="viewMoreEvents">View More Events 🡺</p>
       </div>
     </div>
   </div>
