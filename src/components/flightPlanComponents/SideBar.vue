@@ -49,7 +49,7 @@
   <li><router-link :to="{ name: 'studentFlightPlan' }" @click="closeSidebar"> <span>Student Flight
         Plan</span></router-link></li>
   <li><router-link :to="{ name: 'profile' }" @click="closeSidebar">Profile</router-link></li>
-  <li><router-link :to="{ name: 'student-events' }" @click="closeSidebar">Events</router-link></li>
+  <li><router-link :to="{ name: 'student-events' }" @click="closeSidebar; localStorage.setItem('viewPersonalCalendar', false);">Events</router-link></li>
   <li><router-link :to="{ name: 'shop' }" @click="closeSidebar">Shop</router-link></li>
   <li><router-link :to="{ name: 'leaderboard' }" @click="closeSidebar">Leaderboard</router-link></li>
   <li><router-link :to="{ name: 'student-transactions' }" @click="closeSidebar">Spending History</router-link></li>

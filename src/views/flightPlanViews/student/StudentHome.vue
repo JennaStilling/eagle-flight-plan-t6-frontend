@@ -399,7 +399,7 @@ const goToShop = () => {
   router.push({ name: 'shop' });
 };
 const viewMoreEvents = () => {
-  localStorage.setItem('viewPersonalCalendar', true);
+  localStorage.setItem('viewPersonalCalendar', false);
   router.push({ name: 'student-events' });
 };
 
