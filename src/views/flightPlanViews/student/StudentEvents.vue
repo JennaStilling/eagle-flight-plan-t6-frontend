@@ -42,14 +42,16 @@
                                 <div class="event-title">{{ calendarEvent.title }}</div>
                                 <Icon v-if="calendarEvent.isRegistered" icon="material-symbols:bookmark-rounded"
                                     width="24" height="24" />
-                                <Icon v-if="!calendarEvent.isRegistered" icon="material-symbols:bookmark-outline-rounded"
-                                    width="24" height="24" />
-                                <Icon v-if="calendarEvent.isRecommended"icon="material-symbols:kid-star" width="24" height="24" />
+                                <Icon v-if="!calendarEvent.isRegistered"
+                                    icon="material-symbols:bookmark-outline-rounded" width="24" height="24" />
+                                <Icon v-if="calendarEvent.isRecommended" icon="material-symbols:kid-star" width="24"
+                                    height="24" />
                             </div>
-                            <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
-                                formatEventTime(calendarEvent.end)
-                                }}</div>
-                            <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
+                            <div v-if="getEventDuration(calendarEvent.start, calendarEvent.end) > 60" class="event-time">
+                                {{ formatEventTime(calendarEvent.start) }} - {{ formatEventTime(calendarEvent.end) }}
+                            </div>
+                            <div v-if="calendarEvent.location && getEventDuration(calendarEvent.start, calendarEvent.end) >= 120" 
+                                class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
 
@@ -79,12 +81,14 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 75%"
-                                    @click="closeModal(); studentSignUpForEvent(calendarEvent.id)"
-                                    color="#F68D76">Register</v-btn>
-                                <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 70%"
-                                    @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)"
-                                    color="#F68D76">Unregister</v-btn>
+                                <div style="margin-left: 75%">
+                                    <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)"
+                                        @click="closeModal(); studentSignUpForEvent(calendarEvent.id)"
+                                        color="#F68D76">Register</v-btn>
+                                    <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)"
+                                        @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)"
+                                        color="#F68D76">Unregister</v-btn>
+                                </div>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -328,8 +332,6 @@ const toggleListView = () => {
 const togglePersonalCalendar = () => {
     viewPersonalCalendar.value = !viewPersonalCalendar.value;
     localStorage.setItem('viewPersonalCalendar', viewPersonalCalendar.value)
-    console.log(viewPersonalCalendar.value)
-    console.log(localStorage.getItem('viewPersonalCalendar'))
     reloadPage();
 }
 
@@ -417,11 +419,17 @@ const eventTypeColors = {
 
 const getEventColor = (eventType) => {
     const color = eventTypeColors[eventType?.toLowerCase()] || '#F9C634';
-    const darkColors = ['#27575A', '#004761'];
     return {
         backgroundColor: color,
-        color: darkColors.includes(color) ? '#2C3E50' : 'white'
+        color: 'white'
     };
+};
+
+const getEventDuration = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const duration = endDate.getTime() - startDate.getTime();
+    return duration / 60000; // convert to minutes
 };
 
 const filteredEvents = computed(() => {
@@ -523,12 +531,6 @@ const getAllEvents = () => {
     return EventServices.getAllEvents()
         .then((res) => {
             events.value = res.data;
-            console.log("Events: ")
-            console.log(events.value);
-            console.log("Student Events: ")
-            console.log(studentEvents.value);
-            console.log("Recommended Events: ")
-            console.log(recommendedEvents.value);
             const formattedEvents = events.value.map(event => {
                 const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
                 const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
@@ -539,8 +541,6 @@ const getAllEvents = () => {
 
                 const isStudentRegistered = studentEvents.value.some(se => se.studentEvent[0].eventId === event.id);
                 const isStudentRecommended = recommendedEvents.value.some(recommendedEvent => recommendedEvent.id === event.id);
-                if(isStudentRecommended){console.log(event.id);
-                console.log("Recommended: " + isStudentRecommended)}
 
                 return {
                     id: event.id,
@@ -557,8 +557,6 @@ const getAllEvents = () => {
 
             if (!viewPersonalCalendar.value) {
                 calendarFormattedEvents.value = formattedEvents;
-                console.log("Calendar Formatted Events")
-                console.log(calendarFormattedEvents.value)
                 initializeCalendar(calendarFormattedEvents.value);
             }
 
@@ -583,7 +581,6 @@ const getAllStudentEvents = () => {
                 };
 
                 const isStudentRecommended = recommendedEvents.value.some(recommendedEvent => recommendedEvent.id === event.studentEvent[0].eventId);
-                console.log("Recommended: " + isStudentRecommended)
 
                 return {
                     id: event.id,
@@ -647,7 +644,6 @@ onMounted(async () => {
     await getAllStudentRecommendedEvents();
     await getAllStudentEvents();
 
-    console.log(viewPersonalCalendar.value)
     if (!viewPersonalCalendar.value) {
         await getAllEvents();
     }
