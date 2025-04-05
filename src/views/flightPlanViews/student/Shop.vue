@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-card flat>
-            <!-- Shop title: includes search and filter by cost -->
+            <!-- Shop title: includes search and filter by cost. -->
             <div class="title-row">
                 <h1 class="table-title">
                     <img :src="ShopIcon" alt="Shop Icon" class="shop-icon" />
