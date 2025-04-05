@@ -40,17 +40,32 @@
                             @click="openEventModal(calendarEvent)">
                             <div class="event-header">
                                 <div class="event-title">{{ calendarEvent.title }}</div>
-                                <Icon v-if="calendarEvent.isRegistered" icon="material-symbols:bookmark-rounded"
-                                    width="24" height="24" />
-                                <Icon v-if="!calendarEvent.isRegistered"
-                                    icon="material-symbols:bookmark-outline-rounded" width="24" height="24" />
-                                <Icon v-if="calendarEvent.isRecommended" icon="material-symbols:kid-star" width="24"
-                                    height="24" />
+                                <v-tooltip text="You are registered for this event">
+                                    <template v-slot:activator="{props}">
+                                        <Icon v-if="calendarEvent.isRegistered" v-bind="props"
+                                            icon="material-symbols:bookmark-rounded" width="24" height="24" />
+                                    </template>
+                                </v-tooltip>
+
+                                <v-tooltip text="You are not registered for this event">
+                                    <template v-slot:activator="{ props }">
+                                        <Icon v-if="!calendarEvent.isRegistered" v-bind="props"
+                                            icon="material-symbols:bookmark-outline-rounded" width="24" height="24" />
+                                    </template>
+                                </v-tooltip>
+
+                                <v-tooltip text="This event is recommended for you">
+                                    <template v-slot:activator="{ props }">
+                                        <Icon v-if="calendarEvent.isRecommended" v-bind="props"
+                                            icon="material-symbols:kid-star" width="24" height="24" />
+                                    </template>
+                                </v-tooltip>
                             </div>
-                            <div v-if="getEventDuration(calendarEvent.start, calendarEvent.end) > 60" class="event-time">
+                            <div v-if="getEventDuration(calendarEvent.start, calendarEvent.end) > 60"
+                                class="event-time">
                                 {{ formatEventTime(calendarEvent.start) }} - {{ formatEventTime(calendarEvent.end) }}
                             </div>
-                            <div v-if="calendarEvent.location && getEventDuration(calendarEvent.start, calendarEvent.end) >= 120" 
+                            <div v-if="calendarEvent.location && getEventDuration(calendarEvent.start, calendarEvent.end) >= 120"
                                 class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
