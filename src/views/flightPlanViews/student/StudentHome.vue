@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="events-navigation">
-        <h1>Upcoming Events</h1>
+        <h1>Upcoming Recommended Events</h1>
       </div>
       <div class="event-data-table-container">
         <table class="event-data-table">
@@ -48,10 +48,10 @@
             <template v-for="event in limitedEvents" :key="event.id">
               <tr @click="openEventModal(event)" class="clickable-row">
                 <td class="date">
-                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
-                    month: 'short'
-                  }).toLocaleUpperCase() }}</div>
-                  <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { month: 'short'
+                    }).toLocaleUpperCase() }}</div>
+                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+
                 </td>
                 <td style="user-select: none;">
                   {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
@@ -75,7 +75,7 @@
             </template>
           </tbody>
         </table>
-        <p class="view-more" @click.self="viewMoreEvents">View More 🡺</p>
+        <p class="view-more" @click.self="viewMoreEvents">View More Events 🡺</p>
       </div>
     </div>
   </div>
@@ -88,7 +88,8 @@
       <div v-if="selectedTask.video_link" style="margin-top: 15px;">
         <a :href="selectedTask.video_link" target="_blank">Access resource</a>
       </div>
-      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.point_value }}</span> points
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.taskPoints }}</span> points
+
       </div>
       <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' :
         selectedTask.status }}</div>
@@ -121,6 +122,10 @@
             true
         }) }}
       </div>
+      <v-btn v-if="!isStudentSignedUp"
+        @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)" color="#F68D76">Register</v-btn>
+      <v-btn v-if="isStudentSignedUp"
+        @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)" color="#F68D76">Unregister</v-btn>
     </div>
   </div>
 </template>
@@ -135,6 +140,7 @@ import Utils from "@/config/utils";
 import BackArrow from '@/assets/ArrowBackwardIcon.svg';
 import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
 // Service Files
+
 import UserServices from "@/services/resumeBuilderServices/userServices";
 import StudentServices from "@/services/resumeBuilderServices/studentServices";
 import StudentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
@@ -165,6 +171,16 @@ const semesters = ref([]);
 const currentSemesterIndex = ref(0);
 const studentSemesterFlightPlanTasks = ref({});
 
+const studentFlightPlanTasksList = ref([]);
+const flightPlanTasks = ref([]);
+const flightPlans = ref([]);
+// flight plan consts
+const unapprovedOrInProgressTasks = ref([]);
+const taskDetails = ref([]);
+const specificStudentEvents = ref([]);
+const isStudentSignedUp = ref(false);
+
+const studentId = ref(null);
 
 onMounted(async () => {
   await getSessionData();
@@ -174,11 +190,12 @@ onMounted(async () => {
   await getSemesterTasks(currentSemesterIndex.value);
 
   try {
-    const eventResponse = await EventServices.getAllEvents();
+    const eventResponse = await StudentServices.getRecommendedEvents(studentId.value);
     if (eventResponse.data) {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
+      console.log(limitedEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -191,6 +208,7 @@ const getSessionData = async () => {
   user.value = tempUser.data;
   const tempStudent = await StudentServices.getStudent(user.value.studentId);
   student.value = tempStudent.data;
+  studentId.value = user.value.studentId;
   currentDate.value = new Date().toJSON().slice(0, 24);
 }
 
@@ -246,9 +264,119 @@ const getSemesterTasks = async (semesterIndex) => {
   studentSemesterFlightPlanTasks.value[semesterIndex] = newSemesterTasks;
 }
 
+
+const studentSignUpForEvent = (id) => {
+  if (!studentId.value) {
+    return
+  }
+  else {
+    const newStudentEvent = {
+      eventId: id,
+      studentId: studentId.value
+    }
+    StudentEventServices.createStudentEvent(newStudentEvent)
+    .then((res) => {
+      console.log("Student event added")
+      closeEventModal();
+    })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  }
+}
+
+const studentDeleteStudentEvent = (id) => {
+  StudentEventServices.getAllStudentEvents()
+    .then((res) => {
+      specificStudentEvents.value = res.data;
+
+      if (specificStudentEvents.value) {
+
+        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+        if (eventToDelete) {
+          StudentEventServices.deleteStudentEvent(eventToDelete.id)
+            .then((res) => {
+              console.log("Student event deleted")
+              closeEventModal();
+            })
+            .catch((error) => {
+              console.log("error", error);
+            });
+        }
+      }
+    })
+}
+
+const checkIfStudentIsSignedUp = async (id) => {
+  try {
+    const res = await StudentEventServices.getAllEventsByStudent(studentId.value);
+    const studentEvents = res.data;
+    const studentSpecificEvent = studentEvents.find(studentEvent => 
+      studentEvent.id === id
+    );
+    console.log(studentSpecificEvent);
+    isStudentSignedUp.value = !!studentSpecificEvent;
+    return isStudentSignedUp.value;
+  } catch (error) {
+    console.error('Error checking student signup:', error);
+    return false;
+  }
+}
+
+const getStudentFlightPlanId = async (studentId, flightPlanId) => {
+  try {
+    const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
+    if (response.data) {
+      return response.data[0].id;
+    }
+  } catch (error) {
+    console.error(`Error fetching student flight plan ID for student ID ${studentId} and flight plan ID ${flightPlanId}:`, error);
+  }
+};
+
+const getStudentFlightPlanTask = async (studentFlightPlanTaskId) => {
+  try {
+    const response = await studentFlightPlanTaskServices.getStudentFlightPlanTask(studentFlightPlanTaskId);
+    if (response.data) {
+      if (response.data.status === 'unapproved' || response.data.status === 'in_progress') {
+        unapprovedOrInProgressTasks.value.push(response.data);
+      }
+      await fetchTaskDetailsForUnapprovedOrInProgressTasks();
+    }
+  } catch (error) {
+    console.error("Error fetching student flight plan task for student: " + error);
+  }
+};
+
+// Fetch task details for unapproved or in-progress tasks
+const fetchTaskDetailsForUnapprovedOrInProgressTasks = async () => {
+  taskDetails.value = []; // Clear task details before fetching new ones
+  const promises = unapprovedOrInProgressTasks.value.map(async (task) => {
+    try {
+      const taskDetail = await getTaskDetails(task.taskId);
+      if (taskDetail) {
+        return {
+          ...taskDetail,
+          status: task.status,
+          unapprove_reason: task.unapprove_reason
+        };
+      }
+    } catch (error) {
+      console.error(`Error fetching task details for task ID ${task.taskId}:`, error);
+      return null;
+    }
+  });
+
+  const results = await Promise.all(promises);
+  taskDetails.value = results.filter(Boolean); // Remove null values
+};
+
+// SIMPLE METHODS
+
 // modals --------------------
-const openEventModal = (event) => {
+const openEventModal = async (event) => {
   selectedEvent.value = event;
+  await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
 const closeEventModal = () => {
@@ -273,6 +401,7 @@ const goToShop = () => {
   router.push({ name: 'shop' });
 };
 const viewMoreEvents = () => {
+  localStorage.setItem('viewPersonalCalendar', false);
   router.push({ name: 'student-events' });
 };
 
