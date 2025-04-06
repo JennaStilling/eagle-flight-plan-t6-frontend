@@ -32,10 +32,46 @@
                     <a v-if="task.video_link" :href="task.video_link" target="_blank">
                         Watch Video
                     </a>
+                    <v-card-actions class="popup-actions">
+                        <v-btn class="button" variant="elevated" color="#5EC4B6" v-if="!task.video_link"
+                            @click="showRecommendedEvents = !showRecommendedEvents">View
+                            Recommended Events</v-btn>
+                    </v-card-actions>
                 </div>
             </v-card>
         </v-overlay>
     </div>
+
+    <v-overlay v-if="showRecommendedEvents" class="popup">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Recommended Events</h3>
+            </div>
+            <div class="search-container">
+                <!-- <v-text-field v-model="studentSearchResult" label="Search" variant="outlined" density="compact"
+                    hide-details class="search-field">
+                    <template v-slot:prepend-inner>
+                        <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+                    </template>
+                </v-text-field>
+            </div>
+            <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
+                <v-list class="w-100">
+                    <v-list-item v-for="(name, index) in filteredStudentList" :key="index">
+                        <v-list-item-title>{{ name }}</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+                <div v-if="filteredStudentList.length === 0" class="text-center pa-4">
+                    {{ studentSearchResult ? 'No matching students found' : 'No students registered for this event' }}
+                </div> -->
+            </div>
+            <v-divider></v-divider>
+            <v-card-actions class="popup-actions">
+                <v-spacer></v-spacer>
+                <v-btn color="#708E9A" variant="flat" @click="showRecommendedEvents = false;">Close</v-btn>
+            </v-card-actions>
+        </div>
+        </v-overlay>
 
 </template>
 
@@ -46,6 +82,8 @@ const props = defineProps({
     task: Object,
 });
 const emit = defineEmits(['save-user', 'delete-user']);
+
+const showRecommendedEvents = ref(false)
 
 
 const overlay = ref(false);
@@ -200,5 +238,11 @@ const loading = ref(false)
 
 .view-task a:hover {
     color: #5e0f1f;
+}
+
+.popup-actions {
+    padding: 12px;
+    display: flex;
+    justify-content: center;
 }
 </style>
