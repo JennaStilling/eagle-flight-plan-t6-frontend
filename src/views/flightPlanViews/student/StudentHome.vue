@@ -50,7 +50,8 @@
                 <td class="date">
                   <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { month: 'short'
                     }).toLocaleUpperCase() }}</div>
-                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}
+                  </div>
                 </td>
                 <td style="user-select: none;">
                   {{ new Date(event.start_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric',
@@ -89,7 +90,12 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason }}</div>
+      <v-spacer></v-spacer>
+      <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
+        View Flight Plan
+      </v-btn>
     </div>
+
   </div>
   <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
@@ -110,10 +116,10 @@
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit',
         hour12: true }) }}
       </div>
-      <v-btn v-if="!isStudentSignedUp"
-        @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)" color="#F68D76">Register</v-btn>
-      <v-btn v-if="isStudentSignedUp"
-        @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)" color="#F68D76">Unregister</v-btn>
+      <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
+        color="#F68D76">Register</v-btn>
+      <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
+        color="#F68D76">Unregister</v-btn>
     </div>
   </div>
 </template>
@@ -422,6 +428,10 @@ const viewMoreEvents = () => {
   localStorage.setItem('viewPersonalCalendar', false);
   router.push({ name: 'student-events' });
 };
+
+const viewFlightPlan = () => {
+  router.push({ name: 'studentFlightPlan' })
+}
 
 // semester navigation ----------------------------------------------
 const getPreviousSemester = async () => {
