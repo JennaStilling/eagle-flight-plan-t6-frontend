@@ -14,33 +14,34 @@
               <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
                 class="dropdown-arrow" />
               <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
-            <li v-if="hasUserPermission"><router-link :to="{ name: 'userMaintenance' }"
-                @click="closeSidebar">Users</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'event' }"
-                @click="closeSidebar">Events</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'task' }"
-                @click="closeSidebar">Tasks</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'experience' }"
-                @click="closeSidebar">Experiences</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight
-                Plans</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'major' }" @click="closeSidebar">Majors
-                </router-link></li>
-            <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop
-                Items</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'badge' }"
                 @click="closeSidebar">Badges</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'cliftonStrength' }"
                 @click="closeSidebar">Clifton Strengths</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'event' }"
+                @click="closeSidebar">Events</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'experience' }"
+                @click="closeSidebar">Experiences</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight
+                Plans</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }"
                 @click="closeSidebar">Life After the Nest</router-link></li>
-            <li v-if="hasShopPermission"><router-link :to="{ name: 'transactionLog' }" @click="closeSidebar">Transaction
-                History</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'major' }" @click="closeSidebar">Majors
+              </router-link></li>
+            <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop
+                Items</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'task' }"
+                @click="closeSidebar">Tasks</router-link></li>
+
+            <li v-if="hasUserPermission"><router-link :to="{ name: 'userMaintenance' }"
+                @click="closeSidebar">Users</router-link></li>
       </div>
       </li>
       <!-- Other Admin Pages -->
       <template v-if="isAdminViewActive">
         <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
+        <li v-if="hasShopPermission"><router-link :to="{ name: 'transactionLog' }" @click="closeSidebar">Transaction
+            History</router-link></li>
         <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar">Resume Builder</router-link></li>
       </template>
 </template>
