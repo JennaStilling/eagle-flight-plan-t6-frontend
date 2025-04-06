@@ -13,7 +13,7 @@
             </div>
         </v-row>
 
-        <v-overlay v-model="overlay" class="popup">
+        <v-overlay v-model="overlay" class="popup" :z-index="1">
             <v-card class="view-task">
                 <div class="scroll">
                     <h2>{{ task.name }}</h2>
@@ -34,76 +34,45 @@
                     </a>
                     <v-card-actions class="popup-actions">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" v-if="!task.video_link"
-                            @click="showRecommendedEvents = !showRecommendedEvents">View
-                            Recommended Events</v-btn>
+                            @click="showRecommendedEventsHandler">View Recommended Events</v-btn>
                     </v-card-actions>
                 </div>
             </v-card>
         </v-overlay>
     </div>
-
-    <v-overlay v-if="showRecommendedEvents" class="popup">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Recommended Events</h3>
-            </div>
-            <div class="search-container">
-                <!-- <v-text-field v-model="studentSearchResult" label="Search" variant="outlined" density="compact"
-                    hide-details class="search-field">
-                    <template v-slot:prepend-inner>
-                        <Icon icon="material-symbols:search-rounded" width="24" height="24" />
-                    </template>
-                </v-text-field>
-            </div>
-            <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
-                <v-list class="w-100">
-                    <v-list-item v-for="(name, index) in filteredStudentList" :key="index">
-                        <v-list-item-title>{{ name }}</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-                <div v-if="filteredStudentList.length === 0" class="text-center pa-4">
-                    {{ studentSearchResult ? 'No matching students found' : 'No students registered for this event' }}
-                </div> -->
-            </div>
-            <v-divider></v-divider>
-            <v-card-actions class="popup-actions">
-                <v-spacer></v-spacer>
-                <v-btn color="#708E9A" variant="flat" @click="showRecommendedEvents = false;">Close</v-btn>
-            </v-card-actions>
-        </div>
-        </v-overlay>
-
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 
 const props = defineProps({
     task: Object,
+    showOverlay: {
+        type: Boolean,
+        default: false
+    }
 });
-const emit = defineEmits(['save-user', 'delete-user']);
 
-const showRecommendedEvents = ref(false)
-
+const emit = defineEmits(['save-user', 'delete-user', 'show-recommended-events', 'update:showOverlay']);
 
 const overlay = ref(false);
-const menu = ref(false);
 
-
-onMounted(() => {
-
+watch(() => props.showOverlay, (newValue) => {
+    overlay.value = newValue;
 });
 
+watch(overlay, (newValue) => {
+    emit('update:showOverlay', newValue);
+});
 
-const refresh = () => {
-}
-
-const selectTask = () => {
-    refresh();
-    overlay.value = !overlay.value;
+const showRecommendedEventsHandler = () => {
+    overlay.value = false; 
+    emit('show-recommended-events', props.task); 
 };
 
-
+const selectTask = () => {
+    overlay.value = !overlay.value;
+};
 
 const handleMouseover = () => {
     //console.log("MOUSE ON");
@@ -113,13 +82,7 @@ const handleMouseleave = () => {
     //console.log("MOUSE OFF");
 };
 
-
-
-
-
 const loading = ref(false)
-
-
 </script>
 
 <style scoped>
@@ -189,6 +152,7 @@ const loading = ref(false)
 .popup {
     align-items: center;
     justify-content: center;
+    position: fixed;
 }
 
 .view-task {
