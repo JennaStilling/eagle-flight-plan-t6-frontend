@@ -24,6 +24,8 @@
                 @click="closeSidebar">Experiences</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight
                 Plans</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'major' }" @click="closeSidebar">Majors
+                </router-link></li>
             <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop
                 Items</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'badge' }"
@@ -49,7 +51,8 @@
   <li><router-link :to="{ name: 'studentFlightPlan' }" @click="closeSidebar"> <span>Student Flight
         Plan</span></router-link></li>
   <li><router-link :to="{ name: 'profile' }" @click="closeSidebar">Profile</router-link></li>
-  <li><router-link :to="{ name: 'student-events' }" @click="closeSidebar; localStorage.setItem('viewPersonalCalendar', false);">Events</router-link></li>
+  <li><router-link :to="{ name: 'student-events' }"
+      @click="closeSidebar; localStorage.setItem('viewPersonalCalendar', false);">Events</router-link></li>
   <li><router-link :to="{ name: 'shop' }" @click="closeSidebar">Shop</router-link></li>
   <li><router-link :to="{ name: 'leaderboard' }" @click="closeSidebar">Leaderboard</router-link></li>
   <li><router-link :to="{ name: 'student-transactions' }" @click="closeSidebar">Spending History</router-link></li>

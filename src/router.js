@@ -44,6 +44,7 @@ import LifeAfterTheNestFP from "./views/flightPlanViews/admin/LifeAfterTheNest.v
 import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaintenance.vue";
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
+import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue"
 // Student Pages
 import StudentFlightPlan from "./views/flightPlanViews/student/StudentFlightPlan.vue";
 import Leaderboard from "./views/flightPlanViews/student/Leaderboard.vue";
@@ -220,6 +221,11 @@ const routes = [
     component: FlightPlanMaintenance,
   },
   {
+    path: "/flightPlan/major/Maintenance",
+    name: "major",
+    component: MajorMaintenance,
+  },
+  {
     path: "/flightPlan/flightPlan/studentFlightPlan",
     name: "studentFlightPlan",
     component: StudentFlightPlan,
@@ -251,12 +257,28 @@ const routes = [
   },
 
   //Student Pages
-  { path: '/flightPlan/shop', name: 'shop', component: Shop },
+  { path: "/flightPlan/shop", name: "shop", component: Shop },
   // { path: '/flightPlan/events', name: 'events', component: Events },
-  { path: '/flightPlan/leaderboard', name: 'leaderboard', component: Leaderboard },
-  { path: "/flightPlan/student-events", name: "student-events", component: Events },
-  { path: "/flightPlan/student-transactions", name: "student-transactions", component: Transactions },
-  { path: "/flightPlan/student-lifeAfterTheNest", name: "student-lifeAfterTheNest", component: StudentLifeAfterTheNest },
+  {
+    path: "/flightPlan/leaderboard",
+    name: "leaderboard",
+    component: Leaderboard,
+  },
+  {
+    path: "/flightPlan/student-events",
+    name: "student-events",
+    component: Events,
+  },
+  {
+    path: "/flightPlan/student-transactions",
+    name: "student-transactions",
+    component: Transactions,
+  },
+  {
+    path: "/flightPlan/student-lifeAfterTheNest",
+    name: "student-lifeAfterTheNest",
+    component: StudentLifeAfterTheNest,
+  },
 ];
 
 const router = createRouter({
