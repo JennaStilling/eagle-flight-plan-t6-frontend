@@ -178,6 +178,29 @@
               hide-details></v-text-field>
           </v-col>
         </v-row>
+
+        <!-- Ask if the Admin wants to add a quiz -->
+        <v-row class="form-row">
+          <v-col cols="5" class="label-column">
+            <label>{{ labels.quiz }}</label>
+          </v-col>
+          <v-col cols="7">
+            <v-switch v-model="isQuiz" hide-details></v-switch>
+          </v-col>
+        </v-row>
+
+        <div v-if="quizMessage" style="color: red">{{ quizMessage }}</div>
+        <!-- Quiz Link -->
+        <v-row class="form-row" v-if="isQuiz">
+          <v-col cols="5" class="label-column">
+            <label>{{ labels.quizLink }}</label>
+          </v-col>
+
+          <v-col cols="7">
+            <v-text-field v-model="quizLink" variant="outlined" density="compact"
+              hide-details></v-text-field>
+          </v-col>
+        </v-row>
       </v-container>
 
       <v-divider></v-divider>
@@ -196,7 +219,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import TaskServices from '@/services/flightPlanServices/taskServices';
+import verificationServices from '@/services/flightPlanServices/verificationServices'; 
 import { Icon } from "@iconify/vue";
+import { linkFormToSheet } from '@/services/flightPlanServices/quizLinkServices'; 
 
 const search = ref('');
 const tasks = ref([]);
@@ -207,6 +232,7 @@ const showDeleteItem = ref(false);
 const deleteError = ref(false);
 const editError = ref(false);
 const selectedFilter = ref('All');
+const quizMessage = ref('');
 
 const taskToEdit = ref(null);
 const taskToDelete = ref(null);
@@ -224,8 +250,10 @@ const taskVideoLink = ref("");
 const taskVerificationType = ref("");
 const isRequired = ref(false);
 const taskDescription = ref("");
-
-
+const isQuiz = ref(false);
+const quizLink = ref(null);
+const publicURL = ref(null);
+const verification = ref(null);
 
 const headers = ref([
   { align: 'start', key: 'name', title: 'Name' },
@@ -251,7 +279,9 @@ const labels = {
   points: "Point Value",
   prereq: "Pre-Requisites",
   video: "Video Link",
-  verification: "Verification Type"
+  verification: "Verification Type",
+  quiz: "Add a Quiz?",
+  quizLink: "Quiz Link"
 };
 
 const filteredTasks = computed(() => {
@@ -286,7 +316,7 @@ const getAllTasks = () => {
 
 
 
-const editTaskPopup = (task) => {
+const editTaskPopup = async (task) => {
   taskToEdit.value = task;
   showTaskDetails.value = true;
   taskEdit.value = true;
@@ -303,13 +333,22 @@ const editTaskPopup = (task) => {
   isRequired.value = taskToEdit.value.reflection_required;
   taskName.value = taskToEdit.value.name;
   scheduleType.value = capitalize(taskToEdit.value.schedule_type);
+  quizLink.value = null;
+  isQuiz.value = false;
+
+  await getVerfication(taskToEdit.value.verificationId);
+  console.log(verification.value);
+  if (verification.value.type === 'automatic') {
+    isQuiz.value = true;
+    quizLink.value = verification.value.google_form_url;
+  }
 };
 
 function capitalize(s) {
   return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
 
-const editTask = () => {
+const editTask = async () => {
   if (taskCategory.value === 'Career Prep') {
     taskCategory.value = 'career_prep'
   }
@@ -320,6 +359,23 @@ const editTask = () => {
 
   if (scheduleType.value === 'Special Event') {
     scheduleType.value = 'special_event'
+  }
+
+  // Sets it to the provided verification id if it is not a quiz
+  let verificationId = taskVerificationType.value;
+  if (isQuiz) {
+    let verification = await lookForVerificationByLink(quizLink.value);
+    // if it is a quiz but there is no verification entry inside the verification table with the provided quizlink, it will create one
+    if (!verification) {
+      // Since it is a new link, we need to check if it is set up right and link it to the Google Sheets
+      if (!(await verifyQuiz())) return;
+      const newVerification = {
+        type: 'automatic',
+        google_form_url: publicURL.value
+      }
+      verification = (await verificationServices.createVerification(newVerification)).data;
+    }
+    verificationId = verification.id;
   }
 
   const updatedTask = {
@@ -333,7 +389,7 @@ const editTask = () => {
     point_value: taskPointValue.value,
     video_link: taskVideoLink.value,
     taskId: taskPreReq.value,
-    verificationId: taskVerificationType.value,
+    verificationId: verificationId,
   };
 
   TaskServices.updateTask(taskToEdit.value.id, updatedTask)
@@ -366,10 +422,12 @@ const addTaskPopup = () => {
   taskDescription.value = "";
   isRequired.value = false;
   scheduleType.value = "";
+  isQuiz.value = false;
+  quizLink.value = null;
 };
 
 
-const addTask = () => {
+const addTask = async () => {
   if (taskCategory.value === 'Career Prep') {
     taskCategory.value = 'career_prep'
   }
@@ -380,6 +438,23 @@ const addTask = () => {
 
   if (scheduleType.value === 'Special Event') {
     scheduleType.value = 'special_event'
+  }
+
+  // Sets it to the provided verification id if it is not a quiz
+  let verificationId = taskVerificationType.value;
+  if (isQuiz) {
+    let verification = await lookForVerificationByLink(quizLink.value);
+    // if it is a quiz but there is no verification entry inside the verification table with the provided quizlink, it will create one
+    if (!verification) {
+      // Since it is a new link, we need to check if it is set up right and link it to the Google Sheets
+      if (!(await verifyQuiz())) return;
+      const newVerification = {
+        type: 'automatic',
+        google_form_url: publicURL.value
+      }
+      verification = (await verificationServices.createVerification(newVerification)).data;
+    }
+    verificationId = verification.id;
   }
 
   const newTask = {
@@ -393,7 +468,7 @@ const addTask = () => {
     point_value: taskPointValue.value,
     video_link: taskVideoLink.value,
     // taskId: taskPreReq.value,
-    // verificationId: taskVerificationType.value,
+    verificationId: verificationId
   };
 
   console.log(newTask)
@@ -447,6 +522,44 @@ const deleteSelectedTasks = (selected) => {
     });
   } else {
     console.log("No tasks selected.");
+  }
+}
+
+const getVerfication = async (id) => {
+  verification.value = (await verificationServices.getVerification(id)).data;
+}
+
+// Checks to see if a verification already exists with that link and passes that ID
+const lookForVerificationByLink = async (link) => {
+  const verifications = (await verificationServices.getAllVerifications()).data;
+  const verification = verifications.find(verification => verification.google_form_url === link);
+  return verification;
+}
+
+const verifyQuiz = async () => {
+  if (quizLink.value == null) {
+    quizMessage.value = "No link was added to the task"
+    return false;
+  }
+  const formId = quizLink.value.match(/\/forms\/d\/([a-zA-Z0-9_-]+)/)[1];
+  quizMessage.value = "Linking form...";
+  try {
+    const result = await linkFormToSheet(formId); // Works with the private facing formId
+    console.log("Results");
+    console.log(result)
+    if (result.result.includes("Error: The form is not set up as a quiz.")){
+      quizMessage.value = "The form provided is not set up as a quiz";
+      return false;
+    }
+    else {
+      publicURL.value = result.result;
+      quizMessage.value = "Quiz successfully added";
+      return true;
+    }
+  } catch (error) {
+    quizMessage.value = "Error linking form.";
+    console.error(error);
+    return false;
   }
 }
 
