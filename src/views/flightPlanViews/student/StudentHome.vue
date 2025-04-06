@@ -149,7 +149,6 @@ import TaskServices from "@/services/flightPlanServices/taskServices";
 import EventServices from "@/services/flightPlanServices/eventServices";
 import SemesterServices from '@/services/flightPlanServices/semesterServices';
 import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
-import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import { get } from '@vueuse/core';
 import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
 
@@ -181,6 +180,8 @@ const taskDetails = ref([]);
 const specificStudentEvents = ref([]);
 const isStudentSignedUp = ref(false);
 
+const studentId = ref(null);
+
 onMounted(async () => {
   await getSessionData();
   await checkForFlightPlan();
@@ -189,7 +190,7 @@ onMounted(async () => {
   await getSemesterTasks(currentSemesterIndex.value);
 
   try {
-    const eventResponse = await studentServices.getRecommendedEvents(studentId.value);
+    const eventResponse = await StudentServices.getRecommendedEvents(studentId.value);
     if (eventResponse.data) {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -207,6 +208,7 @@ const getSessionData = async () => {
   user.value = tempUser.data;
   const tempStudent = await StudentServices.getStudent(user.value.studentId);
   student.value = tempStudent.data;
+  studentId.value = user.value.studentId;
   currentDate.value = new Date().toJSON().slice(0, 24);
 }
 
