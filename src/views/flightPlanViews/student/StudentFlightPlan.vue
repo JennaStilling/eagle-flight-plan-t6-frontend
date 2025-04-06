@@ -122,8 +122,6 @@
             </div>
             <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
                 color="#F68D76">Register</v-btn>
-            <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
-                color="#F68D76">Unregister</v-btn>
         </v-card>
     </v-overlay>
 
