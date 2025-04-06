@@ -447,10 +447,9 @@ const eventTypeColors = {
 
 const getEventColor = (eventType) => {
     const color = eventTypeColors[eventType?.toLowerCase()] || '#F9C634';
-    const darkColors = ['#27575A', '#004761'];
     return {
         backgroundColor: color,
-        color: darkColors.includes(color) ? '#2C3E50' : 'white'
+        color: 'white'
     };
 };
 
