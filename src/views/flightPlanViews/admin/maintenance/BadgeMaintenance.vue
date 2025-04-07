@@ -451,6 +451,13 @@ const fileUpload = (event) => {
 }
 
 /* Add and Edit */
+.edit-popup {
+  max-width: 550px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 16px;
+}
+
 .popup-header {
   display: flex;
   font-size: 18px;
@@ -458,5 +465,11 @@ const fileUpload = (event) => {
   text-align: center;
   width: 100%;
   gap: 16px;
+}
+
+.popup-actions {
+  padding: 12px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
