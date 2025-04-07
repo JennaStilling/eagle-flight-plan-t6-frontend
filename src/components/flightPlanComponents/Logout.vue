@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, onMounted } from "vue";
 import Utils from '@/config/utils.js';
 import { UserRoles, HomePages, useHomePageStore } from '@/store/homePageStore';
@@ -50,7 +51,7 @@ const logout = () => {
 </script>
 
 <style scoped>
-.modal {
+.modal { /* Same as in AdminHome.vue*/
     width: 100%;
     height: 100%;
     flex-shrink: 0;
@@ -65,53 +66,14 @@ const logout = () => {
     background: #FFF;
 }
 
-.modal-header {
-    display: flex;
-    width: 100%;
+.modal-header { /*done*/
     height: 100%;
-    flex-direction: column;
-    justify-content: center;
     flex-shrink: 0;
     color: #000;
     text-align: center;
-    /* font-family: Poppins; */
     font-size: 60px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
 }
-
-.cancel-button {
-    margin-top: 40px;
-    margin-right: 100px;
-    width: 120px;
-    height: 50px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: rgba(32, 32, 32, 0.25);
-    color: #FFF;
-    text-align: center;
-    /* font-family: Poppins; */
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.logout-button {
-    margin-top: 40px;
-    width: 120px;
-    height: 50px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: #F04E3E;
-    color: #FFF;
-    text-align: center;
-    /* font-family: Poppins; */
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
 </style>

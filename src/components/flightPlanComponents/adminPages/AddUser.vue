@@ -206,6 +206,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { computed, ref, onMounted, watch } from "vue";
 import blankImage from "@/assets/blankProfile.jpg";
 
@@ -441,80 +442,12 @@ const clearNewRoles = () => {
 </script>
 
 <style scoped>
-.edit-user {
-
-    background-color: rgb(255, 255, 255);
-
-    width: 70vw;
-    /* Set width to resemble a piece of paper */
-    height: 70vh;
-    /* Set height */
-    padding: 10px;
-    /* Padding inside the box */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    /* Subtle shadow */
-    margin-bottom: 10px;
-    /* Space below the shortcut area */
-    border-radius: 20px;
-}
-
-.scroll {
-    overflow-y: auto;
-    max-height: 100%;
-}
-
-.form {
-    margin: 2%;
-}
-
-.popup {
-    align-items: center;
-    justify-content: center;
-
-}
-
-.profile-image-row {
-    align-items: center;
-    margin: auto;
-}
-
-.image-container {
-    width: 20%;
-    height: 20%;
-    margin: 1%;
-    cursor: pointer;
-}
-
 .label-column {
     display: flex;
     align-items: flex-start;
     justify-content: flex-end;
-    text-align: right;
     margin-top: 0px;
     padding-top: 0;
     height: 50px;
-}
-
-.label-description {
-    color: #202020;
-    font-family: Poppins;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    margin: 0;
-}
-
-.label-column p {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 12px;
-    color: #555;
-}
-
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
 }
 </style>

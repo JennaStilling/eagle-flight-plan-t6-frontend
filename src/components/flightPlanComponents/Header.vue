@@ -46,6 +46,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import Utils from "@/config/utils";
 import AuthServices from "@/services/resumeBuilderServices/authServices";
@@ -236,90 +237,3 @@ const toggleLogout = () => {
   profileMenuOpen.value = false;
 }
 </script>
-
-<style scoped>
-.header {
-  background-color: #811429;
-  color: #FFF;
-  padding-top: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.234);
-  z-index: 1000;
-  /* Ensure header is above other elements */
-  user-select: none;
-}
-
-.logo-title {
-  display: flex;
-  align-items: center;
-  text-indent: 10px;
-  font-size: 17px;
-  overflow: hidden;
-}
-
-.logo {
-  width: 50px;
-  height: auto;
-  cursor: pointer;
-}
-
-.user-menu,
-.home-menu {
-  position: relative;
-}
-
-.home-menu span {
-  margin-left: 5px;
-}
-
-.user-icon {
-  width: 50px;
-  height: auto;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-.dropdown-menu {
-  text-align: center;
-  position: absolute;
-  right: 0;
-  background-color: #FFFFFF;
-  z-index: 2000;
-  /* Higher z-index to ensure dropdown is above everything */
-  color: #811429;
-  box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
-  width: 317px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: #FFF;
-}
-
-.dropdown-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.dropdown-menu li {
-  padding: 10px;
-  cursor: pointer;
-}
-
-.dropdown-menu li:hover {
-  border: 1px solid #811429;
-}
-
-.role-menu {
-  background-color: rgba(32, 32, 32, .1) !important;
-  background: rgba(32, 32, 32, .1) !important;
-}
-
-.arrow-icon {
-  margin-left: auto;
-  width: 25px;
-  height: 20px;
-}
-</style>

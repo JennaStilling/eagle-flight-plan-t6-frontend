@@ -121,10 +121,56 @@
         </table>
       </div>
     </div>
+  </div>
+  <!-- Task Modal -->
+  <div v-if="taskModalVisible" class="modal-overlay" @click.self="closeTaskModal">
+    <div class="homepage-modal-content">
+      <span @click="closeTaskModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedTask.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedTask.description }}</div>
+      <div v-if="selectedTask.video_link" style="margin-top: 15px;">
+        <a :href="selectedTask.video_link" target="_blank">Access resource</a>
+      </div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' :
+        selectedTask.status }}</div>
+      <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
+        selectedTask.unapprove_reason
+        }}</div>
+      <v-spacer></v-spacer>
+      <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
+        View Flight Plan
+      </v-btn>
+    </div>
+  </div>
+  <!-- Event Modal -->
+  <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
+    <div class="homepage-modal-content">
+      <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedEvent.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
+      </div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12:
+        true
+        }) }}
+      </div>
+    </div>
 
   </div>
-
-
 
   <!-- Event Attendance Modal -->
   <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
@@ -179,7 +225,9 @@ import SemesterServices from '@/services/flightPlanServices/semesterServices';
 import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import { get } from '@vueuse/core';
-import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
+import "@/assets/generic-stylesheet.css";
+
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -532,17 +580,14 @@ const closeTaskModal = () => {
   background-color: #ffffff;
 }
 
-.left-side,
-.right-side {
+.left-side, .right-side {
   width: 50%;
   padding: 17px;
-}
-
-.left-side {
   margin-left: 2%;
 }
 
 /* SEMESTER NAVIGATION --------------*/
+/* Ask about how to balance the buttons on the screen */
 .semester-navigation {
   display: flex;
   align-items: center;
@@ -564,11 +609,6 @@ const closeTaskModal = () => {
   margin-right: 6%;
   margin-top: 1%;
   user-select: none;
-}
-
-.semester-navigation img {
-  width: 2.6rem;
-  height: 2.6rem;
 }
 
 .semester-navigation h1 {
@@ -746,19 +786,6 @@ const closeTaskModal = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.modal-content {
-  min-width: 400px;
-  min-height: 100px;
-  border-radius: 10px;
-  background: #FAFAFA;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px;
-  max-height: 90vh;
 }
 
 /* Events task cards */

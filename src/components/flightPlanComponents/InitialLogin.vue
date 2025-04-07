@@ -31,6 +31,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Utils from '@/config/utils';
@@ -90,10 +91,6 @@ const handleRoute = (loc) => {
 </script>
 
 <style scoped>
-* {
-    font-family: 'Poppins', sans-serif;
-}
-
 .container {
     display: flex;
     justify-content: center;
@@ -147,15 +144,11 @@ const handleRoute = (loc) => {
     margin-top: 16px;
 }
 
-
 .button {
-    width: auto;
     padding: 16px 24px;
-    color: white !important;
     font-size: clamp(16px, 2vw, 18px);
     font-weight: 600;
     border-radius: 8px;
     text-transform: none;
-    white-space: nowrap;
 }
 </style>

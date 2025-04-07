@@ -47,6 +47,7 @@ import UserServices from '@/services/resumeBuilderServices/userServices.js';
 import Utils from '@/config/utils';
 import TrophyIcon from '@/assets/trophyIcon.png';
 import LeaderboardIcon from '@/assets/leaderboardIcon.png';
+import "@/assets/generic-stylesheet.css";
 
 const students = ref([]);
 const loading = ref(false);
@@ -166,19 +167,11 @@ const isCurrentUser = (item) => {
 <style scoped>
 /* Leaderboard title & search bar section ---------------------------*/
 .title-row {
-  display: flex;
-  align-items: center;
   gap: 8px;
-  padding: 16px;
-  flex-wrap: nowrap;
   user-select: none;
 }
 
 .table-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
   user-select: none;
 }
 
@@ -190,9 +183,6 @@ const isCurrentUser = (item) => {
 }
 
 .search-bar {
-  width: 250px;
-  min-width: 180px;
-  flex-shrink: 1;
   padding-left: 2px;
 }
 

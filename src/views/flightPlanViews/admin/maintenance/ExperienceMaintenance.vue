@@ -157,6 +157,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, computed, onMounted } from 'vue';
 import ExperienceTypeServices from '@/services/flightPlanServices/experienceTypeServices';
 import { Icon } from "@iconify/vue";
@@ -411,108 +412,3 @@ const deleteSelectedExperiences = (selected) => {
 }
 
 </script>
-
-
-<style>
-/* @import "insert style sheet here later" */
-</style>
-
-<style scoped>
-.title-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    flex-wrap: wrap;
-}
-
-.table-title {
-    font-family: 'Poppins', sans-serif !important;
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-}
-
-.search-filter-button-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-grow: 1;
-    justify-content: flex-start;
-}
-
-.search-bar {
-    width: 250px;
-    min-width: 180px;
-    max-width: 300px;
-    flex-shrink: 1;
-}
-
-.filter-menu {
-    width: 180px;
-    min-width: 150px;
-    max-width: 200px;
-}
-
-.button {
-    width: auto;
-    color: white !important;
-    white-space: nowrap;
-}
-
-.button-white-text {
-    color: white !important;
-}
-
-.label-column p {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 12px;
-    color: #555;
-}
-
-.popup-header {
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.popup-actions {
-    padding: 12px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.edit-popup {
-    max-width: 550px;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.popup-content {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.label-column {
-    white-space: nowrap;
-    text-align: right;
-    font-weight: 500;
-    font-size: 14px;
-    color: #555;
-}
-
-.v-text-field,
-.v-textarea {
-    width: 100%;
-}
-</style>

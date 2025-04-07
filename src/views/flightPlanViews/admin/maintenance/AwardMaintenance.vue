@@ -177,6 +177,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import { ref, computed, onMounted } from 'vue';
 import awardServices from '@/services/flightPlanServices/awardServices';
 import { Icon } from "@iconify/vue";
@@ -409,163 +410,10 @@ const fileUpload = (event) => {
 </script>
 
 <style scope>
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  flex-wrap: wrap;
-}
-
-.table-title {
-  font-family: 'Poppins', sans-serif !important;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.search-filter-button-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-grow: 1;
-  justify-content: flex-start;
-}
-
-.search-bar {
-  width: 250px;
-  min-width: 180px;
-  max-width: 300px;
-  flex-shrink: 1;
-}
-
-.filter-menu {
-  width: 180px;
-  min-width: 150px;
-  max-width: 200px;
-}
-
-.button {
-  width: auto;
-  color: white !important;
-  white-space: nowrap;
-}
-
-.button-white-text {
-  color: white !important;
-}
-
-.label-column p {
-  font-weight: 500;
-  font-size: 14px;
-  margin-bottom: 12px;
-  color: #555;
-}
-
-.popup-header {
-  display: flex;
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  width: 100%;
-  gap: 16px;
-}
-
-.popup-actions {
-  padding: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.edit-popup {
-  max-width: 550px;
-  /* Increased width */
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 16px;
-}
-
-.popup-content {
-  max-height: 60vh;
-  overflow-y: auto;
-  padding: 16px;
-}
-
-.form-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.label-column {
-  white-space: nowrap;
-  /* Prevents labels from wrapping */
-  text-align: right;
-  /* Aligns labels to the right */
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
-}
-
-.v-text-field,
-.v-textarea {
-  width: 100%;
-  /* Ensures input fields take up full width */
-}
-
 .modal-title {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px;
-}
-
-.image-container {
-  position: relative; 
-  width: 100px;
-  height: 100px;
-  flex-shrink: 0;
-  aspect-ratio: 1/1;
-  background: rgba(32, 32, 32, 0.15);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.image-preview img {
-  position: absolute;
-  top: 50%;  
-  left: 50%; 
-  transform: translate(-50%, -50%); 
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.placeholder-text {
-    position: absolute;
-    color: #666;
-    font-size: 14px;
-    text-align: center;
-    pointer-events: none;
-}
-
-.name-input {
-  /* flex-grow: 1; */
-  height: 100px; /* Match the new image height */
-  /* display: flex; */
-  align-items: center;
-  width: 100%;
-}
-
-.name-input .v-field__control {
-  height: 100%;
-  align-items: center;
-  /* display: flex; */
-  width: 100%;
 }
 </style>

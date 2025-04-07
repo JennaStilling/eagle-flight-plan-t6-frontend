@@ -51,6 +51,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
 
@@ -502,9 +503,6 @@ const deleteStudent = async (studentId) => {
 
 <style scoped>
 .modified-width {
-  height: 100vh;
-  margin: 0 auto;
-  padding-top: 15px;
   overflow-y: auto;
 }
 
@@ -532,87 +530,13 @@ const deleteStudent = async (studentId) => {
 }
 
 .card-outlines {
-
   background-color: rgb(255, 255, 255);
-
   width: 100%;
-  /* Set width to resemble a piece of paper */
   height: 100;
-  /* Set height */
   padding: 10px;
-  /* Padding inside the box */
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
   margin-bottom: 10px;
-  /* Space below the shortcut area */
   border-radius: 20px;
   cursor: pointer;
-}
-
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  flex-wrap: wrap;
-}
-
-.table-title {
-  font-family: 'Poppins', sans-serif !important;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.search-filter-button-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-grow: 1;
-  justify-content: flex-start;
-}
-
-.search-bar {
-  width: 250px;
-  min-width: 180px;
-  max-width: 300px;
-  flex-shrink: 1;
-}
-
-.filter-menu {
-  width: 180px;
-  min-width: 150px;
-  max-width: 200px;
-}
-
-.button {
-  width: auto;
-  color: white !important;
-  white-space: nowrap;
-}
-
-.add-user {
-
-  background-color: rgb(255, 255, 255);
-
-  width: 70vw;
-  /* Set width to resemble a piece of paper */
-  height: 70vh;
-  /* Set height */
-  padding: 10px;
-  /* Padding inside the box */
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
-  margin-bottom: 10px;
-  /* Space below the shortcut area */
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.scroll {
-  overflow-y: auto;
-  max-height: 100%;
 }
 </style>
