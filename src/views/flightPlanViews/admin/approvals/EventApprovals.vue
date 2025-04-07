@@ -53,7 +53,7 @@
                         </v-list-item>
                     </v-list>
                     <div v-if="filteredStudentList.length === 0" class="text-center pa-4">
-                        {{ studentSearchResult ? 'No matching students found' : 'No students registered for this event'
+                        {{ studentSearchResult ? 'No matching students found' : 'No students requesting approval'
                         }}
                     </div>
                 </div>
@@ -224,7 +224,10 @@ const showStudentNamesListPopup = async (event) => {
 const getStudentAttendees = (event) => {
     StudentEventServices.getAllStudentsByEvent(event.id)
         .then((res) => {
-            const students = res.data;
+            const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
+            console.log(students)
+            // students = students
+            // console.log(students)
             studentNameList.value = []
             // console.log("Here")
             // console.log(students)
