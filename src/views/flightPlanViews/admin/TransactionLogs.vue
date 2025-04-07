@@ -215,6 +215,7 @@ import transactionServices from '@/services/flightPlanServices/transactionServic
 import userRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 import userRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import permissionServices from '@/services/flightPlanServices/permissionServices';
+import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
 const name = ref(null);
@@ -671,55 +672,8 @@ const refundTransaction = () => {
 </script>
 
 <style scope>
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  flex-wrap: wrap;
-}
-
-.table-title {
-  font-family: 'Poppins', sans-serif !important;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.search-filter-button-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-grow: 1;
-  justify-content: flex-start;
-}
-
-.search-bar {
-  width: 250px;
-  min-width: 180px;
-  max-width: 300px;
-  flex-shrink: 1;
-}
-
-.filter-menu {
-  width: 180px;
-  min-width: 150px;
-  max-width: 200px;
-}
-
-.button {
-  width: auto;
-  color: white !important;
-  white-space: nowrap;
-}
-
-.button-white-text {
-  color: white !important;
-}
-
 /* Redeem points modal */
-.modal {
+.modal { /* Same as in Profile.vue*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -731,7 +685,7 @@ const refundTransaction = () => {
   background: rgba(0, 0, 0, 0.5); 
 }
 
-.modal-content {
+.modal-content { /* Same as in Profile.vue*/
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -743,57 +697,11 @@ const refundTransaction = () => {
   align-items: center;
 }
 
-.popup-header {
-  display: flex;
-  text-align: center;
-  width: 100%;
-  gap: 16px;
-  margin-bottom: 10px;
-}
-
 .popup-content {
     text-align: center;
     width: 100%;
     display: flex;
     flex-direction: column;
-}
-
-.label-column {
-  width: 150px;
-  white-space: nowrap;
-  text-align: right;
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
-}
-
-.label-description {
-  color: #202020;
-  text-align: right;
-  font-family: Poppins;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-textarea,  
-.input-field {
-  width: 70%;
-  min-width: 400px;
-  height: 42px !important; 
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  font-size: 16px;
-  color: #202020;
-  padding: 8px 12px;
-  transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  resize: none;
-  text-align: left;
 }
 
 .dropdown-input-field {
@@ -806,44 +714,8 @@ textarea,
   border-radius: 10px !important; 
 }
 
-.transaction-title {
-  font-family: 'Poppins', sans-serif; 
-  font-size: 32px; 
-  padding-left: 10px;
-  height: 150px; 
-  text-align: center;
-  width: 100%;
-  min-width: 400px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .input-field {
-  font-family: 'Inter', sans-serif;
-}
-
-.v-row + .v-row {
-    margin-top: 0px;
-}
-
-.v-col{
-  padding: 0px 12px 0px 12px;
-}
-
-.form-row {
-  display: flex;
-  justify-content: flex-start;
-  display: flex;
-  align-items: center;
-  margin-bottom: 0px;
-}
-
-.btn-container {
-  display: flex;
-  gap: 20px; 
+  font-family: 'Poppins', sans-serif;
 }
 
 .add-btn {
@@ -851,23 +723,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #5EC4B6;
-
-  /* Typography */
-  color: #FFF;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-.cancel-btn {
-  width: 160px;
-  height: 60px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.25);
-
   /* Typography */
   color: #FFF;
   text-align: center;
@@ -883,7 +738,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #F04E3E;
-
   /* Typography */
   color: #FFF;
   text-align: center;

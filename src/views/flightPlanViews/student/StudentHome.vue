@@ -120,7 +120,7 @@
   </div>
   <!-- Task Modal -->
   <div v-if="taskModalVisible" class="modal-overlay" @click.self="closeTaskModal">
-    <div class="modal-content">
+    <div class="homepage-modal-content">
       <span @click="closeTaskModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedTask.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedTask.description }}</div>
@@ -142,7 +142,7 @@
   </div>
   <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
-    <div class="modal-content">
+    <div class="homepage-modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
@@ -223,7 +223,9 @@ import SemesterServices from '@/services/flightPlanServices/semesterServices';
 import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import { get } from '@vueuse/core';
-import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
+import "@/assets/generic-stylesheet.css";
+
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -576,17 +578,14 @@ const closeTaskModal = () => {
   background-color: #ffffff;
 }
 
-.left-side,
-.right-side {
+.left-side, .right-side {
   width: 50%;
   padding: 17px;
-}
-
-.left-side {
   margin-left: 2%;
 }
 
 /* SEMESTER NAVIGATION --------------*/
+/* Ask about how to balance the buttons on the screen */
 .semester-navigation {
   display: flex;
   align-items: center;
@@ -608,11 +607,6 @@ const closeTaskModal = () => {
   margin-right: 6%;
   margin-top: 1%;
   user-select: none;
-}
-
-.semester-navigation img {
-  width: 2.6rem;
-  height: 2.6rem;
 }
 
 .semester-navigation h1 {
@@ -790,19 +784,6 @@ const closeTaskModal = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.modal-content {
-  min-width: 400px;
-  min-height: 100px;
-  border-radius: 10px;
-  background: #FAFAFA;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px;
-  max-height: 90vh;
 }
 
 /* Events task cards */
