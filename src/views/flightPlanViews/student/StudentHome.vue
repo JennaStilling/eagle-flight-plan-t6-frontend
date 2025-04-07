@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="events-navigation">
-        <h1>Upcoming Events</h1>
+        <h1>Upcoming Recommended Events</h1>
       </div>
       <div class="event-data-table-container">
         <table class="event-data-table">
