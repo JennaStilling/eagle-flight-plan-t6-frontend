@@ -60,6 +60,7 @@ import Shop from "./views/flightPlanViews/student/Shop.vue";
 import Events from "./views/flightPlanViews/student/StudentEvents.vue";
 import Transactions from "./views/flightPlanViews/student/StudentTransactions.vue";
 import StudentLifeAfterTheNest from "./views/flightPlanViews/student/StudentLifeAfterTheNest.vue";
+import Badges from "./views/flightPlanViews/student/StudentBadges.vue";
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
@@ -234,11 +235,6 @@ const routes = [
     component: MajorMaintenance,
   },
   {
-    path: "/flightPlan/flightPlan/studentFlightPlan",
-    name: "studentFlightPlan",
-    component: StudentFlightPlan,
-  },
-  {
     path: "/flightPlan/lifeAfterTheNest",
     name: "lifeAfterTheNest",
     component: LifeAfterTheNestFP,
@@ -295,6 +291,11 @@ const routes = [
   },
 
   //Student Pages
+  {
+    path: "/flightPlan/flightPlan/studentFlightPlan",
+    name: "studentFlightPlan",
+    component: StudentFlightPlan,
+  },
   { path: "/flightPlan/shop", name: "shop", component: Shop },
   // { path: '/flightPlan/events', name: 'events', component: Events },
   {
@@ -316,6 +317,11 @@ const routes = [
     path: "/flightPlan/student-lifeAfterTheNest",
     name: "student-lifeAfterTheNest",
     component: StudentLifeAfterTheNest,
+  },
+  {
+    path: "/flightPlan/student-badges",
+    name: "student-badges",
+    component: Badges,
   },
 ];
 
