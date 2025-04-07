@@ -48,16 +48,21 @@
             <template v-for="event in limitedEvents" :key="event.id">
               <tr @click="openEventModal(event)" class="clickable-row">
                 <td class="date">
-                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { month: 'short'
-                    }).toLocaleUpperCase() }}</div>
+                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
+                    month: 'short'
+                  }).toLocaleUpperCase() }}</div>
                   <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}
                   </div>
                 </td>
                 <td style="user-select: none;">
-                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric',
-                  hour12: true }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                  Date(event.end_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12:
-                  true }).replace('AM', 'am').replace('PM', 'pm') }}
+                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric',
+                    hour12: true
+                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                    Date(event.end_date_time).toLocaleTimeString('en-US', {
+                      hour: 'numeric', minute: 'numeric', hour12:
+                        true
+                    }).replace('AM', 'am').replace('PM', 'pm') }}
                   <br>
                   <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                 </td>
@@ -72,6 +77,45 @@
           </tbody>
         </table>
         <p class="view-more" @click.self="viewMoreEvents">View More Events 🡺</p>
+      </div>
+      <!-- Confirm Event Attendance -->
+      <div class="events-navigation">
+          <h1>Confirm Your Attendance</h1>
+      </div>
+      <div class="event-data-table-container">
+        <table class="event-data-table">
+          <tbody>
+            <template v-for="event in pastEvents" :key="event.id">
+              <tr @click="openAttendanceEventModal(event)" class="clickable-row">
+                <td class="date">
+                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
+                    month: 'short'
+                  }).toLocaleUpperCase() }}</div>
+                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}
+                  </div>
+                </td>
+                <td style="user-select: none;">
+                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric',
+                    hour12: true
+                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                    Date(event.end_date_time).toLocaleTimeString('en-US', {
+                      hour: 'numeric', minute: 'numeric', hour12:
+                        true
+                    }).replace('AM', 'am').replace('PM', 'pm') }}
+                  <br>
+                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <hr class="event-line">
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -111,15 +155,50 @@
         }}
       </div>
       <div style="margin-bottom: 15px;">
-        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit',
-        hour12: true }) }} -
-        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit',
-        hour12: true }) }}
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }) }}
       </div>
       <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
         color="#F68D76">Register</v-btn>
       <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
         color="#F68D76">Unregister</v-btn>
+    </div>
+  </div>
+  <!-- Event Attendance Modal -->
+  <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
+    <div class="modal-content">
+      <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedEvent.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
+      </div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }) }}
+      </div>
+      <div class="button-row">
+        <v-btn @click="closeEventModal; studentAttendedEvent(selectedEvent.id)" color="#5EC4B6"
+          style="color: white;">Attended</v-btn>
+        <v-btn @click="closeEventModal; studentNotAttendedEvent(selectedEvent.id)" color="#F04E3E">Did Not
+          Attend</v-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -145,7 +224,8 @@ import semesterServices from '@/services/flightPlanServices/semesterServices';
 import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTaskServices';
 import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import { get } from '@vueuse/core';
-import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
+import studentEventServices from '@/services/flightPlanServices/studentEventServices';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -161,7 +241,9 @@ const currentSemester = ref('Loading...');
 const currentIndex = ref(0);
 const events = ref([]);
 const limitedEvents = ref([]);
+const pastEvents = ref([]);
 const modalVisible = ref(false);
+const attendanceModalVisible = ref(false);
 const selectedEvent = ref({});
 const taskModalVisible = ref(false);
 const selectedTask = ref({});
@@ -217,13 +299,28 @@ onMounted(async () => {
     console.error(error);
   }
 
+  // past events
+  try {
+    const eventResponse = await studentEventServices.getAllEventsByStudent(studentId.value);
+    if (eventResponse.data) {
+      console.log(eventResponse.data)
+      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+      events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+      pastEvents.value = events.value;
+      // console.log(pastEvents.value)
+    }
+  } catch (error) {
+    console.error('Error fetching events:', error);
+  }
+
+  // upcoming events
   try {
     const eventResponse = await studentServices.getRecommendedEvents(studentId.value);
     if (eventResponse.data) {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
-      console.log(limitedEvents.value)
+      // console.log(limitedEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -290,6 +387,65 @@ const getTaskDetails = async (taskId) => {
   }
 };
 
+const studentAttendedEvent = (id) => {
+  console.log(id);
+  StudentEventServices.getAllEventsByStudent(studentId.value)
+    .then((res) => {
+      const studentEvents = res.data;
+      const newData = studentEvents.filter(event => event.studentEvent[0].eventId === id)
+      if (newData) {
+        newData[0].studentEvent[0].attendence_status = 'attended';
+        newData[0].studentEvent[0].verification_status = 'in_progress';
+      }
+      StudentEventServices.updateStudentEvent(newData[0].studentEvent[0].id, newData[0].studentEvent[0])
+        .then(async (res) => {
+          const eventResponse = await StudentEventServices.getAllEventsByStudent(studentId.value);
+          if (eventResponse.data) {
+            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+            events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+            pastEvents.value = events.value;
+          }
+          closeEventModal();
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+
+}
+
+const studentNotAttendedEvent = (id) => {
+  console.log(id);
+  StudentEventServices.getAllEventsByStudent(studentId.value)
+    .then((res) => {
+      const studentEvents = res.data;
+      const newData = studentEvents.filter(event => event.studentEvent[0].eventId === id)
+      if (newData) {
+        newData[0].studentEvent[0].attendence_status = 'did_not_attend';
+        newData[0].studentEvent[0].verification_status = 'in_progress';
+      }
+      StudentEventServices.updateStudentEvent(newData[0].studentEvent[0].id, newData[0].studentEvent[0])
+        .then(async (res) => {
+          const eventResponse = await StudentEventServices.getAllEventsByStudent(studentId.value);
+          if (eventResponse.data) {
+            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+            events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+            pastEvents.value = events.value;
+          }
+          closeEventModal();
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+}
+
 const studentSignUpForEvent = (id) => {
   if (!studentId.value) {
     return
@@ -300,10 +456,10 @@ const studentSignUpForEvent = (id) => {
       studentId: studentId.value
     }
     StudentEventServices.createStudentEvent(newStudentEvent)
-    .then((res) => {
-      console.log("Student event added")
-      closeEventModal();
-    })
+      .then((res) => {
+        console.log("Student event added")
+        closeEventModal();
+      })
       .catch((error) => {
         console.log("error", error);
       });
@@ -336,7 +492,7 @@ const checkIfStudentIsSignedUp = async (id) => {
   try {
     const res = await StudentEventServices.getAllEventsByStudent(studentId.value);
     const studentEvents = res.data;
-    const studentSpecificEvent = studentEvents.find(studentEvent => 
+    const studentSpecificEvent = studentEvents.find(studentEvent =>
       studentEvent.id === id
     );
     console.log(studentSpecificEvent);
@@ -404,8 +560,15 @@ const openEventModal = async (event) => {
   await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
+
+const openAttendanceEventModal = (event) => {
+  selectedEvent.value = event;
+  attendanceModalVisible.value = true;
+};
+
 const closeEventModal = () => {
   modalVisible.value = false;
+  attendanceModalVisible.value = false;
 };
 const openTaskModal = (task) => {
   const taskData = unapprovedOrInProgressTasks.value.find(t => t.taskId === task.taskId);
@@ -438,8 +601,8 @@ const getPreviousSemester = async () => {
   if (currentIndex.value > 0) {
     currentIndex.value--;
     currentSemester.value = semesters.value[currentIndex.value].name;
-    unapprovedOrInProgressTasks.value = []; 
-    taskDetails.value = []; 
+    unapprovedOrInProgressTasks.value = [];
+    taskDetails.value = [];
     await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
   }
 };
@@ -447,8 +610,8 @@ const getNextSemester = async () => {
   if (currentIndex.value < semesters.value.length - 1) {
     currentIndex.value++;
     currentSemester.value = semesters.value[currentIndex.value].name;
-    unapprovedOrInProgressTasks.value = []; 
-    taskDetails.value = []; 
+    unapprovedOrInProgressTasks.value = [];
+    taskDetails.value = [];
     await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
   }
 };
@@ -470,10 +633,17 @@ const checkForFlightPlan = async () => {
   height: 100vh;
   background-color: #ffffff;
 }
-.left-side, .right-side {
+
+.left-side,
+.right-side {
   width: 50%;
   padding: 17px;
 }
+
+.right-side {
+  overflow-y: auto;
+}
+
 .left-side {
   margin-left: 2%;
 }
@@ -491,6 +661,7 @@ const checkForFlightPlan = async () => {
   width: 95%;
   margin-top: 2%;
 }
+
 .semester-navigation button {
   background-color: #D9D9D9;
   border: none;
@@ -500,10 +671,12 @@ const checkForFlightPlan = async () => {
   margin-top: 1%;
   user-select: none;
 }
+
 .semester-navigation img {
   width: 2.6rem;
   height: 2.6rem;
 }
+
 .semester-navigation h1 {
   margin: 0;
   color: black;
@@ -530,50 +703,59 @@ const checkForFlightPlan = async () => {
   cursor: pointer;
   border: 2px solid transparent;
 }
+
 .shop-card:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   border: 4px solid #811429;
-  background-color:white;
+  background-color: white;
 }
+
 /* - Icons and Info */
 .shop-card .shopping-cart-icon {
   width: 67px;
   height: 67px;
   margin-right: 20px;
 }
+
 .shop-card .shop-info {
   display: flex;
   flex-direction: column;
 }
+
 .shop-info p {
   font-size: 1.5rem;
 }
 
 /* Data Tables ----------------------------------*/
-.event-data-table-container{
+.event-data-table-container {
   width: 95%;
   background-color: #FAFAFA;
   border: 1px solid #FAFAFA;
   border-radius: 0 0 20px 20px;
 }
+
 .task-data-table-container {
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   height: 90%;
   background-color: #FAFAFA;
   padding-left: 10%;
   overflow-y: auto;
 }
-.event-data-table, .task-data-table{
+
+.event-data-table,
+.task-data-table {
   width: 100%;
   border-collapse: collapse;
   color: black;
 }
+
 .event-data-table td {
   padding: 3px;
   font-size: 16px;
 }
+
 .task-data-table tbody {
   display: flex;
   flex-direction: column;
@@ -595,12 +777,27 @@ const checkForFlightPlan = async () => {
   width: 95%;
   margin-top: 4%;
 }
+
+.events-navigation .event-headers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .events-navigation h1 {
   margin: 0;
   color: black;
   font-size: 1.7rem;
   user-select: none;
 }
+
+.events-navigation h2 {
+  margin: 0;
+  color: black;
+  font-size: 1.4rem;
+  user-select: none;
+}
+
 /* - Date and Time */
 .date {
   display: flex;
@@ -608,24 +805,29 @@ const checkForFlightPlan = async () => {
   margin-top: 2%;
   font-size: 24px;
 }
+
 .month {
-  font-size: 16px; 
+  font-size: 16px;
   text-align: center;
 }
+
 .day {
   font-size: 30px;
   text-align: center;
   font-weight: 650;
 }
+
 .time {
   text-align: left;
   user-select: none;
 }
+
 .event-name {
   font-size: 24px;
   text-align: left;
   user-select: none;
 }
+
 /* - Divider */
 .event-line {
   border: none;
@@ -634,11 +836,13 @@ const checkForFlightPlan = async () => {
   padding: 10;
   margin: 0 auto;
 }
+
 .clickable-row:hover {
   cursor: pointer;
   background-color: white;
   transform: scale(1.0009);
 }
+
 .view-more {
   font-size: 23px;
   color: black;
@@ -662,9 +866,10 @@ const checkForFlightPlan = async () => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
   min-width: 400px;
-  min-height: 100px; 
+  min-height: 100px;
   border-radius: 10px;
   background: #FAFAFA;
   display: flex;
@@ -680,7 +885,7 @@ const checkForFlightPlan = async () => {
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0px 4px 4px #81142966;
-  height: 60px; 
+  height: 60px;
   width: 80%;
   display: flex;
   align-items: center;
@@ -688,20 +893,30 @@ const checkForFlightPlan = async () => {
   margin-top: 3%;
   cursor: pointer;
 }
+
 .task-card:hover {
   box-shadow: 0px 6px 6px #81142966;
   border: 2px solid #811429;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   transform: scale(1.03);
 }
+
 .task-card:hover .task-content {
   font-weight: 401;
 }
+
 .task-content {
   color: #811429;
-  font-size: 120%; 
+  font-size: 120%;
   font-weight: 400;
   text-align: center;
   user-select: none;
+}
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  width: 100%;
 }
 </style>
