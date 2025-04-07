@@ -73,6 +73,48 @@
         </table>
         <p class="view-more" @click.self="viewMoreEvents">View More Events 🡺</p>
       </div>
+      <!-- Confirm Event Attendance -->
+      <div class="events-navigation">
+        <div class="event-headers">
+          <h1>Past Registered Events</h1>
+          <h2>Confirm Your Attendance</h2>
+        </div>
+      </div>
+      <div class="event-data-table-container">
+        <table class="event-data-table">
+          <tbody>
+            <template v-for="event in pastEvents" :key="event.id">
+              <tr @click="openAttendanceEventModal(event)" class="clickable-row">
+                <td class="date">
+                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
+                    month: 'short'
+                    }).toLocaleUpperCase() }}</div>
+                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}
+                  </div>
+                </td>
+                <td style="user-select: none;">
+                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric', minute: 'numeric',
+                  hour12: true
+                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                  Date(event.end_date_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric', minute: 'numeric', hour12:
+                  true
+                  }).replace('AM', 'am').replace('PM', 'pm') }}
+                  <br>
+                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <hr class="event-line">
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   <!-- Task Modal -->
@@ -122,6 +164,35 @@
         color="#F68D76">Unregister</v-btn>
     </div>
   </div>
+  <!-- Event Attendance Modal -->
+  <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
+    <div class="modal-content">
+      <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedEvent.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
+      </div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }) }}
+      </div>
+      <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
+        color="#F68D76">Register</v-btn>
+      <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
+        color="#F68D76">Unregister</v-btn>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -146,6 +217,7 @@ import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTask
 import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import { get } from '@vueuse/core';
 import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
+import studentEventServices from '@/services/flightPlanServices/studentEventServices';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -161,7 +233,9 @@ const currentSemester = ref('Loading...');
 const currentIndex = ref(0);
 const events = ref([]);
 const limitedEvents = ref([]);
+const pastEvents = ref([]);
 const modalVisible = ref(false);
+const attendanceModalVisible = ref(false);
 const selectedEvent = ref({});
 const taskModalVisible = ref(false);
 const selectedTask = ref({});
@@ -217,13 +291,28 @@ onMounted(async () => {
     console.error(error);
   }
 
+  // past events
+  try {
+    const eventResponse = await studentEventServices.getAllEventsByStudent(studentId.value);
+    if (eventResponse.data) {
+      console.log(eventResponse.data)
+      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+      events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+      pastEvents.value = events.value;
+      // console.log(pastEvents.value)
+    }
+  } catch (error) {
+    console.error('Error fetching events:', error);
+  }
+
+// upcoming events
   try {
     const eventResponse = await studentServices.getRecommendedEvents(studentId.value);
     if (eventResponse.data) {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
-      console.log(limitedEvents.value)
+      // console.log(limitedEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -404,6 +493,12 @@ const openEventModal = async (event) => {
   await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
+
+const openAttendanceEventModal = (event) => {
+  selectedEvent.value = event;
+  attendanceModalVisible.value = true;
+};
+
 const closeEventModal = () => {
   modalVisible.value = false;
 };
@@ -473,6 +568,9 @@ const checkForFlightPlan = async () => {
 .left-side, .right-side {
   width: 50%;
   padding: 17px;
+}
+.right-side {
+  overflow-y: auto;
 }
 .left-side {
   margin-left: 2%;
@@ -595,10 +693,21 @@ const checkForFlightPlan = async () => {
   width: 95%;
   margin-top: 4%;
 }
+.events-navigation .event-headers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .events-navigation h1 {
   margin: 0;
   color: black;
   font-size: 1.7rem;
+  user-select: none;
+}
+.events-navigation h2 {
+  margin: 0;
+  color: black;
+  font-size: 1.4rem;
   user-select: none;
 }
 /* - Date and Time */
