@@ -45,6 +45,14 @@ import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaint
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
 import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue"
+
+// Approval Pages
+import EventApprovals from "./views/flightPlanViews/admin/approvals/EventApprovals.vue"
+import CustomEventApprovals from "./views/flightPlanViews/admin/approvals/CustomEventApprovals.vue";
+import TaskApprovals from "./views/flightPlanViews/admin/approvals/TaskApprovals.vue";
+import CustomTaskApprovals from "./views/flightPlanViews/admin/approvals/CustomTaskApprovals.vue";
+import ExperienceApprovals from "./views/flightPlanViews/admin/approvals/ExperienceApprovals.vue";
+import CustomExperienceApprovals from "./views/flightPlanViews/admin/approvals/CustomExperienceApprovals.vue";
 // Student Pages
 import StudentFlightPlan from "./views/flightPlanViews/student/StudentFlightPlan.vue";
 import Leaderboard from "./views/flightPlanViews/student/Leaderboard.vue";
@@ -254,6 +262,36 @@ const routes = [
     path: "/flightPlan/cliftonStrength",
     name: "cliftonStrength",
     component: CliftonStrength,
+  },
+  {
+    path: "/flightPlan/event/approve",
+    name: "approveEvent",
+    component: EventApprovals,
+  },
+  {
+    path: "/flightPlan/event/approve-custom",
+    name: "approveCustomEvent",
+    component: CustomEventApprovals,
+  },
+  {
+    path: "/flightPlan/task/approve",
+    name: "approveTask",
+    component: TaskApprovals,
+  },
+  {
+    path: "/flightPlan/task/approve-custom",
+    name: "approveCustomTask",
+    component: CustomTaskApprovals,
+  },
+  {
+    path: "/flightPlan/experience/approve",
+    name: "approveExperience",
+    component: ExperienceApprovals,
+  },
+  {
+    path: "/flightPlan/experience/approve-custom",
+    name: "approveCustomExperience",
+    component: CustomExperienceApprovals,
   },
 
   //Student Pages
