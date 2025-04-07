@@ -168,27 +168,8 @@ const getAllEvents = () => {
         .then((res) => {
             events.value = res.data;
             events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value));
-            const formattedEvents = events.value.map(event => {
-                const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
-                const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
-
-                const formatDateTime = (date) => {
-                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                };
-
-                return {
-                    id: event.id,
-                    title: event.name,
-                    start: formatDateTime(startDate),
-                    end: formatDateTime(endDate),
-                    description: event.description || '',
-                    location: event.location || '',
-                    type: event.event_type
-                };
-            });
-
-            message.value = '';
-        })
+ 
+            })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
             console.error(err);
@@ -225,12 +206,7 @@ const getStudentAttendees = (event) => {
     StudentEventServices.getAllStudentsByEvent(event.id)
         .then((res) => {
             const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-            console.log(students)
-            // students = students
-            // console.log(students)
             studentNameList.value = []
-            // console.log("Here")
-            // console.log(students)
 
             students.forEach(async student => {
                 UserServices.getAllStudentUsers(student.id)
