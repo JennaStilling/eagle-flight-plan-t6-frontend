@@ -254,7 +254,7 @@ const pastEvents = ref([])
 
 onMounted(async () => {
   await getSessionData();
-  await checkForFlightPlan();
+  await checkForFlightPlan(student.value);
 
   await getAllSemesterData();
   await getSemesterTasks(currentSemesterIndex.value);
@@ -381,10 +381,10 @@ const getNextSemester = async () => {
 };
 
 // Check for flight plan
-const checkForFlightPlan = async () => {
+const checkForFlightPlan = async (student) => {
   const semester = await getSemester();
   const flightPlan = await getFlightPlan(semester);
-  const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
+  const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.id, flightPlan.id)).data;
   if (studentFlightPlan.length < 1) await generateFlightPlan(student, semester);
 }
 
