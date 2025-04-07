@@ -10,44 +10,79 @@
         <ul>
           <!-- Admin Pages ---------------------------------------------------------------------------------->
           <template v-if="isAdminViewActive">
-            <li @click="toggleMaintenanceDropdown">Maintenance
-              <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
+            <li @click="toggleApprovalRequestsDropdown">Approval Requests
+              <Icon :icon="approvalRequestsDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
                 class="dropdown-arrow" />
-                <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
-                <li v-if="hasUserPermission"><router-link :to="{ name: 'userMaintenance' }" @click="closeSidebar">Users</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'event' }" @click="closeSidebar">Events</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'task' }" @click="closeSidebar">Tasks</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'experience' }" @click="closeSidebar">Experiences</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight Plans</router-link></li>
-                <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop Items</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'badge' }" @click="closeSidebar">Badges</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'cliftonStrength' }" @click="closeSidebar">Clifton Strengths</router-link></li>
-                <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link></li>
-                <li v-if="hasShopPermission"><router-link :to="{ name: 'transactionLog' }" @click="closeSidebar">Transaction History</router-link></li>
-              </div>
-            </li>
-            <!-- Other Admin Pages -->
-            <template v-if="isAdminViewActive">
-              <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
-              <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar">Resume Builder</router-link></li>
-            </template>
-          </template>
-
-          <!-- Student Pages -------------------------------------------------------------------------------------------------->
-          <template v-else-if="isStudentViewActive">
-            <li><router-link :to="{ name: 'studentHomeFP' }" @click="closeSidebar">Home</router-link></li>
-            <li><router-link :to="{ name: 'profile' }" @click="closeSidebar">Profile</router-link></li>
-            <li><router-link :to="{ name: 'student-events' }" @click="closeSidebar">Events</router-link></li>
-            <li><router-link :to="{ name: 'shop' }" @click="closeSidebar">Shop</router-link></li>
-            <li><router-link :to="{ name: 'leaderboard' }" @click="closeSidebar">Leaderboard</router-link></li>
-            <li><router-link :to="{ name: 'student-transactions' }" @click="closeSidebar">Spending History</router-link></li>
-            <li><router-link :to="{ name: 'student-lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link></li>
-            <li><router-link :to="{ name: 'studentHome' }" @click="closeSidebar">Resume Builder</router-link></li>
-          </template>
-        </ul>
+              <div v-if="approvalRequestsDropdown" class="dropdown-menu" @click.stop>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveEvent' }" @click="closeSidebar">View
+                Event Approvals</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveTask' }" @click="closeSidebar">View
+                Task Approvals</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveExperience' }"
+                @click="closeSidebar">View Experience Approvals</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomEvent' }"
+                @click="closeSidebar">View Custom Event Approvals</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomTask' }"
+                @click="closeSidebar">View Custom Task Approvals</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomExperience' }"
+                @click="closeSidebar">View Custom Experience Approvals</router-link></li>
       </div>
+      </li>
+
+      <li @click="toggleMaintenanceDropdown">Maintenance
+        <Icon :icon="maintenanceDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
+          class="dropdown-arrow" />
+        <div v-if="maintenanceDropdown" class="dropdown-menu" @click.stop>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'badge' }" @click="closeSidebar">Badges</router-link>
+      </li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'cliftonStrength' }" @click="closeSidebar">Clifton
+          Strengths</router-link></li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'event' }" @click="closeSidebar">Events</router-link>
+      </li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'experience' }"
+          @click="closeSidebar">Experiences</router-link></li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight
+          Plans</router-link></li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }" @click="closeSidebar">Life
+          After the Nest</router-link></li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'major' }" @click="closeSidebar">Majors
+        </router-link></li>
+      <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop
+          Items</router-link></li>
+      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'task' }" @click="closeSidebar">Tasks</router-link>
+      </li>
+
+      <li v-if="hasUserPermission"><router-link :to="{ name: 'userMaintenance' }"
+          @click="closeSidebar">Users</router-link>
+      </li>
     </div>
-  </div>
+    </li>
+    <!-- Other Admin Pages -->
+    <template v-if="isAdminViewActive">
+      <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
+      <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar">Resume Builder</router-link></li>
+    </template>
+</template>
+
+<!-- Student Pages -------------------------------------------------------------------------------------------------->
+<template v-else-if="isStudentViewActive">
+  <li><router-link :to="{ name: 'studentHomeFP' }" @click="closeSidebar">Home</router-link></li>
+  <li><router-link :to="{ name: 'studentFlightPlan' }" @click="closeSidebar"> <span>Student Flight
+        Plan</span></router-link></li>
+  <li><router-link :to="{ name: 'profile' }" @click="closeSidebar">Profile</router-link></li>
+  <li><router-link :to="{ name: 'student-events' }"
+      @click="closeSidebar; localStorage.setItem('viewPersonalCalendar', false);">Events</router-link></li>
+  <li><router-link :to="{ name: 'shop' }" @click="closeSidebar">Shop</router-link></li>
+  <li><router-link :to="{ name: 'leaderboard' }" @click="closeSidebar">Leaderboard</router-link></li>
+  <li><router-link :to="{ name: 'student-transactions' }" @click="closeSidebar">Spending History</router-link></li>
+  <li><router-link :to="{ name: 'student-lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link>
+  </li>
+  <li><router-link :to="{ name: 'studentHome' }" @click="closeSidebar">Resume Builder</router-link></li>
+</template>
+</ul>
+</div>
+</div>
+</div>
 </template>
 
 <script setup>
@@ -72,6 +107,7 @@ const menuOpen = ref(true);
 const roleDropdown = ref(false);
 const homeMenuOpen = ref(false);
 const maintenanceDropdown = ref(false);
+const approvalRequestsDropdown = ref(false);
 
 import { useHomePageStore, HomePages } from '@/store/homePageStore';
 const homeStore = useHomePageStore();
@@ -177,6 +213,10 @@ const toggleMaintenanceDropdown = () => {
   maintenanceDropdown.value = !maintenanceDropdown.value;
 }
 
+const toggleApprovalRequestsDropdown = () => {
+  approvalRequestsDropdown.value = !approvalRequestsDropdown.value;
+}
+
 const closeSidebar = () => {
   menuOpen.value = true;
 };
@@ -239,13 +279,13 @@ a:hover {
 }
 
 .dropdown-menu a {
-  color: black !important; 
-  text-decoration: none; 
+  color: black !important;
+  text-decoration: none;
 }
 
 .dropdown-menu a:hover {
-  color: #333; 
-  text-decoration: underline; 
+  color: #333;
+  text-decoration: underline;
 }
 
 .dropdown-menu {

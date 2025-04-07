@@ -1,23 +1,23 @@
 <template>
   <div class="container">
     <div class="left-side">
-       <!-- Semesters -->
+      <!-- Semesters -->
       <div class="semester-navigation">
         <button @click="getPreviousSemester">
-          <img :src="BackArrow"  alt="Previous Semester" />
+          <img :src="BackArrow" alt="Previous Semester" />
         </button>
-        <h1>{{ currentSemester }}</h1>
+        <h1>{{ semesters[currentSemesterIndex]?.name || `Loading...` }}</h1>
         <button @click="getNextSemester">
           <img :src="ForwardArrow" alt="Next Semester" />
         </button>
       </div>
-       <!-- Tasks -->
-       <div class="task-data-table-container">
+      <!-- Tasks -->
+      <div class="task-data-table-container">
         <table class="task-data-table">
           <tbody>
-            <tr v-for="task in taskDetails" :key="task.taskId">
+            <tr v-for="task in studentSemesterFlightPlanTasks[currentSemesterIndex] || []" :key="task.id">
               <td class="task-card" @click="openTaskModal(task)">
-                <div class="task-content">{{ task.taskName }} - {{ task.taskPoints }}pts</div>
+                <div class="task-content">{{ task.name }} - {{ task.point_value }}pts</div>
               </td>
             </tr>
             <!--Maybe add more besides just tasks in the future??-->
@@ -31,40 +31,90 @@
       </div>
     </div>
     <div class="right-side">
-       <!-- Shop Card -->
+      <!-- Shop Card -->
       <div class="shop-card" @click="goToShop">
         <img src="@/assets/navigation/shoppingCart.png" alt="Shopping Cart" class="shopping-cart-icon" />
         <div class="shop-info">
           <h1>Shop</h1>
-          <p>You have <strong style="color: #811429; font-weight: 700;">{{ studentPoints }}</strong> points</p>
+          <p>You have <strong style="color: #811429; font-weight: 700;">{{ student?.total_points }}</strong> points</p>
         </div>
       </div>
-       <div class="events-navigation">
+      <div class="events-navigation">
         <h1>Upcoming Events</h1>
       </div>
-      <div class="event-data-table-container"> 
+      <div class="event-data-table-container">
         <table class="event-data-table">
           <tbody>
             <template v-for="event in limitedEvents" :key="event.id">
               <tr @click="openEventModal(event)" class="clickable-row">
                 <td class="date">
-                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toLocaleUpperCase() }}</div>
+                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
+                    month: 'short'
+                    }).toLocaleUpperCase() }}</div>
                   <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
                 </td>
                 <td style="user-select: none;">
-                    {{ new Date(event.start_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new Date(event.end_date_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).replace('AM', 'am').replace('PM', 'pm') }}
+                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric', minute: 'numeric',
+                  hour12: true
+                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                  Date(event.end_date_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric', minute: 'numeric', hour12:
+                  true
+                  }).replace('AM', 'am').replace('PM', 'pm') }}
                   <br>
-                    <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                 </td>
                 <td></td>
               </tr>
               <tr>
-                <td colspan="3"><hr class="event-line"></td>
+                <td colspan="3">
+                  <hr class="event-line">
+                </td>
               </tr>
             </template>
-          </tbody>   
+          </tbody>
         </table>
         <p class="view-more" @click.self="viewMoreEvents">View More 🡺</p>
+      </div>
+      <!-- Confirm Event Attendance -->
+      <div class="events-navigation">
+        <h1>Confirm Your Attendance</h1>
+      </div>
+      <div class="event-data-table-container">
+        <table class="event-data-table">
+          <tbody>
+            <template v-for="event in pastEvents" :key="event.id">
+              <tr @click="openAttendanceEventModal(event)" class="clickable-row">
+                <td class="date">
+                  <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
+                    month: 'short'
+                  }).toLocaleUpperCase() }}</div>
+                  <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' }) }}
+                  </div>
+                </td>
+                <td style="user-select: none;">
+                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric',
+                    hour12: true
+                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                    Date(event.end_date_time).toLocaleTimeString('en-US', {
+                      hour: 'numeric', minute: 'numeric', hour12:
+                        true
+                    }).replace('AM', 'am').replace('PM', 'pm') }}
+                  <br>
+                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <hr class="event-line">
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -72,30 +122,82 @@
   <div v-if="taskModalVisible" class="modal-overlay" @click.self="closeTaskModal">
     <div class="homepage-modal-content">
       <span @click="closeTaskModal" class="close" style="font-size: 2rem;">&times;</span>
-      <h2>{{ selectedTask.taskName }}</h2>
-      <div style="font-size: 20px; text-align: center;">{{ selectedTask.taskDescription }}</div>
-      <div v-if="selectedTask.taskVideoLink" style="margin-top: 15px;">
-        <a :href="selectedTask.taskVideoLink" target="_blank">Access resource</a>
+      <h2>{{ selectedTask.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedTask.description }}</div>
+      <div v-if="selectedTask.video_link" style="margin-top: 15px;">
+        <a :href="selectedTask.video_link" target="_blank">Access resource</a>
       </div>
-      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.taskPoints }}</span> points</div>
-      <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' : selectedTask.status }}</div>
-      <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{ selectedTask.unapprove_reason }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedTask.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">Status: {{ selectedTask.status === 'in_progress' ? 'in progress' :
+        selectedTask.status }}</div>
+      <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
+        selectedTask.unapprove_reason
+        }}</div>
+      <v-spacer></v-spacer>
+      <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
+        View Flight Plan
+      </v-btn>
     </div>
   </div>
- <!-- Event Modal -->
+  <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
     <div class="homepage-modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
-      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
       <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
       <div style="margin-bottom: 15px;">
-        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) }}
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
       </div>
-      <div style="margin-bottom: 15px;"> 
-        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }} - 
-        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12:
+        true
+        }) }}
+      </div>
+    </div>
+
+  </div>
+
+
+
+  <!-- Event Attendance Modal -->
+  <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
+    <div class="modal-content">
+      <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedEvent.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
+      </div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+        }) }}
+      </div>
+      <div class="button-row">
+        <v-btn @click="closeEventModal; studentAttendedEvent(selectedEvent.id)" color="#5EC4B6"
+          style="color: white;">Attended</v-btn>
+        <v-btn @click="closeEventModal; studentNotAttendedEvent(selectedEvent.id)" color="#F04E3E">Did Not
+          Attend</v-btn>
       </div>
     </div>
   </div>
@@ -111,159 +213,291 @@ import Utils from "@/config/utils";
 import BackArrow from '@/assets/ArrowBackwardIcon.svg';
 import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
 // Service Files
-import UserServices from "@/services/resumeBuilderServices/userServices.js";
-import studentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
-import studentFlightPlanServices from "@/services/flightPlanServices/studentFlightPlanServices";
-import taskServices from "@/services/flightPlanServices/taskServices";
-import studentServices from "@/services/resumeBuilderServices/studentServices";
-import eventServices from "@/services/flightPlanServices/eventServices";
-import semesterServices from '@/services/flightPlanServices/semesterServices';
-import flightPlanTaskServices from '@/services/flightPlanServices/flightPlanTaskServices';
-import flightPlanServices from '@/services/flightPlanServices/flightPlanServices';
+import UserServices from "@/services/resumeBuilderServices/userServices";
+import StudentServices from "@/services/resumeBuilderServices/studentServices";
+import StudentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
+import StudentFlightPlanServices from "@/services/flightPlanServices/studentFlightPlanServices";
+import TaskServices from "@/services/flightPlanServices/taskServices";
+import EventServices from "@/services/flightPlanServices/eventServices";
+import SemesterServices from '@/services/flightPlanServices/semesterServices';
+import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import { get } from '@vueuse/core';
 import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
 import "@/assets/generic-stylesheet.css";
+
 
 // CONSTS
 const homeStore = useHomePageStore();
 const router = useRouter();
 // user consts
 const user = ref(null);
-const studentId = ref([]);
-const studentPoints = ref([]);
+const student = ref(null);
 // semester & event consts
 const currentDate = ref([]);
-const semesters = ref([]);
-const currentSemester = ref('Loading...');
-const currentIndex = ref(0);
 const events = ref([]);
 const limitedEvents = ref([]);
 const modalVisible = ref(false);
 const selectedEvent = ref({});
 const taskModalVisible = ref(false);
 const selectedTask = ref({});
-const studentFlightPlanTasksList = ref([]);
-const flightPlanTasks = ref([]);
-const flightPlans = ref([]);
-// flight plan consts
-const unapprovedOrInProgressTasks = ref([]);
-const taskDetails = ref([]);
+
+const semesters = ref([]);
+const currentSemesterIndex = ref(0);
+const studentSemesterFlightPlanTasks = ref({});
+
+const attendanceModalVisible = ref(false);
+const pastEvents = ref([])
+
 
 onMounted(async () => {
-  //console.log('Home Page Mounted---------------------------------');
-  try {
-    user.value = Utils.getStore("user");
-    const userRes = await UserServices.getAllStudentUsers(user.value.userId);
-    studentId.value = userRes.data[0].studentId;
-    currentDate.value = new Date().toJSON().slice(0, 24);
-    const studentRes = await studentServices.getStudent(studentId.value);
-    studentPoints.value = studentRes.data.points;
-  } catch (error) {
-    console.error('Error fetching student ID: ', error);
-  }
+  await getSessionData();
+  await checkForFlightPlan();
 
-  // Check for flight plan
-  try {
-    await checkForFlightPlan();
-  }
-  catch (error) {
-    console.log("Unable to retrieve student flight plan information: " + error);
-  }
+  await getAllSemesterData();
+  await getSemesterTasks(currentSemesterIndex.value);
 
-  // Get Semesters
+  // past events
   try {
-    const response = await semesterServices.getAllSemesters();
-    if (response.data && response.data.length > 0) {
-      semesters.value = response.data;
-      const now = new Date();
-      const futureSemesterIndex = semesters.value.findIndex(semester => new Date(semester.end_date) > now);
-      if (futureSemesterIndex !== -1) {
-        currentIndex.value = futureSemesterIndex;
-        currentSemester.value = semesters.value[currentIndex.value].name;
-        await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
-      } else {
-        currentSemester.value = 'No future semester data available';
-      }
-    } else {
-      currentSemester.value = 'No semester data available';
-    }
-  } catch (error) {
-    currentSemester.value = 'Error fetching semester data';
-    console.error(error);
-  }
-
-  try {
-    const eventResponse = await eventServices.getAllSystemEvents();
+    const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
     if (eventResponse.data) {
-      events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
+      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-      limitedEvents.value = events.value.slice(0, 3);
+      pastEvents.value = events.value;
+      // console.log(pastEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
   }
-
+  // upcoming events
   try {
-    const flightPlanTasksResponse = await flightPlanTaskServices.getAllSystemFlightPlanTasks();
-    if (flightPlanTasksResponse.data) {
-      flightPlanTasks.value = flightPlanTasksResponse.data;
+    const eventResponse = await StudentServices.getRecommendedEvents(user.value.studentId);
+    if (eventResponse.data) {
+      events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
+      events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+      limitedEvents.value = events.value.slice(0, 3);
+      // console.log(limitedEvents.value)
     }
   } catch (error) {
-    console.error('Error fetching flight plan tasks:', error);
+    console.error('Error fetching events:', error);
   }
 });
 
-// SERVICE CALLS
-const getFlightPlansBySemester = async (semesterId) => {
-  try {
-    const response = await flightPlanServices.getAllFlightPlans(semesterId);
-    if (response.data) {
-      flightPlans.value = response.data;
-      // Fetch tasks for each flight plan
-      for (const flightPlan of flightPlans.value) {
-        await getFlightPlanTasks(flightPlan.id);
-      }
+const getSessionData = async () => {
+  const userStore = Utils.getStore("user");
+  const tempUser = await UserServices.getUser(userStore.userId);
+  user.value = tempUser.data;
+  const tempStudent = await StudentServices.getStudent(user.value.studentId);
+  student.value = tempStudent.data;
+  currentDate.value = new Date().toJSON().slice(0, 24);
+}
+
+const getAllSemesterData = async () => {
+  await getSemesters();
+  sortSemestersByDate();
+  await getCurrentSemesterIndex();
+}
+
+const getSemesters = async () => {
+  const studentFlightPlans = await StudentFlightPlanServices.getAllFlightPlansForStudent(student.value.id);
+  for (const studentFlightPlan of studentFlightPlans.data) {
+    const flightPlan = await FlightPlanServices.getFlightPlanById(studentFlightPlan.flightPlanId);
+    const semester = await SemesterServices.getSemester(flightPlan.data.semesterId);
+    semesters.value.push(semester.data);
+  }
+}
+
+const sortSemestersByDate = () => {
+  semesters.value = semesters.value.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+}
+
+const getCurrentSemesterIndex = async () => {
+  const currentSemester = await getSemester();
+  currentSemesterIndex.value = semesters.value.findIndex(
+    (semester) => semester.name === currentSemester.name
+  );
+}
+
+// flight plan tasks are sorted by semester indexes for the sake of switching between semesters
+const getSemesterTasks = async (semesterIndex) => {
+  if (studentSemesterFlightPlanTasks.value[semesterIndex]) {
+    return;
+  }
+
+  const flightPlan = await getFlightPlan(semesters.value[semesterIndex]);
+  const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
+  const currentFlightPlan = studentFlightPlan[0];
+  const studentFlightPlanTasks = (await StudentFlightPlanTaskServices.getStudentFlightPlanTasks(currentFlightPlan.id)).data;
+
+  const newSemesterTasks = [];
+
+  for (const studentFlightPlanTask of studentFlightPlanTasks) {
+    const task = await TaskServices.getTask(studentFlightPlanTask.taskId);
+    if (studentFlightPlanTask.status !== 'approved') {
+      newSemesterTasks.push({
+        ...task.data,
+        status: studentFlightPlanTask.status,
+        unapprove_reason: studentFlightPlanTask.unapprove_reason
+      })
     }
-  } catch (error) {
-    console.error('Error fetching flight plans:', error);
+  }
+  studentSemesterFlightPlanTasks.value[semesterIndex] = newSemesterTasks;
+}
+
+// modals --------------------
+const openEventModal = async (event) => {
+  selectedEvent.value = event;
+  await checkIfStudentIsSignedUp(event.id);
+  modalVisible.value = true;
+};
+const closeEventModal = () => {
+  modalVisible.value = false;
+  attendanceModalVisible.value = false;
+};
+
+
+// exit homepage with router ---
+const goToShop = () => {
+  router.push({ name: 'shop' });
+};
+const viewMoreEvents = () => {
+  localStorage.setItem('viewPersonalCalendar', false);
+  router.push({ name: 'student-events' });
+};
+// semester navigation ----------------------------------------------
+const getPreviousSemester = async () => {
+  if (currentSemesterIndex.value > 0) {
+    currentSemesterIndex.value--;
+    await getSemesterTasks(currentSemesterIndex.value)
+  }
+};
+const getNextSemester = async () => {
+  if (currentSemesterIndex.value < semesters.value.length - 1) {
+    currentSemesterIndex.value++;
+    await getSemesterTasks(currentSemesterIndex.value)
   }
 };
 
-const getFlightPlanTasks = async (flightPlanId) => {
-  try {
-    const studentFlightPlans = (await studentFlightPlanServices.getAllFlightPlansForStudent(studentId.value)).data;
-    for (const studentFlightPlan of studentFlightPlans) {
-      const response = await studentFlightPlanTaskServices.getStudentFlightPlanTasks(studentFlightPlan.id);
-      if (response.data) {
-        for (const studentFlightPlanTask of response.data) {
-          await getTaskDetails(studentFlightPlanTask.taskId);
-          await getStudentFlightPlanTask(studentFlightPlanTask.id);
+// Check for flight plan
+const checkForFlightPlan = async () => {
+  const semester = await getSemester();
+  const flightPlan = await getFlightPlan(semester);
+  const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
+  if (studentFlightPlan.length < 1) await generateFlightPlan(student, semester);
+}
+
+// event stuff
+const viewFlightPlan = () => {
+  router.push({ name: 'studentFlightPlan' })
+}
+
+const studentAttendedEvent = (id) => {
+  StudentEventServices.getAllEventsByStudent(user.value.studentId)
+    .then((res) => {
+      const studentEvents = res.data;
+      const newData = studentEvents.filter(event => event.studentEvent[0].eventId === id)
+      if (newData) {
+        newData[0].studentEvent[0].attendence_status = 'attended';
+        newData[0].studentEvent[0].verification_status = 'in_progress';
+      }
+      StudentEventServices.updateStudentEvent(newData[0].studentEvent[0].id, newData[0].studentEvent[0])
+        .then(async (res) => {
+          const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
+          if (eventResponse.data) {
+            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+            events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+            pastEvents.value = events.value;
+          }
+          closeEventModal();
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+}
+const studentNotAttendedEvent = (id) => {
+  StudentEventServices.getAllEventsByStudent(user.value.studentId)
+    .then((res) => {
+      const studentEvents = res.data;
+      const newData = studentEvents.filter(event => event.studentEvent[0].eventId === id)
+      if (newData) {
+        newData[0].studentEvent[0].attendence_status = 'did_not_attend';
+        newData[0].studentEvent[0].verification_status = 'in_progress';
+      }
+      StudentEventServices.updateStudentEvent(newData[0].studentEvent[0].id, newData[0].studentEvent[0])
+        .then(async (res) => {
+          const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
+          if (eventResponse.data) {
+            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+            events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+            pastEvents.value = events.value;
+          }
+          closeEventModal();
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+}
+const studentSignUpForEvent = (id) => {
+  if (!studentId.value) {
+    return
+  }
+  else {
+    const newStudentEvent = {
+      eventId: id,
+      studentId: studentId.value
+    }
+    StudentEventServices.createStudentEvent(newStudentEvent)
+      .then((res) => {
+        console.log("Student event added")
+        closeEventModal();
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  }
+}
+const studentDeleteStudentEvent = (id) => {
+  StudentEventServices.getAllStudentEvents()
+    .then((res) => {
+      specificStudentEvents.value = res.data;
+      if (specificStudentEvents.value) {
+        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+        if (eventToDelete) {
+          StudentEventServices.deleteStudentEvent(eventToDelete.id)
+            .then((res) => {
+              console.log("Student event deleted")
+              closeEventModal();
+            })
+            .catch((error) => {
+              console.log("error", error);
+            });
         }
       }
-    }
-  } catch (error) {
-    console.error(`Error fetching tasks for flight plan ${flightPlanId}:`, error);
-  }
-};
-
-const getTaskDetails = async (taskId) => {
+    })
+}
+const checkIfStudentIsSignedUp = async (id) => {
   try {
-    const response = await taskServices.getTask(taskId);
-    if (response.data) {
-      return {
-        taskName: response.data.name,
-        taskDescription: response.data.description,
-        taskVideoLink: response.data.video_link,
-        taskPoints: response.data.point_value,
-        taskId: taskId
-      };
-    }
+    const res = await StudentEventServices.getAllEventsByStudent(studentId.value);
+    const studentEvents = res.data;
+    const studentSpecificEvent = studentEvents.find(studentEvent =>
+      studentEvent.id === id
+    );
+    console.log(studentSpecificEvent);
+    isStudentSignedUp.value = !!studentSpecificEvent;
+    return isStudentSignedUp.value;
   } catch (error) {
-    console.error(`Error fetching task details for task ID ${taskId}:`, error);
-    return null;
+    console.error('Error checking student signup:', error);
+    return false;
   }
-};
-
+}
 const getStudentFlightPlanId = async (studentId, flightPlanId) => {
   try {
     const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
@@ -274,7 +508,6 @@ const getStudentFlightPlanId = async (studentId, flightPlanId) => {
     console.error(`Error fetching student flight plan ID for student ID ${studentId} and flight plan ID ${flightPlanId}:`, error);
   }
 };
-
 const getStudentFlightPlanTask = async (studentFlightPlanTaskId) => {
   try {
     const response = await studentFlightPlanTaskServices.getStudentFlightPlanTask(studentFlightPlanTaskId);
@@ -288,7 +521,6 @@ const getStudentFlightPlanTask = async (studentFlightPlanTaskId) => {
     console.error("Error fetching student flight plan task for student: " + error);
   }
 };
-
 // Fetch task details for unapproved or in-progress tasks
 const fetchTaskDetailsForUnapprovedOrInProgressTasks = async () => {
   taskDetails.value = []; // Clear task details before fetching new ones
@@ -307,23 +539,20 @@ const fetchTaskDetailsForUnapprovedOrInProgressTasks = async () => {
       return null;
     }
   });
-
   const results = await Promise.all(promises);
   taskDetails.value = results.filter(Boolean); // Remove null values
 };
-
 // SIMPLE METHODS
-
 // modals --------------------
-const openEventModal = (event) => {
+
+const openAttendanceEventModal = (event) => {
   selectedEvent.value = event;
-  modalVisible.value = true;
+  attendanceModalVisible.value = true;
 };
-const closeEventModal = () => {
-  modalVisible.value = false;
-};
+
 const openTaskModal = (task) => {
-  const taskData = unapprovedOrInProgressTasks.value.find(t => t.taskId === task.taskId);
+  console.log(studentSemesterFlightPlanTasks.value[currentSemesterIndex.value]);
+  const taskData = studentSemesterFlightPlanTasks.value[currentSemesterIndex.value].find(t => t.id === task.id);
   selectedTask.value = {
     ...task,
     status: taskData.status,
@@ -335,42 +564,10 @@ const closeTaskModal = () => {
   taskModalVisible.value = false;
 };
 
+
 // exit homepage with router ---
-const goToShop = () => {
-  router.push({ name: 'shop' });
-};
-const viewMoreEvents = () => {
-  router.push({ name: 'student-events' });
-};
 
-// semester navigation ----------------------------------------------
-const getPreviousSemester = async () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value--;
-    currentSemester.value = semesters.value[currentIndex.value].name;
-    unapprovedOrInProgressTasks.value = []; 
-    taskDetails.value = []; 
-    await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
-  }
-};
-const getNextSemester = async () => {
-  if (currentIndex.value < semesters.value.length - 1) {
-    currentIndex.value++;
-    currentSemester.value = semesters.value[currentIndex.value].name;
-    unapprovedOrInProgressTasks.value = []; 
-    taskDetails.value = []; 
-    await getFlightPlansBySemester(semesters.value[currentIndex.value].id);
-  }
-};
 
-// Check for flight plan
-const checkForFlightPlan = async () => {
-  const semester = await getSemester();
-  const flightPlan = await getFlightPlan(semester);
-  const studentFlightPlan = (await studentFlightPlanServices.getAllStudentFlightPlans(studentId.value, flightPlan.id)).data;
-  const student = (await studentServices.getStudent(studentId.value)).data;
-  if (studentFlightPlan.length < 1) await generateFlightPlan(student);
-}
 </script>
 
 <style scoped>
@@ -442,7 +639,7 @@ const checkForFlightPlan = async () => {
 .shop-card:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   border: 4px solid #811429;
-  background-color:white;
+  background-color: white;
 }
 
 /* - Icons and Info */
@@ -451,39 +648,46 @@ const checkForFlightPlan = async () => {
   height: 67px;
   margin-right: 20px;
 }
+
 .shop-card .shop-info {
   display: flex;
   flex-direction: column;
 }
+
 .shop-info p {
   font-size: 1.5rem;
 }
 
 /* Data Tables ----------------------------------*/
-.event-data-table-container{
+.event-data-table-container {
   width: 95%;
   background-color: #FAFAFA;
   border: 1px solid #FAFAFA;
   border-radius: 0 0 20px 20px;
 }
+
 .task-data-table-container {
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   height: 90%;
   background-color: #FAFAFA;
   padding-left: 10%;
   overflow-y: auto;
 }
-.event-data-table, .task-data-table{
+
+.event-data-table,
+.task-data-table {
   width: 100%;
   border-collapse: collapse;
   color: black;
 }
+
 .event-data-table td {
   padding: 3px;
   font-size: 16px;
 }
+
 .task-data-table tbody {
   display: flex;
   flex-direction: column;
@@ -505,12 +709,14 @@ const checkForFlightPlan = async () => {
   width: 95%;
   margin-top: 4%;
 }
+
 .events-navigation h1 {
   margin: 0;
   color: black;
   font-size: 1.7rem;
   user-select: none;
 }
+
 /* - Date and Time */
 .date {
   display: flex;
@@ -520,7 +726,7 @@ const checkForFlightPlan = async () => {
 }
 
 .month {
-  font-size: 16px; 
+  font-size: 16px;
   text-align: center;
 }
 
@@ -585,7 +791,7 @@ const checkForFlightPlan = async () => {
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0px 4px 4px #81142966;
-  height: 60px; 
+  height: 60px;
   width: 80%;
   display: flex;
   align-items: center;
@@ -607,9 +813,16 @@ const checkForFlightPlan = async () => {
 
 .task-content {
   color: #811429;
-  font-size: 120%; 
+  font-size: 120%;
   font-weight: 400;
   text-align: center;
   user-select: none;
+}
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  width: 100%;
 }
 </style>

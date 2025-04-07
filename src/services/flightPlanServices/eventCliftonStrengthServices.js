@@ -28,4 +28,10 @@ export default {
     deleteAllEventCliftonStrengths() {
       return apiClient.delete(`flightPlan-t6/eventCliftonStrength`);
     },
+    getAllEventsByCliftonStrength(id) {
+    return apiClient.get(`flightPlan-t6/cliftonStrength/${id}/events`);
+    },
+    getAllCliftonStrengthsByEvent(id) {
+        return apiClient.get(`flightPlan-t6/event/${id}/cliftonStrengths`)
+    }
 }

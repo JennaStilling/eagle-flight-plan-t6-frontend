@@ -33,9 +33,7 @@
       <div class="badge-display" v-if="studentBadges">
         <div v-for="(badge, index) in badges" :key="index">
           <div class="badge-item">
-            <div class="badge-image">
-              <img :src="badge.image" :alt="badge.name">
-            </div>
+            <img :src="badge.image" :alt="badge.name" class="badge-image">
             <p class="badge-name">{{ badge.name }}</p>
             <p class="badge-date">{{ formatDate(studentBadges[index].date_acquired) }}</p>
           </div>

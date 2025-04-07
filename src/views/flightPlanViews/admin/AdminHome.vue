@@ -253,7 +253,6 @@ const getAllFutureEvents = () => {
     .then((res) => {
       upcomingEvents.value = res.data.filter((event) => event.date > currentDate.value);
       upcomingEvents.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-      console.log("Upcoming Events:", upcomingEvents.value); // Log the events here
     })
     .catch((error) => {
       console.log("Error: " + error);
@@ -328,7 +327,7 @@ const getSelectedTask = (name, task, reflection, id) => {
 }
 
 const getSelectedEvent = (index) => {
-  selectedEvent.value = upcomingEvents.value[index];
+  selectedEvent.value = upcomingEvents.value[(currentEventPage.value - 1) * itemsPerPage + index];
   viewingEvent.value = !viewingEvent.value;
 }
 

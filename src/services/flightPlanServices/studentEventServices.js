@@ -24,5 +24,8 @@ export default {
   },
   getAllStudentsByEvent(id) {
     return apiClient.get(`flightPlan-t6/event/${id}/students`)
+  },
+  getStudentEventByEvent(studentId, eventId) {
+    return apiClient.get(`flightPlan-t6/student/${studentId}/events/${eventId}`);
   }
 };
