@@ -78,6 +78,7 @@ import StudentEventServices from '@/services/flightPlanServices/studentEventServ
 import UserServices from '@/services/resumeBuilderServices/userServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
+import studentServices from '@/services/resumeBuilderServices/studentServices';
 
 const search = ref('');
 const events = ref([]);
@@ -231,10 +232,13 @@ const getStudentAttendees = (event) => {
             students.forEach(async student => {
                 UserServices.getAllStudentUsers(student.id)
                     .then((res) => {
+                        console.log(event)
                         studentNameList.value.push({
+                            studentId: student.id,
                             name: res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName,
                             didAttend: student.studentEvent[0].attendence_status === 'attended' ? true : false,
-                            eventId: student.studentEvent[0].id
+                            eventId: student.studentEvent[0].id,
+                            pointValue: event.point_value
                         });
                     })
                     .catch((err) => {
@@ -274,6 +278,37 @@ const saveAttendanceDetails = () => {
             verification_status: student.didAttend ? "approved" : "denied"
         }
         StudentEventServices.updateStudentEvent(student.eventId, newData)
+        .then((res) =>{
+            if (newData.verification_status !== 'denied' && newData.attendence_status !== 'did_not_attend') {
+                studentServices.getStudent(student.studentId)
+                .then((res) => {
+                    console.log(res.data.points)
+                    console.log(res.data.total_points)
+                    console.log(student.pointValue)
+                    const newCurrentPointValue = res.data.points + student.pointValue;
+                    const newTotalPoints = res.data.total_points + student.pointValue;
+                    const newStudentData = {
+                        points: newCurrentPointValue,
+                        total_points: newTotalPoints
+                    }
+                    console.log(newStudentData)
+                    studentServices.updateStudent(student.studentId, newStudentData)
+                    .then((res) => {
+                        console.log(res.data)
+                    })
+                        .catch((err) => {
+                            message.value = `Error: ${err.code}: ${err.message}`;
+                            console.error(err);
+                        })
+                })
+                    .catch((err) => {
+                        message.value = `Error: ${err.code}: ${err.message}`;
+                        console.error(err);
+                    })
+
+            }
+        }
+    )
     });
 }
 
