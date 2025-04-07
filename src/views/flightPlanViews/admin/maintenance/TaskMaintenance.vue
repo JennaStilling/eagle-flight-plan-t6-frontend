@@ -338,7 +338,7 @@ const editTaskPopup = async (task) => {
 
   await getVerfication(taskToEdit.value.verificationId);
   console.log(verification.value);
-  if (verification.value.type === 'automatic') {
+  if (verification.value.type === 'quiz') {
     isQuiz.value = true;
     quizLink.value = verification.value.google_form_url;
   }
@@ -370,7 +370,7 @@ const editTask = async () => {
       // Since it is a new link, we need to check if it is set up right and link it to the Google Sheets
       if (!(await verifyQuiz())) return;
       const newVerification = {
-        type: 'automatic',
+        type: 'quiz',
         google_form_url: publicURL.value
       }
       verification = (await verificationServices.createVerification(newVerification)).data;
@@ -449,7 +449,7 @@ const addTask = async () => {
       // Since it is a new link, we need to check if it is set up right and link it to the Google Sheets
       if (!(await verifyQuiz())) return;
       const newVerification = {
-        type: 'automatic',
+        type: 'quiz',
         google_form_url: publicURL.value
       }
       verification = (await verificationServices.createVerification(newVerification)).data;
