@@ -5,6 +5,7 @@
 </template>
 
 <script setup>
+import "@/assets/generic-stylesheet.css";
 
 </script>
 

@@ -11,15 +11,15 @@
                         </template>
                     </v-text-field>
 
-                    <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
-                        variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select>
+                    <!-- <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
+                        variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select> -->
 
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
                         Request Custom Event
                     </v-btn>
-                    <v-btn class="button" variant="elevated" color="#F68D76" @click="togglePersonalCalendar()">
-                        Switch To {{ viewPersonalCalendar ? "All Events" : "Personal Calendar" }}
-                    </v-btn>
+
+                    <v-checkbox v-model="viewPersonalCalendar" label="Show Only My Events"
+                        @click="togglePersonalCalendar()" density="compact" class="my-auto" hide-details></v-checkbox>
 
                     <v-btn variant="plain" size="small" @click="toggleCalendarView()">
                         <Icon icon="material-symbols:calendar-month-outline" width="24" height="24" />
@@ -40,11 +40,33 @@
                             @click="openEventModal(calendarEvent)">
                             <div class="event-header">
                                 <div class="event-title">{{ calendarEvent.title }}</div>
+                                <v-tooltip text="You are registered for this event">
+                                    <template v-slot:activator="{props}">
+                                        <Icon v-if="calendarEvent.isRegistered" v-bind="props"
+                                            icon="material-symbols:bookmark-rounded" width="24" height="24" />
+                                    </template>
+                                </v-tooltip>
+
+                                <v-tooltip text="You are not registered for this event">
+                                    <template v-slot:activator="{ props }">
+                                        <Icon v-if="!calendarEvent.isRegistered" v-bind="props"
+                                            icon="material-symbols:bookmark-outline-rounded" width="24" height="24" />
+                                    </template>
+                                </v-tooltip>
+
+                                <v-tooltip text="This event is recommended for you">
+                                    <template v-slot:activator="{ props }">
+                                        <Icon v-if="calendarEvent.isRecommended" v-bind="props"
+                                            icon="material-symbols:kid-star" width="24" height="24" />
+                                    </template>
+                                </v-tooltip>
                             </div>
-                            <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
-                                formatEventTime(calendarEvent.end)
-                                }}</div>
-                            <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
+                            <div v-if="getEventDuration(calendarEvent.start, calendarEvent.end) > 60"
+                                class="event-time">
+                                {{ formatEventTime(calendarEvent.start) }} - {{ formatEventTime(calendarEvent.end) }}
+                            </div>
+                            <div v-if="calendarEvent.location && getEventDuration(calendarEvent.start, calendarEvent.end) >= 120"
+                                class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
 
@@ -74,10 +96,14 @@
                                     }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
-                                <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 75%"
-                                    @click="closeModal(); studentSignUpForEvent(calendarEvent.id)" color="#F68D76">Register</v-btn>
-                                <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)" style="margin-left: 70%"
-                                    @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)" color="#F68D76">Unregister</v-btn>
+                                <div style="margin-left: 75%">
+                                    <v-btn v-if="!checkIfStudentIsSignedUp(calendarEvent.id)"
+                                        @click="closeModal(); studentSignUpForEvent(calendarEvent.id)"
+                                        color="#F68D76">Register</v-btn>
+                                    <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)"
+                                        @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)"
+                                        color="#F68D76">Unregister</v-btn>
+                                </div>
                             </div>
                             <button @click="closeModal"></button>
                         </div>
@@ -255,14 +281,17 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import UserServices from '@/services/resumeBuilderServices/userServices';
+import StudentServices from '@/services/resumeBuilderServices/studentServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import Utils from '@/config/utils';
+import "@/assets/generic-stylesheet.css";
 
 const search = ref('');
 
 const events = ref([]);
 const studentEvents = ref([]);
+const recommendedEvents = ref([]);
 
 const message = ref('');
 const selected = ref([]);
@@ -318,13 +347,12 @@ const toggleListView = () => {
 
 const togglePersonalCalendar = () => {
     viewPersonalCalendar.value = !viewPersonalCalendar.value;
+    localStorage.setItem('viewPersonalCalendar', viewPersonalCalendar.value)
     reloadPage();
 }
 
 const checkIfStudentIsSignedUp = (id) => {
-    const studentSpecificEvent = studentEvents.value.find(studentEvent => {
-        return studentEvent.eventId === id || studentEvent.id === id;
-    });
+    const studentSpecificEvent = studentEvents.value.find(studentEvent => studentEvent.id === id);
     return !!studentSpecificEvent;
 }
 
@@ -407,11 +435,17 @@ const eventTypeColors = {
 
 const getEventColor = (eventType) => {
     const color = eventTypeColors[eventType?.toLowerCase()] || '#F9C634';
-    const darkColors = ['#27575A', '#004761'];
     return {
         backgroundColor: color,
-        color: darkColors.includes(color) ? '#2C3E50' : 'white'
+        color: 'white'
     };
+};
+
+const getEventDuration = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const duration = endDate.getTime() - startDate.getTime();
+    return duration / 60000; // convert to minutes
 };
 
 const filteredEvents = computed(() => {
@@ -521,6 +555,9 @@ const getAllEvents = () => {
                     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                 };
 
+                const isStudentRegistered = studentEvents.value.some(se => se.studentEvent[0].eventId === event.id);
+                const isStudentRecommended = recommendedEvents.value.some(recommendedEvent => recommendedEvent.id === event.id);
+
                 return {
                     id: event.id,
                     title: event.name,
@@ -528,14 +565,15 @@ const getAllEvents = () => {
                     end: formatDateTime(endDate),
                     description: event.description || '',
                     location: event.location || '',
-                    type: event.event_type
+                    type: event.event_type,
+                    isRecommended: isStudentRecommended,
+                    isRegistered: isStudentRegistered,
                 };
             });
 
-            calendarFormattedEvents.value = formattedEvents;
-
-            if (!calendarApp.value) {
-                initializeCalendar(formattedEvents);
+            if (!viewPersonalCalendar.value) {
+                calendarFormattedEvents.value = formattedEvents;
+                initializeCalendar(calendarFormattedEvents.value);
             }
 
             message.value = '';
@@ -549,9 +587,47 @@ const getAllEvents = () => {
 const getAllStudentEvents = () => {
     return StudentEventServices.getAllEventsByStudent(userStudentId.value)
         .then((res) => {
-            events.value = res.data;
             studentEvents.value = res.data;
             const formattedEvents = studentEvents.value.map(event => {
+                const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
+                const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+                const formatDateTime = (date) => {
+                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                };
+
+                const isStudentRecommended = recommendedEvents.value.some(recommendedEvent => recommendedEvent.id === event.studentEvent[0].eventId);
+
+                return {
+                    id: event.id,
+                    title: event.name,
+                    start: formatDateTime(startDate),
+                    end: formatDateTime(endDate),
+                    description: event.description || '',
+                    location: event.location || '',
+                    type: event.event_type,
+                    isRecommended: isStudentRecommended,
+                    isRegistered: true,
+                };
+            });
+
+            if (viewPersonalCalendar.value) {
+                calendarFormattedEvents.value = formattedEvents;
+                initializeCalendar(calendarFormattedEvents.value);
+            }
+
+            message.value = '';
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
+}
+
+const getAllStudentRecommendedEvents = () => {
+    return StudentServices.getRecommendedEvents(userStudentId.value)
+        .then((res) => {
+            recommendedEvents.value = res.data;
+            const formattedEvents = recommendedEvents.value.map(event => {
                 const startDate = event.start_date_time ? new Date(event.start_date_time) : new Date(event.date);
                 const endDate = event.end_date_time ? new Date(event.end_date_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
 
@@ -570,12 +646,6 @@ const getAllStudentEvents = () => {
                 };
             });
 
-            calendarFormattedEvents.value = formattedEvents;
-
-            if (!calendarApp.value) {
-                initializeCalendar(formattedEvents);
-            }
-
             message.value = '';
         })
         .catch((error) => {
@@ -586,11 +656,13 @@ const getAllStudentEvents = () => {
 onMounted(async () => {
     user.value = Utils.getStore("user");
     await getCurrentUser();
+
+    await getAllStudentRecommendedEvents();
+    await getAllStudentEvents();
+
     if (!viewPersonalCalendar.value) {
         await getAllEvents();
     }
-
-        await getAllStudentEvents();
 
 });
 
@@ -1030,300 +1102,3 @@ function updateEndDate() {
     }
 }
 </script>
-
-<style>
-.sx-calendar-container {
-    height: 100%;
-    width: 100%;
-    margin: 20px 0;
-    padding: 0 20px;
-}
-
-.event-item {
-    height: 100%;
-    width: 100%;
-    padding: 4px 8px;
-    background-color: #5EC4B6;
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 60px;
-    overflow: hidden;
-}
-
-.event-item .event-title {
-    font-weight: 500;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-}
-
-.event-item .event-time {
-    font-size: 12px;
-    opacity: 0.9;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-}
-
-.event-item .event-location {
-    font-size: 12px;
-    opacity: 0.8;
-    margin-top: auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-}
-
-.event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-.event-actions {
-    display: none;
-    gap: 2px;
-}
-
-.event-item:hover .event-actions {
-    display: flex;
-}
-
-.event-actions .v-btn {
-    min-width: 24px;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-}
-
-.event-item .event-title {
-    flex: 1;
-    margin-right: 8px;
-}
-
-.title-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    flex-wrap: wrap;
-}
-
-.table-title {
-    font-family: 'Poppins', sans-serif !important;
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-}
-
-.search-filter-button-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-grow: 1;
-    justify-content: flex-start;
-}
-
-.search-bar {
-    width: 250px;
-    min-width: 180px;
-    max-width: 300px;
-    flex-shrink: 1;
-}
-
-.filter-menu {
-    width: 180px;
-    min-width: 150px;
-    max-width: 200px;
-}
-
-.button {
-    width: auto;
-    color: white !important;
-    white-space: nowrap;
-}
-
-.button-white-text {
-    color: white !important;
-}
-
-.label-column p {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 12px;
-    color: #555;
-}
-
-.popup-header {
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.popup-actions {
-    padding: 12px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.edit-popup {
-    max-width: 550px;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.popup-content {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.label-column {
-    white-space: nowrap;
-    text-align: right;
-    font-weight: 500;
-    font-size: 14px;
-    color: #555;
-}
-
-.v-text-field,
-.v-textarea {
-    width: 100%;
-}
-
-.v-card-text {
-    padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.modal-content {
-    padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.modal {
-    position: fixed;
-    z-index: 999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    padding: 20px;
-    border-radius: 4px;
-    width: 80%;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.modal-header {
-    margin-bottom: 20px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.v-dialog {
-    .v-card {
-        padding: 20px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-}
-
-.edit-form-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.edit-popup {
-    width: 100%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 24px;
-}
-
-.popup-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.form-row {
-    margin-bottom: 16px;
-}
-
-.label-column {
-    display: flex;
-    align-items: center;
-}
-
-.popup-actions {
-    padding: 16px 24px;
-    gap: 8px;
-}
-
-.v-card-text {
-    padding: 20px;
-}
-
-.v-container {
-    padding: 24px;
-}
-
-.v-row {
-    margin: 0 -12px;
-}
-
-.v-col {
-    padding: 12px;
-}
-</style>

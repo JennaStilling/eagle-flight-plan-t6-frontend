@@ -71,7 +71,7 @@
 
   <!-- Student Task View Modal -->
   <div v-if="viewingTask" class="modal">
-    <div class="modal-content"> 
+    <div class="homepage-modal-content"> 
       <span @click="toggleTaskView()" class="close">&times;</span>
       <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div> 
       {{ currentTask.name }}  
@@ -105,7 +105,7 @@
 
   <!-- Event Viewer modal -->
   <div v-if="viewingEvent" class="modal">
-    <div class="modal-content"> 
+    <div class="homepage-modal-content"> 
       <span @click="toggleEventView()" class="close">&times;</span>
       <div class="modal-header" style="font-size: 30px; font-weight: bold;"> 
         {{ selectedEvent.name }} 
@@ -134,6 +134,8 @@ import studentFlightPlanServices from "@/services/flightPlanServices/studentFlig
 import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
+// CSS Files
+import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
 const studentTasks = ref({
@@ -251,7 +253,6 @@ const getAllFutureEvents = () => {
     .then((res) => {
       upcomingEvents.value = res.data.filter((event) => event.date > currentDate.value);
       upcomingEvents.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-      console.log("Upcoming Events:", upcomingEvents.value); // Log the events here
     })
     .catch((error) => {
       console.log("Error: " + error);
@@ -326,7 +327,7 @@ const getSelectedTask = (name, task, reflection, id) => {
 }
 
 const getSelectedEvent = (index) => {
-  selectedEvent.value = upcomingEvents.value[index];
+  selectedEvent.value = upcomingEvents.value[(currentEventPage.value - 1) * itemsPerPage + index];
   viewingEvent.value = !viewingEvent.value;
 }
 
@@ -431,21 +432,12 @@ const clearArrays = () => {
   overflow-y: auto;
 }
 
-/* .student-tasks-body {
-  height: 725px;
-}
-
-.upcoming-events-body {
-  height: 725px;
-} */
-
 .list-text {
   display: flex;
   flex-direction: column;
 }
 
 .list-title {
-  /* font-weight: bold; */
   font-size: clamp(14px, 1.5vw, 22px);
 }
 
@@ -508,35 +500,21 @@ const clearArrays = () => {
   cursor: auto;
 }
 
-.modal {
+.modal { /* Same as in Logout.vue*/
     width: 100%;
     height: 100%;
     flex-shrink: 0;
 }
 
-.modal-content {
-  min-width: 400px;
-  min-height: 100px; 
-  border-radius: 10px;
-  background: #FFF;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px;
-  max-height: 90vh; 
+.homepage-modal-content {
   overflow-y: auto;
   overflow-x: auto;
 }
 
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.modal-header { /*done*/
     flex-shrink: 0;
     color: #000;
     text-align: center;
-    /* font-family: Poppins; */
     font-size: 20px;
 }
 

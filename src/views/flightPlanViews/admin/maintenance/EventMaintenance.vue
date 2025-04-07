@@ -324,7 +324,7 @@
 </template>
 
 <script setup>
-
+import "@/assets/generic-stylesheet.css";
 import { ScheduleXCalendar } from '@schedule-x/vue'
 import {
     createCalendar,
@@ -447,10 +447,9 @@ const eventTypeColors = {
 
 const getEventColor = (eventType) => {
     const color = eventTypeColors[eventType?.toLowerCase()] || '#F9C634';
-    const darkColors = ['#27575A', '#004761'];
     return {
         backgroundColor: color,
-        color: darkColors.includes(color) ? '#2C3E50' : 'white'
+        color: 'white'
     };
 };
 
@@ -1027,188 +1026,7 @@ function updateEndDate() {
 </script>
 
 <style>
-.sx-calendar-container {
-    height: 100%;
-    width: 100%;
-    margin: 20px 0;
-    padding: 0 20px;
-}
-
-.event-item {
-    height: 100%;
-    width: 100%;
-    padding: 4px 8px;
-    background-color: #5EC4B6;
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 60px;
-    overflow: hidden;
-}
-
-.event-item .event-title {
-    font-weight: 500;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-}
-
-.event-item .event-time {
-    font-size: 12px;
-    opacity: 0.9;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-}
-
-.event-item .event-location {
-    font-size: 12px;
-    opacity: 0.8;
-    margin-top: auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-}
-
-.event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-.event-actions {
-    display: none;
-    gap: 2px;
-}
-
-.event-item:hover .event-actions {
-    display: flex;
-}
-
-.event-actions .v-btn {
-    min-width: 24px;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-}
-
-.event-item .event-title {
-    flex: 1;
-    margin-right: 8px;
-}
-
-.title-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    flex-wrap: wrap;
-}
-
-.table-title {
-    font-family: 'Poppins', sans-serif !important;
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-}
-
-.search-filter-button-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-grow: 1;
-    justify-content: flex-start;
-}
-
-.search-bar {
-    width: 250px;
-    min-width: 180px;
-    max-width: 300px;
-    flex-shrink: 1;
-}
-
-.filter-menu {
-    width: 180px;
-    min-width: 150px;
-    max-width: 200px;
-}
-
-.button {
-    width: auto;
-    color: white !important;
-    white-space: nowrap;
-}
-
-.button-white-text {
-    color: white !important;
-}
-
-.label-column p {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 12px;
-    color: #555;
-}
-
-.popup-header {
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.popup-actions {
-    padding: 12px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.edit-popup {
-    max-width: 550px;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.popup-content {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.label-column {
-    white-space: nowrap;
-    text-align: right;
-    font-weight: 500;
-    font-size: 14px;
-    color: #555;
-}
-
-.v-text-field,
-.v-textarea {
-    width: 100%;
-}
-
-.v-card-text {
-    padding: 20px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
+/* Ask Jenna abt this, since it's not used anywhere*/
 .modal {
     position: fixed;
     z-index: 999;
@@ -1237,87 +1055,10 @@ function updateEndDate() {
     margin-bottom: 20px;
 }
 
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.v-dialog {
-    .v-card {
-        padding: 20px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-}
-
-.edit-form-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.edit-popup {
-    width: 100%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 24px;
-}
-
-.popup-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.form-row {
-    margin-bottom: 16px;
-}
-
-.label-column {
-    display: flex;
-    align-items: center;
-}
-
-.popup-actions {
-    padding: 16px 24px;
-    gap: 8px;
-}
-
-.v-card-text {
-    padding: 20px;
-}
-
-.v-container {
-    padding: 24px;
-}
-
-.v-row {
-    margin: 0 -12px;
-}
-
-.v-col {
-    padding: 12px;
-}
-
 .modal-body {
     box-sizing: border-box;
+    text-align: center;
+    gap: 8px;
 }
 
 .modal-body .v-list {

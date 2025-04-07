@@ -9,15 +9,8 @@
   <script setup>
   import { useHomePageStore } from '@/store/homePageStore';
   import { onMounted } from 'vue';
-  
+  import "@/assets/generic-stylesheet.css";
+
   const homeStore = useHomePageStore();
 
   </script>
-  
-  <style scoped>
-  .modified-width {
-    height: 100vh;
-    margin: 0 auto;
-    padding-top: 15px;
-  }
-  </style>

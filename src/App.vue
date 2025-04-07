@@ -15,6 +15,7 @@ import SideBar from './components/flightPlanComponents/SideBar.vue';
 import NavBar from './components/resumeBuilderComponents/NavBar.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import "@/assets/generic-stylesheet.css";
 
 export default {
   components: {

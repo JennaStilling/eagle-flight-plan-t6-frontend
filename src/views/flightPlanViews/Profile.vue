@@ -33,9 +33,7 @@
       <div class="badge-display" v-if="studentBadges">
         <div v-for="(badge, index) in badges" :key="index">
           <div class="badge-item">
-            <div class="badge-image">
-              <img :src="badge.image" :alt="badge.name">
-            </div>
+            <img :src="badge.image" :alt="badge.name" class="badge-image">
             <p class="badge-name">{{ badge.name }}</p>
             <p class="badge-date">{{ formatDate(studentBadges[index].date_acquired) }}</p>
           </div>
@@ -118,6 +116,7 @@ import userServices from "@/services/resumeBuilderServices/userServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import studentBadgeServices from "@/services/flightPlanServices/studentBadgeServices";
 import badgeServices from "@/services/flightPlanServices/badgeServices";
+import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
 const router = useRouter();
@@ -335,11 +334,6 @@ const fileUpload = (event) => {
   margin-bottom: 10px
 }
 
-.btn-container {
-  display: flex;
-  gap: 20px; 
-}
-
 .profile-info button {
   flex-shrink: 0; 
   border-radius: 29px;
@@ -362,23 +356,10 @@ const fileUpload = (event) => {
 .image-container {
   width: 312px; 
   height: 312px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  border-radius: 50%;
-  background: rgba(32, 32, 32, 0.15);
-  flex-shrink: 0; 
-}
-
-.image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 /* Update Profile */
-.modal {
+.modal { /* Same as in TransactionLogs.vue*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -390,7 +371,7 @@ const fileUpload = (event) => {
   background: rgba(0, 0, 0, 0.5); 
 }
 
-.modal-content {
+.modal-content { /* Same as in TransactionLogs.vue*/
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -416,73 +397,11 @@ const fileUpload = (event) => {
   overflow: hidden;
 }
 
-.image-preview img {
-  position: absolute;
-  top: 50%;  
-  left: 50%; 
-  transform: translate(-50%, -50%); 
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.popup-header {
-  display: flex;
-  text-align: center;
-  width: 100%;
-  gap: 16px;
-  margin-bottom: 10px;
-}
-
 .popup-content {
     text-align: center;
     width: 100%;
     display: flex;
     flex-direction: column;
-}
-
-.form-row {
-    display: flex;
-    justify-content: flex-start;
-}
-
-.label-column {
-  width: 150px;
-  white-space: nowrap;
-  text-align: right;
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
-}
-
-.label-description {
-  color: #202020;
-  text-align: right;
-  font-family: Poppins;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-textarea,
-.input-field {
-  width: 70%;
-  min-width: 400px;
-  height: 42px; 
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-  font-size: 16px;
-  color: #202020;
-  padding: 8px 12px;
-  transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  resize: none;
-  text-align: left; 
 }
 
 .name-input {
@@ -498,21 +417,7 @@ textarea,
 }
 
 .input-field {
-  font-family: 'Inter', sans-serif;
-}
-
-.v-row + .v-row {
-    margin-top: 0px;
-}
-
-.v-col{
-  padding: 0px 12px 0px 12px;
-}
-
-.form-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0px;
+  font-family: 'Poppins', sans-serif;
 }
 
 .save-btn {
@@ -520,23 +425,6 @@ textarea,
   height: 60px;
   border-radius: 10px;
   background: #5EC4B6;
-
-  /* Typography */
-  color: #FFF;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-.cancel-btn {
-  width: 160px;
-  height: 60px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.25);
-
   /* Typography */
   color: #FFF;
   text-align: center;
@@ -559,7 +447,6 @@ textarea,
   border-radius: 33px;
   background: #FAFAFA;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
   display: flex;
   flex-direction: column; 
   justify-content: center;
@@ -575,12 +462,10 @@ textarea,
   border-radius: 33px;
   background: #5EC4B6;
   z-index: 2; 
-
   display: flex;
   align-items: center;  
   justify-content: flex-start; 
   padding-left: 20px;
-
   /* Typography */
   color: #FAFAFA;
   font-family: Poppins;
