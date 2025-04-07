@@ -45,6 +45,7 @@ import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaint
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
 import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue"
+
 // Approval Pages
 import EventApprovals from "./views/flightPlanViews/admin/approvals/EventApprovals.vue"
 import CustomEventApprovals from "./views/flightPlanViews/admin/approvals/CustomEventApprovals.vue";
