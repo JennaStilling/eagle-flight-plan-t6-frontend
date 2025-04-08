@@ -1,19 +1,18 @@
 <template>
-    <h1 class="pa-5">Badges</h1>
-    <v-chip>Badges: {{ obtainedBadges.length }} / {{ obtainedBadges.length + badges.length }}</v-chip>
-    <h2 class="pa-5">Badges Accomplished</h2>
+    <v-row class="badges-header">
+        <h1 class="badges-title">Badges</h1>
+        <v-chip class="badges-chip">
+            Badges: {{ obtainedBadges.length }} / {{ obtainedBadges.length + badges.length }}
+        </v-chip>
+    </v-row>
     <v-card class="stuff">
-        <h1 class="pa-5">Tasks</h1>
-        <v-data-iterator :items="obtainedBadges" :items-per-page="24" v-if="!loading">
+        <h1 class="pa-5">Accomplished Badges</h1>
+        <v-data-iterator :items="obtainedBadges" :items-per-page="7" v-if="!loading">
             <template v-slot:default="{ items }">
                 <v-container class="pa-5" fluid>
                     <v-row dense>
                         <v-col v-for="badge in items" :key="badge.raw.id" cols="auto" md="1.5">
-                            <div class="badge-item">
-                                <img :src="badge.raw.image" :alt="badge.raw.name" class="badge-image">
-                                <p class="badge-name">{{ badge.raw.name }}</p>
-                                <p class="badge-date">{{ formatDate(badge.raw.date_acquired) }}</p>
-                            </div>
+                            <BadgePreview :key="badge.raw.id" :badge="badge.raw" :obtained="true" />
                         </v-col>
                     </v-row>
                 </v-container>
@@ -35,18 +34,14 @@
             </template>
         </v-data-iterator>
     </v-card>
-    <h2 class="pa-5">Available Badges</h2>
     <v-card class="stuff">
-        <h1 class="pa-5">Tasks</h1>
-        <v-data-iterator :items="badges" :items-per-page="24" v-if="!loading">
+        <h1 class="pa-5">Available Badges</h1>
+        <v-data-iterator :items="badges" :items-per-page="7" v-if="!loading">
             <template v-slot:default="{ items }">
                 <v-container class="pa-5" fluid>
                     <v-row dense>
                         <v-col v-for="badge in items" :key="badge.raw.id" cols="auto" md="1.5">
-                            <div class="badge-item">
-                                <img :src="badge.raw.image" :alt="badge.raw.name" class="badge-image">
-                                <p class="badge-name">{{ badge.raw.name }}</p>
-                            </div>
+                            <BadgePreview :key="badge.raw.id" :badge="badge.raw" :obtained="false" />
                         </v-col>
                     </v-row>
                 </v-container>
@@ -83,6 +78,9 @@ import StudentServices from "@/services/resumeBuilderServices/studentServices";
 import BadgeServices from "@/services/flightPlanServices/badgeServices";
 import StudentBadgeServices from "@/services/flightPlanServices/studentBadgeServices";
 //import StudentFlightPlanExperienceServices from "@/services/flightPlanServices/studentFlightPlanExperienceServices"
+
+// Components
+import BadgePreview from "@/components/flightPlanComponents/studentPages/badgePreview.vue";
 
 const router = useRouter();
 const user = ref(null);
@@ -153,54 +151,47 @@ const getBadges = async () => {
 
     const alreadyObtainedBadges = result.data.filter(isStudentBadge);
     for (const badge of alreadyObtainedBadges) {
+        const studentBadge = studentBadges.value.find(studentBadge => studentBadge.badgeId === badge.id)
         const badgeData = {
             ...badge,
-            date_acquired: studentBadges.value.find(studentBadge => studentBadge.badgeId === badge.id).date_acquired,
+            date_acquired: studentBadge.date_acquired,
+            //points_earned: studentBadge.points_earned,
         }
         obtainedBadges.value.push(badgeData);
     }
 }
-
-const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric'
-    })
-}
 </script>
 
 <style scoped>
-.badge-item {
+.stuff {
+    background-color: rgb(255, 255, 255);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    border-radius: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    grid-auto-flow: dense;
+}
+
+.badges-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    width: 120px;
-    height: 190px;
-    flex-shrink: 0;
+    justify-content: space-between;
+    padding: 1vw;
+    margin-bottom: 2vw;
 }
 
-.badge-image {
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    border-radius: 50%;
-    background: rgba(32, 32, 32, 0.15);
+.badges-title {
+    font-size: 4vw;
+    font-weight: 700;
+    margin: 0;
 }
 
-.badge-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.badge-name,
-.badge-date {
-    margin: 5px 0;
-    font-size: 14px;
+.badges-chip {
+    font-size: 1.5vw;
+    padding: 1.5vw 1vw;
+    background-color: #811429;
+    color: #FFFFFF;
+    border-radius: 1vw;
 }
 </style>
