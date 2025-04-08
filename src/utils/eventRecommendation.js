@@ -24,7 +24,7 @@ export async function getRecommendedEventsForTask(pTask) {
         recommendedEvents = allEvents.filter(
           (event) =>
             event.event_type == "lunch_and_learn" ||
-            event.event_type == "strengths" ||
+            event.event_type == "galup_strengths_class" ||
             event.event_type == "mentoring"
         );
         break;
@@ -37,7 +37,7 @@ export async function getRecommendedEventsForTask(pTask) {
             event.event_type == "academic"
         );
         break;
-      case "strenghts":
+      case "strengths":
         recommendedEvents = allEvents.filter(
           (event) => event.event_type == "galup_strengths_class"
         );
@@ -62,7 +62,7 @@ export async function getRecommendedEventsForTask(pTask) {
       case "volunteer":
         recommendedEvents = allEvents.filter(
           (event) =>
-            event.event_type == "club" || event.event_type == "extra_curricular"
+            event.event_type == "volunteer"
         );
         break;
       case "other":
@@ -75,6 +75,12 @@ export async function getRecommendedEventsForTask(pTask) {
     
     console.log(currentTaskCategory);
     console.log(recommendedEvents);
+
+    recommendedEvents.sort((a, b) => {
+    const dateA = new Date(a.start_date_time);
+    const dateB = new Date(b.start_date_time);
+    return dateA - dateB;
+    });
 
     return recommendedEvents;
   } catch (error) {
@@ -104,7 +110,7 @@ export async function getRecommendedEventsForExperience(pExperience) {
         recommendedEvents = allEvents.filter(
           (event) =>
             event.event_type == "lunch_and_learn" ||
-            event.event_type == "strengths" ||
+            event.event_type == "galup_strengths_class" ||
             event.event_type == "mentoring"
         );
         break;
@@ -117,7 +123,7 @@ export async function getRecommendedEventsForExperience(pExperience) {
             event.event_type == "academic"
         );
         break;
-      case "strenghts":
+      case "strengths":
         recommendedEvents = allEvents.filter(
           (event) => event.event_type == "galup_strengths_class"
         );
@@ -142,7 +148,7 @@ export async function getRecommendedEventsForExperience(pExperience) {
       case "volunteer":
         recommendedEvents = allEvents.filter(
           (event) =>
-            event.event_type == "club" || event.event_type == "extra_curricular"
+            event.event_type == "volunteer"
         );
         break;
       case "other":
@@ -155,6 +161,12 @@ export async function getRecommendedEventsForExperience(pExperience) {
 
     console.log(currentExperienceCategory);
     console.log(recommendedEvents)
+
+    recommendedEvents.sort((a, b) => {
+      const dateA = new Date(a.start_date_time);
+      const dateB = new Date(b.start_date_time);
+    return dateA - dateB;
+    });
 
     return recommendedEvents;
   } catch (error) {
