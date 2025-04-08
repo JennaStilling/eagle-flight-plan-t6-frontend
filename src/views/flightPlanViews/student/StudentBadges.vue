@@ -110,9 +110,6 @@ onMounted(async () => {
     sortStudentBadges();
     await getBadges();
     sortObtainedBadges();
-    console.log(badges.value)
-    console.log(obtainedBadges.value)
-    console.log(studentBadges.value)
 });
 
 const getSessionData = async () => {
