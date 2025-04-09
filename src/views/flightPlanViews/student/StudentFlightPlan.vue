@@ -343,7 +343,7 @@ const getSemesters = async () => {
 }
 
 const sortSemestersByDate = () => {
-    semesters.value = semesters.value.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+    semesters.value.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 }
 
 const getCurrentSemesterIndex = async () => {
