@@ -193,8 +193,8 @@ import StudentFlightPlanTaskServices from '@/services/flightPlanServices/student
 import TaskServices from "@/services/flightPlanServices/taskServices";
 import StudentEventServices from "@/services/flightPlanServices/studentEventServices"
 //Experiences
-import StudentExperienceTypeEventServices from "@/services/flightPlanServices/studentExperienceTypeEventServices";
-import StudentExperienceTypeServices from "@/services/flightPlanServices/studentExperienceTypeServices";
+import StudentFlightPlanExperienceTypeEventServices from "@/services/flightPlanServices/studentFlightPlanExperienceTypeEventServices";
+import StudentFlightPlanExperienceTypeServices from "@/services/flightPlanServices/studentFlightPlanExperienceTypeServices";
 import ExperienceTypeServices from "@/services/flightPlanServices/experienceTypeServices";
 import ExperienceTypeEventServices from "@/services/flightPlanServices/experienceTypeEventServices";
 import EventServices from "@/services/flightPlanServices/eventServices";
@@ -215,7 +215,7 @@ const currentSemesterIndex = ref(0);
 
 const studentSemesterFlightPlanTasks = ref({});
 
-const studentExperienceTypes = ref([]);
+const studentFlightPlanExperienceTypes = ref([]);
 const experienceTypesForStudent = ref([]);
 const eventsByExperienceType = ref({});
 
@@ -378,30 +378,30 @@ const getSemesterTasks = async (semesterIndex) => {
 }
 
 const getAllExperienceData = async () => {
-    await getStudentExperiences(studentExperienceTypes);
-    await getExperienceTypes(studentExperienceTypes, experienceTypesForStudent);
+    await getStudentFlightPlanExperiences(studentFlightPlanExperienceTypes);
+    await getExperienceTypes(studentFlightPlanExperienceTypes, experienceTypesForStudent);
 
     for (const experienceType of experienceTypesForStudent.value) {
         eventsByExperienceType.value[experienceType.id] = await getEventsForExperienceType(experienceType.id);
     }
 }
 
-const getStudentExperiences = async (studentExperienceTypes) => {
-    const result = await StudentExperienceTypeServices.getAllExperienceTypesForStudent(student.value.id);
-    studentExperienceTypes.value = result.data;
+const getStudentFlightPlanExperiences = async (studentFlightPlanExperienceTypes) => {
+    const result = await StudentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(student.value.id);
+    studentFlightPlanExperienceTypes.value = result.data;
 }
 
-const getExperienceTypes = async (studentExperienceTypes, experienceTypesForStudent) => {
+const getExperienceTypes = async (studentFlightPlanExperienceTypes, experienceTypesForStudent) => {
     const studentEventIsComplete = (studentEvent) => !!studentEvent.completed_date;
 
-    for (const studentExperienceType of studentExperienceTypes.value) {
-        const experienceType = await ExperienceTypeServices.getExperienceType(studentExperienceType.experienceTypeId);
+    for (const studentFlightPlanExperienceType of studentFlightPlanExperienceTypes.value) {
+        const experienceType = await ExperienceTypeServices.getExperienceType(studentFlightPlanExperienceType.experienceTypeId);
 
-        const studentExperienceTypeEvents = await StudentExperienceTypeEventServices.getStudentExperienceTypeEvents(experienceType.data.id);
+        const studentFlightPlanExperienceTypeEvents = await StudentFlightPlanExperienceTypeEventServices.getStudentFlightPlanExperienceTypeEvents(experienceType.data.id);
 
         experienceTypesForStudent.value.push({
             ...experienceType.data,
-            experienceCompleted: studentExperienceTypeEvents.data.some(studentEventIsComplete),
+            experienceCompleted: studentFlightPlanExperienceTypeEvents.data.some(studentEventIsComplete),
         });
     }
 }
