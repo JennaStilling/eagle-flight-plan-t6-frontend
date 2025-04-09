@@ -404,8 +404,8 @@ const headers = ref([
     { key: 'point_value', title: 'Points' }
 ]);
 
-const filterOptions = ref(['All', 'Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class']);
-const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class'];
+const filterOptions = ref(['All', 'Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class', 'Volunteer']);
+const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class', 'Volunteer'];
 const statusOptions = ['Scheduled', 'In Progress', 'Completed', 'Finished']
 const attendanceTypes = ['In Person', 'Online']
 

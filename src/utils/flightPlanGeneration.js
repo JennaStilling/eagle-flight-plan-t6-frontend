@@ -10,8 +10,8 @@ import majorServices from "@/services/flightPlanServices/majorServices";
 import cliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
 import studentFlightPlanServices from "@/services/flightPlanServices/studentFlightPlanServices";
 import studentFlightPlanTaskServices from "@/services/flightPlanServices/studentFlightPlanTaskServices";
-import studentExperienceTypeServices from "@/services/flightPlanServices/studentExperienceTypeServices";
-import studentExperienceTypeEventServices from "@/services/flightPlanServices/studentExperienceTypeEventServices";
+import studentFlightPlanExperienceTypeServices from "@/services/flightPlanServices/studentFlightPlanExperienceTypeServices";
+import studentFlightPlanExperienceTypeEventServices from "@/services/flightPlanServices/studentFlightPlanExperienceTypeEventServices";
 import semesterServices from "@/services/flightPlanServices/semesterServices";
 import flightPlanServices from "@/services/flightPlanServices/flightPlanServices";
 
@@ -263,16 +263,16 @@ async function getPossibleExperiences(student, studentsMajors, studentCliftonStr
 
         const allElgibleExperiences = Array.from(new Map(combinedExperienceList.map(item => [item.experienceTypeId, item])).values());
 
-        const studentExperiences = (await studentExperienceTypeServices.getAllExperienceTypesForStudent(student.id)).data;
+        const studentFlightPlanExperiences = (await studentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(student.id)).data;
 
         const studentEvents = (
             await Promise.all(
-                studentExperiences.map(studentExperience => studentExperienceTypeEventServices.getStudentExperienceTypeEvents(studentExperience.id))
+                studentFlightPlanExperiences.map(studentFlightPlanExperience => studentFlightPlanExperienceTypeEventServices.getStudentFlightPlanExperienceTypeEvents(studentFlightPlanExperience.id))
             )
         ).map(res => res.data).flat();
 
         const completedEvents = studentEvents.filter(experience => experience.status === 'approved');
-        const completedExperiences = studentExperiences.filter(experience => completedEvents.some(event => event.studentExperienceTypeId === experience.id));
+        const completedExperiences = studentFlightPlanExperiences.filter(experience => completedEvents.some(event => event.studentFlightPlanExperienceTypeId === experience.id));
 
         const experiencesToRemove = new Set(completedExperiences.map(item => item.experienceTypeId));
         const incompleteElgibleExperience = allElgibleExperiences.filter(item => !experiencesToRemove.has(item.experienceTypeId));
@@ -377,7 +377,7 @@ async function addExperiencesToStudent(student, experiencesToFlightPlan) {
         }
         for (let i = 0; i < experiencesToFlightPlan.length; i++) {
             template.experienceTypeId = experiencesToFlightPlan[i].id;
-            await studentExperienceTypeServices.createSystemStudentExperienceType(template);
+            await studentFlightPlanExperienceTypeServices.createSystemStudentFlightPlanExperienceType(template);
         }
     }
     catch (error) {
