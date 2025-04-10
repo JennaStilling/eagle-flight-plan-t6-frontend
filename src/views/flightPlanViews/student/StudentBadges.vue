@@ -2,7 +2,7 @@
     <v-row class="badges-header">
         <h1 class="badges-title">Badges</h1>
         <v-chip class="badges-chip">
-            Badges: {{ obtainedBadges.length }} / {{ obtainedBadges.length + badges.length }}
+            Badges: {{ obtainedBadges.length }} / {{ obtainedBadges.length + nonObtainedBadges.length }}
         </v-chip>
     </v-row>
     <v-card class="stuff">
@@ -36,12 +36,13 @@
     </v-card>
     <v-card class="stuff">
         <h1 class="pa-5">Available Badges</h1>
-        <v-data-iterator :items="badges" :items-per-page="7" v-if="!loading">
+        <v-data-iterator :items="nonObtainedBadges" :items-per-page="7" v-if="!loading">
             <template v-slot:default="{ items }">
                 <v-container class="pa-5" fluid>
                     <v-row dense>
                         <v-col v-for="badge in items" :key="badge.raw.id" cols="auto" md="1.5">
-                            <BadgePreview :key="badge.raw.id" :badge="badge.raw" :obtained="false" />
+                            <BadgePreview :key="badge.raw.id" :badge="badge.raw" :obtained="false"
+                                @claim-badge="setBadgeToCompleted" />
                         </v-col>
                     </v-row>
                 </v-container>
@@ -77,7 +78,12 @@ import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import StudentServices from "@/services/resumeBuilderServices/studentServices";
 import BadgeServices from "@/services/flightPlanServices/badgeServices";
 import StudentBadgeServices from "@/services/flightPlanServices/studentBadgeServices";
-//import StudentFlightPlanExperienceServices from "@/services/flightPlanServices/studentFlightPlanExperienceServices"
+import BadgeExperienceTypeServices from "@/services/flightPlanServices/badgeExperienceTypeServices";
+import TaskBadgeServices from "@/services/flightPlanServices/taskBadgeServices";
+import StudentFlightPlanTaskServices from "@/services/flightPlanServices/studentFlightPlanTaskServices";
+import StudentFlightPlanServices from "@/services/flightPlanServices/studentFlightPlanServices";
+import StudentFlightPlanExperienceTypeServices from "@/services/flightPlanServices/studentFlightPlanExperienceTypeServices"
+import StudentFlightPlanExperienceTypeEventServices from "@/services/flightPlanServices/studentFlightPlanExperienceTypeEventServices"
 
 // Components
 import BadgePreview from "@/components/flightPlanComponents/studentPages/badgePreview.vue";
@@ -87,7 +93,7 @@ const user = ref(null);
 const student = ref(null);
 
 const studentBadges = ref([]);
-const badges = ref([]);
+const nonObtainedBadges = ref([]);
 const obtainedBadges = ref([]);
 
 
@@ -112,6 +118,13 @@ onMounted(async () => {
     sortObtainedBadges();
 });
 
+const refresh = async () => {
+    await getStudentBadges();
+    sortStudentBadges();
+    await getBadges();
+    sortObtainedBadges();
+}
+
 const getSessionData = async () => {
     const userStore = Utils.getStore("user");
     const tempUser = await UserServices.getUser(userStore.userId);
@@ -134,28 +147,84 @@ const sortObtainedBadges = () => {
 }
 
 const getBadges = async () => {
-    const notStudentBadge = (badge) => !studentBadges.value.some(studentBadge => studentBadge.badgeId === badge.id);
-    const isStudentBadge = (badge) => studentBadges.value.some(studentBadge => studentBadge.badgeId === badge.id);
+    const allBadges = await BadgeServices.getAllBadges();
+    getNonObtainedBadges(allBadges.data);
+    getObtainedBadges(allBadges.data);
+}
 
-    const result = await BadgeServices.getAllBadges();
-    const availableBadges = result.data.filter(notStudentBadge);
+const getNonObtainedBadges = async (allBadges) => {
+    nonObtainedBadges.value = [];
+    const notStudentBadge = (badge) => !studentBadges.value.some(studentBadge => studentBadge.badgeId === badge.id);
+    const someStudentTaskBadgeNotCompleted = (taskBadge) => { allStudentTasks.value.some(studentTask => studentTask.taskId === taskBadge.taskId && studentTask.status !== 'completed') }
+    const someStudentExperienceBadgeNotCompleted = (experienceBadge) => allStudentFlightPlanExperienceTypes.value.length === 0 || allStudentFlightPlanExperienceTypes.value.some((studentExperienceType) => experienceBadge.experienceTypeId === studentExperienceType.experienceTypeId && !studentExperienceType.completed)
+    const studentEventIsComplete = (studentEvent) => studentEvent.status === 'approved';
+
+    const allStudentFlightPlans = await StudentFlightPlanServices.getAllFlightPlansForStudent(student.value.id);
+    const allStudentTasks = ref([]);
+    // gets all tasks for the student
+    for (const studentFlightPlan of allStudentFlightPlans.data) {
+        const studentTasks = await StudentFlightPlanTaskServices.getStudentFlightPlanTasks(studentFlightPlan.id);
+        allStudentTasks.value.push(...studentTasks.data);
+    }
+    // gets all experiences for the student, and adds if they are completed
+    const allStudentFlightPlanExperienceTypes = ref([]);
+    for (const studentFlightPlan of allStudentFlightPlans.data) {
+        const studentExperienceTypes = await StudentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(studentFlightPlan.id)
+        for (const studentExperienceType of studentExperienceTypes.data) {
+            const studentFlightPlanExperienceTypeEvents = await StudentFlightPlanExperienceTypeEventServices.getStudentFlightPlanExperienceTypeEvents(studentExperienceType.id);
+
+            allStudentFlightPlanExperienceTypes.value.push({
+                ...studentExperienceType,
+                completed: studentFlightPlanExperienceTypeEvents.data.some(studentEventIsComplete),
+            });
+        }
+    }
+    // checks if a badge can be claimed
+    const badgeCompleted = async (badge) => {
+        const taskBadges = await TaskBadgeServices.getAllTaskBadgesForBadge(badge.id);
+        const badgeExperienceTypes = await BadgeExperienceTypeServices.getAllBadgeExperienceTypesForBadge(badge.id);
+        if (badge.type === 'task_completion')
+            return !taskBadges.data.some(someStudentTaskBadgeNotCompleted);
+        else if (badge.type === 'experience_completion')
+            return !badgeExperienceTypes.data.some(someStudentExperienceBadgeNotCompleted);
+        return null;
+    }
+
+    const availableBadges = allBadges.filter(notStudentBadge);
     for (const badge of availableBadges) {
         const badgeData = {
             ...badge,
+            completed: await badgeCompleted(badge),
         }
-        badges.value.push(badgeData);
+        nonObtainedBadges.value.push(badgeData);
     }
+}
 
-    const alreadyObtainedBadges = result.data.filter(isStudentBadge);
+const getObtainedBadges = (allBadges) => {
+    obtainedBadges.value = [];
+    const isStudentBadge = (badge) => studentBadges.value.some(studentBadge => studentBadge.badgeId === badge.id);
+
+    const alreadyObtainedBadges = allBadges.filter(isStudentBadge);
     for (const badge of alreadyObtainedBadges) {
         const studentBadge = studentBadges.value.find(studentBadge => studentBadge.badgeId === badge.id)
         const badgeData = {
             ...badge,
             date_acquired: studentBadge.date_acquired,
-            //points_earned: studentBadge.points_earned,
+            points_earned: studentBadge.points_earned,
         }
         obtainedBadges.value.push(badgeData);
     }
+}
+
+const setBadgeToCompleted = async (badge) => {
+    const data = {
+        studentId: student.value.id,
+        badgeId: badge.id,
+        points_earned: badge.points,
+        date_acquired: new Date().toISOString(),
+    }
+    const studentBadge = await StudentBadgeServices.createSystemStudentBadge(data)
+    refresh();
 }
 </script>
 
