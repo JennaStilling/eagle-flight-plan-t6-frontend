@@ -7,6 +7,10 @@
                 <p class="badge-name">{{ badge.name }}</p>
                 <p class="badge-date" v-if="obtained">{{ formatDate(badge.date_acquired) }}</p>
                 <p class="badge-date" v-if="!obtained">{{ badge.points }} pts</p>
+                <v-btn v-if="!obtained && badge.completed" class="button" variant="elevated" color="#5EC4B6"
+                    @click.stop="claimBadge()">
+                    Claim
+                </v-btn>
             </div>
         </v-row>
 
@@ -17,19 +21,27 @@
                     <div class="badge-popup-item">
                         <img :src="badge.image" :alt="badge.name" class="badge-popup-image">
                     </div>
-                    <div class="badge-popup-info">
-                        <h3 class="badge-popup-name">{{ badge.name }}</h3>
-                        <p class="badge-popup-description">{{ badge.description }}</p>
-                        <p class="badge-popup-date" v-if="obtained">
-                            Date Aquired: {{ formatDate(badge.date_acquired) }}
-                        </p>
-                        <p class="badge-popup-points" v-if="obtained">
-                            Points Gained: {{ badge.points_earned }}
-                        </p>
-                        <p class="badge-popup-points" v-if="!obtained">
-                            Points: {{ badge.points }}
-                        </p>
-                    </div>
+                    <v-col>
+                        <div class="badge-popup-info">
+                            <h3 class="badge-popup-name">{{ badge.name }}</h3>
+                            <p class="badge-popup-description">{{ badge.description }}</p>
+                            <p class="badge-popup-date" v-if="obtained">
+                                Date Aquired: {{ formatDate(badge.date_acquired) }}
+                            </p>
+                            <p class="badge-popup-points" v-if="obtained">
+                                Points Gained: {{ badge.points_earned }}
+                            </p>
+                            <p class="badge-popup-points" v-if="!obtained">
+                                Points: {{ badge.points }}
+                            </p>
+                        </div>
+                        <div class="button-right">
+                            <v-btn v-if="!obtained && badge.completed" class="button" variant="elevated" color="#5EC4B6"
+                                @click="claimBadge()">
+                                Claim
+                            </v-btn>
+                        </div>
+                    </v-col>
                 </v-row>
             </v-card>
         </v-overlay>
@@ -65,6 +77,11 @@ const formatDate = (date) => {
         day: '2-digit',
         year: 'numeric'
     })
+}
+
+const claimBadge = () => {
+    emit('claim-badge', props.badge);
+    overlay.value = false;
 }
 </script>
 
@@ -136,7 +153,7 @@ const formatDate = (date) => {
 .view-badge {
     background-color: #ffffff;
     width: 50vw;
-    height: 20vw;
+    height: 18vw;
     padding: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     border-radius: 15px;
@@ -148,8 +165,6 @@ const formatDate = (date) => {
 .badge-popup-details {
     display: flex;
     align-items: center;
-    gap: 2vw;
-    margin-bottom: 2vw;
 }
 
 /* Badge Popup Item */
@@ -198,6 +213,13 @@ const formatDate = (date) => {
 .badge-popup-points {
     font-size: 1.2vw;
     color: #777;
-    margin-bottom: 0.5vw;
+}
+
+.button-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
 }
 </style>

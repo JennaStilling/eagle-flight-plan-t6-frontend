@@ -13,6 +13,9 @@ export default {
     getTaskBadge(taskId, badgeId, id) {
         return apiClient.get(`flightPlan-t6/task/${taskId}/badge/${badgeId}/taskBadge/${id}`);
     },
+    getAllTaskBadgesForBadge(badgeId) {
+        return apiClient.get(`flightPlan-t6/badge/${badgeId}/taskBadge`);
+    },
     updateTaskBadge(taskId, badgeId, id, data) {
         return apiClient.put(`flightPlan-t6/task/${taskId}/badge/${badgeId}/taskBadge/${id}`, data);
     },
