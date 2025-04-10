@@ -32,6 +32,13 @@
                     <a v-if="task.video_link" :href="task.video_link" target="_blank">
                         Watch Video
                     </a>
+                    <p v-if="getVerificationType === 'reflection' && task.status === 'in_progress' || task.status === 'unapproved'">
+                        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeReflection()">Reflection</v-btn>
+                    </p>
+                    <p v-if="getVerificationType === 'quiz' && task.status != 'approved'">
+                        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()">Take Quiz</v-btn>
+                    </p>
+                    
                     <v-card-actions class="popup-actions">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" v-if="!task.video_link"
                             @click="showRecommendedEventsHandler">View Recommended Events</v-btn>
@@ -39,11 +46,27 @@
                 </div>
             </v-card>
         </v-overlay>
+
+        <v-overlay v-model="showReflection" class="d-flex align-center justify-center">
+            <reflectionSubmission :task="task" 
+            @close-reflection="closeModal"
+            />
+        </v-overlay>
+
+        <v-overlay v-model="showQuiz" persistent class="d-flex align-center justify-center">
+            <quizSubmission :task="task" 
+            @close-quiz="closeModal"
+            />
+        </v-overlay>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
+import { asyncComputed } from '@vueuse/core';
+import verificationServices from "@/services/flightPlanServices/verificationServices";
+import reflectionSubmission from "./reflectionSubmission.vue";
+import quizSubmission from "./quizSubmission.vue";
 
 const props = defineProps({
     task: Object,
@@ -56,6 +79,8 @@ const props = defineProps({
 const emit = defineEmits(['save-user', 'delete-user', 'show-recommended-events', 'update:showOverlay']);
 
 const overlay = ref(false);
+const showReflection = ref(false);
+const showQuiz = ref(false);
 
 watch(() => props.showOverlay, (newValue) => {
     overlay.value = newValue;
@@ -83,6 +108,29 @@ const handleMouseleave = () => {
 };
 
 const loading = ref(false)
+
+const getVerificationType = asyncComputed(async () => {
+  if (props.task?.verificationId){
+    const verification = (await verificationServices.getVerification(props.task?.verificationId)).data;
+    return verification.type;
+  }
+});
+
+const takeReflection = () => {
+    overlay.value = false;
+    showReflection.value = true;
+}
+
+const closeModal = () => {
+    showReflection.value = false;
+    showQuiz.value = false;
+    window.location.reload();
+}
+
+const takeQuiz = () => {
+    overlay.value = false;
+    showQuiz.value = true;
+}
 </script>
 
 <style scoped>

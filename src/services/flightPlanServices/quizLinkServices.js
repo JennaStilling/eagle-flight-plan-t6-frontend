@@ -14,3 +14,12 @@ export async function linkFormToSheet(formId) {
       return "Failed to link form. See console for details.";
     }
   }
+
+export function deleteQuizResult(id) {
+  try {
+    return apiClient.delete(`/flightPlan-t6/quiz-results/${id}`);
+  } catch (error) {
+    console.error("deleteQuizResult error:", error);
+    return "Failed to delete the quiz results";
+  }
+}
