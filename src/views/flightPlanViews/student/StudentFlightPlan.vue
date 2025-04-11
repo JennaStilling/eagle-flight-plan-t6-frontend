@@ -280,7 +280,7 @@ const requestScheduleType = ref("");
 const requestName = ref("");
 const requestDescription = ref("");
 const requestPointValue = ref(0);
-const taskVerificationType = ref("");
+const requestRationale = ref("");
 
 const loadRegisteredEvents = async () => {
     try {
@@ -386,6 +386,7 @@ const requestTaskPopup = () => {
     requestName.value = "";
     requestDescription.value = "";
     requestPointValue.value = 0;
+    requestRationale.value = "";
 };
 
 const requestTask = () => {
@@ -394,8 +395,9 @@ const requestTask = () => {
         schedule_type: requestScheduleType.value,
         name: requestName.value,
         description: requestDescription.value,
-        status: "Requested",
+        rationale: requestRationale.value,
         point_value: requestPointValue.value,
+        // verificationId: "Requested", Change this to the correct verification type
     };
     
     console.log(task)
