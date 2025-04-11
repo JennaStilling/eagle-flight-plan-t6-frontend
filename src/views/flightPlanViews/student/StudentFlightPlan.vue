@@ -181,7 +181,7 @@
     <div v-if="showTaskDetails" class="modal edit-form-body">
     <v-card class="edit-popup mx-auto">
       <v-card-title class="popup-header">
-        <v-text-field v-model="taskName"></v-text-field>
+        <v-text-field v-model="requestName"></v-text-field>
       </v-card-title>
 
       <v-divider></v-divider>
@@ -193,7 +193,7 @@
             <label>{{ labels.description }}</label>
           </v-col>
           <v-col cols="7">
-            <v-textarea v-model="taskDescription" rows="2" variant="outlined" density="compact"></v-textarea>
+            <v-textarea v-model="requestDescription" rows="2" variant="outlined" density="compact"></v-textarea>
           </v-col>
         </v-row>
 
@@ -204,19 +204,7 @@
           </v-col>
 
           <v-col cols="7">
-            <v-text-field v-model="taskRationale" variant="outlined" density="compact" hide-details></v-text-field>
-          </v-col>
-        </v-row>
-
-        <!-- Verification (This might go away or get changed) -->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.verification }}</label>
-          </v-col>
-
-          <v-col cols="7">
-            <v-text-field v-model="taskVerificationType" variant="outlined" density="compact"
-              hide-details></v-text-field>
+            <v-text-field v-model="requestRationale" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
       </v-container>
@@ -284,13 +272,15 @@ const isStudentSignedUp = ref(false);
 
 const registeredEventIds = ref([]);
 
+const deleteError = ref(false);
 const showTaskDetails = ref(false);
-const taskAdd = ref(false);
 const taskRequest = ref(false);
-const taskToEdit = ref(null);
-const taskName = ref("");
-const taskDescription = ref("");
-const customVerification = ref(false);
+const requestCategory = ref("");
+const requestScheduleType = ref("");
+const requestName = ref("");
+const requestDescription = ref("");
+const requestPointValue = ref(0);
+const taskVerificationType = ref("");
 
 const loadRegisteredEvents = async () => {
     try {
@@ -389,26 +379,24 @@ const studentDeleteStudentEvent = async (eventId) => {
 
 const requestTaskPopup = () => {
     showTaskDetails.value = true;
-    taskAdd.value = true;
-    taskRequest.value = false;
-    taskToEdit.value = null;
+    taskRequest.value = true;
 
-    taskName.value = "";
-    taskDescription.value = "";
-    customVerification.value = "";
+    requestCategory.value = "other";
+    requestScheduleType.value = "special_event";
+    requestName.value = "";
+    requestDescription.value = "";
+    requestPointValue.value = 0;
 };
 
 const requestTask = () => {
-    
     const task = {
-        name: taskName.value,
-        description: taskDescription.value,
+        category: requestCategory.value,
+        schedule_type: requestScheduleType.value,
+        name: requestName.value,
+        description: requestDescription.value,
         status: "Requested",
-        point_value: 0,
-        customVerification: taskVerificationType.value, //Using the Verification ENUM type
+        point_value: requestPointValue.value,
     };
-    // Call the API to request the task here
-    // Reset the form after submission
     
     console.log(task)
 
@@ -419,9 +407,10 @@ const requestTask = () => {
     })
     .catch((e) => {
         console.log(e)
-        //message.value = e.response.data.message;
         deleteError.value = true;
     });
+
+    //Send email to admin
 }
 
 onMounted(async () => {
