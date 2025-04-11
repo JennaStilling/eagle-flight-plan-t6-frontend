@@ -30,7 +30,7 @@
         <img src="@/assets/navigation/shoppingCart.png" alt="Shopping Cart" class="shopping-cart-icon" />
         <div class="shop-info">
           <h1>Shop</h1>
-          <p>You have <strong style="color: #811429; font-weight: 700;">{{ student?.total_points }}</strong> points</p>
+          <p>You have <strong style="color: #811429; font-weight: 700;">{{ student?.points }}</strong> points</p>
         </div>
       </div>
       <div class="events-navigation">
@@ -86,7 +86,7 @@
                       month: 'short'
                     }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' })
-                      }}
+                    }}
                     </div>
                   </td>
                   <td style="user-select: none;">
@@ -112,7 +112,8 @@
             </template>
             <template v-else>
               <tr>
-                <td colspan="3" style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
+                <td colspan="3"
+                  style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
                   You haven't attended any events recently. Register for an event above to see it here.
                 </td>
               </tr>
@@ -137,7 +138,7 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason
-        }}</div>
+      }}</div>
       <v-spacer></v-spacer>
       <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
         View Flight Plan
@@ -159,13 +160,13 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12:
-        true
+          hour: '2-digit', minute: '2-digit',
+          hour12:
+            true
         }) }}
       </div>
     </div>
@@ -225,7 +226,7 @@ import SemesterServices from '@/services/flightPlanServices/semesterServices';
 import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
 import { get } from '@vueuse/core';
-import { getSemester, getFlightPlan, generateFlightPlan} from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
 import "@/assets/generic-stylesheet.css";
 
 
@@ -580,7 +581,8 @@ const closeTaskModal = () => {
   background-color: #ffffff;
 }
 
-.left-side, .right-side {
+.left-side,
+.right-side {
   width: 50%;
   padding: 17px;
   margin-left: 2%;
