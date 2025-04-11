@@ -1,113 +1,205 @@
 <template>
-    <div class="profile-info">
-      <div class="profile-details">
-        <div class="image-container">
-            <img v-if="!hasImage" :src="blankImage">
-            <img v-if="hasImage" :src="userInfo.image">
-        </div>
-
-        <div class="profile-text">
-          <div v-if="userInfo" class="profile-name">{{ userInfo.fName }} {{ userInfo.lName }}</div>
-          <div v-if="userInfo" class="profile-email">{{ userInfo.email }}</div>
-          <!-- Role Title depending on homepage -->
-          <div v-if="homeStore.getCurrentRole === UserRoles.ADMIN" class="profile-role">Admin</div>
-          <div v-if="homeStore.getCurrentRole === UserRoles.PROFESSOR" class="profile-role">Professor</div>
-          <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && student" class="student-points">Current Points: {{ student.points }} | Total Points: {{ student.total_points }}</div>
-          <!-- If Student, Display points -->
-
-          <div class="btn-container">
-            <button @click="toggleUpdateModal()">Edit Profile</button>
-            <button @click="settings()">Settings</button>
-          </div>
-        </div>
+  <div class="profile-info">
+    <div class="profile-details">
+      <div class="image-container" @click="toggleUpdateModal()">
+        <img v-if="!hasImage" :src="blankImage">
+        <img v-if="hasImage" :src="userInfo.image">
       </div>
-    </div>
 
-    <!-- If Student, display badges -->
-    <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT" class="badge-container">
-      <div class="badge-header">
-        Your Badges
-      </div>
-      <div class="badge-buffer"></div>
-      <!-- For loop displaying students badges here -->
-      <div class="badge-display" v-if="studentBadges">
-        <div v-for="(badge, index) in badges" :key="index">
-          <div class="badge-item">
-            <img :src="badge.image" :alt="badge.name" class="badge-image">
-            <p class="badge-name">{{ badge.name }}</p>
-            <p class="badge-date">{{ formatDate(studentBadges[index].date_acquired) }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <div class="profile-text">
+        <div v-if="userInfo" class="profile-name">{{ userInfo.fName }} {{ userInfo.lName }}</div>
+        <div v-if="userInfo" class="profile-email">{{ userInfo.email }}</div>
 
-    <!-- Update Profile Modal -->
-    <div v-if="showProfileUpdate" class="modal">
-      <div class="modal-content">
-        <span @click="toggleUpdateModal()" class="close">&times;</span>
-        <br>
+        <!-- Role Title depending on homepage -->
+        <div v-if="homeStore.getCurrentRole === UserRoles.ADMIN" class="profile-role">Admin</div>
+        <div v-if="homeStore.getCurrentRole === UserRoles.PROFESSOR" class="profile-role">Professor</div>
+        <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && student" class="student-points">Current Points: {{
+          student.points }} | Total Points: {{ student.total_points }}</div>
 
-        <div class="popup-header">
-          <div class="update-image-container" @click="triggerFileInput">
-            <input
-              type="file"
-              ref="fileInput"
-              style="display: none"
-              @change="fileUpload($event)"
-            />
-            <div v-if="userImage" class="image-preview">
-              <img :src="userImage" alt="Uploaded Image" />
-            </div>
-            <div v-else class="image-preview">
-              <img :src="blankImage">
-            </div>
-          </div>
-
-          <input 
-            type="text"
-            class="name-input"
-            v-model="userName"
-          />
-        </div>
-
-        <div class="popup-content">
-          <v-row class="form-row">
-            <v-col class="label-column">
-              <label class="label-description">{{ labels.phoneNumber }}</label>
-            </v-col>
-            <v-col>
-              <textarea 
-                class="input-field" 
-                v-model="userPhoneNumber" 
-                rows="2">
-              </textarea>
-            </v-col>
-          </v-row>
-
-          <v-row class="form-row">
-            <v-col class="label-column">
-              <label class="label-description">{{ labels.prefix }}</label>
-            </v-col>
-            <v-col>
-              <textarea 
-                class="input-field" 
-                v-model="userPrefix" 
-                rows="2">
-              </textarea>
-            </v-col>
-          </v-row>
-        </div>
-        
+        <!-- If Student, Display points -->
         <div class="btn-container">
-          <button class="save-btn" @click="updateUserInfo()">Save</button>
-          <button class="cancel-btn" @click="toggleUpdateModal()">Cancel</button>
+          <button @click="toggleUpdateModal()">Edit Profile</button>
+          <button @click="settings()">Settings</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- If Student, display badges -->
+  <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT" class="badge-container">
+    <div class="badge-header">
+      Your Badges
+      <span class="view-all" @click="goToStudentBadges">View All</span>
+    </div>
+    <div class="badge-buffer"></div>
+    <!-- For loop displaying students badges here -->
+    <div class="badge-display" v-if="studentBadges">
+      <div v-for="(badge, index) in badges" :key="index">
+        <div class="badge-item">
+          <img :src="badge.image" :alt="badge.name" class="badge-image">
+          <p class="badge-name">{{ badge.name }}</p>
+          <p class="badge-date">{{ formatDate(studentBadges[index].date_acquired) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clifton Strengths Display -->
+  <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT" class="strengths-container">
+    <div class="strengths-header">
+      Your Clifton Strengths
+      <span class="view-all" @click="goToStudentStrengths">
+        {{ strengthsArray.length > 0 ? 'Edit' : 'Add' }}
+      </span>
+    </div>
+    <div class="strengths-buffer"></div>
+
+    <div class="strengths-display" v-if="strengthsArray.length > 0">
+      <div v-for="(strength, index) in strengthsArray" :key="index" class="strength-item"
+        @click="showStrengthDescription(strength)">
+        <div class="strength-icon" :class="`category-${strength.category}`">
+          {{ strength.name.charAt(0) }}
+        </div>
+        <p class="strength-name">{{ strength.name }}</p>
+        <p class="strength-category">{{ formatCategory(strength.category) }}</p>
+      </div>
+    </div>
+
+    <div v-else class="no-strengths">
+      No Clifton Strengths found.
+    </div>
+  </div>
+
+
+  <!-- Update Profile Modal -->
+  <div v-if="showProfileUpdate" class="modal">
+    <div class="modal-content">
+      <span @click="toggleUpdateModal()" class="close">&times;</span>
+      <br>
+
+      <div class="popup-header">
+        <div class="update-image-container" @click="triggerFileInput">
+          <input type="file" ref="fileInput" style="display: none" @change="fileUpload($event)" />
+          <div v-if="userImage" class="image-preview">
+            <img :src="userImage" alt="Uploaded Image" />
+          </div>
+          <div v-else class="image-preview">
+            <img :src="blankImage">
+          </div>
+        </div>
+
+        <input type="text" class="name-input" v-model="userName" />
+      </div>
+
+      <div class="popup-content">
+        <v-row class="form-row">
+          <v-col class="label-column">
+            <label class="label-description">{{ labels.phoneNumber }}</label>
+          </v-col>
+          <v-col>
+            <textarea class="input-field" v-model="userPhoneNumber" rows="2">
+            </textarea>
+          </v-col>
+        </v-row>
+
+        <v-row class="form-row">
+          <v-col class="label-column">
+            <label class="label-description">{{ labels.prefix }}</label>
+          </v-col>
+          <v-col>
+            <textarea class="input-field" v-model="userPrefix" rows="2">
+            </textarea>
+          </v-col>
+        </v-row>
+      </div>
+
+      <div class="btn-container">
+        <button class="save-btn" @click="updateUserInfo()">Save</button>
+        <button class="cancel-btn" @click="toggleUpdateModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clifton Strengths Edit Modal -->
+  <div v-if="showStrengthsModal" class="cs-modal" @click="showStrengthsModal = false"
+    @click.self="showStrengthsModal = false">
+    <div class="cs-modal-content" @click.stop>
+      <span @click="showStrengthsModal = false" class="csd-close">&times;</span>
+      <h2 class="cs-title">Edit Your Clifton Strengths</h2>
+      <p class="cs-description">Select up to 5 strengths that represent you best.</p>
+
+      <!-- Selected Strengths Section -->
+      <div class="cs-selected-section">
+        <h3>Your Selected Strengths ({{ selectedStrengths.length }}/5)</h3>
+        <div class="cs-selected-container">
+          <div v-for="strength in selectedStrengths" :key="strength.id" class="cs-selected-item">
+            <div class="cs-strength-badge" :class="`category-${strength.category}`">
+              {{ strength.name.charAt(0) }}
+            </div>
+            <div class="cs-strength-info">
+              <div class="cs-strength-name">{{ strength.name }}</div>
+              <div class="cs-strength-category">{{ formatCategory(strength.category) }}</div>
+            </div>
+            <button class="cs-remove-btn" @click="toggleStrength(strength)">&times;</button>
+          </div>
+          <div v-if="selectedStrengths.length === 0" class="cs-no-selected">
+            No strengths selected yet. Choose from the list below.
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Strengths Section -->
+      <div class="cs-available-section">
+        <h3>Available Strengths</h3>
+        <input type="text" v-model="searchQuery" placeholder="Search by name or category" class="cs-search" />
+        <div class="cs-available-container">
+          <div v-for="strength in filteredStrengths" :key="strength.id" @click="toggleStrength(strength)"
+            class="cs-available-item" :class="{ 'cs-selected': isStrengthSelected(strength.id) }">
+            <div class="cs-strength-badge" :class="`category-${strength.category}`">
+              {{ strength.name.charAt(0) }}
+            </div>
+            <div class="cs-strength-info">
+              <div class="cs-strength-name">{{ strength.name }}</div>
+              <div class="cs-strength-category">{{ formatCategory(strength.category) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cs-footer">
+        <button class="cs-save-btn" @click="saveStrengths">Save Changes</button>
+        <button class="cs-cancel-btn" @click="showStrengthsModal = false">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clifton Strength Description Modal -->
+  <div v-if="showStrengthDescriptionModal" class="csd-modal" @click="showStrengthDescriptionModal = false">
+    <div class="csd-modal-content" @click.stop>
+      <span @click="showStrengthDescriptionModal = false" class="csd-close">&times;</span>
+
+      <div v-if="selectedStrengthForDescription" class="csd-content">
+        <div class="csd-header">
+          <div class="csd-strength-badge" :class="`category-${selectedStrengthForDescription.category}`">
+            {{ selectedStrengthForDescription.name.charAt(0) }}
+          </div>
+          <div class="csd-title-area">
+            <h2 class="csd-title">{{ selectedStrengthForDescription.name }}</h2>
+            <p class="csd-category">{{ formatCategory(selectedStrengthForDescription.category) }}</p>
+          </div>
+        </div>
+
+        <div class="csd-description">
+          <p>{{ selectedStrengthForDescription.description }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
 import { useRouter } from "vue-router";
 import blankImage from "@/assets/blankProfile.jpg";
@@ -116,6 +208,8 @@ import userServices from "@/services/resumeBuilderServices/userServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import studentBadgeServices from "@/services/flightPlanServices/studentBadgeServices";
 import badgeServices from "@/services/flightPlanServices/badgeServices";
+import studentCliftonStrengthServices from "@/services/flightPlanServices/studentCliftonStrengthServices";
+import cliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
 import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
@@ -138,6 +232,14 @@ const userImageType = ref(null);
 const student = ref(null);
 const studentBadges = ref(null);
 const badges = ref([]);
+const strengthsArray = ref([]);
+const showStrengthsModal = ref(false);
+const allCliftonStrengths = ref([]);
+const selectedStrengths = ref([]);
+const searchQuery = ref('');
+const showStrengthDescriptionModal = ref(false);
+const selectedStrengthForDescription = ref(null);
+
 
 const labels = {
   phoneNumber: "Phone Number",
@@ -156,26 +258,29 @@ onMounted(() => {
 });
 
 const getUser = () => {
-    userServices.getUser(user.value.userId)
-        .then((res) => {
-            userInfo.value = res.data;
-            if (userInfo.value.image === null) hasImage.value = false;
-            else hasImage.value = true;
-            
-            userName.value = userInfo.value.fName + " " + userInfo.value.lName;
-            userPhoneNumber.value = userInfo.value.phone_number;
-            userPrefix.value = userInfo.value.prefix;
-            userImage.value = userInfo.value.image;
-            userImageType.value = userInfo.value.image_type;
+  userServices.getUser(user.value.userId)
+    .then((res) => {
+      userInfo.value = res.data;
+      if (userInfo.value.image === null) hasImage.value = false;
+      else hasImage.value = true;
 
-            if (homeStore.getCurrentRole === UserRoles.STUDENT) {
-              // Get Student
-              getStudent();
-            }
-        })
-        .catch((error) => {
-            console.log("Error: " + error)
-        })
+      userName.value = userInfo.value.fName + " " + userInfo.value.lName;
+      userPhoneNumber.value = userInfo.value.phone_number;
+      userPrefix.value = userInfo.value.prefix;
+      userImage.value = userInfo.value.image;
+      userImageType.value = userInfo.value.image_type;
+
+      if (homeStore.getCurrentRole === UserRoles.STUDENT) {
+        // Get Student
+        getStudent();
+
+        //console.log("Student ID: " + userInfo.value.studentId);
+        getCliftonStrengths(userInfo.value.studentId);
+      }
+    })
+    .catch((error) => {
+      console.log("Error: " + error)
+    })
 }
 
 const getStudent = () => {
@@ -201,6 +306,147 @@ const getBadges = () => {
     })
 }
 
+const getCliftonStrengths = (studentId) => {
+  //console.log("Fetching Clifton Strengths for student ID:", studentId);
+
+  // Step 1: Fetch all Clifton Strengths
+  cliftonStrengthServices
+    .getAllCliftonStrengths()
+    .then((cliftonStrengthsRes) => {
+      const cliftonStrengths = cliftonStrengthsRes.data;
+      //console.log("Clifton Strengths:", cliftonStrengths);
+
+      // Step 2: Fetch all Student Clifton Strengths for this student
+      studentCliftonStrengthServices
+        .getAllSystemStudentCliftonStrengths()
+        .then((studentStrengthsRes) => {
+          // Filter to get only this student's strengths
+          const studentStrengths = studentStrengthsRes.data.filter(
+            (strength) => strength.studentId == studentId // Use == for type coercion
+          );
+
+          //console.log("Student Clifton Strengths for student " + studentId + ":", studentStrengths);
+
+          // Step 3: Match Clifton Strengths with Student Clifton Strengths
+          strengthsArray.value = cliftonStrengths
+            .filter((cliftonStrength) => {
+              // Check if there's a matching studentCliftonStrength
+              return studentStrengths.some(
+                (studentStrength) =>
+                  studentStrength.cliftonStrengthId == cliftonStrength.id
+              );
+            })
+            .slice(0, 5) // Limit to the first 5 strengths
+            .map((cliftonStrength) => ({
+              id: cliftonStrength.id,
+              name: cliftonStrength.name,
+              description: cliftonStrength.description,
+              category: cliftonStrength.category,
+            }));
+
+          // Log the final strengths array
+          //console.log("Strengths Array (limited to 5):", strengthsArray.value);
+
+          if (strengthsArray.value.length === 0) {
+            console.warn("No strengths found for student ID " + studentId);
+
+            // Debug logs for troubleshooting
+            console.log("Student Strength IDs:", studentStrengths.map((s) => s.cliftonStrengthId));
+            console.log("Clifton Strength IDs:", cliftonStrengths.map((s) => s.id));
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching Student Clifton Strengths:", error);
+        });
+    })
+    .catch((error) => {
+      console.error("Error fetching Clifton Strengths:", error);
+    });
+};
+
+const toggleStrength = (strength) => {
+  const index = selectedStrengths.value.findIndex(s => s.id === strength.id);
+
+  if (index >= 0) {
+    // Remove strength if already selected
+    selectedStrengths.value.splice(index, 1);
+  } else if (selectedStrengths.value.length < 5) {
+    // Add strength if less than 5 are selected
+    selectedStrengths.value.push(strength);
+  } else {
+    // Alert user they can only select 5
+    alert("You can only select 5 Clifton Strengths. Please remove one before adding another.");
+  }
+};
+
+const isStrengthSelected = (strengthId) => {
+  return selectedStrengths.value.some(s => s.id === strengthId);
+};
+
+const showStrengthDescription = (strength) => {
+  selectedStrengthForDescription.value = strength;
+  showStrengthDescriptionModal.value = true;
+};
+
+const saveStrengths = () => {
+  // Get student ID
+  const studentId = userInfo.value.studentId;
+
+  // First, fetch current student strengths
+  studentCliftonStrengthServices.getAllSystemStudentCliftonStrengths()
+    .then((studentStrengthsRes) => {
+      // Get current student strength records
+      const currentStrengths = studentStrengthsRes.data.filter(
+        (strength) => strength.studentId == studentId
+      );
+
+      // Delete all current strengths
+      const deletePromises = currentStrengths.map(strength =>
+        studentCliftonStrengthServices.deleteSystemStudentCliftonStrength(strength.id)
+      );
+
+      // After all deletes complete, add new strengths
+      Promise.all(deletePromises)
+        .then(() => {
+          // Create new student strengths for each selected strength
+          const createPromises = selectedStrengths.value.map(strength => {
+            const newStrength = {
+              studentId: studentId,
+              cliftonStrengthId: strength.id
+            };
+            return studentCliftonStrengthServices.createSystemStudentCliftonStrength(newStrength);
+          });
+
+          // After all creations complete, refresh the strengths list
+          Promise.all(createPromises)
+            .then(() => {
+              // Update the displayed strengths
+              strengthsArray.value = [...selectedStrengths.value];
+              showStrengthsModal.value = false;
+            })
+            .catch(error => {
+              console.error("Error creating new strengths:", error);
+            });
+        })
+        .catch(error => {
+          console.error("Error deleting current strengths:", error);
+        });
+    })
+    .catch(error => {
+      console.error("Error fetching current student strengths:", error);
+    });
+};
+
+const filteredStrengths = computed(() => {
+  if (!searchQuery.value) return allCliftonStrengths.value;
+
+  const query = searchQuery.value.toLowerCase();
+  return allCliftonStrengths.value.filter(strength =>
+    strength.name.toLowerCase().includes(query) ||
+    formatCategory(strength.category).toLowerCase().includes(query)
+  );
+});
+
 const getBadgeDetails = (badgeArray) => {
   badgeArray.forEach(studentBadge => {
     badgeServices.getBadge(studentBadge.badgeId)
@@ -212,6 +458,34 @@ const getBadgeDetails = (badgeArray) => {
       })
   });
 }
+
+const formatCategory = (category) => {
+  // Convert snake_case to Title Case with spaces
+  if (!category) return "Uncategorized";
+
+  return category
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+const goToStudentStrengths = () => {
+  showStrengthsModal.value = true;
+
+  // Copy current strengths to the selected array
+  selectedStrengths.value = [...strengthsArray.value];
+
+  // Fetch all available strengths if not already loaded
+  if (allCliftonStrengths.value.length === 0) {
+    cliftonStrengthServices.getAllCliftonStrengths()
+      .then((res) => {
+        allCliftonStrengths.value = res.data;
+      })
+      .catch((error) => {
+        console.error("Error fetching all Clifton Strengths:", error);
+      });
+  }
+};
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-US', {
@@ -225,8 +499,13 @@ const settings = () => {
   router.push({ name: 'settings' });
 }
 
-// Update Functionality
+
+const goToStudentBadges = () => {
+  router.push({ path: '/flightPlan/student-badges' });
+};
+
 const toggleUpdateModal = () => {
+  console.log("Toggling update modal");
   showProfileUpdate.value = !showProfileUpdate.value;
 }
 
@@ -262,16 +541,16 @@ const triggerFileInput = () => {
 };
 
 const fileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file); // Converts the file to Base64
-        reader.onload = () => {
-            const base64String = reader.result; 
-            userImage.value = base64String; // Preview
-            userImageType.value = file.type; // Saves the file type whenever the image changes
-        };
-    }
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file); // Converts the file to Base64
+    reader.onload = () => {
+      const base64String = reader.result;
+      userImage.value = base64String; // Preview
+      userImageType.value = file.type; // Saves the file type whenever the image changes
+    };
+  }
 };
 </script>
 
@@ -285,15 +564,15 @@ const fileUpload = (event) => {
 
 .profile-details {
   display: flex;
-  align-items: center; 
+  align-items: center;
   width: 100%;
-  gap: 40px; 
+  gap: 40px;
 }
 
 .profile-text {
   display: flex;
-  flex-direction: column; 
-  justify-content: center; 
+  flex-direction: column;
+  justify-content: center;
 }
 
 .profile-name {
@@ -307,7 +586,6 @@ const fileUpload = (event) => {
 
 .profile-email {
   color: #000;
-  font-family: Inter;
   font-size: 36px;
   font-style: normal;
   font-weight: 400;
@@ -335,15 +613,15 @@ const fileUpload = (event) => {
 }
 
 .profile-info button {
-  flex-shrink: 0; 
+  flex-shrink: 0;
   border-radius: 29px;
   background: #5EC4B6;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  padding: 10px 20px; 
+  padding: 10px 20px;
   font-size: 18px;
   border: none;
   cursor: pointer;
-  white-space: nowrap; 
+  white-space: nowrap;
   color: #FFF;
   text-align: center;
   font-family: Poppins;
@@ -354,12 +632,14 @@ const fileUpload = (event) => {
 }
 
 .image-container {
-  width: 312px; 
+  width: 312px;
   height: 312px;
+  box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 6px 2px;
 }
 
 /* Update Profile */
-.modal { /* Same as in TransactionLogs.vue*/
+.modal {
+  /* Same as in TransactionLogs.vue*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -368,23 +648,24 @@ const fileUpload = (event) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); 
+  background: rgba(0, 0, 0, 0.5);
 }
 
-.modal-content { /* Same as in TransactionLogs.vue*/
+.modal-content {
+  /* Same as in TransactionLogs.vue*/
   background: white;
   padding: 20px;
   border-radius: 10px;
-  max-width: 90%; 
-  width: fit-content; 
-  height: fit-content; 
+  max-width: 90%;
+  width: fit-content;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .update-image-container {
-  position: relative; 
+  position: relative;
   width: 150px;
   height: 150px;
   flex-shrink: 0;
@@ -398,17 +679,17 @@ const fileUpload = (event) => {
 }
 
 .popup-content {
-    text-align: center;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .name-input {
-  font-family: 'Poppins', sans-serif; 
-  font-size: 32px; 
+  font-family: 'Poppins', sans-serif;
+  font-size: 32px;
   padding-left: 10px;
-  height: 150px; 
+  height: 150px;
   text-align: left;
   width: 70%;
   min-width: 400px;
@@ -448,7 +729,7 @@ const fileUpload = (event) => {
   background: #FAFAFA;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -458,13 +739,13 @@ const fileUpload = (event) => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 80px; 
+  height: 80px;
   border-radius: 33px;
   background: #5EC4B6;
-  z-index: 2; 
+  z-index: 2;
   display: flex;
-  align-items: center;  
-  justify-content: flex-start; 
+  align-items: center;
+  justify-content: flex-start;
   padding-left: 20px;
   /* Typography */
   color: #FAFAFA;
@@ -477,22 +758,24 @@ const fileUpload = (event) => {
 
 .badge-buffer {
   position: absolute;
-  top: 40px; 
+  top: 40px;
   left: 0;
   width: 100%;
-  height: 40px; 
+  height: 40px;
   background: #5EC4B6;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  z-index: 1; 
+  z-index: 1;
 }
 
 .badge-display {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: space-evenly;  /* Distribute items with equal space around them */
-  align-items: flex-start;  /* Keep the items aligned to the top of the container */
-  padding: 120px 20px 20px 20px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 120px 20px 20px 40px
+    /* left */
+  ;
   width: 100%;
   box-sizing: border-box;
 }
@@ -504,11 +787,11 @@ const fileUpload = (event) => {
   text-align: center;
   width: 120px;
   height: 190px;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .badge-image {
-  width: 100px; 
+  width: 100px;
   height: 100px;
   display: flex;
   justify-content: center;
@@ -524,8 +807,445 @@ const fileUpload = (event) => {
   object-fit: cover;
 }
 
-.badge-name, .badge-date {
-  margin: 5px 0;  
+.badge-name,
+.badge-date {
+  margin: 5px 0;
   font-size: 14px;
+}
+
+.view-all {
+  margin-left: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 5px 10px;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.view-all:hover {
+  background-color: #ffffff;
+  color: #5EC4B6;
+  border-color: #5EC4B6;
+}
+
+/* Clifton Strengths Display */
+.strengths-container {
+  position: relative;
+  margin: 40px 60px 50px 60px;
+  max-width: calc(100% - 120px);
+  height: 100%;
+  min-width: 950px;
+  min-height: 250px;
+  flex-shrink: 0;
+  border-radius: 33px;
+  background: #FAFAFA;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.strengths-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  border-radius: 33px;
+  background: #5EC4B6;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 20px;
+  /* Typography */
+  color: #FAFAFA;
+  font-family: Poppins;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.strengths-buffer {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: #5EC4B6;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  z-index: 1;
+}
+
+.strengths-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 120px 20px 40px 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.strength-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.strength-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.strength-name {
+  margin: 10px 0 5px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.strength-category {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  color: #555;
+}
+
+.no-strengths {
+  padding: 120px 20px 20px 40px;
+  font-size: 18px;
+  color: #777;
+}
+
+/* Category colors */
+.category-executing {
+  background-color: #7A5DC7;
+}
+
+.category-influencing {
+  background-color: #FFA534;
+}
+
+.category-relationship_building {
+  background-color: #4ECDC4;
+}
+
+.category-strategic_thinking {
+  background-color: #5dc770;
+}
+
+.category-all {
+  background-color: #555555;
+}
+
+/* Clifton Strengths Modal - unique class names with cs- prefix */
+.cs-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.cs-modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  width: 80%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.cs-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 28px;
+  color: #333;
+  margin-top: 0;
+  text-align: center;
+}
+
+.cs-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.cs-selected-section,
+.cs-available-section {
+  margin-bottom: 25px;
+}
+
+.cs-selected-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cs-selected-item {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 15px;
+  position: relative;
+}
+
+.cs-no-selected {
+  padding: 15px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  color: #777;
+  font-style: italic;
+}
+
+.cs-strength-badge {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.cs-strength-info {
+  flex-grow: 1;
+}
+
+.cs-strength-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.cs-strength-category {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
+.cs-remove-btn {
+  background: none;
+  color: #ff6b6b;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.cs-remove-btn:hover {
+  background-color: #ff6b6b;
+  border-radius: 50%;
+  color: white;
+}
+
+.cs-search {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.cs-available-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.cs-available-item {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cs-available-item:hover {
+  background: #f0f0f0;
+}
+
+.cs-available-item.cs-selected {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+}
+
+.cs-footer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.cs-save-btn,
+.cs-cancel-btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cs-save-btn {
+  background: #5EC4B6;
+  color: white;
+  border: none;
+}
+
+.cs-save-btn:hover {
+  background: #4eb1a3;
+}
+
+.cs-cancel-btn {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.cs-cancel-btn:hover {
+  background: #e8e8e8;
+}
+
+/* Clifton Strength Description Modal */
+.csd-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.csd-modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.csd-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+}
+
+.csd-close:hover {
+  background-color: #333;
+  border-radius: 50%;
+  color: white;
+}
+
+.csd-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.csd-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.csd-strength-badge {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.csd-title-area {
+  flex-grow: 1;
+}
+
+.csd-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 28px;
+  margin: 0 0 5px 0;
+}
+
+.csd-category {
+  font-size: 16px;
+  color: #666;
+  font-style: italic;
+  margin: 0;
+}
+
+.csd-description {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.strength-item {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.strength-item:hover {
+  transform: translateY(-3px);
 }
 </style>
