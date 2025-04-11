@@ -261,12 +261,107 @@
                                 hide-details></v-text-field>
                         </v-col>
                     </v-row>
+
+
+                    <!-- Clifton Strengths -->
+                    <v-row class="form-row">
+                        <v-col cols="5" class="label-column">
+                            <label>{{ labels.clifton_strengths }}</label>
+                        </v-col>
+
+                        <v-col cols="7">
+                            <v-row align="center" justify="start">
+                                <v-col v-for="(selection, i) in strengthSelections" :key="selection.name"
+                                    class="py-1 pe-0" cols="auto">
+                                    <v-chip :disabled="strengthLoading" closable class="ma-1" color="primary" rounded="lg"
+                                        @click:close="eventCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
+
+                                        {{ selection.name }}
+                                    </v-chip>
+                                </v-col>
+
+                                <v-col cols="12">
+                                    <v-menu v-model="strengthMenu" close-on-content-click>
+                                        <template v-slot:activator="{ props }">
+                                            <v-text-field ref="searchField" v-model="strengthSearch" label="Search"
+                                                hide-details single-line variant="solo" density="compact"
+                                                v-bind="props">
+                                            </v-text-field>
+                                        </template>
+
+                                        <v-list style="max-height: 300px; overflow-y: auto;">
+                                            <template v-for="cliftonStrengths in strengthsList">
+                                                <v-list-item
+                                                    v-if="!eventCliftonStrengths.cliftonStrengthsToAdd.includes(cliftonStrengths)"
+                                                    :key="cliftonStrengths.id" :disabled="strengthLoading"
+                                                    @click="eventCliftonStrengths.cliftonStrengthsToAdd.push(cliftonStrengths)">
+                                                    <template v-slot:prepend>
+                                                    </template>
+
+                                                    <v-list-item-title v-text="cliftonStrengths.name">
+                                                    </v-list-item-title>
+                                                </v-list-item>
+                                            </template>
+                                        </v-list>
+                                    </v-menu>
+                                </v-col>
+                            </v-row>
+                        </v-col>
+                    </v-row>
+
+
+                    <!-- Majors -->
+                    <v-row class="form-row">
+                        <v-col cols="5" class="label-column">
+                            <label>{{ labels.majors }}</label>
+                        </v-col>
+
+                        <v-col cols="7">
+                            <v-row align="center" justify="start">
+                                <v-col v-for="(selection, i) in majorSelections" :key="selection.name"
+                                    class="py-1 pe-0" cols="auto">
+                                    <v-chip :disabled="majorLoading" closable class="ma-1" color="primary" rounded="lg"
+                                        @click:close="eventMajors.majorsToAdd.splice(i, 1)">
+
+                                        {{ selection.name }}
+                                    </v-chip>
+                                </v-col>
+
+                                <v-col cols="12">
+                                    <v-menu v-model="majorMenu" close-on-content-click>
+                                        <template v-slot:activator="{ props }">
+                                            <v-text-field ref="searchField" v-model="majorSearch" label="Search"
+                                                hide-details single-line variant="solo" density="compact"
+                                                v-bind="props">
+                                            </v-text-field>
+                                        </template>
+
+                                        <v-list style="max-height: 300px; overflow-y: auto;">
+                                            <template v-for="majors in majorsList">
+                                                <v-list-item
+                                                    v-if="!eventMajors.majorsToAdd.includes(majors)"
+                                                    :key="majors.id" :disabled="majorLoading"
+                                                    @click="eventMajors.majorsToAdd.push(majors)">
+                                                    <template v-slot:prepend>
+                                                    </template>
+
+                                                    <v-list-item-title v-text="majors.name">
+                                                    </v-list-item-title>
+                                                </v-list-item>
+                                            </template>
+                                        </v-list>
+                                    </v-menu>
+                                </v-col>
+                            </v-row>
+                        </v-col>
+                    </v-row>
                 </v-container>
 
 
 
                 <div class="d-flex justify-center pa-4">
-                    <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false; showStudentNamesList = true;">
+                    <v-btn color="#708E9A" variant="flat"
+                        @click="showEventDetails = false; showStudentNamesList = true;">
                         View Attendees
                     </v-btn>
                 </div>
@@ -275,7 +370,7 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
-                    <v-btn v-if="eventEdit" color="#F04E3E" variant="flat" fix-jfs-maintenance-page-delete-while-editing
+                    <v-btn v-if="eventEdit" color="#F04E3E" variant="flat"
                         @click="deleteEventConfirmation(eventToEdit)">Delete</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Cancel</v-btn>
                     <v-btn color="#5EC4B6" variant="flat" style="color: white;"
@@ -290,15 +385,9 @@
                     <h3>Registered Students</h3>
                 </div>
                 <div class="search-container">
-                    <v-text-field
-                        v-model="studentSearchResult"
-                        label="Search"
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                        class="search-field"
-                    >
-                    <template v-slot:prepend-inner>
+                    <v-text-field v-model="studentSearchResult" label="Search" variant="outlined" density="compact"
+                        hide-details class="search-field">
+                        <template v-slot:prepend-inner>
                             <Icon icon="material-symbols:search-rounded" width="24" height="24" />
                         </template>
                     </v-text-field>
@@ -310,13 +399,15 @@
                         </v-list-item>
                     </v-list>
                     <div v-if="filteredStudentList.length === 0" class="text-center pa-4">
-                        {{ studentSearchResult ? 'No matching students found' : 'No students registered for this event' }}
+                        {{ studentSearchResult ? 'No matching students found' : 'No students registered for this event'
+                        }}
                     </div>
                 </div>
                 <v-divider></v-divider>
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
-                    <v-btn color="#708E9A" variant="flat" @click="showStudentNamesList = false; showEventDetails = true;">Close</v-btn>
+                    <v-btn color="#708E9A" variant="flat"
+                        @click="showStudentNamesList = false; showEventDetails = true;">Close</v-btn>
                 </v-card-actions>
             </div>
         </div>
@@ -341,10 +432,17 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
 import UserServices from '@/services/resumeBuilderServices/userServices'
+import CliftonStrengthServices  from "@/services/flightPlanServices/cliftonStrengthServices";
+import MajorServices from "@/services/flightPlanServices/majorServices";
+import EventMajorsServices from "@/services/flightPlanServices/eventMajorsServices";
+import EventCliftonStrengthServices from "@/services/flightPlanServices/eventCliftonStrengthServices";
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 
 const search = ref('');
+const strengthSearch = ref('')
+const majorSearch = ref ('')
+
 const events = ref([]);
 const message = ref('');
 const selected = ref([]);
@@ -379,6 +477,37 @@ const studentNameList = ref([])
 const attendeeMap = ref([])
 
 const studentSearchResult = ref('');
+
+const majorsList = ref([]);
+const strengthsList = ref([]);
+
+const strengthLoading = ref(false)
+const majorLoading = ref(false)
+
+const strengthMenu = ref(false);
+const majorMenu = ref(false);
+
+const eventCliftonStrengths = ref({
+    cliftonStrengthsToAdd: [],
+})
+const strengthSelections = computed(() => {
+    const strengthSelections = []
+    for (const selection of eventCliftonStrengths.value.cliftonStrengthsToAdd) {
+        strengthSelections.push(selection)
+    }
+    return strengthSelections
+})
+
+const eventMajors = ref({
+    majorsToAdd: [],
+})
+const majorSelections = computed(() => {
+    const majorSelections = []
+    for (const selection of eventMajors.value.majorsToAdd) {
+        majorSelections.push(selection)
+    }
+    return majorSelections
+})
 
 const filteredStudentList = computed(() => {
     if (!studentSearchResult.value) return studentNameList.value;
@@ -433,6 +562,8 @@ const labels = {
     status: "Status",
     points: "Point Value",
     verification: "Verification Type",
+    clifton_strengths: "Clifton Strengths",
+    majors: "Majors"
 };
 
 const eventTypeColors = {
@@ -589,7 +720,29 @@ const getAllEvents = () => {
 onMounted(async () => {
     await getAllEvents();
     await getNumberAttendees();
+    await getAllMajors();
+    await getAllStrengths();
 });
+
+const getAllMajors = () => {
+    MajorServices.getAllMajors()
+    .then((res) => {
+        console.log(res.data);
+        majorsList.value = res.data;
+    })
+    .catch((err) => {
+        message.value = `Error: ${err.code}: ${err.message}`;
+        console.error(err);
+    });
+}
+
+const getAllStrengths = () => {
+    CliftonStrengthServices.getAllCliftonStrengths()
+    .then((res) => {
+        console.log(res.data);
+        strengthsList.value = res.data;
+    })
+}
 
 const formatDate = (dateTimeStr) => {
     if (!dateTimeStr) return '';
@@ -646,6 +799,20 @@ const formatEventForCalendar = (event) => {
 };
 
 const editEventPopup = async (task) => {
+    eventCliftonStrengths.value = []
+    eventCliftonStrengths.value = {
+        cliftonStrengthsToAdd: []
+    }
+    strengthSelections.value = []
+    eventMajors.value = {
+        majorsToAdd: []
+    }
+
+    strengthLoading.value = false
+    majorLoading.value = false
+    strengthMenu.value = false
+    majorMenu.value = false
+
     EventServices.getEvent(task.id)
         .then((res) => {
             eventToEdit.value = res.data;
@@ -829,6 +996,20 @@ const addEventPopup = () => {
     eventCustomEvent.value = false;
     eventStatus.value = "";
     eventPointValue.value = "";
+
+    eventCliftonStrengths.value = {
+        cliftonStrengthsToAdd: []
+    }
+    strengthSelections.value = []
+    eventMajors.value = {
+        majorsToAdd: []
+    }
+    majorSelections.value = []
+
+    strengthLoading.value = false
+    majorLoading.value = false
+    strengthMenu.value = false
+    majorMenu.value = false
 };
 
 const addEvent = () => {
