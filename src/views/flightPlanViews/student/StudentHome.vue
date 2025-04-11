@@ -39,31 +39,41 @@
       <div class="event-data-table-container">
         <table class="event-data-table">
           <tbody>
-            <template v-for="event in limitedEvents" :key="event.id">
-              <tr @click="openEventModal(event)" class="clickable-row">
-                <td class="date">
-                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
-                    month: 'short'
-                  }).toLocaleUpperCase() }}</div>
-                  <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
-                </td>
-                <td style="user-select: none;">
-                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+            <template v-if="limitedEvents.length > 0">
+              <template v-for="event in limitedEvents" :key="event.id">
+                <tr @click="openEventModal(event)" class="clickable-row">
+                  <td class="date">
+                    <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
+                      month: 'short'
+                      }).toLocaleUpperCase() }}</div>
+                    <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+                  </td>
+                  <td style="user-select: none;">
+                    {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
                     hour: 'numeric', minute: 'numeric',
                     hour12: true
-                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                    }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
                     Date(event.end_date_time).toLocaleTimeString('en-US', {
-                      hour: 'numeric', minute: 'numeric', hour12:
-                        true
+                    hour: 'numeric', minute: 'numeric', hour12:
+                    true
                     }).replace('AM', 'am').replace('PM', 'pm') }}
-                  <br>
-                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
-                </td>
-                <td></td>
-              </tr>
+                    <br>
+                    <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                    <hr class="event-line">
+                  </td>
+                </tr>
+              </template>
+            </template>
+            <template v-else>
               <tr>
-                <td colspan="3">
-                  <hr class="event-line">
+                <td colspan="3"
+                  style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
+                  There are no upcoming events recommended for you at this time. Click the button below to view all upcoming events!
                 </td>
               </tr>
             </template>
@@ -84,20 +94,20 @@
                   <td class="date">
                     <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
                       month: 'short'
-                    }).toLocaleUpperCase() }}</div>
+                      }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' })
-                    }}
+                      }}
                     </div>
                   </td>
                   <td style="user-select: none;">
                     {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                      hour: 'numeric', minute: 'numeric',
-                      hour12: true
+                    hour: 'numeric', minute: 'numeric',
+                    hour12: true
                     }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                      Date(event.end_date_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric', minute: 'numeric', hour12:
-                          true
-                      }).replace('AM', 'am').replace('PM', 'pm') }}
+                    Date(event.end_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric', hour12:
+                    true
+                    }).replace('AM', 'am').replace('PM', 'pm') }}
                     <br>
                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                   </td>
@@ -114,7 +124,7 @@
               <tr>
                 <td colspan="3"
                   style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
-                  You haven't attended any events recently. Register for an event above to see it here.
+                  You haven't attended any events recently. Register for an event above to see it here!
                 </td>
               </tr>
             </template>
@@ -138,7 +148,7 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason
-      }}</div>
+        }}</div>
       <v-spacer></v-spacer>
       <v-card-actions>
         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
@@ -170,13 +180,13 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12: true
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12:
-            true
+        hour: '2-digit', minute: '2-digit',
+        hour12:
+        true
         }) }}
       </div>
     </div>
@@ -197,12 +207,12 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12: true
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12: true
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }}
       </div>
       <div class="button-row">
