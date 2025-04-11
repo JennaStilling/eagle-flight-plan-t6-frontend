@@ -95,7 +95,10 @@ export async function getRecommendedEventsForExperience(pExperience) {
     const currentExperienceCategory = experience.data.category;
 
     const events = await EventServices.getAllEvents();
-    const allEvents = events.data;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0)
+    const eventsAfterToday = (event) => new Date(event.date) >= today
+    const allEvents = events.data.filter(eventsAfterToday);
 
     let recommendedEvents = [];
 

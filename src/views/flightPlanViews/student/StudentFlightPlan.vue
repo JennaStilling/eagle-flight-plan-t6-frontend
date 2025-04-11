@@ -60,22 +60,26 @@
                         <template v-for="event in recommendedEvents" :key="event.id">
                             <tr @click="openEventModal(event)" class="clickable-row">
                                 <td class="date">
-                                    <Icon v-if="isEventRegistered(event)" icon="material-symbols:bookmark-rounded" width="24" height="24" />
+                                    <Icon v-if="isEventRegistered(event)" icon="material-symbols:bookmark-rounded"
+                                        width="24" height="24" />
                                     <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
                                         month: 'short'
-                                        }).toLocaleUpperCase() }}</div>
+                                    }).toLocaleUpperCase() }}</div>
                                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
-                                        day: '2-digit' }) }}</div>
+                                        day: '2-digit'
+                                    }) }}</div>
                                 </td>
                                 <td style="user-select: none;">
                                     {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                    hour12: true }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                                    Date(event.end_date_time).toLocaleTimeString('en-US', {
-                                    hour: 'numeric', minute:
-                                    'numeric', hour12:
-                                    true }).replace('AM', 'am').replace('PM', 'pm') }}
+                                        hour: 'numeric',
+                                        minute: 'numeric',
+                                        hour12: true
+                                    }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                                        Date(event.end_date_time).toLocaleTimeString('en-US', {
+                                            hour: 'numeric', minute:
+                                                'numeric', hour12:
+                                                true
+                                        }).replace('AM', 'am').replace('PM', 'pm') }}
                                     <br>
                                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name
                                         }}</span>
@@ -111,25 +115,29 @@
             <div style="margin-bottom: 15px;">
                 {{ new Date(selectedEvent.date).toLocaleDateString('en-US', {
                     month: 'long', day: '2-digit', year:
-                'numeric' })
+                        'numeric'
+                })
                 }}
             </div>
             <div style="margin-bottom: 15px;">
                 {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
                     hour: '2-digit', minute:
                         '2-digit',
-                hour12: true }) }} -
+                    hour12: true
+                }) }} -
                 {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
                     hour: '2-digit', minute:
                         '2-digit',
-                hour12: true }) }}
+                    hour12: true
+                }) }}
             </div>
             <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
                 color="#F68D76">Register</v-btn>
         </v-card>
     </v-overlay>
 
-    <div v-for="(experienceType) in experienceTypesForStudent" :key="experienceType.id">
+    <div v-for="(experienceType) in experienceTypesForStudentFlightPlans[currentSemesterIndex] || []"
+        :key="experienceType.id">
         <v-divider />
         <v-card class="stuff" :class="{
             'experience-completed': experienceType.experienceCompleted === true,
@@ -148,8 +156,9 @@
                     </v-btn>
                 </div>
             </div>
-            <v-data-iterator :items="eventsByExperienceType[experienceType.id] || []" :items-per-page="6"
-                v-if="!loading">
+            <v-data-iterator
+                :items="eventsByExperienceTypesForStudentFlightPlans[currentSemesterIndex][experienceType.id] || []"
+                :items-per-page="6" v-if="!loading">
                 <template v-slot:default="{ items }">
                     <v-container class="pa-5" fluid>
                         <v-row dense>
@@ -261,9 +270,8 @@ const currentSemesterIndex = ref(0);
 
 const studentSemesterFlightPlanTasks = ref({});
 
-const studentFlightPlanExperienceTypes = ref([]);
-const experienceTypesForStudent = ref([]);
-const eventsByExperienceType = ref({});
+const experienceTypesForStudentFlightPlans = ref({});
+const eventsByExperienceTypesForStudentFlightPlans = ref({});
 
 const recommendedEvents = ref([]);
 const modalVisible = ref(false);
@@ -333,9 +341,9 @@ const handleTaskOverlay = (show, taskId) => {
 };
 
 const showRecommendedEventsModal = async (task) => {
-    currentTaskData.value = task; 
+    currentTaskData.value = task;
     showRecommendedEvents.value = true;
-    
+
     try {
         recommendedEvents.value = await getRecommendedEventsForTask(task);
         await loadRegisteredEvents(); // Load registered events when opening the modal
@@ -360,7 +368,7 @@ const studentSignUpForEvent = async (eventId) => {
             studentId: user.value.studentId
         }
         await StudentEventServices.createStudentEvent(newStudentEvent);
-        await loadRegisteredEvents(); 
+        await loadRegisteredEvents();
     } catch (error) {
         console.error('Error signing up for event:', error);
     }
@@ -420,17 +428,13 @@ onMounted(async () => {
     await checkForFlightPlan();
 
     await getAllSemesterData();
-    await getSemesterTasks(currentSemesterIndex.value);
-
-    await getAllExperienceData();
+    await fetchFlightPlanInformationForSemester(currentSemesterIndex.value)
 });
 
 const getSessionData = async () => {
     const userStore = Utils.getStore("user");
-    const tempUser = await UserServices.getUser(userStore.userId);
-    user.value = tempUser.data;
-    const tempStudent = await StudentServices.getStudent(user.value.studentId);
-    student.value = tempStudent.data;
+    user.value = (await UserServices.getUser(userStore.userId)).data
+    student.value = (await StudentServices.getStudent(user.value.studentId)).data;
 }
 
 const getAllSemesterData = async () => {
@@ -459,17 +463,29 @@ const getCurrentSemesterIndex = async () => {
     );
 }
 
-// flight plan tasks are sorted by semester indexes for the sake of switching between semesters
-const getSemesterTasks = async (semesterIndex) => {
-    if (studentSemesterFlightPlanTasks.value[semesterIndex]) {
-        return;
+// run to get information for current semester if not already fetched
+const fetchFlightPlanInformationForSemester = async (semesterIndex) => {
+    if (isSemesterFlightPlanInfoMissing(semesterIndex)) {
+        getSemesterFlightPlanInformation(semesterIndex);
     }
+}
 
+const isSemesterFlightPlanInfoMissing = (semesterIndex) => {
+    return !studentSemesterFlightPlanTasks.value[semesterIndex] && !experienceTypesForStudentFlightPlans.value[semesterIndex];
+}
+
+// run to refresh all current semester information
+const getSemesterFlightPlanInformation = async (semesterIndex) => {
     const flightPlan = await getFlightPlan(semesters.value[semesterIndex]);
     const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
-    const currentFlightPlan = studentFlightPlan[0];
-    const studentFlightPlanTasks = (await StudentFlightPlanTaskServices.getStudentFlightPlanTasks(currentFlightPlan.id)).data;
+    const currentStudentFlightPlan = studentFlightPlan[0];
+    await getSemesterTasks(semesterIndex, currentStudentFlightPlan);
+    await getAllExperienceData(semesterIndex, currentStudentFlightPlan);
+}
 
+// flight plan tasks are sorted by semester indexes for the sake of switching between semesters
+const getSemesterTasks = async (semesterIndex, currentStudentFlightPlan) => {
+    const studentFlightPlanTasks = (await StudentFlightPlanTaskServices.getStudentFlightPlanTasks(currentStudentFlightPlan.id)).data;
     const newSemesterTasks = [];
 
     for (const studentFlightPlanTask of studentFlightPlanTasks) {
@@ -484,32 +500,26 @@ const getSemesterTasks = async (semesterIndex) => {
     studentSemesterFlightPlanTasks.value[semesterIndex] = newSemesterTasks;
 }
 
-const getAllExperienceData = async () => {
-    await getStudentFlightPlanExperiences(studentFlightPlanExperienceTypes);
-    await getExperienceTypes(studentFlightPlanExperienceTypes, experienceTypesForStudent);
+// flight plan tasks are sorted by semester indexes for the sake of switching between semesters
+const getAllExperienceData = async (semesterIndex, currentStudentFlightPlan) => {
+    const studentEventIsComplete = (studentEvent) => studentEvent.status === 'approved';
+    const studentFlightPlanExperienceTypes = (await StudentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(currentStudentFlightPlan.id)).data;
+    const newSemesterExperienceTypes = [];
 
-    for (const experienceType of experienceTypesForStudent.value) {
-        eventsByExperienceType.value[experienceType.id] = await getEventsForExperienceType(experienceType.id);
+    for (const studentFlightPlanExperienceType of studentFlightPlanExperienceTypes) {
+        const experienceType = (await ExperienceTypeServices.getExperienceType(studentFlightPlanExperienceType.experienceTypeId)).data;
+        const studentFlightPlanExperienceTypeEvents = (await StudentFlightPlanExperienceTypeEventServices.getStudentFlightPlanExperienceTypeEvents(studentFlightPlanExperienceType.id)).data;
+        newSemesterExperienceTypes.push({
+            ...experienceType,
+            experienceCompleted: studentFlightPlanExperienceTypeEvents.some(studentEventIsComplete),
+        })
     }
-}
 
-const getStudentFlightPlanExperiences = async (studentFlightPlanExperienceTypes) => {
-    const result = await StudentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(student.value.id);
-    studentFlightPlanExperienceTypes.value = result.data;
-}
+    experienceTypesForStudentFlightPlans.value[semesterIndex] = newSemesterExperienceTypes;
 
-const getExperienceTypes = async (studentFlightPlanExperienceTypes, experienceTypesForStudent) => {
-    const studentEventIsComplete = (studentEvent) => !!studentEvent.completed_date;
-
-    for (const studentFlightPlanExperienceType of studentFlightPlanExperienceTypes.value) {
-        const experienceType = await ExperienceTypeServices.getExperienceType(studentFlightPlanExperienceType.experienceTypeId);
-
-        const studentFlightPlanExperienceTypeEvents = await StudentFlightPlanExperienceTypeEventServices.getStudentFlightPlanExperienceTypeEvents(experienceType.data.id);
-
-        experienceTypesForStudent.value.push({
-            ...experienceType.data,
-            experienceCompleted: studentFlightPlanExperienceTypeEvents.data.some(studentEventIsComplete),
-        });
+    eventsByExperienceTypesForStudentFlightPlans.value[semesterIndex] = {};
+    for (const experienceType of experienceTypesForStudentFlightPlans.value[semesterIndex]) {
+        eventsByExperienceTypesForStudentFlightPlans.value[semesterIndex][experienceType.id] = await getEventsForExperienceType(experienceType.id);
     }
 }
 
@@ -538,13 +548,13 @@ const getEventsForExperienceType = async (experienceTypeId) => {
 const getPreviousSemester = async () => {
     if (currentSemesterIndex.value > 0) {
         currentSemesterIndex.value--;
-        await getSemesterTasks(currentSemesterIndex.value)
+        await fetchFlightPlanInformationForSemester(currentSemesterIndex.value)
     }
 };
 const getNextSemester = async () => {
     if (currentSemesterIndex.value < semesters.value.length - 1) {
         currentSemesterIndex.value++;
-        await getSemesterTasks(currentSemesterIndex.value)
+        await fetchFlightPlanInformationForSemester(currentSemesterIndex.value)
 
     }
 };
