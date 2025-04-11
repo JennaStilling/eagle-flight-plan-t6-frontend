@@ -65,8 +65,8 @@
 import { ref, onMounted, watch } from "vue";
 import { asyncComputed } from '@vueuse/core';
 import verificationServices from "@/services/flightPlanServices/verificationServices";
-import reflectionSubmission from "./reflectionSubmission.vue";
-import quizSubmission from "./quizSubmission.vue";
+import reflectionSubmission from "./ReflectionSubmission.vue";
+import quizSubmission from "./QuizSubmission.vue";
 
 const props = defineProps({
     task: Object,

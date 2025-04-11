@@ -252,8 +252,8 @@ import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPl
 import "@/assets/generic-stylesheet.css";
 
 import { asyncComputed } from '@vueuse/core';
-import ReflectionSubmission from '@/components/flightPlanComponents/studentPages/reflectionSubmission.vue';
-import QuizSubmission from '@/components/flightPlanComponents/studentPages/quizSubmission.vue';
+import ReflectionSubmission from '@/components/flightPlanComponents/studentPages/ReflectionSubmission.vue';
+import QuizSubmission from '@/components/flightPlanComponents/studentPages/QuizSubmission.vue';
 
 // CONSTS
 const homeStore = useHomePageStore();
