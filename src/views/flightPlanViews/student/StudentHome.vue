@@ -44,18 +44,18 @@
                 <td class="date">
                   <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
                     month: 'short'
-                  }).toLocaleUpperCase() }}</div>
+                    }).toLocaleUpperCase() }}</div>
                   <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
                 </td>
                 <td style="user-select: none;">
                   {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                    hour: 'numeric', minute: 'numeric',
-                    hour12: true
+                  hour: 'numeric', minute: 'numeric',
+                  hour12: true
                   }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                    Date(event.end_date_time).toLocaleTimeString('en-US', {
-                      hour: 'numeric', minute: 'numeric', hour12:
-                        true
-                    }).replace('AM', 'am').replace('PM', 'pm') }}
+                  Date(event.end_date_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric', minute: 'numeric', hour12:
+                  true
+                  }).replace('AM', 'am').replace('PM', 'pm') }}
                   <br>
                   <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                 </td>
@@ -84,20 +84,20 @@
                   <td class="date">
                     <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
                       month: 'short'
-                    }).toLocaleUpperCase() }}</div>
+                      }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' })
-                    }}
+                      }}
                     </div>
                   </td>
                   <td style="user-select: none;">
                     {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                      hour: 'numeric', minute: 'numeric',
-                      hour12: true
+                    hour: 'numeric', minute: 'numeric',
+                    hour12: true
                     }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                      Date(event.end_date_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric', minute: 'numeric', hour12:
-                          true
-                      }).replace('AM', 'am').replace('PM', 'pm') }}
+                    Date(event.end_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric', hour12:
+                    true
+                    }).replace('AM', 'am').replace('PM', 'pm') }}
                     <br>
                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                   </td>
@@ -138,7 +138,7 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason
-      }}</div>
+        }}</div>
       <v-spacer></v-spacer>
       <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
         View Flight Plan
@@ -147,34 +147,6 @@
   </div>
   <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
-    <div class="homepage-modal-content">
-      <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
-      <h2>{{ selectedEvent.name }}</h2>
-      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
-      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
-      </div>
-      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
-      <div style="margin-bottom: 15px;">
-        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
-        }}
-      </div>
-      <div style="margin-bottom: 15px;">
-        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12: true
-        }) }} -
-        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12:
-            true
-        }) }}
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Event Attendance Modal -->
-  <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
     <div class="modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
@@ -194,6 +166,36 @@
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
           hour: '2-digit', minute: '2-digit',
           hour12: true
+        }) }}
+      </div>
+      <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
+        color="#F68D76">Register</v-btn>
+      <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
+        color="#F68D76">Unregister</v-btn>
+    </div>
+  </div>>
+
+  <!-- Event Attendance Modal -->
+  <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
+    <div class="modal-content">
+      <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
+      <h2>{{ selectedEvent.name }}</h2>
+      <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
+      <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span> points
+      </div>
+      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
+        }}
+      </div>
+      <div style="margin-bottom: 15px;">
+        {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+        }) }} -
+        {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }}
       </div>
       <div class="button-row">
@@ -251,6 +253,8 @@ const studentSemesterFlightPlanTasks = ref({});
 
 const attendanceModalVisible = ref(false);
 const pastEvents = ref([])
+const registeredEventIds = ref([]);
+const isStudentSignedUp = ref(false);
 
 
 onMounted(async () => {
@@ -267,7 +271,6 @@ onMounted(async () => {
       events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       pastEvents.value = events.value;
-      // console.log(pastEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -279,7 +282,6 @@ onMounted(async () => {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
-      // console.log(limitedEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -350,13 +352,14 @@ const getSemesterTasks = async (semesterIndex) => {
 // modals --------------------
 const openEventModal = async (event) => {
   selectedEvent.value = event;
+  await loadRegisteredEvents(); // Load current registrations
   await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
 const closeEventModal = () => {
   modalVisible.value = false;
-  attendanceModalVisible.value = false;
 };
+
 
 
 // exit homepage with router ---
@@ -459,7 +462,6 @@ const studentSignUpForEvent = (id) => {
     }
     StudentEventServices.createStudentEvent(newStudentEvent)
       .then((res) => {
-        console.log("Student event added")
         closeEventModal();
       })
       .catch((error) => {
@@ -476,7 +478,6 @@ const studentDeleteStudentEvent = (id) => {
         if (eventToDelete) {
           StudentEventServices.deleteStudentEvent(eventToDelete.id)
             .then((res) => {
-              console.log("Student event deleted")
               closeEventModal();
             })
             .catch((error) => {
@@ -488,12 +489,11 @@ const studentDeleteStudentEvent = (id) => {
 }
 const checkIfStudentIsSignedUp = async (id) => {
   try {
-    const res = await StudentEventServices.getAllEventsByStudent(studentId.value);
+    const res = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
     const studentEvents = res.data;
     const studentSpecificEvent = studentEvents.find(studentEvent =>
       studentEvent.id === id
     );
-    console.log(studentSpecificEvent);
     isStudentSignedUp.value = !!studentSpecificEvent;
     return isStudentSignedUp.value;
   } catch (error) {
@@ -501,6 +501,17 @@ const checkIfStudentIsSignedUp = async (id) => {
     return false;
   }
 }
+
+const loadRegisteredEvents = async () => {
+  try {
+    const res = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
+    registeredEventIds.value = res.data.map(event => event.id);
+  } catch (error) {
+    console.error('Error loading registered events:', error);
+    registeredEventIds.value = [];
+  }
+};
+
 const getStudentFlightPlanId = async (studentId, flightPlanId) => {
   try {
     const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
@@ -554,7 +565,6 @@ const openAttendanceEventModal = (event) => {
 };
 
 const openTaskModal = (task) => {
-  console.log(studentSemesterFlightPlanTasks.value[currentSemesterIndex.value]);
   const taskData = studentSemesterFlightPlanTasks.value[currentSemesterIndex.value].find(t => t.id === task.id);
   selectedTask.value = {
     ...task,
