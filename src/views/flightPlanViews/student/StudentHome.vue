@@ -321,7 +321,7 @@ onMounted(async () => {
   try {
     const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
     if (eventResponse.data) {
-      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendance_status === 'registered');
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       pastEvents.value = events.value;
     }
@@ -393,14 +393,14 @@ const studentAttendedEvent = (id) => {
       const studentEvents = res.data;
       const newData = studentEvents.filter(event => event.studentEvent[0].eventId === id)
       if (newData) {
-        newData[0].studentEvent[0].attendence_status = 'attended';
+        newData[0].studentEvent[0].attendance_status = 'attended';
         newData[0].studentEvent[0].verification_status = 'in_progress';
       }
       StudentEventServices.updateStudentEvent(newData[0].studentEvent[0].id, newData[0].studentEvent[0])
         .then(async (res) => {
           const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
           if (eventResponse.data) {
-            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendance_status === 'registered');
             events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
             pastEvents.value = events.value;
           }
@@ -420,14 +420,14 @@ const studentNotAttendedEvent = (id) => {
       const studentEvents = res.data;
       const newData = studentEvents.filter(event => event.studentEvent[0].eventId === id)
       if (newData) {
-        newData[0].studentEvent[0].attendence_status = 'did_not_attend';
+        newData[0].studentEvent[0].attendance_status = 'did_not_attend';
         newData[0].studentEvent[0].verification_status = 'in_progress';
       }
       StudentEventServices.updateStudentEvent(newData[0].studentEvent[0].id, newData[0].studentEvent[0])
         .then(async (res) => {
           const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
           if (eventResponse.data) {
-            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
+            events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendance_status === 'registered');
             events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
             pastEvents.value = events.value;
           }

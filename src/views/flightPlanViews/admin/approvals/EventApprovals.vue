@@ -215,7 +215,7 @@ const getStudentAttendees = (event) => {
                         studentNameList.value.push({
                             studentId: student.id,
                             name: res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName,
-                            didAttend: student.studentEvent[0].attendence_status === 'attended' ? true : false,
+                            didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
                             eventId: student.studentEvent[0].id,
                             pointValue: event.point_value
                         });
@@ -253,12 +253,12 @@ const saveAttendanceDetails = () => {
     console.log(filteredStudentList.value)
     filteredStudentList.value.forEach(student => {
         const newData = {
-            attendence_status: student.didAttend ? "attended" : "did_not_attend",
+            attendance_status: student.didAttend ? "attended" : "did_not_attend",
             verification_status: student.didAttend ? "approved" : "denied"
         }
         StudentEventServices.updateStudentEvent(student.eventId, newData)
         .then((res) =>{
-            if (newData.verification_status !== 'denied' && newData.attendence_status !== 'did_not_attend') {
+            if (newData.verification_status !== 'denied' && newData.attendance_status !== 'did_not_attend') {
                 studentServices.getStudent(student.studentId)
                 .then((res) => {
                     console.log(res.data.points)
