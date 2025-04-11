@@ -3,7 +3,10 @@
         <!-- Badge Preview -->
         <v-row class="badge-details">
             <div class="badge-item">
-                <img :src="badge.image" :alt="badge.name" class="badge-image">
+                <v-progress-circular :model-value="progress" :size="180" :width="12" color="green" v-if="!obtained">
+                    <img :src="badge.image" :alt="badge.name" class="badge-image">
+                </v-progress-circular>
+                <img :src="badge.image" :alt="badge.name" class="badge-image" v-if="obtained">
                 <p class="badge-name">{{ badge.name }}</p>
                 <p class="badge-date" v-if="obtained">{{ formatDate(badge.date_acquired) }}</p>
                 <p class="badge-date" v-if="!obtained">{{ badge.points }} pts</p>
@@ -19,7 +22,14 @@
             <v-card class="view-badge">
                 <v-row class="badge-popup-details">
                     <div class="badge-popup-item">
-                        <img :src="badge.image" :alt="badge.name" class="badge-popup-image">
+                        <v-progress-circular :model-value="progress" :size="250" :width="12" color="green"
+                            v-if="!obtained">
+                            <img :src="badge.image" :alt="badge.name" class="badge-popup-image">
+                        </v-progress-circular>
+                        <img :src="badge.image" :alt="badge.name" class="badge-popup-image" v-if="obtained">
+                        <p class="badge-popup-points" v-if="!obtained">
+                            {{ formatType(badge.type) }}: {{ badge.progress }} / {{ badge.total }}
+                        </p>
                     </div>
                     <v-col>
                         <div class="badge-popup-info">
@@ -58,6 +68,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['claim-badge']);
 
+const progress = ref((props.badge.progress ?? 0) / (props.badge.total ?? 1) * 100);
 const overlay = ref(false);
 
 onMounted(() => {
@@ -77,6 +88,10 @@ const formatDate = (date) => {
         day: '2-digit',
         year: 'numeric'
     })
+}
+
+const formatType = (type) => {
+    return type.split('_')[0].replace(/^\w/, (c) => c.toUpperCase());
 }
 
 const claimBadge = () => {
@@ -206,7 +221,6 @@ const claimBadge = () => {
     font-size: 1.5vw;
     color: #555;
     line-height: 1.6;
-    margin-bottom: 1vw;
 }
 
 .badge-popup-date,
