@@ -82,7 +82,7 @@
                                         }).replace('AM', 'am').replace('PM', 'pm') }}
                                     <br>
                                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name
-                                        }}</span>
+                                    }}</span>
                                 </td>
                                 <td></td>
                             </tr>
@@ -480,7 +480,7 @@ const getSemesterFlightPlanInformation = async (semesterIndex) => {
     const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
     const currentStudentFlightPlan = studentFlightPlan[0];
     await getSemesterTasks(semesterIndex, currentStudentFlightPlan);
-    await getAllExperienceData(semesterIndex, currentStudentFlightPlan);
+    await getSemesterExperienceData(semesterIndex, currentStudentFlightPlan);
 }
 
 // flight plan tasks are sorted by semester indexes for the sake of switching between semesters
@@ -501,7 +501,7 @@ const getSemesterTasks = async (semesterIndex, currentStudentFlightPlan) => {
 }
 
 // flight plan tasks are sorted by semester indexes for the sake of switching between semesters
-const getAllExperienceData = async (semesterIndex, currentStudentFlightPlan) => {
+const getSemesterExperienceData = async (semesterIndex, currentStudentFlightPlan) => {
     const studentEventIsComplete = (studentEvent) => studentEvent.status === 'approved';
     const studentFlightPlanExperienceTypes = (await StudentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(currentStudentFlightPlan.id)).data;
     const newSemesterExperienceTypes = [];
