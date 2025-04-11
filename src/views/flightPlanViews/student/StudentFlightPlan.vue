@@ -371,7 +371,8 @@ const getSemesterTasks = async (semesterIndex) => {
         newSemesterTasks.push({
             ...task.data,
             status: studentFlightPlanTask.status,
-            unapprove_reason: studentFlightPlanTask.unapprove_reason
+            unapprove_reason: studentFlightPlanTask.unapprove_reason,
+            student_flight_plan_task_id: studentFlightPlanTask.id
         })
     }
     studentSemesterFlightPlanTasks.value[semesterIndex] = newSemesterTasks;

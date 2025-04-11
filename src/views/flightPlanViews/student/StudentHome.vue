@@ -140,9 +140,19 @@
         selectedTask.unapprove_reason
       }}</div>
       <v-spacer></v-spacer>
-      <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
-        View Flight Plan
-      </v-btn>
+      <v-card-actions>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
+          View Flight Plan
+        </v-btn>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeReflection()" 
+          v-if="getVerificationType === 'reflection' && selectedTask.status === 'in_progress' || selectedTask.status === 'unapproved'">
+          Reflection
+        </v-btn>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()" 
+          v-if="getVerificationType === 'quiz' && selectedTask.status != 'approved'">
+          Take Quiz
+        </v-btn>
+      </v-card-actions>
     </div>
   </div>
   <!-- Event Modal -->
@@ -170,7 +180,6 @@
         }) }}
       </div>
     </div>
-
   </div>
 
   <!-- Event Attendance Modal -->
@@ -204,6 +213,18 @@
       </div>
     </div>
   </div>
+
+  <div class="modal-overlay" v-if="showReflection">
+    <ReflectionSubmission :task="selectedTask"
+    @close-reflection="closeModal"
+    />
+  </div>
+
+  <div class="modal-overlay" v-if="showQuiz">
+    <QuizSubmission :task="selectedTask"
+    @close-quiz="closeModal"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -224,11 +245,15 @@ import TaskServices from "@/services/flightPlanServices/taskServices";
 import EventServices from "@/services/flightPlanServices/eventServices";
 import SemesterServices from '@/services/flightPlanServices/semesterServices';
 import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
-import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
+import verificationServices from '@/services/flightPlanServices/verificationServices';
 import { get } from '@vueuse/core';
 import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
 import "@/assets/generic-stylesheet.css";
 
+import { asyncComputed } from '@vueuse/core';
+import ReflectionSubmission from '@/components/flightPlanComponents/studentPages/reflectionSubmission.vue';
+import QuizSubmission from '@/components/flightPlanComponents/studentPages/quizSubmission.vue';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -250,8 +275,10 @@ const currentSemesterIndex = ref(0);
 const studentSemesterFlightPlanTasks = ref({});
 
 const attendanceModalVisible = ref(false);
-const pastEvents = ref([])
+const pastEvents = ref([]);
 
+const showReflection = ref(false);
+const showQuiz = ref(false);
 
 onMounted(async () => {
   await getSessionData();
@@ -340,7 +367,8 @@ const getSemesterTasks = async (semesterIndex) => {
       newSemesterTasks.push({
         ...task.data,
         status: studentFlightPlanTask.status,
-        unapprove_reason: studentFlightPlanTask.unapprove_reason
+        unapprove_reason: studentFlightPlanTask.unapprove_reason,
+        student_flight_plan_task_id: studentFlightPlanTask.id
       })
     }
   }
@@ -554,7 +582,6 @@ const openAttendanceEventModal = (event) => {
 };
 
 const openTaskModal = (task) => {
-  console.log(studentSemesterFlightPlanTasks.value[currentSemesterIndex.value]);
   const taskData = studentSemesterFlightPlanTasks.value[currentSemesterIndex.value].find(t => t.id === task.id);
   selectedTask.value = {
     ...task,
@@ -567,7 +594,28 @@ const closeTaskModal = () => {
   taskModalVisible.value = false;
 };
 
+const getVerificationType = asyncComputed(async () => {
+  if (selectedTask.value.verificationId){
+    const verification = (await verificationServices.getVerification(selectedTask.value.verificationId)).data;
+    return verification.type;
+  }
+});
 
+const takeReflection = () => {
+  taskModalVisible.value = false;
+  showReflection.value = true;
+}
+
+const closeModal = () => {
+  showReflection.value = false;
+  showQuiz.value = false;
+  window.location.reload();
+}
+
+const takeQuiz = () => {
+  taskModalVisible.value = false;
+  showQuiz.value = true;
+}
 // exit homepage with router ---
 
 
