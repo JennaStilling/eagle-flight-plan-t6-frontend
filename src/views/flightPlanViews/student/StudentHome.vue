@@ -255,7 +255,7 @@ const attendanceModalVisible = ref(false);
 const pastEvents = ref([])
 const registeredEventIds = ref([]);
 const isStudentSignedUp = ref(false);
-
+const specificStudentEvents = ref([]);
 
 onMounted(async () => {
   await getSessionData();
@@ -452,13 +452,13 @@ const studentNotAttendedEvent = (id) => {
     });
 }
 const studentSignUpForEvent = (id) => {
-  if (!studentId.value) {
+  if (!user.value.studentId) {
     return
   }
   else {
     const newStudentEvent = {
       eventId: id,
-      studentId: studentId.value
+      studentId: user.value.studentId
     }
     StudentEventServices.createStudentEvent(newStudentEvent)
       .then((res) => {
@@ -474,7 +474,7 @@ const studentDeleteStudentEvent = (id) => {
     .then((res) => {
       specificStudentEvents.value = res.data;
       if (specificStudentEvents.value) {
-        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === user.value.studentId);
         if (eventToDelete) {
           StudentEventServices.deleteStudentEvent(eventToDelete.id)
             .then((res) => {
