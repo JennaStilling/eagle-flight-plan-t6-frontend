@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <v-data-table :headers="headers" :items="filteredTasks" :search="search" v-model:selectable="selected" show-select>
+    <v-data-table :headers="headers" :items="filteredTasks" :search="search" v-model="selected" show-select>
       <template v-slot:[`item.actions`]="{ item }">
         <v-btn variant="plain" size="small" @click="editTaskPopup(item)">
           <Icon icon="material-symbols:edit-outline" width="24" height="24" />

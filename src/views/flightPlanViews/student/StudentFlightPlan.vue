@@ -3,7 +3,7 @@
     <div class="semester-navigation">
         <v-btn :disabled="currentSemesterIndex + 1 === 1" @click="getPreviousSemester" density="comfortable"
             icon="mdi-arrow-left" variant="tonal" rounded>
-            < </v-btn>
+            </v-btn>
                 <h1>{{ semesters[currentSemesterIndex]?.name || `Loading...` }}</h1>
                 <v-btn :disabled="currentSemesterIndex + 1 >= semesters.length" @click="getNextSemester"
                     density="comfortable" icon="mdi-arrow-right" variant="tonal" rounded>
@@ -12,7 +12,11 @@
     </div>
     <v-divider />
     <v-card class="stuff">
-        <h1 class="pa-5">Tasks</h1>
+        <h1 class="pa-5">Tasks
+            <v-btn class="button" variant="elevated" color="#5EC4B6" @click="requestTaskPopup()">
+                Request Custom Task
+            </v-btn>
+        </h1>
         <v-data-iterator :items="studentSemesterFlightPlanTasks[currentSemesterIndex] || []" :items-per-page="4"
             v-if="!loading">
             <template v-slot:default="{ items }">
@@ -32,7 +36,7 @@
                 <div class="d-flex align-center justify-center pa-4">
                     <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
                         @click="prevPage">
-                        < </v-btn>
+                    </v-btn>
 
                             <div class="mx-2 text-caption">
                                 Page {{ page }} of {{ pageCount }}
@@ -160,7 +164,7 @@
                     <div class="d-flex align-center justify-center pa-4">
                         <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal"
                             rounded @click="prevPage">
-                            < </v-btn>
+                        </v-btn>
 
                                 <div class="mx-2 text-caption">
                                     Page {{ page }} of {{ pageCount }}
@@ -173,6 +177,59 @@
             </v-data-iterator>
         </v-card>
     </div>
+
+    <div v-if="showTaskDetails" class="modal edit-form-body">
+    <v-card class="edit-popup mx-auto">
+      <v-card-title class="popup-header">
+        <v-text-field v-model="taskName"></v-text-field>
+      </v-card-title>
+
+      <v-divider></v-divider>
+      <!-- Start of Body -->
+      <v-container class="popup-content">
+        <!-- Description-->
+        <v-row class="form-row">
+          <v-col cols="5" class="label-column">
+            <label>{{ labels.description }}</label>
+          </v-col>
+          <v-col cols="7">
+            <v-textarea v-model="taskDescription" rows="2" variant="outlined" density="compact"></v-textarea>
+          </v-col>
+        </v-row>
+
+        <!-- Rationale-->
+        <v-row class="form-row">
+          <v-col cols="5" class="label-column">
+            <label>{{ labels.rationale }}</label>
+          </v-col>
+
+          <v-col cols="7">
+            <v-text-field v-model="taskRationale" variant="outlined" density="compact" hide-details></v-text-field>
+          </v-col>
+        </v-row>
+
+        <!-- Verification (This might go away or get changed) -->
+        <v-row class="form-row">
+          <v-col cols="5" class="label-column">
+            <label>{{ labels.verification }}</label>
+          </v-col>
+
+          <v-col cols="7">
+            <v-text-field v-model="taskVerificationType" variant="outlined" density="compact"
+              hide-details></v-text-field>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <v-divider></v-divider>
+
+      <v-card-actions class="popup-actions">
+        <v-spacer></v-spacer>
+        <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
+        <v-btn color="#5EC4B6" variant="flat" class="button" @click="taskRequest = requestTask()">Request</v-btn>
+      </v-card-actions>
+    </v-card>
+  </div>
 </template>
 
 <script setup>
@@ -205,6 +262,7 @@ import { getRecommendedEventsForTask, getRecommendedEventsForExperience } from '
 // Components
 import TaskPreview from "@/components/flightPlanComponents/studentPages/taskPreview.vue";
 import EventPreview from "@/components/flightPlanComponents/studentPages/eventPreview.vue";
+import "@/assets/generic-stylesheet.css";
 
 const router = useRouter();
 const user = ref(null);
@@ -225,6 +283,14 @@ const selectedEvent = ref(null);
 const isStudentSignedUp = ref(false);
 
 const registeredEventIds = ref([]);
+
+const showTaskDetails = ref(false);
+const taskAdd = ref(false);
+const taskRequest = ref(false);
+const taskToEdit = ref(null);
+const taskName = ref("");
+const taskDescription = ref("");
+const customVerification = ref(false);
 
 const loadRegisteredEvents = async () => {
     try {
@@ -255,8 +321,20 @@ const loadingData = ref({
     studentCliftonStrengths: false,
 });
 
+const labels = {
+  category: "Category",
+  reflection: "Reflection Required?",
+  schedule: "Frequency",
+  description: "Description",
+  rationale: "Rationale",
+  semesters: "Semesters",
+  points: "Point Value",
+  prereq: "Pre-Requisites",
+  video: "Video Link",
+  verification: "Verification Type"
+};
+
 const showRecommendedEvents = ref(false);
-const limitedEvents = ref([]);
 const selectedTaskId = ref(null);
 const currentTaskData = ref(null);
 
@@ -308,6 +386,43 @@ const studentDeleteStudentEvent = async (eventId) => {
         console.error('Error deleting student event:', error);
     }
 };
+
+const requestTaskPopup = () => {
+    showTaskDetails.value = true;
+    taskAdd.value = true;
+    taskRequest.value = false;
+    taskToEdit.value = null;
+
+    taskName.value = "";
+    taskDescription.value = "";
+    customVerification.value = "";
+};
+
+const requestTask = () => {
+    
+    const task = {
+        name: taskName.value,
+        description: taskDescription.value,
+        status: "Requested",
+        point_value: 0,
+        customVerification: taskVerificationType.value, //Using the Verification ENUM type
+    };
+    // Call the API to request the task here
+    // Reset the form after submission
+    
+    console.log(task)
+
+    TaskServices.createTask(task).then((response) => {
+        showTaskDetails.value = false;
+        console.log("Task added successfully:", response.data);
+        getAllTasks();
+    })
+    .catch((e) => {
+        console.log(e)
+        //message.value = e.response.data.message;
+        deleteError.value = true;
+    });
+}
 
 onMounted(async () => {
     await getSessionData();
