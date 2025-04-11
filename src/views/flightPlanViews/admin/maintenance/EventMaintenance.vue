@@ -43,7 +43,7 @@
                             </div>
                             <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                 formatEventTime(calendarEvent.end)
-                                }}</div>
+                            }}</div>
                             <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                     formatEventTime(calendarEvent.end)
-                                    }}</div>
+                                }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
                             </div>
@@ -273,7 +273,8 @@
                             <v-row align="center" justify="start">
                                 <v-col v-for="(selection, i) in strengthSelections" :key="selection.name"
                                     class="py-1 pe-0" cols="auto">
-                                    <v-chip :disabled="strengthLoading" closable class="ma-1" color="primary" rounded="lg"
+                                    <v-chip :disabled="strengthLoading" closable class="ma-1" color="primary"
+                                        rounded="lg"
                                         @click:close="eventCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
 
                                         {{ selection.name }}
@@ -318,8 +319,8 @@
 
                         <v-col cols="7">
                             <v-row align="center" justify="start">
-                                <v-col v-for="(selection, i) in majorSelections" :key="selection.name"
-                                    class="py-1 pe-0" cols="auto">
+                                <v-col v-for="(selection, i) in majorSelections" :key="selection.name" class="py-1 pe-0"
+                                    cols="auto">
                                     <v-chip :disabled="majorLoading" closable class="ma-1" color="primary" rounded="lg"
                                         @click:close="eventMajors.majorsToAdd.splice(i, 1)">
 
@@ -338,8 +339,7 @@
 
                                         <v-list style="max-height: 300px; overflow-y: auto;">
                                             <template v-for="majors in majorsList">
-                                                <v-list-item
-                                                    v-if="!eventMajors.majorsToAdd.includes(majors)"
+                                                <v-list-item v-if="!eventMajors.majorsToAdd.includes(majors)"
                                                     :key="majors.id" :disabled="majorLoading"
                                                     @click="eventMajors.majorsToAdd.push(majors)">
                                                     <template v-slot:prepend>
@@ -432,7 +432,7 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
 import UserServices from '@/services/resumeBuilderServices/userServices'
-import CliftonStrengthServices  from "@/services/flightPlanServices/cliftonStrengthServices";
+import CliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
 import MajorServices from "@/services/flightPlanServices/majorServices";
 import EventMajorsServices from "@/services/flightPlanServices/eventMajorsServices";
 import EventCliftonStrengthServices from "@/services/flightPlanServices/eventCliftonStrengthServices";
@@ -441,7 +441,7 @@ import { format, parseISO, set } from 'date-fns';
 
 const search = ref('');
 const strengthSearch = ref('')
-const majorSearch = ref ('')
+const majorSearch = ref('')
 
 const events = ref([]);
 const message = ref('');
@@ -511,7 +511,7 @@ const majorSelections = computed(() => {
 
 const filteredStudentList = computed(() => {
     if (!studentSearchResult.value) return studentNameList.value;
-    return studentNameList.value.filter(name => 
+    return studentNameList.value.filter(name =>
         name.toLowerCase().includes(studentSearchResult.value.toLowerCase())
     );
 });
@@ -726,20 +726,20 @@ onMounted(async () => {
 
 const getAllMajors = () => {
     MajorServices.getAllMajors()
-    .then((res) => {
-        majorsList.value = res.data;
-    })
-    .catch((err) => {
-        message.value = `Error: ${err.code}: ${err.message}`;
-        console.error(err);
-    });
+        .then((res) => {
+            majorsList.value = res.data;
+        })
+        .catch((err) => {
+            message.value = `Error: ${err.code}: ${err.message}`;
+            console.error(err);
+        });
 }
 
 const getAllStrengths = () => {
     CliftonStrengthServices.getAllCliftonStrengths()
-    .then((res) => {
-        strengthsList.value = res.data;
-    })
+        .then((res) => {
+            strengthsList.value = res.data;
+        })
 }
 
 const formatDate = (dateTimeStr) => {
@@ -859,26 +859,26 @@ const editEventPopup = async (task) => {
             eventCustomEvent.value = eventToEdit.value.custom;
             eventStatus.value = eventToEdit.value.status;
             eventPointValue.value = eventToEdit.value.point_value;
-            
+
             StudentEventServices.getAllStudentsByEvent(eventToEdit.value.id)
-            .then((res) => {
-                const students = res.data;
-                studentNameList.value = []
-                students.forEach(async student => {
-                    UserServices.getAllStudentUsers(student.id)
-                        .then((res) => {
-                            studentNameList.value.push(res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName)
-                        })
-                        .catch((err) => {
-                            message.value = `Error: ${err.code}: ${err.message}`;
-                            console.error(err);
-                        })
-                });
-            })
-            .catch((err) => {
-                message.value = `Error: ${err.code}: ${err.message}`;
-                console.error(err);
-            })
+                .then((res) => {
+                    const students = res.data;
+                    studentNameList.value = []
+                    students.forEach(async student => {
+                        UserServices.getAllStudentUsers(student.id)
+                            .then((res) => {
+                                studentNameList.value.push(res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName)
+                            })
+                            .catch((err) => {
+                                message.value = `Error: ${err.code}: ${err.message}`;
+                                console.error(err);
+                            })
+                    });
+                })
+                .catch((err) => {
+                    message.value = `Error: ${err.code}: ${err.message}`;
+                    console.error(err);
+                })
             EventCliftonStrengthServices.getAllCliftonStrengthsByEvent(eventToEdit.value.id)
                 .then((res) => {
                     console.log(res.data)
@@ -994,7 +994,7 @@ const editEvent = () => {
             message.value = e.response.data.message;
             deleteError.value = true;
         });
-    
+
     // deleting all 
     EventCliftonStrengthServices.getAllByEvent(eventToEdit.value.id)
         .then((res) => {
@@ -1019,7 +1019,7 @@ const editEvent = () => {
         .catch((err) => {
             console.error(err);
         });
-    
+
     // readding
     eventCliftonStrengths.value.cliftonStrengthsToAdd.forEach((strength) => {
         // console.log(strength.id)
@@ -1043,9 +1043,9 @@ const editEvent = () => {
             majorId: major.id,
         }
         EventMajorsServices.createEventMajor(eventToEdit.value.id, major.id, newData)
-        .then((res) => {
-            console.log(res)
-        })
+            .then((res) => {
+                console.log(res)
+            })
             .catch((err) => {
                 console.error(err);
             });
@@ -1165,6 +1165,35 @@ const addEvent = () => {
 
     EventServices.createEvent(newEvent).then((response) => {
         showEventDetails.value = false;
+        eventCliftonStrengths.value.cliftonStrengthsToAdd.forEach((strength) => {
+            // console.log(strength.id)
+            const newData = {
+                eventId: response.data.id,
+                cliftonStrengthId: strength.id,
+            }
+            EventCliftonStrengthServices.createEventCliftonStrength(response.data.id, strength.id, newData)
+                .then((res) => {
+                    console.log(res)
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        })
+
+        eventMajors.value.majorsToAdd.forEach((major) => {
+            // console.log(major.id)
+            const newData = {
+                eventId: response.data.id,
+                majorId: major.id,
+            }
+            EventMajorsServices.createEventMajor(response.data.id, major.id, newData)
+                .then((res) => {
+                    console.log(res)
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        })
         getAllEvents();
     })
         .catch((e) => {
