@@ -727,7 +727,6 @@ onMounted(async () => {
 const getAllMajors = () => {
     MajorServices.getAllMajors()
     .then((res) => {
-        console.log(res.data);
         majorsList.value = res.data;
     })
     .catch((err) => {
@@ -739,7 +738,6 @@ const getAllMajors = () => {
 const getAllStrengths = () => {
     CliftonStrengthServices.getAllCliftonStrengths()
     .then((res) => {
-        console.log(res.data);
         strengthsList.value = res.data;
     })
 }
@@ -799,14 +797,15 @@ const formatEventForCalendar = (event) => {
 };
 
 const editEventPopup = async (task) => {
-    eventCliftonStrengths.value = []
     eventCliftonStrengths.value = {
         cliftonStrengthsToAdd: []
     }
     strengthSelections.value = []
+
     eventMajors.value = {
         majorsToAdd: []
     }
+    majorSelections.value = []
 
     strengthLoading.value = false
     majorLoading.value = false
@@ -865,7 +864,6 @@ const editEventPopup = async (task) => {
             .then((res) => {
                 const students = res.data;
                 studentNameList.value = []
-                console.log(students)
                 students.forEach(async student => {
                     UserServices.getAllStudentUsers(student.id)
                         .then((res) => {
@@ -881,12 +879,29 @@ const editEventPopup = async (task) => {
                 message.value = `Error: ${err.code}: ${err.message}`;
                 console.error(err);
             })
+            EventCliftonStrengthServices.getAllCliftonStrengthsByEvent(eventToEdit.value.id)
+                .then((res) => {
+                    console.log(res.data)
+                    eventCliftonStrengths.value.cliftonStrengthsToAdd = res.data;
+                    EventMajorsServices.getAllMajorsByEvent(eventToEdit.value.id)
+                        .then((res) => {
+                            console.log(res.data)
+                            eventMajors.value.majorsToAdd = res.data;
+                        })
+                        .catch((err) => {
+                            message.value = `Error: ${err.code}: ${err.message}`;
+                            console.error(err);
+                        })
+                })
+                .catch((err) => {
+                    message.value = `Error: ${err.code}: ${err.message}`;
+                    console.error(err);
+                })
         })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
             console.error(err);
         });
-
 };
 
 const editEvent = () => {
@@ -934,6 +949,9 @@ const editEvent = () => {
         eventAttendanceType.value = 'in_person'
     }
 
+    // console.log(eventCliftonStrengths.value.cliftonStrengthsToAdd[0].id)
+    // console.log(eventMajors.value.majorsToAdd[0].id)
+
 
     const startDate = parseISO(eventStartDate.value);
     const endDate = parseISO(eventEndDate.value);
@@ -967,7 +985,7 @@ const editEvent = () => {
     };
 
     EventServices.updateEvent(eventToEdit.value.id, updatedEvent)
-        .then((response) => {
+        .then((res) => {
             showEventDetails.value = false;
             getAllEvents();
         })
@@ -976,6 +994,62 @@ const editEvent = () => {
             message.value = e.response.data.message;
             deleteError.value = true;
         });
+    
+    // deleting all 
+    EventCliftonStrengthServices.getAllByEvent(eventToEdit.value.id)
+        .then((res) => {
+            const oldStrengths = res.data
+            // console.log(oldStrengths)
+            oldStrengths.forEach((strength) => {
+                EventCliftonStrengthServices.deleteSystemEventCliftonStrength(strength.id)
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+
+    EventMajorsServices.getAllByEvent(eventToEdit.value.id)
+        .then((res) => {
+            const oldMajors = res.data
+            // console.log(oldMajors)
+            oldMajors.forEach((major) => {
+                EventMajorsServices.deleteSystemEventMajor(major.id)
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+    
+    // readding
+    eventCliftonStrengths.value.cliftonStrengthsToAdd.forEach((strength) => {
+        // console.log(strength.id)
+        const newData = {
+            eventId: eventToEdit.value.id,
+            cliftonStrengthId: strength.id,
+        }
+        EventCliftonStrengthServices.createEventCliftonStrength(eventToEdit.value.id, strength.id, newData)
+            .then((res) => {
+                console.log(res)
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    })
+
+    eventMajors.value.majorsToAdd.forEach((major) => {
+        // console.log(major.id)
+        const newData = {
+            eventId: eventToEdit.value.id,
+            majorId: major.id,
+        }
+        EventMajorsServices.createEventMajor(eventToEdit.value.id, major.id, newData)
+        .then((res) => {
+            console.log(res)
+        })
+            .catch((err) => {
+                console.error(err);
+            });
+    })
 };
 
 const addEventPopup = () => {
@@ -1001,6 +1075,7 @@ const addEventPopup = () => {
         cliftonStrengthsToAdd: []
     }
     strengthSelections.value = []
+
     eventMajors.value = {
         majorsToAdd: []
     }
