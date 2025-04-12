@@ -365,15 +365,16 @@ const saveAttendanceDetails = () => {
     console.log("Printing now")
     console.log(filteredStudentList.value)
     filteredStudentList.value.forEach(student => {
-        const newData = {
-            attendance_status: student.didAttend ? "attended" : "did_not_attend",
-            verification_status: student.didAttend ? "approved" : "denied"
-        }
-        console.log(student)
-        console.log(newData)
-        StudentEventServices.updateStudentEvent(student.eventId, newData)
-            .then((res) => {
-                if (newData.verification_status !== 'denied' && newData.attendance_status !== 'did_not_attend') {
+
+        // console.log(student)
+        // console.log(newData)
+        if (student.didAttend && student.verification_status === 'in_progress') {
+            const newData = {
+                attendance_status:  "attended" ,
+                verification_status: "approved"
+            }
+            StudentEventServices.updateStudentEvent(student.eventId, newData)
+                .then((res) => {
                     studentServices.getStudent(student.studentId)
                         .then((res) => {
                             console.log(res.data.points)
@@ -401,9 +402,22 @@ const saveAttendanceDetails = () => {
                             message.value = `Error: ${err.code}: ${err.message}`;
                             console.error(err);
                         })
-                }
+                })
+        }
+        else {
+            const newData = {
+                attendance_status: "did_not_attend",
+                verification_status: "denied"
             }
-            )
+            StudentEventServices.updateStudentEvent(student.eventId, newData)
+                .then((res) => {
+                })
+                .catch((err) => {
+                    message.value = `Error: ${err.code}: ${err.message}`;
+                    console.error(err);
+                })
+        }
+
     });
 }
 </script>
