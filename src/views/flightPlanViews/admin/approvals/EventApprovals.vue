@@ -59,7 +59,7 @@
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
                     <v-btn color="#708E9A" variant="flat"
-                        @click="showStudentNamesList = false; showEventDetails = true;">Close</v-btn>
+                        @click="showStudentNamesList = false; showEventDetails = true; studentNameList = []">Close</v-btn>
                     <v-btn color="#5EC4B6" style="color: white" variant="flat"
                         @click="showStudentNamesList = false; showEventDetails = true; saveAttendanceDetails();">Save</v-btn>
 
@@ -143,17 +143,7 @@ const handleFileUpload = (event) => {
                                     .then((res) => {
                                         const studentEventsList = res.data;
                                         const existingStudentEvent = studentEventsList.find(existingEvent => existingEvent.studentId === existingStudent.id)
-                                        if (existingStudentEvent) {
-                                            studentNameList.value.push({
-                                                studentId: existingStudent.id,
-                                                name: student["First Name"] + " " + student["Last Name"],
-                                                didAttend: student["Checked In"] !== "",
-                                                eventId: existingStudentEvent.id,
-                                                studentSchoolId: student.Username,
-                                                pointValue: selectedEvent.value.point_value
-                                            })
-                                        }
-                                        else {
+                                        if (!existingStudentEvent){
                                             const newStudentEvent = {
                                                 verification_status: "in_progress",
                                                 eventId: selectedEvent.value.id,
