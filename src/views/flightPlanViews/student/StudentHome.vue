@@ -135,7 +135,7 @@
   </div>
   <!-- Task Modal -->
   <div v-if="taskModalVisible" class="modal-overlay" @click.self="closeTaskModal">
-    <div class="homepage-modal-content">
+    <div class="modal-content">
       <span @click="closeTaskModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedTask.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedTask.description }}</div>
@@ -212,12 +212,8 @@
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
         hour: '2-digit', minute: '2-digit',
         hour12: true
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
         hour: '2-digit', minute: '2-digit',
         hour12: true
         }) }}
@@ -399,11 +395,11 @@ const openEventModal = async (event) => {
   await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
+
 const closeEventModal = () => {
   modalVisible.value = false;
+  attendanceModalVisible.value = false;
 };
-
-
 
 // exit homepage with router ---
 const goToShop = () => {
