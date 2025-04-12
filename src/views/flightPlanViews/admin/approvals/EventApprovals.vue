@@ -29,6 +29,7 @@
                             <Icon icon="material-symbols:search-rounded" width="24" height="24" />
                         </template>
                     </v-text-field>
+                    <input type="file" accept=".csv" @change="handleFileUpload" />
                 </div>
                 <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
                     <v-list class="w-100">
@@ -42,13 +43,8 @@
                         <v-list-item v-for="(student, index) in filteredStudentList" :key="index">
                             <v-list-item-title>{{ student.name }}</v-list-item-title>
                             <template v-slot:append>
-                                <v-switch
-                                    v-model="student.didAttend"
-                                    color="#708E9A"
-                                    hide-details
-                                    density="compact"
-                                    class="ma-0 pa-0"
-                                ></v-switch>
+                                <v-switch v-model="student.didAttend" color="#708E9A" hide-details density="compact"
+                                    class="ma-0 pa-0"></v-switch>
                             </template>
                         </v-list-item>
                     </v-list>
@@ -76,10 +72,15 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
 import UserServices from '@/services/resumeBuilderServices/userServices'
+import StudentServices from '@/services/resumeBuilderServices/studentServices'
+import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import studentServices from '@/services/resumeBuilderServices/studentServices';
+import Papa from 'papaparse'
 
+const jsonData = ref([])
+const formattedData = ref([])
 const search = ref('');
 const events = ref([]);
 const message = ref('');
@@ -92,10 +93,15 @@ const currentDate = ref([])
 
 const eventStartDate = ref("")
 const eventEndDate = ref("")
+const selectedEvent = ref(null);
 
 const studentNameList = ref([{
+    studentId: null,
     name: null,
-    didAttend: false
+    didAttend: false,
+    eventId: null,
+    studentSchoolId: null,
+    pointValue: 0
 }])
 const attendeeMap = ref([])
 const studentToggles = ref({})
@@ -118,6 +124,69 @@ const headers = ref([
     { key: 'actions', title: '', sortable: false },
 ]);
 
+const handleFileUpload = (event) => {
+    StudentServices.getAllStudents()
+        .then((res) => {
+            const studentList = res.data;
+            console.log(studentList)
+
+
+
+            const file = event.target.files[0]
+            if (file) {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        jsonData.value = results.data
+                        console.log(jsonData.value)
+                        jsonData.value.forEach(student => {
+                            const existingStudent = studentNameList.value.find(existingStudent => existingStudent.studentSchoolId === student.Username);
+                            if (existingStudent)
+                                studentNameList.value.push({
+                                    studentId: null,
+                                    name: student["First Name"] + " " + student["Last Name"],
+                                    didAttend: student["Checked In"] !== "",
+                                    eventId: event.id,
+                                    studentSchoolId: student.Username,
+                                    pointValue: event.point_value
+                                })
+                            else {
+                                const newStudent = {
+                                    student_issued_id: student["Username"],
+                                    points: 0,
+                                    total_points: 0
+                                }
+                                StudentServices.createStudent(newStudent)
+                                    .then((res) => {
+                                        const newUser = {
+                                            fName: student["First Name"],
+                                            lName: student["Last Name"],
+                                            email: student["Email Address"],
+                                            studentId: res.data.id,
+                                        }
+                                        UserServices.createUser(newUser)
+                                            .then((res) => {
+                                                const userId = res.data.id;
+                                                // TODO - add permissions
+                                            })
+                                            .catch((err) => {
+                                                console.error(err);
+                                            });
+                                    })
+                                    .catch((err) => {
+                                        console.error(err);
+                                    });
+                            }
+                        })
+                    }
+                })
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
 const filteredEvents = computed(() => {
     if (selectedFilter.value === 'All') {
         return events.value.map(event => ({
@@ -168,8 +237,8 @@ const getAllEvents = () => {
         .then((res) => {
             events.value = res.data;
             events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value));
- 
-            })
+
+        })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
             console.error(err);
@@ -203,6 +272,7 @@ const showStudentNamesListPopup = async (event) => {
 }
 
 const getStudentAttendees = (event) => {
+    selectedEvent.value = event;
     StudentEventServices.getAllStudentsByEvent(event.id)
         .then((res) => {
             const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
@@ -217,6 +287,7 @@ const getStudentAttendees = (event) => {
                             name: res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName,
                             didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
                             eventId: student.studentEvent[0].id,
+                            studentSchoolId: student.student_issued_id,
                             pointValue: event.point_value
                         });
                     })
@@ -257,45 +328,45 @@ const saveAttendanceDetails = () => {
             verification_status: student.didAttend ? "approved" : "denied"
         }
         StudentEventServices.updateStudentEvent(student.eventId, newData)
-        .then((res) =>{
-            if (newData.verification_status !== 'denied' && newData.attendance_status !== 'did_not_attend') {
-                studentServices.getStudent(student.studentId)
-                .then((res) => {
-                    console.log(res.data.points)
-                    console.log(res.data.total_points)
-                    console.log(student.pointValue)
-                    const newCurrentPointValue = res.data.points + student.pointValue;
-                    const newTotalPoints = res.data.total_points + student.pointValue;
-                    const newStudentData = {
-                        points: newCurrentPointValue,
-                        total_points: newTotalPoints
-                    }
-                    console.log(newStudentData)
-                    studentServices.updateStudent(student.studentId, newStudentData)
-                    .then((res) => {
-                        console.log(res.data)
-                    })
+            .then((res) => {
+                if (newData.verification_status !== 'denied' && newData.attendance_status !== 'did_not_attend') {
+                    studentServices.getStudent(student.studentId)
+                        .then((res) => {
+                            console.log(res.data.points)
+                            console.log(res.data.total_points)
+                            console.log(student.pointValue)
+                            const newCurrentPointValue = res.data.points + student.pointValue;
+                            const newTotalPoints = res.data.total_points + student.pointValue;
+                            const newStudentData = {
+                                points: newCurrentPointValue,
+                                total_points: newTotalPoints
+                            }
+                            console.log(newStudentData)
+                            studentServices.updateStudent(student.studentId, newStudentData)
+                                .then((res) => {
+                                    console.log(res.data)
+                                })
+                                .catch((err) => {
+                                    message.value = `Error: ${err.code}: ${err.message}`;
+                                    console.error(err);
+                                })
+                        })
                         .catch((err) => {
                             message.value = `Error: ${err.code}: ${err.message}`;
                             console.error(err);
                         })
-                })
-                    .catch((err) => {
-                        message.value = `Error: ${err.code}: ${err.message}`;
-                        console.error(err);
-                    })
 
+                }
             }
-        }
-    )
+            )
     });
 }
 
 const toggleStudent = (studentName) => {
-  const student = studentNameList.value.find(s => s.name === studentName);
-  if (student) {
-    student.didAttend = !student.didAttend;
-  }
+    const student = studentNameList.value.find(s => s.name === studentName);
+    if (student) {
+        student.didAttend = !student.didAttend;
+    }
 };
 </script>
 
