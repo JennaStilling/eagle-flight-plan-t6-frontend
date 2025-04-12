@@ -22,6 +22,9 @@
                 <div class="modal-header">
                     <h3>Registered Students</h3>
                 </div>
+                <span>
+                    <h4>Upload .csv File: </h4> <input type="file" accept=".csv" @change="handleFileUpload" />
+                </span>
                 <div class="search-container">
                     <v-text-field v-model="studentSearchResult" label="Search" variant="outlined" density="compact"
                         hide-details class="search-field">
@@ -29,7 +32,6 @@
                             <Icon icon="material-symbols:search-rounded" width="24" height="24" />
                         </template>
                     </v-text-field>
-                    <input type="file" accept=".csv" @change="handleFileUpload" />
                 </div>
                 <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
                     <v-list class="w-100">
@@ -128,10 +130,7 @@ const handleFileUpload = (event) => {
     StudentServices.getAllStudents()
         .then((res) => {
             const studentList = res.data;
-            console.log(studentList)
-
-
-
+            // console.log(studentList)
             const file = event.target.files[0]
             if (file) {
                 Papa.parse(file, {
@@ -139,12 +138,13 @@ const handleFileUpload = (event) => {
                     skipEmptyLines: true,
                     complete: (results) => {
                         jsonData.value = results.data
-                        console.log(jsonData.value)
+                        // console.log(jsonData.value)
                         jsonData.value.forEach(student => {
-                            const existingStudent = studentNameList.value.find(existingStudent => existingStudent.studentSchoolId === student.Username);
+                            const existingStudent = studentList.find(existingStudent => existingStudent.student_issued_id === student.Username);
+                            // console.log(existingStudent)
                             if (existingStudent)
                                 studentNameList.value.push({
-                                    studentId: null,
+                                    studentId: existingStudent.id,
                                     name: student["First Name"] + " " + student["Last Name"],
                                     didAttend: student["Checked In"] !== "",
                                     eventId: event.id,
@@ -169,6 +169,14 @@ const handleFileUpload = (event) => {
                                             .then((res) => {
                                                 const userId = res.data.id;
                                                 // TODO - add permissions
+                                                studentNameList.value.push({
+                                                    studentId: res.data.studenId,
+                                                    name: res.data.fName + " " + res.data.lName,
+                                                    didAttend: student["Checked In"] !== "",
+                                                    eventId: event.id,
+                                                    studentSchoolId: student.Username,
+                                                    pointValue: event.point_value
+                                                })
                                             })
                                             .catch((err) => {
                                                 console.error(err);
@@ -178,7 +186,9 @@ const handleFileUpload = (event) => {
                                         console.error(err);
                                     });
                             }
+                            
                         })
+                        console.log(studentNameList.value);
                     }
                 })
             }
@@ -284,7 +294,7 @@ const getStudentAttendees = (event) => {
                         console.log(event)
                         studentNameList.value.push({
                             studentId: student.id,
-                            name: res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName,
+                            name: res.data[0].fName + " " + res.data[0].lName,
                             didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
                             eventId: student.studentEvent[0].id,
                             studentSchoolId: student.student_issued_id,
