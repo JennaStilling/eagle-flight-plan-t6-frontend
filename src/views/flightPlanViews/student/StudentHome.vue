@@ -96,7 +96,7 @@
                       month: 'short'
                       }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' })
-                      }}
+                    }}
                     </div>
                   </td>
                   <td style="user-select: none;">
@@ -148,7 +148,7 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason
-        }}</div>
+      }}</div>
       <v-spacer></v-spacer>
       <v-card-actions>
         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
@@ -180,13 +180,13 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12:
-        true
+          hour: '2-digit', minute: '2-digit',
+          hour12:
+            true
         }) }}
       </div>
     </div>
