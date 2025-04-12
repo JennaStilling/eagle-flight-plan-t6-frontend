@@ -39,31 +39,41 @@
       <div class="event-data-table-container">
         <table class="event-data-table">
           <tbody>
-            <template v-for="event in limitedEvents" :key="event.id">
-              <tr @click="openEventModal(event)" class="clickable-row">
-                <td class="date">
-                  <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
-                    month: 'short'
-                    }).toLocaleUpperCase() }}</div>
-                  <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
-                </td>
-                <td style="user-select: none;">
-                  {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                  hour: 'numeric', minute: 'numeric',
-                  hour12: true
-                  }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                  Date(event.end_date_time).toLocaleTimeString('en-US', {
-                  hour: 'numeric', minute: 'numeric', hour12:
-                  true
-                  }).replace('AM', 'am').replace('PM', 'pm') }}
-                  <br>
-                  <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
-                </td>
-                <td></td>
-              </tr>
+            <template v-if="limitedEvents.length > 0">
+              <template v-for="event in limitedEvents" :key="event.id">
+                <tr @click="openEventModal(event)" class="clickable-row">
+                  <td class="date">
+                    <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
+                      month: 'short'
+                      }).toLocaleUpperCase() }}</div>
+                    <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
+                  </td>
+                  <td style="user-select: none;">
+                    {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric',
+                    hour12: true
+                    }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                    Date(event.end_date_time).toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: 'numeric', hour12:
+                    true
+                    }).replace('AM', 'am').replace('PM', 'pm') }}
+                    <br>
+                    <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                    <hr class="event-line">
+                  </td>
+                </tr>
+              </template>
+            </template>
+            <template v-else>
               <tr>
-                <td colspan="3">
-                  <hr class="event-line">
+                <td colspan="3"
+                  style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
+                  There are no upcoming events recommended for you at this time. Click the button below to view all upcoming events!
                 </td>
               </tr>
             </template>
@@ -114,7 +124,7 @@
               <tr>
                 <td colspan="3"
                   style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
-                  You haven't attended any events recently. Register for an event above to see it here.
+                  You haven't attended any events recently. Register for an event above to see it here!
                 </td>
               </tr>
             </template>
@@ -140,9 +150,19 @@
         selectedTask.unapprove_reason
         }}</div>
       <v-spacer></v-spacer>
-      <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
-        View Flight Plan
-      </v-btn>
+      <v-card-actions>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
+          View Flight Plan
+        </v-btn>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeReflection()" 
+          v-if="getVerificationType === 'reflection' && selectedTask.status === 'in_progress' || selectedTask.status === 'unapproved'">
+          Reflection
+        </v-btn>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()" 
+          v-if="getVerificationType === 'quiz' && selectedTask.status != 'approved'">
+          Take Quiz
+        </v-btn>
+      </v-card-actions>
     </div>
   </div>
   <!-- Event Modal -->
@@ -173,7 +193,7 @@
       <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
         color="#F68D76">Unregister</v-btn>
     </div>
-  </div>>
+  </div>
 
   <!-- Event Attendance Modal -->
   <div v-if="attendanceModalVisible" class="modal-overlay" @click.self="closeEventModal">
@@ -192,8 +212,12 @@
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
         hour: '2-digit', minute: '2-digit',
         hour12: true
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         hour: '2-digit', minute: '2-digit',
         hour12: true
         }) }}
@@ -205,6 +229,18 @@
           Attend</v-btn>
       </div>
     </div>
+  </div>
+
+  <div class="modal-overlay" v-if="showReflection">
+    <ReflectionSubmission :task="selectedTask"
+    @close-reflection="closeModal"
+    />
+  </div>
+
+  <div class="modal-overlay" v-if="showQuiz">
+    <QuizSubmission :task="selectedTask"
+    @close-quiz="closeModal"
+    />
   </div>
 </template>
 
@@ -226,11 +262,15 @@ import TaskServices from "@/services/flightPlanServices/taskServices";
 import EventServices from "@/services/flightPlanServices/eventServices";
 import SemesterServices from '@/services/flightPlanServices/semesterServices';
 import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
-import StudentEventServices from '@/services/flightPlanServices/studentEventServices'
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
+import verificationServices from '@/services/flightPlanServices/verificationServices';
 import { get } from '@vueuse/core';
 import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
 import "@/assets/generic-stylesheet.css";
 
+import { asyncComputed } from '@vueuse/core';
+import ReflectionSubmission from '@/components/flightPlanComponents/studentPages/ReflectionSubmission.vue';
+import QuizSubmission from '@/components/flightPlanComponents/studentPages/QuizSubmission.vue';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -252,10 +292,12 @@ const currentSemesterIndex = ref(0);
 const studentSemesterFlightPlanTasks = ref({});
 
 const attendanceModalVisible = ref(false);
-const pastEvents = ref([])
+const pastEvents = ref([]);
 const registeredEventIds = ref([]);
 const isStudentSignedUp = ref(false);
 const specificStudentEvents = ref([]);
+const showReflection = ref(false);
+const showQuiz = ref(false);
 
 onMounted(async () => {
   await getSessionData();
@@ -342,7 +384,8 @@ const getSemesterTasks = async (semesterIndex) => {
       newSemesterTasks.push({
         ...task.data,
         status: studentFlightPlanTask.status,
-        unapprove_reason: studentFlightPlanTask.unapprove_reason
+        unapprove_reason: studentFlightPlanTask.unapprove_reason,
+        student_flight_plan_task_id: studentFlightPlanTask.id
       })
     }
   }
@@ -577,7 +620,28 @@ const closeTaskModal = () => {
   taskModalVisible.value = false;
 };
 
+const getVerificationType = asyncComputed(async () => {
+  if (selectedTask.value.verificationId){
+    const verification = (await verificationServices.getVerification(selectedTask.value.verificationId)).data;
+    return verification.type;
+  }
+});
 
+const takeReflection = () => {
+  taskModalVisible.value = false;
+  showReflection.value = true;
+}
+
+const closeModal = () => {
+  showReflection.value = false;
+  showQuiz.value = false;
+  window.location.reload();
+}
+
+const takeQuiz = () => {
+  taskModalVisible.value = false;
+  showQuiz.value = true;
+}
 // exit homepage with router ---
 
 

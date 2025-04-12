@@ -32,6 +32,9 @@ export default {
     return apiClient.get(`flightPlan-t6/cliftonStrength/${id}/events`);
     },
     getAllCliftonStrengthsByEvent(id) {
-        return apiClient.get(`flightPlan-t6/event/${id}/cliftonStrengths`)
+        return apiClient.get(`flightPlan-t6/event/${id}/cliftonStrengths`);
+    },
+    getAllByEvent(id) {
+      return apiClient.get(`flightPlan-t6/event/${id}/eventCliftonStrengths`);
     }
 }
