@@ -96,7 +96,7 @@
                       month: 'short'
                       }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' })
-                    }}
+                      }}
                     </div>
                   </td>
                   <td style="user-select: none;">
@@ -135,7 +135,7 @@
   </div>
   <!-- Task Modal -->
   <div v-if="taskModalVisible" class="modal-overlay" @click.self="closeTaskModal">
-    <div class="homepage-modal-content">
+    <div class="modal-content">
       <span @click="closeTaskModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedTask.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedTask.description }}</div>
@@ -148,7 +148,7 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason
-      }}</div>
+        }}</div>
       <v-spacer></v-spacer>
       <v-card-actions>
         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
@@ -167,7 +167,7 @@
   </div>
   <!-- Event Modal -->
   <div v-if="modalVisible" class="modal-overlay" @click.self="closeEventModal">
-    <div class="homepage-modal-content">
+    <div class="modal-content">
       <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
       <h2>{{ selectedEvent.name }}</h2>
       <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
@@ -185,10 +185,13 @@
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
           hour: '2-digit', minute: '2-digit',
-          hour12:
-            true
+          hour12: true
         }) }}
       </div>
+      <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
+        color="#F68D76">Register</v-btn>
+      <v-btn v-if="isStudentSignedUp" @click="closeEventModal; studentDeleteStudentEvent(selectedEvent.id)"
+        color="#F68D76">Unregister</v-btn>
     </div>
   </div>
 
@@ -286,7 +289,9 @@ const studentSemesterFlightPlanTasks = ref({});
 
 const attendanceModalVisible = ref(false);
 const pastEvents = ref([]);
-
+const registeredEventIds = ref([]);
+const isStudentSignedUp = ref(false);
+const specificStudentEvents = ref([]);
 const showReflection = ref(false);
 const showQuiz = ref(false);
 
@@ -304,7 +309,6 @@ onMounted(async () => {
       events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendence_status === 'registered');
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       pastEvents.value = events.value;
-      // console.log(pastEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -316,7 +320,6 @@ onMounted(async () => {
       events.value = eventResponse.data.filter(event => new Date(event.date) >= new Date(currentDate.value));
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       limitedEvents.value = events.value.slice(0, 3);
-      // console.log(limitedEvents.value)
     }
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -388,14 +391,15 @@ const getSemesterTasks = async (semesterIndex) => {
 // modals --------------------
 const openEventModal = async (event) => {
   selectedEvent.value = event;
+  await loadRegisteredEvents(); // Load current registrations
   await checkIfStudentIsSignedUp(event.id);
   modalVisible.value = true;
 };
+
 const closeEventModal = () => {
   modalVisible.value = false;
   attendanceModalVisible.value = false;
 };
-
 
 // exit homepage with router ---
 const goToShop = () => {
@@ -487,17 +491,16 @@ const studentNotAttendedEvent = (id) => {
     });
 }
 const studentSignUpForEvent = (id) => {
-  if (!studentId.value) {
+  if (!user.value.studentId) {
     return
   }
   else {
     const newStudentEvent = {
       eventId: id,
-      studentId: studentId.value
+      studentId: user.value.studentId
     }
     StudentEventServices.createStudentEvent(newStudentEvent)
       .then((res) => {
-        console.log("Student event added")
         closeEventModal();
       })
       .catch((error) => {
@@ -510,11 +513,10 @@ const studentDeleteStudentEvent = (id) => {
     .then((res) => {
       specificStudentEvents.value = res.data;
       if (specificStudentEvents.value) {
-        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
+        const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === user.value.studentId);
         if (eventToDelete) {
           StudentEventServices.deleteStudentEvent(eventToDelete.id)
             .then((res) => {
-              console.log("Student event deleted")
               closeEventModal();
             })
             .catch((error) => {
@@ -526,12 +528,11 @@ const studentDeleteStudentEvent = (id) => {
 }
 const checkIfStudentIsSignedUp = async (id) => {
   try {
-    const res = await StudentEventServices.getAllEventsByStudent(studentId.value);
+    const res = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
     const studentEvents = res.data;
     const studentSpecificEvent = studentEvents.find(studentEvent =>
       studentEvent.id === id
     );
-    console.log(studentSpecificEvent);
     isStudentSignedUp.value = !!studentSpecificEvent;
     return isStudentSignedUp.value;
   } catch (error) {
@@ -539,6 +540,17 @@ const checkIfStudentIsSignedUp = async (id) => {
     return false;
   }
 }
+
+const loadRegisteredEvents = async () => {
+  try {
+    const res = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
+    registeredEventIds.value = res.data.map(event => event.id);
+  } catch (error) {
+    console.error('Error loading registered events:', error);
+    registeredEventIds.value = [];
+  }
+};
+
 const getStudentFlightPlanId = async (studentId, flightPlanId) => {
   try {
     const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
