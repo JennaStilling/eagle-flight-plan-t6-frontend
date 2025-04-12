@@ -129,7 +129,7 @@ export async function generateFlightPlan(student, semester) {
         const studentFlightPlan = (await studentFlightPlanServices.createStudentFlightPlan(student.id, flightPlan.id, {})).data;
 
         await addTasksToStudentFlightPlan(studentFlightPlan, tasksToFlightPlan);
-        await addExperiencesToStudent(student, experiencesToFlightPlan);
+        await addExperiencesToStudent(studentFlightPlan, experiencesToFlightPlan);
     }
     catch (error) {
         console.log("Error, could not generate a flight plan for student: " + error);
@@ -369,10 +369,10 @@ async function addTasksToStudentFlightPlan(studentFlightPlan, tasksToFlightPlan)
 }
 
 // Add the experiences to the students flight plan
-async function addExperiencesToStudent(student, experiencesToFlightPlan) {
+async function addExperiencesToStudent(studentFlightPlan, experiencesToFlightPlan) {
     try {
         const template = {
-            studentId: student.id,
+            studentFlightPlanId: studentFlightPlan.id,
             experienceTypeId: null
         }
         for (let i = 0; i < experiencesToFlightPlan.length; i++) {
