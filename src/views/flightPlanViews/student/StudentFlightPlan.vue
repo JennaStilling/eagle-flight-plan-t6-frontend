@@ -3,7 +3,7 @@
     <div class="semester-navigation">
         <v-btn :disabled="currentSemesterIndex + 1 === 1" @click="getPreviousSemester" density="comfortable"
             icon="mdi-arrow-left" variant="tonal" rounded>
-            </v-btn>
+            < </v-btn>
                 <h1>{{ semesters[currentSemesterIndex]?.name || `Loading...` }}</h1>
                 <v-btn :disabled="currentSemesterIndex + 1 >= semesters.length" @click="getNextSemester"
                     density="comfortable" icon="mdi-arrow-right" variant="tonal" rounded>
@@ -36,7 +36,7 @@
                 <div class="d-flex align-center justify-center pa-4">
                     <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
                         @click="prevPage">
-                    </v-btn>
+                        < </v-btn>
 
                             <div class="mx-2 text-caption">
                                 Page {{ page }} of {{ pageCount }}
@@ -173,7 +173,7 @@
                     <div class="d-flex align-center justify-center pa-4">
                         <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal"
                             rounded @click="prevPage">
-                        </v-btn>
+                            < </v-btn>
 
                                 <div class="mx-2 text-caption">
                                     Page {{ page }} of {{ pageCount }}
