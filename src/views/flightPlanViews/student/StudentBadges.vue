@@ -42,7 +42,7 @@
                     <v-row dense>
                         <v-col v-for="badge in items" :key="badge.raw.id" cols="auto" md="1.5">
                             <BadgePreview :key="badge.raw.id" :badge="badge.raw" :obtained="false"
-                                @claim-badge="setBadgeToCompleted" />
+                                @claim-badge="claimBadge" />
                         </v-col>
                     </v-row>
                 </v-container>
@@ -128,15 +128,12 @@ const refresh = async () => {
 
 const getSessionData = async () => {
     const userStore = Utils.getStore("user");
-    const tempUser = await UserServices.getUser(userStore.userId);
-    user.value = tempUser.data;
-    const tempStudent = await StudentServices.getStudent(user.value.studentId);
-    student.value = tempStudent.data;
+    user.value = (await UserServices.getUser(userStore.userId)).data;
+    student.value = (await StudentServices.getStudent(user.value.studentId)).data;
 }
 
 const getStudentBadges = async () => {
-    const result = await StudentBadgeServices.getAllStudentBadges(student.value.id);
-    studentBadges.value = result.data;
+    studentBadges.value = (await StudentBadgeServices.getAllStudentBadges(student.value.id)).data;
 }
 
 const sortStudentBadges = () => {
@@ -228,14 +225,17 @@ const getObtainedBadges = (allBadges) => {
     }
 }
 
-const setBadgeToCompleted = async (badge) => {
+const claimBadge = async (badge) => {
     const data = {
         studentId: student.value.id,
         badgeId: badge.id,
         points_earned: badge.points,
         date_acquired: new Date().toISOString(),
     }
-    const studentBadge = await StudentBadgeServices.createSystemStudentBadge(data)
+    await StudentBadgeServices.createSystemStudentBadge(data)
+
+    student.value.points += badge.points;
+    await StudentServices.updateStudent(student.value.id, student.value)
     refresh();
 }
 </script>
