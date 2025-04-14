@@ -103,7 +103,7 @@
         <v-spacer></v-spacer>
         <v-btn v-if="strengthEdit" class="button" color="#F04E3E" variant="flat"
           @click="deleteStrengthConfirmation(strengthToEdit)">Delete</v-btn>
-        <v-btn color=" #708E9A" class="button" variant="flat" @click="showStrengthDetails = false">Cancel</v-btn>
+        <v-btn color="#708E9A" class="button" variant="flat" @click="showStrengthDetails = false">Cancel</v-btn>
         <v-btn color="#5EC4B6" class="button" variant="flat"
           @click="strengthEdit ? editStrength() : addStrength()">Save</v-btn>
       </v-card-actions>
