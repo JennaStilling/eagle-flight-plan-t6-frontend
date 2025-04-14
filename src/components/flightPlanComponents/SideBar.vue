@@ -225,34 +225,76 @@ const closeSidebar = () => {
 </script>
 
 <style scoped>
+.user-icon {
+  width: 50px;
+  height: auto;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: 290px;
-  background-color: #5D6D73;
+  background-color: #3a474c;
   color: white;
   padding: 20px;
-  transition: width 0.3s ease;
-  overflow: hidden;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 2000;
-  box-shadow: 0px 4px 4px 0px rgba(32, 32, 32, 0.50);
+  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.3);
+
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox */
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
 }
 
 .sidebar.collapsed {
   width: 60px;
 }
 
-/* Toggle sidebar */
 .toggle-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #5D6D73;
+  top: 15px;
+  right: 15px;
+  background: transparent;
   color: white;
   border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.toggle-btn:hover {
+  transform: scale(1.1);
 }
 
 .sidebar.collapsed .menu {
@@ -262,53 +304,120 @@ const closeSidebar = () => {
 ul {
   list-style: none;
   padding: 0;
-  cursor: pointer;
+  margin-top: 20px;
 }
 
 li {
-  margin: 15px 0;
-  font-size: 24px;
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 a {
-  color: white;
+  color: #e6e6e6;
+  text-decoration: none;
+  display: block;
+  padding: 4px 0;
+  transition: color 0.2s ease;
   text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
-}
-
-.dropdown-menu a {
-  color: black !important;
+  color: white;
   text-decoration: none;
 }
 
-.dropdown-menu a:hover {
-  color: #333;
-  text-decoration: underline;
-}
-
 .dropdown-menu {
+  position: relative;
+  width: 100%;
   left: 0;
-  transform: translateX(-20px);
-  width: 290px;
+  background-color: #FFFFFF;
   color: #202020;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-  padding: 1px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 8px 0;
+  border-radius: 8px;
+  margin-top: 8px;
+  z-index: 1000;
+  transform: none;
+  text-decoration: none;
+  border: none;
 }
 
 .dropdown-menu li {
-  padding-left: 40px;
+  padding: 8px 15px 8px 15px;
   font-size: 16px;
-  color: black;
+  color: #333;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+  border-left: 0px solid transparent;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
-.arrow-down {
-  margin-left: 90px;
+.dropdown-menu li:hover {
+  border: none;
+  border-left: 4px solid #811429;
+  padding-left: 20px;
+  font-weight: 500;
+  text-decoration: none;
 }
 
-.arrow-up {
-  transform: rotate(180deg);
+.dropdown-menu a {
+  color: #333;
+  padding: 2px 0;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  border: none;
+}
+
+.dropdown-menu a:hover {
+  color: #811429;
+  text-decoration: none;
+  border: none;
+}
+
+.dropdown-menu li a,
+.dropdown-menu li a:link,
+.dropdown-menu li a:visited {
+  color: #333;
+  text-decoration: none;
+  border: none;
+}
+
+.dropdown-menu li a:hover {
+  color: #811429;
+  background-color: #ffffff;
+  text-decoration: none;
+  border: none;
+}
+
+.dropdown-menu li a.router-link-active {
+  color: #811429;
+  font-weight: 600;
+}
+
+.dropdown-arrow {
+  float: right;
+  margin-top: 3px;
+  transition: transform 0.3s ease;
+}
+
+li a.router-link-active {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+li[class*="toggle"] {
+  cursor: pointer;
+  text-decoration: none;
 }
 </style>
