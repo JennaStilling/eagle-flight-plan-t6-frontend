@@ -107,8 +107,9 @@
             <label class="label-description">{{ labels.prefix }}</label>
           </v-col>
           <v-col>
-            <textarea class="input-field" v-model="userPrefix" rows="2">
-            </textarea>
+            <v-select v-model="userPrefix" :items="prefixOptions"></v-select>
+            <!-- <textarea class="input-field" v-model="userPrefix" rows="2">
+            </textarea> -->
           </v-col>
         </v-row>
       </div>
@@ -227,6 +228,7 @@ const userPhoneNumber = ref("");
 const userPrefix = ref("");
 const userImage = ref(null);
 const userImageType = ref(null);
+const prefixOptions = ['Mr. ', 'Mrs. ', 'Ms. ', 'Professor', 'Dr. '];
 
 // Student Related Variables
 const student = ref(null);

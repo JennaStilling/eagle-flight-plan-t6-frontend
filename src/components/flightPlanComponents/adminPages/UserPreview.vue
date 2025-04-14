@@ -331,7 +331,7 @@ const formValid = ref(false);
 const formReference = ref(null);
 
 const formData = ref({
-    prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Dr. '],
+    prefixes: ['Mr. ', 'Mrs. ', 'Ms. ', 'Professor', 'Dr. '],
     nameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be 10 characters or less',
