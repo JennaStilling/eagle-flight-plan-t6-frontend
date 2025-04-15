@@ -38,6 +38,9 @@
                     <p v-if="getVerificationType === 'quiz' && task.status != 'approved'">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()">Take Quiz</v-btn>
                     </p>
+                    <p v-if="getVerificationType === 'required_document' && task.status === 'in_progress' || task.status === 'unapproved'">
+                        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="submitDocument()">Upload Document</v-btn>
+                    </p>
                     
                     <v-card-actions class="popup-actions">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" v-if="!task.video_link"
@@ -48,14 +51,20 @@
         </v-overlay>
 
         <v-overlay v-model="showReflection" class="d-flex align-center justify-center">
-            <reflectionSubmission :task="task" 
+            <ReflectionSubmission :task="task" 
             @close-reflection="closeModal"
             />
         </v-overlay>
 
         <v-overlay v-model="showQuiz" persistent class="d-flex align-center justify-center">
-            <quizSubmission :task="task" 
+            <QuizSubmission :task="task" 
             @close-quiz="closeModal"
+            />
+        </v-overlay>
+
+        <v-overlay v-model="showDocument" class="d-flex align-center justify-center">
+            <DocumentSubmission :task="task" 
+            @close-document="closeModal"
             />
         </v-overlay>
     </div>
@@ -65,8 +74,9 @@
 import { ref, onMounted, watch } from "vue";
 import { asyncComputed } from '@vueuse/core';
 import verificationServices from "@/services/flightPlanServices/verificationServices";
-import reflectionSubmission from "./ReflectionSubmission.vue";
-import quizSubmission from "./QuizSubmission.vue";
+import ReflectionSubmission from "./ReflectionSubmission.vue";
+import QuizSubmission from "./QuizSubmission.vue";
+import DocumentSubmission from "./DocumentSubmission.vue";
 
 const props = defineProps({
     task: Object,
@@ -81,6 +91,7 @@ const emit = defineEmits(['save-user', 'delete-user', 'show-recommended-events',
 const overlay = ref(false);
 const showReflection = ref(false);
 const showQuiz = ref(false);
+const showDocument = ref(false);
 
 watch(() => props.showOverlay, (newValue) => {
     overlay.value = newValue;
@@ -121,15 +132,20 @@ const takeReflection = () => {
     showReflection.value = true;
 }
 
+const takeQuiz = () => {
+    overlay.value = false;
+    showQuiz.value = true;
+}
+
+const submitDocument = () => {
+    overlay.value = false;
+    showDocument.value = true;
+}
+
 const closeModal = () => {
     showReflection.value = false;
     showQuiz.value = false;
     window.location.reload();
-}
-
-const takeQuiz = () => {
-    overlay.value = false;
-    showQuiz.value = true;
 }
 </script>
 
