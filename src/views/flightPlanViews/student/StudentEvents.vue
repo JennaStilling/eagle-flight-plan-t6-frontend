@@ -14,7 +14,7 @@
                     <!-- <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
                         variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select> -->
 
-                    <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
+                    <v-btn class="button" variant="elevated" color="#5EC4B6" @click="requestEventPopup()">
                         Request Custom Event
                     </v-btn>
 
@@ -118,10 +118,11 @@
             </v-data-table>
         </div>
 
+        <!-- This is the div for the event modal. Recommendation: abstract the request custom event into a modal -->
         <div v-if="showEventDetails" class="modal edit-form-body">
             <v-card class="edit-popup mx-auto">
                 <v-card-title class="popup-header">
-                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details disabled>
+                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details :disabled="!eventAdd">
                     </v-text-field>
                 </v-card-title>
 
@@ -133,13 +134,13 @@
                         </v-col>
                         <v-col cols="7">
                             <v-textarea v-model="eventDescription" auto-grow variant="outlined" density="compact"
-                                disabled>
+                            :disabled="!eventAdd">
                             </v-textarea>
                         </v-col>
                     </v-row>
 
                     <!-- Type-->
-                    <v-row class="form-row">
+                    <v-row class="form-row" v-if="!eventAdd">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.type }}</label>
                         </v-col>
@@ -157,7 +158,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-text-field v-model="eventStartDate" type="date" variant="outlined" density="compact"
-                                hide-details @update:model-value="updateEndDate" disabled></v-text-field>
+                                hide-details @update:model-value="updateEndDate" :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -168,7 +169,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-text-field v-model="eventEndDate" type="date" variant="outlined" density="compact"
-                                hide-details :min="eventStartDate" disabled></v-text-field>
+                                hide-details :min="eventStartDate" :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -180,7 +181,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventStartTime" type="time" variant="outlined" density="compact"
-                                hide-details disabled></v-text-field>
+                                hide-details :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -192,7 +193,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventEndTime" type="time" variant="outlined" density="compact"
-                                hide-details disabled></v-text-field>
+                                hide-details :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -204,7 +205,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventLocation" variant="outlined" density="compact" hide-details
-                                disabled></v-text-field>
+                            :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -216,12 +217,12 @@
 
                         <v-col cols="7">
                             <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled"
-                                density="compact" hide-details class="filter-menu" disabled></v-select>
+                                density="compact" hide-details class="filter-menu" :disabled="!eventAdd"></v-select>
                         </v-col>
                     </v-row>
 
                     <!-- Status - -->
-                    <v-row class="form-row">
+                    <v-row class="form-row" v-if="!eventAdd">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.status }}</label>
                         </v-col>
@@ -233,14 +234,14 @@
                     </v-row>
 
                     <!-- Point Value -->
-                    <v-row class="form-row">
+                    <v-row class="form-row" v-if="!eventAdd">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.points }}</label>
                         </v-col>
 
                         <v-col cols="7">
                             <v-text-field v-model="eventPointValue" variant="outlined" density="compact" hide-details
-                                disabled></v-text-field>
+                            disabled></v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -252,9 +253,12 @@
                     <v-btn v-if="viewPersonalCalendar"
                         @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
                         variant="flat">Unregister</v-btn>
-                    <v-btn v-if="!viewPersonalCalendar"
-                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#708E9A"
-                        variant="flat">Register</v-btn>
+                    <v-btn v-if="!viewPersonalCalendar && eventEdit"
+                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#5EC4B6"
+                        variant="flat" style="color: white;">Register</v-btn>
+                    <v-btn v-if="eventAdd"
+                        @click="requestEvent(), showEventDetails = false" color="#5EC4B6"
+                        variant="flat" style="color: white;">Request</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
 
                 </v-card-actions>
@@ -285,6 +289,7 @@ import StudentServices from '@/services/resumeBuilderServices/studentServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import Utils from '@/config/utils';
+import EventModal from '@/components/flightPlanComponents/studentPages/EventModal.vue';
 import "@/assets/generic-stylesheet.css";
 
 const search = ref('');
@@ -887,7 +892,7 @@ const editEvent = () => {
         });
 };
 
-const addEventPopup = () => {
+const requestEventPopup = () => {
     showEventDetails.value = true;
     eventAdd.value = true;
     eventEdit.value = false;
@@ -895,7 +900,7 @@ const addEventPopup = () => {
 
     eventName.value = "";
     eventDescription.value = "";
-    eventType.value = "";
+    eventType.value = "custom";
     eventStartDate.value = "";
     eventEndDate.value = "";
     eventStartTime.value = "";
@@ -907,7 +912,7 @@ const addEventPopup = () => {
     eventPointValue.value = "";
 };
 
-const addEvent = () => {
+const requestEvent = () => {
     if (eventType.value === 'Career Prep') {
         eventType.value = 'career_prep'
     }
