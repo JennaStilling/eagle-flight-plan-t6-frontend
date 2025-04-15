@@ -22,7 +22,7 @@
                 <div class="modal-header">
                     <h3>Registered Students</h3>
                 </div>
-                <span>
+                <span v-if="handshakeRegistration">
                     <h4>Upload .csv File: </h4> <input type="file" accept=".csv" @change="handleFileUpload" />
                 </span>
                 <div class="search-container">
@@ -93,6 +93,7 @@ const selectedFilter = ref('All');
 
 const currentDate = ref([])
 const selectedEvent = ref(null);
+const handshakeRegistration = ref(false);
 
 const studentNameList = ref([{
     studentId: null,
@@ -118,6 +119,7 @@ const headers = ref([
     { key: 'formatted_date', title: 'Date' },
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
+    { key: 'registration', title: 'Registration Type'},
     { key: 'eventAttendees', title: '# Registered', sortable: false },
     { key: 'actions', title: '', sortable: false },
 ]);
@@ -215,7 +217,7 @@ const handleFileUpload = (event) => {
                                     });
                             }
                         })
-                        console.log(studentNameList.value);
+                        // console.log(studentNameList.value);
                     }
                 })
             }
@@ -237,6 +239,7 @@ const filteredEvents = computed(() => {
     if (selectedFilter.value === 'Career Prep') {
         selectedFilter.value = 'career_prep'
     }
+
 
     return events.value.filter(event => {
         return event.type === selectedFilter.value.toLowerCase();
@@ -305,36 +308,73 @@ const formatDate = (dateTimeStr) => {
 
 const getStudentAttendees = (event) => {
     selectedEvent.value = event;
-    StudentEventServices.getAllStudentsByEvent(event.id)
-        .then((res) => {
-            const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-            studentNameList.value = []
+    if (selectedEvent.value.registration === 'handshake') {
+        handshakeRegistration.value = true;
+        showStudentNamesList.value = true;
+    }
+    else {
+        handshakeRegistration.value = false;
+        StudentEventServices.getAllStudentsByEvent(event.id)
+            .then((res) => {
+                const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
+                studentNameList.value = []
 
-            students.forEach(async student => {
-                UserServices.getAllStudentUsers(student.id)
-                    .then((res) => {
-                        console.log(event)
-                        studentNameList.value.push({
-                            studentId: student.id,
-                            name: res.data[0].fName + " " + res.data[0].lName,
-                            didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
-                            eventId: student.studentEvent[0].id,
-                            studentSchoolId: student.student_issued_id,
-                            pointValue: event.point_value
-                        });
-                    })
-                    .catch((err) => {
-                        message.value = `Error: ${err.code}: ${err.message}`;
-                        console.error(err);
-                    })
-            }
-            );
-            showStudentNamesList.value = true;
-        })
-        .catch((err) => {
-            message.value = `Error: ${err.code}: ${err.message}`;
-            console.error(err);
-        })
+                students.forEach(async student => {
+                    UserServices.getAllStudentUsers(student.id)
+                        .then((res) => {
+                            console.log(event)
+                            studentNameList.value.push({
+                                studentId: student.id,
+                                name: res.data[0].fName + " " + res.data[0].lName,
+                                didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
+                                eventId: student.studentEvent[0].id,
+                                studentSchoolId: student.student_issued_id,
+                                pointValue: event.point_value
+                            });
+                        })
+                        .catch((err) => {
+                            message.value = `Error: ${err.code}: ${err.message}`;
+                            console.error(err);
+                        })
+                }
+                );
+                showStudentNamesList.value = true;
+            })
+            .catch((err) => {
+                message.value = `Error: ${err.code}: ${err.message}`;
+                console.error(err);
+            })
+    }
+    // StudentEventServices.getAllStudentsByEvent(event.id)
+    //     .then((res) => {
+    //         const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
+    //         studentNameList.value = []
+
+    //         students.forEach(async student => {
+    //             UserServices.getAllStudentUsers(student.id)
+    //                 .then((res) => {
+    //                     console.log(event)
+    //                     studentNameList.value.push({
+    //                         studentId: student.id,
+    //                         name: res.data[0].fName + " " + res.data[0].lName,
+    //                         didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
+    //                         eventId: student.studentEvent[0].id,
+    //                         studentSchoolId: student.student_issued_id,
+    //                         pointValue: event.point_value
+    //                     });
+    //                 })
+    //                 .catch((err) => {
+    //                     message.value = `Error: ${err.code}: ${err.message}`;
+    //                     console.error(err);
+    //                 })
+    //         }
+    //         );
+    //         showStudentNamesList.value = true;
+    //     })
+    //     .catch((err) => {
+    //         message.value = `Error: ${err.code}: ${err.message}`;
+    //         console.error(err);
+    //     })
 }
 
 const formatTime = (dateTimeStr) => {
@@ -352,8 +392,8 @@ const formatTime = (dateTimeStr) => {
 };
 
 const saveAttendanceDetails = () => {
-    console.log("Printing now")
-    console.log(filteredStudentList.value)
+    // console.log("Printing now")
+    // console.log(filteredStudentList.value)
     filteredStudentList.value.forEach(student => {
 
         // console.log(student)
