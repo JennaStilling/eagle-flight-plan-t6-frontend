@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" style="overflow-y: auto">
     <div class="left-side">
       <!-- Semesters -->
       <div class="semester-navigation">
@@ -73,7 +73,8 @@
               <tr>
                 <td colspan="3"
                   style="text-align: center; font-size: 25px; color: black; padding: 16px; user-select: none;">
-                  There are no upcoming events recommended for you at this time. Click the button below to view all upcoming events!
+                  There are no upcoming events recommended for you at this time. Click the button below to view all
+                  upcoming events!
                 </td>
               </tr>
             </template>
@@ -154,11 +155,11 @@
         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
           View Flight Plan
         </v-btn>
-        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeReflection()" 
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeReflection()"
           v-if="getVerificationType === 'reflection' && selectedTask.status === 'in_progress' || selectedTask.status === 'unapproved'">
           Reflection
         </v-btn>
-        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()" 
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()"
           v-if="getVerificationType === 'quiz' && selectedTask.status != 'approved'">
           Take Quiz
         </v-btn>
@@ -180,12 +181,12 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12: true
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-          hour: '2-digit', minute: '2-digit',
-          hour12: true
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
         }) }}
       </div>
       <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
@@ -228,15 +229,11 @@
   </div>
 
   <div class="modal-overlay" v-if="showReflection">
-    <ReflectionSubmission :task="selectedTask"
-    @close-reflection="closeModal"
-    />
+    <ReflectionSubmission :task="selectedTask" @close-reflection="closeModal" />
   </div>
 
   <div class="modal-overlay" v-if="showQuiz">
-    <QuizSubmission :task="selectedTask"
-    @close-quiz="closeModal"
-    />
+    <QuizSubmission :task="selectedTask" @close-quiz="closeModal" />
   </div>
 </template>
 
