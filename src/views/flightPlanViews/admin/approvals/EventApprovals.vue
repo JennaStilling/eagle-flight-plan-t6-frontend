@@ -78,7 +78,6 @@ import StudentServices from '@/services/resumeBuilderServices/studentServices'
 import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
-import studentServices from '@/services/resumeBuilderServices/studentServices';
 import Papa from 'papaparse'
 
 const jsonData = ref([])
@@ -101,7 +100,8 @@ const studentNameList = ref([{
     didAttend: false,
     eventId: null, // ** studentEvent id
     studentSchoolId: null,
-    pointValue: 0
+    pointValue: 0,
+    verification_status: null,
 }])
 const attendeeMap = ref([])
 
@@ -159,7 +159,8 @@ const handleFileUpload = (event) => {
                                                         didAttend: student["Checked In"] !== "",
                                                         eventId: res.data.id,
                                                         studentSchoolId: student.Username,
-                                                        pointValue: selectedEvent.value.point_value
+                                                        pointValue: selectedEvent.value.point_value,
+                                                        verification_status: "in_progress"
                                                     })
                                                 })
                                                 .catch((err) => {
@@ -201,7 +202,8 @@ const handleFileUpload = (event) => {
                                                             didAttend: student["Checked In"] !== "",
                                                             eventId: res.data.id,
                                                             studentSchoolId: student.Username,
-                                                            pointValue: selectedEvent.value.point_value
+                                                            pointValue: selectedEvent.value.point_value,
+                                                            verification_status: "in_progress"
                                                         })
                                                     })
                                                     .catch((err) => {
@@ -314,6 +316,7 @@ const getStudentAttendees = (event) => {
     }
     else {
         handshakeRegistration.value = false;
+        console.log("Handshake registration false")
         StudentEventServices.getAllStudentsByEvent(event.id)
             .then((res) => {
                 const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
@@ -329,7 +332,8 @@ const getStudentAttendees = (event) => {
                                 didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
                                 eventId: student.studentEvent[0].id,
                                 studentSchoolId: student.student_issued_id,
-                                pointValue: event.point_value
+                                pointValue: event.point_value,
+                                verification_status: "in_progress"
                             });
                         })
                         .catch((err) => {
@@ -392,20 +396,21 @@ const formatTime = (dateTimeStr) => {
 };
 
 const saveAttendanceDetails = () => {
-    // console.log("Printing now")
-    // console.log(filteredStudentList.value)
+    console.log("Printing now")
+    console.log(filteredStudentList.value)
     filteredStudentList.value.forEach(student => {
 
-        // console.log(student)
-        // console.log(newData)
+        console.log(student)
+
         if (student.didAttend && student.verification_status === 'in_progress') {
             const newData = {
                 attendance_status:  "attended" ,
                 verification_status: "approved"
             }
+            console.log(newData)
             StudentEventServices.updateStudentEvent(student.eventId, newData)
                 .then((res) => {
-                    studentServices.getStudent(student.studentId)
+                    StudentServices.getStudent(student.studentId)
                         .then((res) => {
                             console.log(res.data.points)
                             console.log(res.data.total_points)
@@ -419,7 +424,7 @@ const saveAttendanceDetails = () => {
                             }
                             console.log(newStudentData)
 
-                            studentServices.updateStudent(student.studentId, newStudentData)
+                            StudentServices.updateStudent(student.studentId, newStudentData)
                                 .then((res) => {
                                     console.log(res.data)
                                 })
@@ -435,6 +440,7 @@ const saveAttendanceDetails = () => {
                 })
         }
         else {
+            console.log("In else statement")
             const newData = {
                 attendance_status: "did_not_attend",
                 verification_status: "denied"
