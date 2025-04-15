@@ -3,7 +3,8 @@
         <!-- Badge Preview -->
         <v-row class="badge-details">
             <div class="badge-item">
-                <v-progress-circular :model-value="progress" :size="180" :width="12" color="green" v-if="!obtained">
+                <v-progress-circular :model-value="progress.value" :size="180" :width="12" color="green"
+                    v-if="!obtained">
                     <img :src="badge.image" :alt="badge.name" class="badge-image">
                 </v-progress-circular>
                 <img :src="badge.image" :alt="badge.name" class="badge-image" v-if="obtained">
@@ -22,13 +23,21 @@
             <v-card class="view-badge">
                 <v-row class="badge-popup-details">
                     <div class="badge-popup-item">
-                        <v-progress-circular :model-value="progress" :size="250" :width="12" color="green"
+                        <v-progress-circular :model-value="progress.value" :size="250" :width="12" color="green"
                             v-if="!obtained">
                             <img :src="badge.image" :alt="badge.name" class="badge-popup-image">
                         </v-progress-circular>
                         <img :src="badge.image" :alt="badge.name" class="badge-popup-image" v-if="obtained">
-                        <p class="badge-popup-points" v-if="!obtained">
-                            {{ formatType(badge.type) }}: {{ badge.progress }} / {{ badge.total }}
+                        <p class="badge-popup-points"
+                            v-if="!obtained && (badge.type === 'task_completion' || badge.type === 'task_experience_completion')">
+                            Tasks: {{ badge.taskProgress }} / {{ badge.taskTotal }}
+                        </p>
+                        <p class="badge-popup-points"
+                            v-if="!obtained && (badge.type === 'experience_completion' || badge.type === 'task_experience_completion')">
+                            Experiences: {{ badge.experienceTypeProgress }} / {{ badge.experienceTypeTotal }}
+                        </p>
+                        <p class="badge-popup-points" v-if="!obtained && (badge.type === 'flightplan_completion')">
+                            Flightplans: {{ badge.flightPlanProgress }} / {{ badge.flightPlanTotal }}
                         </p>
                     </div>
                     <v-col>
@@ -68,7 +77,32 @@ const props = defineProps({
 });
 const emit = defineEmits(['claim-badge']);
 
-const progress = ref((props.badge.progress ?? 0) / (props.badge.total ?? 1) * 100);
+const progress = ref(
+    (props.badge.progress ?? 0) / (props.badge.total ?? 1) * 100
+);
+
+{
+    let progressValue = 0;
+
+    if (props.badge.type === 'task_completion') {
+        progressValue = (props.badge.taskProgress ?? 0) / (props.badge.taskTotal ?? 1) * 100;
+    } else if (props.badge.type === 'experience_completion') {
+        progressValue = (props.badge.experienceTypeProgress ?? 0) / (props.badge.experienceTypeTotal ?? 1) * 100;
+    } else if (props.badge.type === 'task_experience_completion') {
+        const taskProgress = props.badge.taskProgress ?? 0;
+        const expProgress = props.badge.experienceTypeProgress ?? 0;
+        const taskTotal = props.badge.taskTotal ?? 0;
+        const expTotal = props.badge.experienceTypeTotal ?? 0;
+        progressValue = (taskProgress + expProgress) / ((taskTotal + expTotal) || 1) * 100;
+    } else if (props.badge.type === 'flightplan_completion') {
+        progressValue = (props.badge.flightPlanProgress ?? 0) / (props.badge.flightPlanTotal ?? 1) * 100;
+    } else {
+        progressValue = (props.badge.progress ?? 0) / (props.badge.total ?? 1) * 100;
+    }
+
+    progress.value = ref(progressValue);
+}
+
 const overlay = ref(false);
 
 onMounted(() => {
@@ -168,7 +202,7 @@ const claimBadge = () => {
 .view-badge {
     background-color: #ffffff;
     width: 50vw;
-    height: 18vw;
+    height: 20vw;
     padding: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     border-radius: 15px;

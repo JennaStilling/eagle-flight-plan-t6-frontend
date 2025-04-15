@@ -177,33 +177,57 @@ const getNonObtainedBadges = async (allBadges) => {
             });
         }
     }
-    // calculates the amount of completed badge tasks or experiences
-    const badgeProgress = async (badge) => {
-        if (badge.type === 'task_completion')
-            return (await TaskBadgeServices.getAllTaskBadgesForBadge(badge.id)).data.filter(finishedTaskBadge).length
-        else if (badge.type === 'experience_completion') {
-            return (await BadgeExperienceTypeServices.getAllBadgeExperienceTypesForBadge(badge.id)).data.filter(finishedExperienceBadge).length
-        }
-        return null;
+    // calculates the amount of completed badge tasks
+    const badgeTaskProgress = async (badge) => {
+        return (await TaskBadgeServices.getAllTaskBadgesForBadge(badge.id)).data.filter(finishedTaskBadge).length
+    }
+    // calculates the amount of completed badge experience types
+    const badgeExperienceTypeProgress = async (badge) => {
+        return (await BadgeExperienceTypeServices.getAllBadgeExperienceTypesForBadge(badge.id)).data.filter(finishedExperienceBadge).length
+    }
+    // calculates the amount of completed badge flight plans
+    const badgeFlightPlanProgress = async (badge) => {
+        return allStudentFlightPlans.data.filter((studentFlightPlan) => studentFlightPlan.semester_from_grad === badge.semester_from_grad && studentFlightPlan.completion_date !== null).length;
     }
     // calculates the required amount of badge tasks or experiences
-    const badgeTotal = async (badge) => {
-        if (badge.type === 'task_completion')
-            return (await TaskBadgeServices.getAllTaskBadgesForBadge(badge.id)).data.length
-        else if (badge.type === 'experience_completion')
-            return (await BadgeExperienceTypeServices.getAllBadgeExperienceTypesForBadge(badge.id)).data.length
-        return null;
+    const badgeTaskTotal = async (badge) => {
+        return (await TaskBadgeServices.getAllTaskBadgesForBadge(badge.id)).data.length
+    }
+    // calculates the required amount of badge tasks or experiences
+    const badgeExperienceTypeTotal = async (badge) => {
+        return (await BadgeExperienceTypeServices.getAllBadgeExperienceTypesForBadge(badge.id)).data.length
+    }
+    // calculates the required amount of badge flight plans
+    const badgeFlightPlanTotal = async (badge) => {
+        return 1;
     }
 
     const availableBadges = allBadges.filter(notStudentBadge);
     for (const badge of availableBadges) {
-        const progress = await badgeProgress(badge);
-        const total = await badgeTotal(badge);
+        const taskProgress = await badgeTaskProgress(badge);
+        const taskTotal = await badgeTaskTotal(badge);
+        const experienceTypeProgress = await badgeExperienceTypeProgress(badge);
+        const experienceTypeTotal = await badgeExperienceTypeTotal(badge);
+        const flightPlanProgress = await badgeFlightPlanProgress(badge);
+        const flightPlanTotal = await badgeFlightPlanTotal(badge);
+        let completed = false;
+        if (badge.type === 'task_completion')
+            completed = taskProgress != null && taskTotal != null && taskProgress >= taskTotal;
+        else if (badge.type === 'experience_completion')
+            completed = experienceTypeProgress != null && experienceTypeTotal != null && experienceTypeProgress >= experienceTypeTotal;
+        else if (badge.type === 'task_experience_completion')
+            completed = taskProgress != null && taskTotal != null && taskProgress >= taskTotal && experienceTypeProgress != null && experienceTypeTotal != null && experienceTypeProgress >= experienceTypeTotal;
+        else if (badge.type === 'flightplan_completion')
+            completed = flightPlanProgress != null && flightPlanTotal != null && flightPlanProgress >= flightPlanTotal;
         const badgeData = {
             ...badge,
-            completed: progress != null && total != null && progress >= total,
-            progress: progress,
-            total: total,
+            completed: completed,
+            taskProgress: taskProgress,
+            taskTotal: taskTotal,
+            experienceTypeProgress: experienceTypeProgress,
+            experienceTypeTotal: experienceTypeTotal,
+            flightPlanProgress: flightPlanProgress,
+            flightPlanTotal: flightPlanTotal,
         }
         nonObtainedBadges.value.push(badgeData);
     }
