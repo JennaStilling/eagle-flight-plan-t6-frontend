@@ -321,7 +321,7 @@ onMounted(async () => {
   try {
     const eventResponse = await StudentEventServices.getAllEventsByStudent(user.value.studentId);
     if (eventResponse.data) {
-      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendance_status === 'registered');
+      events.value = eventResponse.data.filter(event => new Date(event.date) <= new Date(currentDate.value) && event.studentEvent[0].attendance_status === 'registered' && event.studentEvent[0].registration !== 'handshake');
       events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
       pastEvents.value = events.value;
     }
