@@ -35,7 +35,7 @@
                 </div>
                 <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
                     <v-list class="w-100">
-                        <v-list-item class="header-row">
+                        <v-list-item v-if="filteredStudentList.length > 0" class="header-row">
                             <v-list-item-title class="font-weight-bold">Student Name</v-list-item-title>
                             <template v-slot:append>
                                 <div class="font-weight-bold pr-8">Attended?</div>
@@ -54,6 +54,12 @@
                         {{ studentSearchResult ? 'No matching students found' : 'No students requesting approval'
                         }}
                     </div>
+                    <v-divider></v-divider>
+                    <br>
+                    <h4 style="float: left">Add Student by ID:</h4>
+                    <p>{{ addStudentStatus }}</p>
+                    <v-text-field v-model="newStudentId" label="Enter Student ID"></v-text-field>
+                    <v-btn @click="addStudentToEvent()">Add Student</v-btn>
                 </div>
                 <v-divider></v-divider>
                 <v-card-actions class="popup-actions">
@@ -89,6 +95,9 @@ const selected = ref([]);
 const showEventDetails = ref(false);
 const showStudentNamesList = ref(false);
 const selectedFilter = ref('All');
+
+const newStudentId = ref("");
+const addStudentStatus = ref("");
 
 const currentDate = ref([])
 const selectedEvent = ref(null);
@@ -309,6 +318,7 @@ const formatDate = (dateTimeStr) => {
 };
 
 const getStudentAttendees = (event) => {
+    newStudentId.value = ""
     selectedEvent.value = event;
     if (selectedEvent.value.registration === 'handshake') {
         handshakeRegistration.value = true;
@@ -316,7 +326,7 @@ const getStudentAttendees = (event) => {
     }
     else {
         handshakeRegistration.value = false;
-        console.log("Handshake registration false")
+        // console.log("Handshake registration false")
         StudentEventServices.getAllStudentsByEvent(event.id)
             .then((res) => {
                 const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
@@ -394,6 +404,16 @@ const formatTime = (dateTimeStr) => {
         return '';
     }
 };
+
+const addStudentToEvent = () => {
+    console.log("Adding student " + newStudentId.value + " to event")
+    StudentServices.getStudentByStudentId(newStudentId.value)
+    .then((res) => {
+        console.log(res.data)
+    }).catch((err) => {
+        console.error(err);
+    })
+}
 
 const saveAttendanceDetails = () => {
     console.log("Printing now")
