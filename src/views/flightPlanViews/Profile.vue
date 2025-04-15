@@ -520,7 +520,7 @@ const updateUserInfo = () => {
     email: userInfo.value.email, // Does not change
     phone_number: userPhoneNumber.value,
     prefix: userPrefix.value,
-    image: userImage.value.split(',')[1],
+    image: userImage.value ? userImage.value.split(',')[1] : null,
     image_type: userImageType.value
   }
 

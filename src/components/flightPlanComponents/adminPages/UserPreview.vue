@@ -476,6 +476,7 @@ const saveUser = () => {
         newUser.value.phone_number = newUser.value.phone_number.replace(/\D/g, '');
         fixImageData();
         overlay.value = false;
+        console.log(newUser.value)
         emit('save-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value.cliftonStrengthsToAdd, newRoles: roleData.value.rolesToAdd });
     }
 
@@ -538,6 +539,7 @@ const updateUserData = () => {
         image_type: props.user.image_type,
         studentId: props.user.studentId
     }
+    // console.log(newUser.value);
 };
 
 const updateStudentData = () => {
