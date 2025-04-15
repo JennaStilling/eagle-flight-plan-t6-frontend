@@ -11,9 +11,6 @@
                         </template>
                     </v-text-field>
 
-                    <!-- <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
-                        variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select> -->
-
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
                         Request Custom Event
                     </v-btn>
@@ -249,10 +246,10 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
-                    <v-btn v-if="viewPersonalCalendar"
+                    <v-btn v-if="checkIfStudentIsSignedUp(eventId)"
                         @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
                         variant="flat">Unregister</v-btn>
-                    <v-btn v-if="!viewPersonalCalendar"
+                    <v-btn v-if="!checkIfStudentIsSignedUp(eventId)"
                         @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#708E9A"
                         variant="flat">Register</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
@@ -320,6 +317,8 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("");
+
+const isStudentRegistered = ref(false);
 
 const user = ref(null);
 const userStudentId = ref("")
@@ -449,8 +448,10 @@ const getEventDuration = (start, end) => {
 };
 
 const filteredEvents = computed(() => {
+    const eventsList = viewPersonalCalendar.value ? studentEvents.value : events.value;
+
     if (selectedFilter.value === 'All') {
-        return events.value.map(event => ({
+        return eventsList.map(event => ({
             ...event,
             id: event.id,
             formatted_date: formatDate(event.start_date_time || event.date),
@@ -482,7 +483,7 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'galup_strengths_class'
     }
 
-    return events.value.filter(event => {
+    return eventsList.filter(event => {
         return event.category === selectedFilter.value.toLowerCase();
     }).map(event => ({
         ...event,
@@ -727,20 +728,6 @@ const formatEventTime = (dateTimeStr) => {
     }
 };
 
-const formatEventForCalendar = (event) => {
-    const startDate = new Date(event.date);
-    const endDate = new Date(new Date(event.date).getTime() + 60 * 60 * 1000);
-    return {
-        id: event.id,
-        title: event.name,
-        start: startDate.toISOString().split('T')[0],
-        time: `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`,
-        end: endDate.toISOString().split('T')[0],
-        description: event.description,
-        type: event.type
-    };
-};
-
 const editEventPopup = (task) => {
     EventServices.getEvent(task.id)
         .then((res) => {
@@ -750,6 +737,7 @@ const editEventPopup = (task) => {
             eventAdd.value = false;
 
             eventId.value = eventToEdit.value.id;
+            isStudentRegistered.value = eventToEdit.value.isRegistered;
             eventName.value = eventToEdit.value.name;
             eventDescription.value = eventToEdit.value.description;
             eventType.value = capitalize(eventToEdit.value.event_type);
@@ -796,263 +784,6 @@ const editEventPopup = (task) => {
             console.error(err);
         });
 
-};
-
-const editEvent = () => {
-    if (eventType.value === 'Career Prep') {
-        eventType.value = 'career_prep'
-    }
-
-    if (eventScheduleType.value === 'One Time') {
-        eventScheduleType.value = 'one_time'
-    }
-
-    if (eventScheduleType.value === 'Special Event') {
-        eventScheduleType.value = 'special_event'
-    }
-
-    if (eventScheduleType.value === 'Every Semester') {
-        eventScheduleType.value = 'every_semester'
-    }
-
-    if (eventType.value === 'Extra Curricular') {
-        eventType.value = 'extra_curricular'
-    }
-
-    if (eventType.value === 'Career Fair') {
-        eventType.value = 'career_fair'
-    }
-
-    if (eventType.value === 'Career Services') {
-        eventType.value = 'career_services'
-    }
-
-    if (eventType.value === 'Lunch and Learn') {
-        eventType.value = 'lunch_and_learn'
-    }
-
-    if (eventType.value === 'Galup Strengths Class') {
-        eventType.value = 'galup_strengths_class'
-    }
-
-    if (eventStatus.value === 'In Progress') {
-        eventStatus.value = 'in_progress'
-    }
-
-    if (eventAttendanceType.value === 'In Person') {
-        eventAttendanceType.value = 'in_person'
-    }
-
-
-    const startDate = parseISO(eventStartDate.value);
-    const endDate = parseISO(eventEndDate.value);
-    const [startHours, startMinutes] = eventStartTime.value.split(':');
-    const [endHours, endMinutes] = eventEndTime.value.split(':');
-
-    const startDateTime = set(startDate, {
-        hours: parseInt(startHours),
-        minutes: parseInt(startMinutes),
-        seconds: 0
-    });
-
-    const endDateTime = set(endDate, {
-        hours: parseInt(endHours),
-        minutes: parseInt(endMinutes),
-        seconds: 0
-    });
-
-    const updatedEvent = {
-        name: eventName.value,
-        description: eventDescription.value,
-        event_type: eventType.value.toLowerCase(),
-        date: startDateTime.toISOString(),
-        start_date_time: startDateTime.toISOString(),
-        end_date_time: endDateTime.toISOString(),
-        location: eventLocation.value,
-        attendance_type: eventAttendanceType.value,
-        custom: eventCustomEvent.value,
-        status: eventStatus.value,
-        point_value: eventPointValue.value
-    };
-
-    EventServices.updateEvent(eventToEdit.value.id, updatedEvent)
-        .then((response) => {
-            showEventDetails.value = false;
-            getAllEvents();
-        })
-        .catch((e) => {
-            console.log(e.value)
-            message.value = e.response.data.message;
-            deleteError.value = true;
-        });
-};
-
-const addEventPopup = () => {
-    showEventDetails.value = true;
-    eventAdd.value = true;
-    eventEdit.value = false;
-    eventToEdit.value = null;
-
-    eventName.value = "";
-    eventDescription.value = "";
-    eventType.value = "";
-    eventStartDate.value = "";
-    eventEndDate.value = "";
-    eventStartTime.value = "";
-    eventEndTime.value = "";
-    eventLocation.value = "";
-    eventAttendanceType.value = "";
-    eventCustomEvent.value = false;
-    eventStatus.value = "";
-    eventPointValue.value = "";
-};
-
-const addEvent = () => {
-    if (eventType.value === 'Career Prep') {
-        eventType.value = 'career_prep'
-    }
-
-    if (eventScheduleType.value === 'One Time') {
-        eventScheduleType.value = 'one_time'
-    }
-
-    if (eventScheduleType.value === 'Special Event') {
-        eventScheduleType.value = 'special_event'
-    }
-
-    if (eventScheduleType.value === 'Every Semester') {
-        eventScheduleType.value = 'every_semester'
-    }
-
-    if (eventType.value === 'Extra Curricular') {
-        eventType.value = 'extra_curricular'
-    }
-
-    if (eventType.value === 'Career Fair') {
-        eventType.value = 'career_fair'
-    }
-
-    if (eventType.value === 'Career Services') {
-        eventType.value = 'career_services'
-    }
-
-    if (eventType.value === 'Lunch and Learn') {
-        eventType.value = 'lunch_and_learn'
-    }
-
-    if (eventType.value === 'Galup Strengths Class') {
-        eventType.value = 'galup_strengths_class'
-    }
-
-    if (eventStatus.value === 'In Progress') {
-        eventStatus.value = 'in_progress'
-    }
-
-    if (eventAttendanceType.value === 'In Person') {
-        eventAttendanceType.value = 'in_person'
-    }
-
-
-    const startDate = parseISO(eventStartDate.value);
-    const endDate = parseISO(eventEndDate.value);
-    const [startHours, startMinutes] = eventStartTime.value.split(':');
-    const [endHours, endMinutes] = eventEndTime.value.split(':');
-
-    const startDateTime = set(startDate, {
-        hours: parseInt(startHours),
-        minutes: parseInt(startMinutes),
-        seconds: 0
-    });
-
-    const endDateTime = set(endDate, {
-        hours: parseInt(endHours),
-        minutes: parseInt(endMinutes),
-        seconds: 0
-    });
-
-    const newEvent = {
-        name: eventName.value,
-        description: eventDescription.value,
-        event_type: eventType.value.toLowerCase(),
-        date: startDateTime.toISOString(),
-        start_date_time: startDateTime.toISOString(),
-        end_date_time: endDateTime.toISOString(),
-        location: eventLocation.value,
-        attendance_type: eventAttendanceType.value.toLowerCase(),
-        custom: eventCustomEvent.value,
-        status: eventStatus.value.toLowerCase(),
-        point_value: eventPointValue.value
-    };
-
-    EventServices.createEvent(newEvent).then((response) => {
-        showEventDetails.value = false;
-        getAllEvents();
-    })
-        .catch((e) => {
-            console.log(e.response.data)
-            message.value = e.response.data.message;
-            deleteError.value = true;
-        });
-}
-
-const deleteEventConfirmation = (task) => {
-    EventServices.getEvent(task.id)
-        .then((res) => {
-            typeToDelete.value = res.data;
-            showDeleteItem.value = true
-            showEventDetails.value = false;
-        })
-        .catch((e) => {
-            console.log(e.response.data)
-            message.value = e.response.data.message;
-            deleteError.value = true;
-        });
-};
-
-const deleteEvent = async () => {
-    try {
-        await EventServices.deleteEvent(typeToDelete.value.id);
-        events.value = events.value.filter(event => event.id !== typeToDelete.value.id);
-
-        // if (calendarApp.value) {
-        //   calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
-        //   calendarApp.value.events = calendarFormattedEvents.value;
-        // }
-
-        reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
-
-        showDeleteItem.value = false;
-        typeToDelete.value = null;
-    } catch (error) {
-        console.error('Error deleting event:', error);
-        deleteError.value = true;
-    }
-};
-
-const deleteSelectedEvents = async (selected) => {
-    if (selected.length > 0) {
-        try {
-            const deletePromises = selected.map(event => EventServices.deleteEvent(event.id));
-            await Promise.all(deletePromises);
-
-            const deletedIds = selected.map(event => event.id);
-            events.value = events.value.filter(event => !deletedIds.includes(event.id));
-
-            //   if (calendarApp.value) {
-            //     calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
-            //     calendarApp.value.events = calendarFormattedEvents.value;
-            //   }
-
-            reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
-            selected.length = 0;
-
-        } catch (error) {
-            console.error('Error deleting selected events:', error);
-            deleteError.value = true;
-        }
-    } else {
-        console.log("No events selected.");
-    }
 };
 
 const reloadPage = () => {
