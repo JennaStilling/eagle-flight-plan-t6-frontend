@@ -80,26 +80,23 @@
     </li>
     <!-- Other Admin Pages -->
     <template v-if="isAdminViewActive">
-      <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar">Home</router-link></li>
-      <li><router-link :to="{ name: 'transactionLog' }" @click="closeSidebar">Redeem Student Points</router-link></li>
-      <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar">Resume Builder</router-link></li>
+      <li><router-link :to="{ name: 'adminHomeFP' }" @click="closeSidebar(); closeAdminSubmenus();">Home</router-link></li>
+      <li><router-link :to="{ name: 'transactionLog' }" @click="closeSidebar(); closeAdminSubmenus();">Redeem Student Points</router-link></li>
+      <li><router-link :to="{ name: 'homeRB' }" @click="closeSidebar(); closeAdminSubmenus();">Resume Builder</router-link></li>
     </template>
 </template>
 
 <!-- Student Pages -------------------------------------------------------------------------------------------------->
 <template v-else-if="isStudentViewActive">
   <li><router-link :to="{ name: 'studentHomeFP' }" @click="closeSidebar">Home</router-link></li>
-  <li><router-link :to="{ name: 'studentFlightPlan' }" @click="closeSidebar"> <span>Student Flight
-        Plan</span></router-link></li>
+  <li><router-link :to="{ name: 'studentFlightPlan' }" @click="closeSidebar"> <span>Student Flight Plan</span></router-link></li>
   <li><router-link :to="{ name: 'profile' }" @click="closeSidebar">Profile</router-link></li>
   <li><router-link :to="{ name: 'student-badges' }" @click="closeSidebar">Badges</router-link></li>
-  <li><router-link :to="{ name: 'student-events' }"
-      @click="closeSidebar; localStorage.setItem('viewPersonalCalendar', false);">Events</router-link></li>
+  <li><router-link :to="{ name: 'student-events' }" @click="closeSidebar(); localStorage.setItem('viewPersonalCalendar', false);">Events</router-link></li>
   <li><router-link :to="{ name: 'shop' }" @click="closeSidebar">Shop</router-link></li>
   <li><router-link :to="{ name: 'leaderboard' }" @click="closeSidebar">Leaderboard</router-link></li>
   <li><router-link :to="{ name: 'student-transactions' }" @click="closeSidebar">Spending History</router-link></li>
-  <li><router-link :to="{ name: 'student-lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link>
-  </li>
+  <li><router-link :to="{ name: 'student-lifeAfterTheNest' }" @click="closeSidebar">Life After the Nest</router-link></li>
   <li><router-link :to="{ name: 'studentHome' }" @click="closeSidebar">Resume Builder</router-link></li>
 </template>
 </ul>
@@ -282,14 +279,24 @@ const toggleRoleDropdown = () => {
 
 const toggleMaintenanceDropdown = () => {
   maintenanceDropdown.value = !maintenanceDropdown.value;
+  approvalRequestsDropdown.value = false;
+
+}
+
+const closeAdminSubmenus = () => {
+  maintenanceDropdown.value = false;
+  approvalRequestsDropdown.value = false;
 }
 
 const toggleApprovalRequestsDropdown = () => {
   approvalRequestsDropdown.value = !approvalRequestsDropdown.value;
+  maintenanceDropdown.value = false;
 }
 
 const closeSidebar = () => {
+  console.log("Close sidebar")
   menuOpen.value = true;
+
 };
 
 </script>
