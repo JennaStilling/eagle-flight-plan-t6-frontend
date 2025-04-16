@@ -580,7 +580,6 @@ const goToStudentBadges = () => {
 };
 
 const toggleUpdateModal = () => {
-  console.log("Toggling update modal");
   showProfileUpdate.value = !showProfileUpdate.value;
 }
 
@@ -670,7 +669,6 @@ const filteredMajors = computed(() => {
 // Function to open the majors modal
 const editStudentMajors = () => {
   // Copy current majors to the selected array
-  console.log("Editing student majors");
   selectedMajors.value = [...studentMajors.value];
   showMajorsModal.value = true;
 };
