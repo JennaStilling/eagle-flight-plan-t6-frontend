@@ -91,7 +91,7 @@
 
       <!-- Left Column: Profile Image -->
       <div class="modal-left">
-        <div class="image-container" @click="triggerFileInput">
+        <div class="modal-image-container" @click="triggerFileInput">
           <input type="file" ref="fileInput" style="display: none" @change="fileUpload($event)" />
           <img :src="userImage || blankImage" alt="Profile Image" />
         </div>
@@ -618,7 +618,6 @@ const fileUpload = (event) => {
 </script>
 
 <style scoped>
-/* Updated Profile Info Styling */
 .profile-info {
   padding: 40px 60px 30px 60px;
   display: flex;
@@ -681,6 +680,26 @@ const fileUpload = (event) => {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   border: 4px solid white;
+  overflow: hidden;
+}
+
+.image-container::after {
+  content: "Edit Profile";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(94, 196, 182, 0.7);
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-container:hover::after {
+  opacity: 1;
 }
 
 .image-container:hover {
@@ -689,6 +708,32 @@ const fileUpload = (event) => {
 }
 
 .image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Modal Image Container */
+.modal-image-container {
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border: 4px solid white;
+  position: relative;
+  top: -35px;
+  left: -5px;
+}
+
+.modal-image-container:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-image-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1321,7 +1366,6 @@ const fileUpload = (event) => {
   transform: translateY(-3px);
 }
 
-/* Improved Edit Profile Modal */
 .modal {
   display: flex;
   justify-content: center;
@@ -1334,7 +1378,6 @@ const fileUpload = (event) => {
   z-index: 1000;
 }
 
-/* Modal Content - Horizontal layout */
 .modal-content {
   display: flex;
   flex-direction: row;
@@ -1347,40 +1390,54 @@ const fileUpload = (event) => {
   position: relative;
 }
 
-/* Close Button */
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: #5EC4B6;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  z-index: 5;
+}
+
 .close-btn {
   position: absolute;
-  top: 15px;
+  top: 7px;
   right: 15px;
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 44px;
   font-weight: bold;
-  color: #888;
+  color: white;
   cursor: pointer;
   z-index: 10;
   transition: color 0.2s ease;
 }
 
 .close-btn:hover {
-  color: #333;
+  color: #e0e0e0;
 }
 
-/* Title at top-left */
 .form-title {
-  font-size: 30px;
-  font-weight: 600;
+  font-size: 34px;
+  font-weight: 500;
   margin-bottom: 20px;
-  color: #222;
+  color: white; 
   text-align: left;
   position: absolute;
   top: 15px;
   left: 30px;
+  margin-top: 5px;
+  z-index: 10; 
 }
 
 .name-input-container {
-  display: flex;        
-  gap: 15px;        
+  display: flex;
+  gap: 15px;
 }
 
 .name-input {
@@ -1393,55 +1450,40 @@ const fileUpload = (event) => {
 }
 
 .name-input-wrapper {
-  margin-top: 30px;
-  margin-bottom: 20px;  
+  margin-top: 80px;
+  margin-bottom: 20px;
 }
 
-.name-input label{
+.modal-right {
+  padding-top: 30px;
+}
+
+.form-row {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row,
+.name-input label {
   display: block;
   width: 100%;
   text-align: left;
   font-size: 14px;
   color: #555;
   margin-bottom: 5px;
-  padding-top: 5px; 
 }
 
-/* Container for each form row (label + input) */
-.form-row {
-  margin-bottom: 20px;       /* Space between rows */
-  display: flex;
-  flex-direction: column;    /* Stack label and input vertically */
-}
-
-/* Label styling (above input but aligned to the left) */
-.form-row label {
-  display: block;
-  width: 100%;
-  text-align: left;          /* Aligns label text to the left */
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 5px;        /* Space between label and input */
-}
-
-/* Regular input field styling */
 .input-field {
   width: 100%;
-  /* Full width of container */
   padding: 8px 12px;
-  /* Padding inside the input */
   border: 1px solid #ddd;
-  /* Light border */
   border-radius: 6px;
-  /* Rounded corners */
   font-size: 14px;
-  /* Text size */
   height: 38px;
-  /* Fixed height for consistency */
   background: #fff;
 }
 
-/* Button container styling */
 .btn-container {
   display: flex;
   justify-content: flex-end;
@@ -1451,7 +1493,6 @@ const fileUpload = (event) => {
   border-top: 1px solid #eee;
 }
 
-/* Button styling */
 .cancel-btn {
   padding: 10px 20px;
   background-color: #f3f3f3;
@@ -1484,7 +1525,7 @@ const fileUpload = (event) => {
   background-color: #4db1a3;
 }
 
-/* Responsive design */
+
 @media (max-width: 600px) {
   .modal-content {
     flex-direction: column;
@@ -1500,7 +1541,7 @@ const fileUpload = (event) => {
 
   .modal-right {
     flex: 1;
-    padding: 60px 30px 30px 30px; 
+    padding: 60px 30px 30px 30px;
     display: flex;
     flex-direction: column;
   }
