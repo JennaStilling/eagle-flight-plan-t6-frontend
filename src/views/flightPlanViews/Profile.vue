@@ -23,15 +23,21 @@
           student.points }} | Total Points: {{ student.total_points }}</div>
 
         <!-- Display Student Majors -->
-        <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && studentMajors.length > 0" class="student-majors">
+        <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && studentMajors.length > 0" class="student-majors" style="font-weight: 700;">
           Major{{ studentMajors.length > 1 ? 's' : '' }}:
-          <span v-if="studentMajors[0]" class="major-name">{{ studentMajors[0].name }}</span>
-          <span v-if="studentMajors.length > 1">
+            <span v-if="studentMajors[0]" class="major-name" style="font-weight: 500;">{{ studentMajors[0].name }}</span>
+            <span v-if="studentMajors.length > 1">
             <span class="major-separator">|</span>
-            <span class="major-name">{{ studentMajors[1].name }}</span>
-            <span v-if="studentMajors.length > 2" class="more-majors">(+{{ studentMajors.length - 2 }} more)</span>
-          </span>
+            <span class="major-name" style="font-weight: 500;">{{ studentMajors[1].name }}</span>
+            <span v-if="studentMajors.length > 2" class="more-majors" style="font-weight: 500;">(+{{ studentMajors.length - 2 }} more)</span>
+            </span>
           <span class="edit-majors" @click="editStudentMajors">Edit</span>
+        </div>
+
+        <!-- Display Add Major option if student doesn't have an major yet-->
+        <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && studentMajors.length === 0" class="student-majors" style="font-weight: 700;">
+          Major: <span class="major-name" style="font-weight: 500; font-style: italic;">None selected</span>
+          <span class="edit-majors" @click="editStudentMajors">Add</span>
         </div>
       </div>
     </div>
@@ -200,7 +206,57 @@
           <p>{{ selectedStrengthForDescription.description }}</p>
         </div>
       </div>
+    </div>
+  </div>
+  <!-- Student Majors Edit Modal -->
+  <div v-if="showMajorsModal" class="major-modal" @click.self="showMajorsModal = false">
+    <div class="major-modal-content" @click.stop>
+      <span @click="showMajorsModal = false" class="major-close">&times;</span>
+      <h2 class="major-title">Edit Your Majors</h2>
+      <p class="major-description">Select your major(s)</p>
 
+      <!-- Selected Majors Section -->
+      <div class="major-selected-section">
+        <h3>Your Selected Majors ({{ selectedMajors.length }})</h3>
+        <div class="major-selected-container">
+          <div v-for="major in selectedMajors" :key="major.id" class="major-selected-item">
+            <div class="major-badge">
+              {{ major.name.charAt(0) }}
+            </div>
+            <div class="major-info">
+              <div class="major-name">{{ major.name }}</div>
+              <div class="major-department">{{ major.department || 'No department' }}</div>
+            </div>
+            <button class="major-remove-btn" @click="toggleMajor(major)">&times;</button>
+          </div>
+          <div v-if="selectedMajors.length === 0" class="major-no-selected">
+            No majors selected yet. Choose from the list below.
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Majors Section -->
+      <div class="major-available-section">
+        <h3>Available Majors</h3>
+        <input type="text" v-model="majorSearchQuery" placeholder="Search by name or department" class="major-search" />
+        <div class="major-available-container">
+          <div v-for="major in filteredMajors" :key="major.id" @click="toggleMajor(major)" class="major-available-item"
+            :class="{ 'major-selected': isMajorSelected(major.id) }">
+            <div class="major-badge">
+              {{ major.name.charAt(0) }}
+            </div>
+            <div class="major-info">
+              <div class="major-name">{{ major.name }}</div>
+              <div class="major-department">{{ major.department || 'No department' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="major-footer">
+        <button class="major-save-btn" @click="saveMajors">Save Changes</button>
+        <button class="major-cancel-btn" @click="showMajorsModal = false">Cancel</button>
+      </div>
     </div>
   </div>
 </template>
@@ -252,6 +308,9 @@ const selectedStrengths = ref([]);
 const searchQuery = ref('');
 const showStrengthDescriptionModal = ref(false);
 const selectedStrengthForDescription = ref(null);
+const showMajorsModal = ref(false);
+const selectedMajors = ref([]);
+const majorSearchQuery = ref('');
 
 
 const labels = {
@@ -597,6 +656,90 @@ const getStudentMajor = (studentId) => {
     });
 };
 
+// Computed property to filter majors based on search query
+const filteredMajors = computed(() => {
+  if (!majorSearchQuery.value) return majors.value;
+
+  const query = majorSearchQuery.value.toLowerCase();
+  return majors.value.filter(major =>
+    major.name.toLowerCase().includes(query) ||
+    (major.department && major.department.toLowerCase().includes(query))
+  );
+});
+
+// Function to open the majors modal
+const editStudentMajors = () => {
+  // Copy current majors to the selected array
+  console.log("Editing student majors");
+  selectedMajors.value = [...studentMajors.value];
+  showMajorsModal.value = true;
+};
+
+// Check if a major is selected
+const isMajorSelected = (majorId) => {
+  return selectedMajors.value.some(m => m.id === majorId);
+};
+
+// Toggle selection of a major
+const toggleMajor = (major) => {
+  const index = selectedMajors.value.findIndex(m => m.id === major.id);
+
+  if (index >= 0) {
+    // Remove major if already selected
+    selectedMajors.value.splice(index, 1);
+  } else {
+    // Add major if not already selected
+    selectedMajors.value.push(major);
+  }
+};
+
+// Save the selected majors
+const saveMajors = () => {
+  // Get student ID
+  const studentId = student.value.id;
+
+  // First, fetch current student majors to know what to delete
+  studentMajorServices.getAllStudentMajors(studentId)
+    .then((studentMajorsRes) => {
+      const currentMajors = studentMajorsRes.data;
+
+      // Delete all current major associations
+      const deletePromises = currentMajors.map(studentMajor =>
+        studentMajorServices.deleteSystemStudentMajor(studentMajor.id)
+      );
+
+      // After all deletes complete, add new majors
+      Promise.all(deletePromises)
+        .then(() => {
+          // Create new student-major associations for each selected major
+          const createPromises = selectedMajors.value.map(major => {
+            const newMajor = {
+              studentId: studentId,
+              majorId: major.id
+            };
+            return studentMajorServices.createSystemStudentMajor(newMajor);
+          });
+
+          // After all creations complete, refresh the majors list
+          Promise.all(createPromises)
+            .then(() => {
+              // Update the displayed majors
+              studentMajors.value = [...selectedMajors.value];
+              showMajorsModal.value = false;
+            })
+            .catch(error => {
+              console.error("Error creating new major associations:", error);
+            });
+        })
+        .catch(error => {
+          console.error("Error deleting current major associations:", error);
+        });
+    })
+    .catch(error => {
+      console.error("Error fetching current student majors:", error);
+    });
+};
+
 // Image Handling
 const triggerFileInput = () => {
   const fileInput = document.querySelector('input[type="file"]');
@@ -726,11 +869,31 @@ const fileUpload = (event) => {
   position: relative;
   top: -35px;
   left: -5px;
+  overflow: hidden;
 }
 
 .modal-image-container:hover {
   transform: scale(1.03);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-image-container::after {
+  content: "Upload Image";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(94, 196, 182, 0.7);
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-image-container:hover::after {
+  opacity: 1;
 }
 
 .modal-image-container img {
@@ -782,7 +945,7 @@ const fileUpload = (event) => {
   line-height: normal;
   margin-bottom: 12px;
   padding: 10px 15px;
-  background-color: rgba(94, 196, 182, 0.1);
+  background-color: rgba(154, 179, 182, 0.1);
   border-radius: 8px;
   display: inline-block;
 }
@@ -801,14 +964,14 @@ const fileUpload = (event) => {
 }
 
 .major-name {
-  font-weight: 600;
+  font-weight: 400;
   margin-left: 5px;
-  color: #5EC4B6;
+  color: #000000;
 }
 
 .major-separator {
   margin: 0 8px;
-  color: #888;
+  color: #000000;
 }
 
 .more-majors {
@@ -819,18 +982,18 @@ const fileUpload = (event) => {
 
 .edit-majors {
   margin-left: 10px;
-  color: #5EC4B6;
+  color: #811429;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 15px;
   text-decoration: none;
-  border-bottom: 1px dotted #5EC4B6;
+  border-bottom: 1px dotted #811429;
   padding-bottom: 2px;
 }
 
 .edit-majors:hover {
-  color: #4aa699;
-  border-bottom: 1px solid #4aa699;
+  color: #af0326;
+  border-bottom: 1px solid #af0326;
 }
 
 /* Badge Display */
@@ -864,9 +1027,7 @@ const fileUpload = (event) => {
   align-items: center;
   justify-content: flex-start;
   padding-left: 20px;
-  /* Typography */
   color: #FAFAFA;
-  font-family: Poppins;
   font-size: 36px;
   font-style: normal;
   font-weight: 400;
@@ -980,7 +1141,6 @@ const fileUpload = (event) => {
   align-items: center;
   justify-content: flex-start;
   padding-left: 20px;
-  /* Typography */
   color: #FAFAFA;
   font-family: Poppins;
   font-size: 36px;
@@ -1386,6 +1546,7 @@ const fileUpload = (event) => {
   box-shadow: 0 5px 24px rgba(0, 0, 0, 0.18);
   width: 100%;
   max-width: 800px;
+  min-height: fit-content;
   overflow: hidden;
   position: relative;
 }
@@ -1426,13 +1587,13 @@ const fileUpload = (event) => {
   font-size: 34px;
   font-weight: 500;
   margin-bottom: 20px;
-  color: white; 
+  color: white;
   text-align: left;
   position: absolute;
   top: 15px;
   left: 30px;
   margin-top: 5px;
-  z-index: 10; 
+  z-index: 10;
 }
 
 .name-input-container {
@@ -1459,7 +1620,7 @@ const fileUpload = (event) => {
 }
 
 .form-row {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
 }
@@ -1471,7 +1632,6 @@ const fileUpload = (event) => {
   text-align: left;
   font-size: 14px;
   color: #555;
-  margin-bottom: 5px;
 }
 
 .input-field {
@@ -1549,5 +1709,218 @@ const fileUpload = (event) => {
   .btn-container {
     justify-content: center;
   }
+}
+
+/* Student Majors Modal */
+.major-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.major-modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  width: 80%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.major-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+}
+
+.major-close:hover {
+  background-color: #333;
+  border-radius: 50%;
+  color: white;
+}
+
+.major-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 28px;
+  color: #333;
+  margin-top: 0;
+  text-align: center;
+}
+
+.major-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.major-selected-section,
+.major-available-section {
+  margin-bottom: 25px;
+}
+
+.major-selected-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.major-selected-item {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 15px;
+  position: relative;
+}
+
+.major-no-selected {
+  padding: 15px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  color: #777;
+  font-style: italic;
+}
+
+.major-badge {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 15px;
+  flex-shrink: 0;
+  background-color: #5EC4B6;
+}
+
+.major-info {
+  flex-grow: 1;
+}
+
+.major-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.major-department {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
+.major-remove-btn {
+  background: none;
+  color: #ff6b6b;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  line-height: 1;
+  border: none;
+}
+
+.major-remove-btn:hover {
+  background-color: #ff6b6b;
+  border-radius: 50%;
+  color: white;
+}
+
+.major-search {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.major-available-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.major-available-item {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.major-available-item:hover {
+  background: #f0f0f0;
+}
+
+.major-available-item.major-selected {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+}
+
+.major-footer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.major-save-btn,
+.major-cancel-btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.major-save-btn {
+  background: #5EC4B6;
+  color: white;
+  border: none;
+}
+
+.major-save-btn:hover {
+  background: #4eb1a3;
+}
+
+.major-cancel-btn {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.major-cancel-btn:hover {
+  background: #e8e8e8;
 }
 </style>
