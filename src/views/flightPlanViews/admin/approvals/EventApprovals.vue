@@ -57,7 +57,8 @@
                     <v-divider></v-divider>
                     <br>
                     <h4 style="float: left">Add Student by ID:</h4>
-                    <p>{{ addStudentStatus }}</p>
+                    <br>
+                    <!-- <p>{{ addStudentStatus }}</p> -->
                     <v-text-field v-model="newStudentId" label="Enter Student ID"></v-text-field>
                     <v-btn @click="addStudentToEvent()">Add Student</v-btn>
                 </div>
@@ -410,6 +411,8 @@ const addStudentToEvent = () => {
     StudentServices.getStudentByStudentId(newStudentId.value)
     .then((res) => {
         console.log(res.data)
+        addStudentStatus.value = "Student added successfully"
+
     }).catch((err) => {
         console.error(err);
     })
