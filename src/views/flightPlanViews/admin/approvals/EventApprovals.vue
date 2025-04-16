@@ -83,6 +83,7 @@ import StudentEventServices from '@/services/flightPlanServices/studentEventServ
 import UserServices from '@/services/resumeBuilderServices/userServices'
 import StudentServices from '@/services/resumeBuilderServices/studentServices'
 import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
+import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import Papa from 'papaparse'
@@ -129,7 +130,7 @@ const headers = ref([
     { key: 'formatted_date', title: 'Date' },
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
-    { key: 'registration', title: 'Registration Type'},
+    { key: 'registration', title: 'Registration Type' },
     { key: 'eventAttendees', title: '# Registered', sortable: false },
     { key: 'actions', title: '', sortable: false },
 ]);
@@ -155,7 +156,7 @@ const handleFileUpload = (event) => {
                                     .then((res) => {
                                         const studentEventsList = res.data;
                                         const existingStudentEvent = studentEventsList.find(existingEvent => existingEvent.studentId === existingStudent.id)
-                                        if (!existingStudentEvent){
+                                        if (!existingStudentEvent) {
                                             const newStudentEvent = {
                                                 verification_status: "in_progress",
                                                 eventId: selectedEvent.value.id,
@@ -197,28 +198,37 @@ const handleFileUpload = (event) => {
                                         }
                                         UserServices.createUser(newUser)
                                             .then((res) => {
-                                                const userId = res.data.id;
-                                                // TODO - add student role permissions
-                                                const newStudentEvent = {
-                                                    verification_status: "in_progress",
-                                                    eventId: selectedEvent.value.id,
-                                                    studentId: res.data.studentId,
+                                                const newUserId = res.data.id;
+                                                const newStudentId = res.data.studentId;
+                                                const newUserRole = {
+                                                    roleId: 2,
+                                                    userId: newUserId
                                                 }
-                                                StudentEventServices.createStudentEvent(newStudentEvent)
+                                                UserRoleServices.createUserRole(newUserId, newUserRole)
                                                     .then((res) => {
-                                                        studentNameList.value.push({
-                                                            studentId: newUser.studentId,
-                                                            name: newUser.fName + " " + newUser.lName,
-                                                            didAttend: student["Checked In"] !== "",
-                                                            eventId: res.data.id,
-                                                            studentSchoolId: student.Username,
-                                                            pointValue: selectedEvent.value.point_value,
-                                                            verification_status: "in_progress"
-                                                        })
-                                                    })
-                                                    .catch((err) => {
+                                                        const newStudentEvent = {
+                                                            verification_status: "in_progress",
+                                                            eventId: selectedEvent.value.id,
+                                                            studentId: newStudentId,
+                                                        }
+                                                        StudentEventServices.createStudentEvent(newStudentEvent)
+                                                            .then((res) => {
+                                                                studentNameList.value.push({
+                                                                    studentId: newUser.studentId,
+                                                                    name: newUser.fName + " " + newUser.lName,
+                                                                    didAttend: student["Checked In"] !== "",
+                                                                    eventId: res.data.id,
+                                                                    studentSchoolId: student.Username,
+                                                                    pointValue: selectedEvent.value.point_value,
+                                                                    verification_status: "in_progress"
+                                                                })
+                                                            })
+                                                            .catch((err) => {
+                                                                console.error(err);
+                                                            });
+                                                    }).catch((err) => {
                                                         console.error(err);
-                                                    });
+                                                });
                                             })
                                             .catch((err) => {
                                                 console.error(err);
@@ -327,7 +337,6 @@ const getStudentAttendees = (event) => {
     }
     else {
         handshakeRegistration.value = false;
-        // console.log("Handshake registration false")
         StudentEventServices.getAllStudentsByEvent(event.id)
             .then((res) => {
                 const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
@@ -409,13 +418,13 @@ const formatTime = (dateTimeStr) => {
 const addStudentToEvent = () => {
     console.log("Adding student " + newStudentId.value + " to event")
     StudentServices.getStudentByStudentId(newStudentId.value)
-    .then((res) => {
-        console.log(res.data)
-        addStudentStatus.value = "Student added successfully"
+        .then((res) => {
+            console.log(res.data)
+            addStudentStatus.value = "Student added successfully"
 
-    }).catch((err) => {
-        console.error(err);
-    })
+        }).catch((err) => {
+            console.error(err);
+        })
 }
 
 const saveAttendanceDetails = () => {
@@ -427,7 +436,7 @@ const saveAttendanceDetails = () => {
 
         if (student.didAttend && student.verification_status === 'in_progress') {
             const newData = {
-                attendance_status:  "attended" ,
+                attendance_status: "attended",
                 verification_status: "approved"
             }
             console.log(newData)
