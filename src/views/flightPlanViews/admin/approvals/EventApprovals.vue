@@ -147,15 +147,16 @@ const handleFileUpload = (event) => {
                     skipEmptyLines: true,
                     complete: (results) => {
                         jsonData.value = results.data
-                        // console.log(jsonData.value)
                         jsonData.value.forEach(student => {
                             const existingStudent = studentList.find(existingStudent => existingStudent.student_issued_id === student.Username);
-                            // console.log(existingStudent)
-                            if (existingStudent)
+                            if (existingStudent) {
+                                console.log("Is an existing student")
                                 StudentEventServices.getAllStudentEvents()
                                     .then((res) => {
                                         const studentEventsList = res.data;
-                                        const existingStudentEvent = studentEventsList.find(existingEvent => existingEvent.studentId === existingStudent.id)
+                                        const existingStudentEvent = studentEventsList.find(
+                                            existingEvent => existingEvent.studentId === existingStudent.id && 
+                                            existingEvent.evendId === selectedEvent.value.id)
                                         if (!existingStudentEvent) {
                                             const newStudentEvent = {
                                                 verification_status: "in_progress",
@@ -165,8 +166,8 @@ const handleFileUpload = (event) => {
                                             StudentEventServices.createStudentEvent(newStudentEvent)
                                                 .then((res) => {
                                                     studentNameList.value.push({
-                                                        studentId: newUser.studentId,
-                                                        name: newUser.fName + " " + newUser.lName,
+                                                        studentId: res.data.studentId,
+                                                        name: student["First Name"] + " " + student["Last Name"],
                                                         didAttend: student["Checked In"] !== "",
                                                         eventId: res.data.id,
                                                         studentSchoolId: student.Username,
@@ -178,10 +179,14 @@ const handleFileUpload = (event) => {
                                                     console.error(err);
                                                 });
                                         }
+                                        else {
+                                            // console.log("Found existing event")
+                                        }
                                     })
                                     .catch((err) => {
                                         console.error(err);
                                     });
+                                }
                             else {
                                 const newStudent = {
                                     student_issued_id: student["Username"],
@@ -345,7 +350,7 @@ const getStudentAttendees = (event) => {
                 students.forEach(async student => {
                     UserServices.getAllStudentUsers(student.id)
                         .then((res) => {
-                            console.log(event)
+                            // console.log(event)
                             studentNameList.value.push({
                                 studentId: student.id,
                                 name: res.data[0].fName + " " + res.data[0].lName,
@@ -429,7 +434,7 @@ const addStudentToEvent = () => {
 
 const saveAttendanceDetails = () => {
     console.log("Printing now")
-    console.log(filteredStudentList.value)
+    // console.log(filteredStudentList.value)
     filteredStudentList.value.forEach(student => {
 
         console.log(student)
@@ -439,14 +444,14 @@ const saveAttendanceDetails = () => {
                 attendance_status: "attended",
                 verification_status: "approved"
             }
-            console.log(newData)
+            // console.log(newData)
             StudentEventServices.updateStudentEvent(student.eventId, newData)
                 .then((res) => {
                     StudentServices.getStudent(student.studentId)
                         .then((res) => {
-                            console.log(res.data.points)
-                            console.log(res.data.total_points)
-                            console.log(student.pointValue)
+                            // console.log(res.data.points)
+                            // console.log(res.data.total_points)
+                            // console.log(student.pointValue)
 
                             const newCurrentPointValue = res.data.points + student.pointValue;
                             const newTotalPoints = res.data.total_points + student.pointValue;
@@ -454,11 +459,11 @@ const saveAttendanceDetails = () => {
                                 points: newCurrentPointValue,
                                 total_points: newTotalPoints
                             }
-                            console.log(newStudentData)
+                            // console.log(newStudentData)
 
                             StudentServices.updateStudent(student.studentId, newStudentData)
                                 .then((res) => {
-                                    console.log(res.data)
+                                    // console.log(res.data)
                                 })
                                 .catch((err) => {
                                     message.value = `Error: ${err.code}: ${err.message}`;
@@ -472,7 +477,7 @@ const saveAttendanceDetails = () => {
                 })
         }
         else {
-            console.log("In else statement")
+            // console.log("In else statement")
             const newData = {
                 attendance_status: "did_not_attend",
                 verification_status: "denied"
