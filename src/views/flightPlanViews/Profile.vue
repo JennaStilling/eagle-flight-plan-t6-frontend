@@ -1,5 +1,11 @@
 <template>
   <div class="profile-info">
+    <!-- Add action buttons at the top-right corner -->
+    <div class="profile-actions">
+      <button @click="toggleUpdateModal()">Edit Profile</button>
+      <button @click="settings()">Settings</button>
+    </div>
+
     <div class="profile-details">
       <div class="image-container" @click="toggleUpdateModal()">
         <img v-if="!hasImage" :src="blankImage">
@@ -16,10 +22,16 @@
         <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && student" class="student-points">Current Points: {{
           student.points }} | Total Points: {{ student.total_points }}</div>
 
-        <!-- If Student, Display points -->
-        <div class="btn-container">
-          <button @click="toggleUpdateModal()">Edit Profile</button>
-          <button @click="settings()">Settings</button>
+        <!-- Display Student Majors -->
+        <div v-if="homeStore.getCurrentRole === UserRoles.STUDENT && studentMajors.length > 0" class="student-majors">
+          Major{{ studentMajors.length > 1 ? 's' : '' }}:
+          <span v-if="studentMajors[0]" class="major-name">{{ studentMajors[0].name }}</span>
+          <span v-if="studentMajors.length > 1">
+            <span class="major-separator">|</span>
+            <span class="major-name">{{ studentMajors[1].name }}</span>
+            <span v-if="studentMajors.length > 2" class="more-majors">(+{{ studentMajors.length - 2 }} more)</span>
+          </span>
+          <span class="edit-majors" @click="editStudentMajors">Edit</span>
         </div>
       </div>
     </div>
@@ -74,50 +86,43 @@
   <!-- Update Profile Modal -->
   <div v-if="showProfileUpdate" class="modal">
     <div class="modal-content">
-      <span @click="toggleUpdateModal()" class="close">&times;</span>
-      <br>
+      <!-- Close Button -->
+      <button class="close-btn" @click="toggleUpdateModal()">&times;</button>
 
-      <div class="popup-header">
-        <div class="update-image-container" @click="triggerFileInput">
+      <!-- Left Column: Profile Image -->
+      <div class="modal-left">
+        <div class="image-container" @click="triggerFileInput">
           <input type="file" ref="fileInput" style="display: none" @change="fileUpload($event)" />
-          <div v-if="userImage" class="image-preview">
-            <img :src="userImage" alt="Uploaded Image" />
-          </div>
-          <div v-else class="image-preview">
-            <img :src="blankImage">
+          <img :src="userImage || blankImage" alt="Profile Image" />
+        </div>
+      </div>
+
+      <!-- Right Column: Form Fields -->
+      <div class="modal-right">
+        <h2 class="form-title">Edit Profile</h2>
+
+        <div class="name-input-wrapper">
+          <label class="input-label" for="name-input">First &amp; Last Name</label>
+          <div class="name-input-container">
+            <input type="text" class="name-input" v-model="userFirstName" placeholder="First Name" />
+            <input type="text" class="name-input" v-model="userLastName" placeholder="Last Name" />
           </div>
         </div>
 
-        <input type="text" class="name-input" v-model="userFirstName" />
-        <input type="text" class="name-input" v-model="userLastName" />
-      </div>
+        <div class="form-row">
+          <label for="phone-number">Phone Number</label>
+          <input id="phone-number" type="text" class="input-field" v-model="userPhoneNumber" />
+        </div>
 
-      <div class="popup-content">
-        <v-row class="form-row">
-          <v-col class="label-column">
-            <label class="label-description">{{ labels.phoneNumber }}</label>
-          </v-col>
-          <v-col>
-            <textarea class="input-field" v-model="userPhoneNumber" rows="2">
-            </textarea>
-          </v-col>
-        </v-row>
+        <div class="form-row">
+          <label for="prefix">Prefix</label>
+          <v-select id="prefix" v-model="userPrefix" :items="prefixOptions"></v-select>
+        </div>
 
-        <v-row class="form-row">
-          <v-col class="label-column">
-            <label class="label-description">{{ labels.prefix }}</label>
-          </v-col>
-          <v-col>
-            <v-select v-model="userPrefix" :items="prefixOptions"></v-select>
-            <!-- <textarea class="input-field" v-model="userPrefix" rows="2">
-            </textarea> -->
-          </v-col>
-        </v-row>
-      </div>
-
-      <div class="btn-container">
-        <button class="save-btn" @click="updateUserInfo()">Save</button>
-        <button class="cancel-btn" @click="toggleUpdateModal()">Cancel</button>
+        <div class="btn-container">
+          <button class="cancel-btn" @click="toggleUpdateModal()">Cancel</button>
+          <button class="save-btn" @click="updateUserInfo()">Save Changes</button>
+        </div>
       </div>
     </div>
   </div>
@@ -212,6 +217,8 @@ import studentBadgeServices from "@/services/flightPlanServices/studentBadgeServ
 import badgeServices from "@/services/flightPlanServices/badgeServices";
 import studentCliftonStrengthServices from "@/services/flightPlanServices/studentCliftonStrengthServices";
 import cliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
+import studentMajorServices from "@/services/flightPlanServices/studentMajorServices";
+import majorServices from "@/services/flightPlanServices/majorServices";
 import "@/assets/generic-stylesheet.css";
 
 const user = ref(null);
@@ -235,7 +242,9 @@ const prefixOptions = ['Mr. ', 'Mrs. ', 'Ms. ', 'Professor', 'Dr. '];
 // Student Related Variables
 const student = ref(null);
 const studentBadges = ref(null);
+const studentMajors = ref([]);
 const badges = ref([]);
+const majors = ref([]);
 const strengthsArray = ref([]);
 const showStrengthsModal = ref(false);
 const allCliftonStrengths = ref([]);
@@ -257,8 +266,8 @@ onMounted(() => {
     name.value = user.value.fName + " " + user.value.lName;
   }
 
-  // Get User Information
   getUser();
+  getAllMajors();
 });
 
 const getUser = () => {
@@ -294,6 +303,8 @@ const getStudent = () => {
       student.value = res.data;
       // Get Badges
       getBadges();
+      // Get student's major
+      getStudentMajor(student.value.id);
     })
     .catch((error) => {
       console.log("Error: " + error);
@@ -539,6 +550,53 @@ const updateUserInfo = () => {
   // If student, update student as well (Address and Grad date)
 }
 
+const getAllMajors = () => {
+  majorServices.getAllMajors()
+    .then((res) => {
+      // Filter out any major with name 'All'
+      majors.value = res.data.filter(major => major.name !== 'All');
+      //console.log("All Available Majors (excluding 'All'):", majors.value);
+    })
+    .catch((error) => {
+      console.error("Error fetching all majors:", error);
+    });
+};
+
+const getStudentMajor = (studentId) => {
+  // Step 1: Get all majors for this student
+  studentMajorServices.getAllStudentMajors(studentId)
+    .then((studentMajorRes) => {
+      if (studentMajorRes.data && studentMajorRes.data.length > 0) {
+        // Process all majors
+        const majorPromises = studentMajorRes.data.map(studentMajor => {
+          return majorServices.getMajor(studentMajor.majorId)
+            .then(majorRes => {
+              return {
+                id: majorRes.data.id,
+                name: majorRes.data.name,
+                department: majorRes.data.department
+              };
+            });
+        });
+
+        Promise.all(majorPromises)
+          .then(majors => {
+            studentMajors.value = majors;
+            //console.log("Student Majors:", studentMajors.value);
+          })
+          .catch(error => {
+            console.error("Error fetching major details:", error);
+          });
+      } else {
+        console.log("No majors found for student ID:", studentId);
+        studentMajors.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching student majors:", error);
+    });
+};
+
 // Image Handling
 const triggerFileInput = () => {
   const fileInput = document.querySelector('input[type="file"]');
@@ -560,165 +618,174 @@ const fileUpload = (event) => {
 </script>
 
 <style scoped>
+/* Updated Profile Info Styling */
 .profile-info {
-  padding: 30px 60px 20px 60px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(312px, 1fr));
-  justify-content: start;
+  padding: 40px 60px 30px 60px;
+  display: flex;
+  justify-content: flex-start;
+  background: linear-gradient(to bottom, #f9f9f9, #ffffff);
+  border-radius: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.profile-actions {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  display: flex;
+  gap: 15px;
+  z-index: 5;
+}
+
+.profile-actions button {
+  border-radius: 8px;
+  background: rgba(94, 196, 182, 0.9);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #FFF;
+  text-align: center;
+  font-family: Poppins, sans-serif;
+  transition: all 0.3s ease;
+}
+
+.profile-actions button:hover {
+  background: #4db1a3;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.profile-actions button:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .profile-details {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   gap: 40px;
+}
+
+.image-container {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border: 4px solid white;
+}
+
+.image-container:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .profile-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-top: 10px;
 }
 
 .profile-name {
-  color: #000;
-  font-family: Poppins;
-  font-size: 64px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
+  color: #202020;
+  font-family: Poppins, sans-serif;
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  margin-bottom: 5px;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8);
 }
 
 .profile-email {
-  color: #000;
-  font-size: 36px;
-  font-style: normal;
+  color: #555;
+  font-size: 20px;
   font-weight: 400;
-  line-height: normal;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  letter-spacing: 0.2px;
 }
 
 .profile-role {
-  color: #202020;
-  font-family: Poppins;
-  font-size: 36px;
+  color: #5EC4B6;
+  font-family: Poppins, sans-serif;
+  font-size: 28px;
   font-style: italic;
-  font-weight: 400;
+  font-weight: 500;
   line-height: normal;
+  margin-bottom: 15px;
 }
 
 .student-points {
-  color: #000;
-  font-family: Poppins;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 400;
+  color: #333;
+  font-family: Poppins, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
   line-height: normal;
-  margin-bottom: 10px
+  margin-bottom: 12px;
+  padding: 10px 15px;
+  background-color: rgba(94, 196, 182, 0.1);
+  border-radius: 8px;
+  display: inline-block;
 }
 
-.profile-info button {
-  flex-shrink: 0;
-  border-radius: 29px;
-  background: #5EC4B6;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  padding: 10px 20px;
+.student-majors {
+  color: #333;
+  font-family: Poppins, sans-serif;
   font-size: 18px;
-  border: none;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.major-name {
+  font-weight: 600;
+  margin-left: 5px;
+  color: #5EC4B6;
+}
+
+.major-separator {
+  margin: 0 8px;
+  color: #888;
+}
+
+.more-majors {
+  margin-left: 5px;
+  color: #777;
+  font-size: 15px;
+}
+
+.edit-majors {
+  margin-left: 10px;
+  color: #5EC4B6;
   cursor: pointer;
-  white-space: nowrap;
-  color: #FFF;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 36px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  border-bottom: 1px dotted #5EC4B6;
+  padding-bottom: 2px;
 }
 
-.image-container {
-  width: 312px;
-  height: 312px;
-  box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 6px 2px;
-}
-
-/* Update Profile */
-.modal {
-  /* Same as in TransactionLogs.vue*/
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  /* Same as in TransactionLogs.vue*/
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 90%;
-  width: fit-content;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.update-image-container {
-  position: relative;
-  width: 150px;
-  height: 150px;
-  flex-shrink: 0;
-  aspect-ratio: 1/1;
-  background: rgba(32, 32, 32, 0.15);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.popup-content {
-  text-align: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.name-input {
-  font-family: 'Poppins', sans-serif;
-  font-size: 32px;
-  padding-left: 10px;
-  height: 150px;
-  text-align: left;
-  width: 25%;
-  min-width: 400px;
-  border-radius: 10px;
-  background: rgba(32, 32, 32, 0.15);
-}
-
-.input-field {
-  font-family: 'Poppins', sans-serif;
-}
-
-.save-btn {
-  width: 160px;
-  height: 60px;
-  border-radius: 10px;
-  background: #5EC4B6;
-  /* Typography */
-  color: #FFF;
-  text-align: center;
-  font-family: Poppins;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
+.edit-majors:hover {
+  color: #4aa699;
+  border-bottom: 1px solid #4aa699;
 }
 
 /* Badge Display */
@@ -1252,5 +1319,194 @@ const fileUpload = (event) => {
 
 .strength-item:hover {
   transform: translateY(-3px);
+}
+
+/* Improved Edit Profile Modal */
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+/* Modal Content - Horizontal layout */
+.modal-content {
+  display: flex;
+  flex-direction: row;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 24px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 800px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Close Button */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* Title at top-left */
+.form-title {
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #222;
+  text-align: left;
+  position: absolute;
+  top: 15px;
+  left: 30px;
+}
+
+.name-input-container {
+  display: flex;        
+  gap: 15px;        
+}
+
+.name-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  height: 38px;
+}
+
+.name-input-wrapper {
+  margin-top: 30px;
+  margin-bottom: 20px;  
+}
+
+.name-input label{
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+  padding-top: 5px; 
+}
+
+/* Container for each form row (label + input) */
+.form-row {
+  margin-bottom: 20px;       /* Space between rows */
+  display: flex;
+  flex-direction: column;    /* Stack label and input vertically */
+}
+
+/* Label styling (above input but aligned to the left) */
+.form-row label {
+  display: block;
+  width: 100%;
+  text-align: left;          /* Aligns label text to the left */
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;        /* Space between label and input */
+}
+
+/* Regular input field styling */
+.input-field {
+  width: 100%;
+  /* Full width of container */
+  padding: 8px 12px;
+  /* Padding inside the input */
+  border: 1px solid #ddd;
+  /* Light border */
+  border-radius: 6px;
+  /* Rounded corners */
+  font-size: 14px;
+  /* Text size */
+  height: 38px;
+  /* Fixed height for consistency */
+  background: #fff;
+}
+
+/* Button container styling */
+.btn-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+/* Button styling */
+.cancel-btn {
+  padding: 10px 20px;
+  background-color: #f3f3f3;
+  border: 1px solid #ddd;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #e5e5e5;
+}
+
+.save-btn {
+  padding: 10px 20px;
+  background-color: #5EC4B6;
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.save-btn:hover {
+  background-color: #4db1a3;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .modal-content {
+    flex-direction: column;
+    max-width: 95vw;
+  }
+
+  .modal-left {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
+  }
+
+  .modal-right {
+    flex: 1;
+    padding: 60px 30px 30px 30px; 
+    display: flex;
+    flex-direction: column;
+  }
+
+  .btn-container {
+    justify-content: center;
+  }
 }
 </style>
