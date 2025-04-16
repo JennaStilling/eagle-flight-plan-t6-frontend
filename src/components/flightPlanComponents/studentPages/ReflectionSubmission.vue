@@ -6,7 +6,7 @@
         <div style="color: red">{{ message }}</div>
         <v-textarea v-model="reflection" placeholder="Enter a reflection for this task" style="min-height: 300px;"></v-textarea>
         <v-card-actions>
-            <v-btn class="button" variant="elevated" color="#5EC4B6" @click="submitReflection()">Submit</v-btn>
+            <v-btn class="button" variant="elevated" color="#5EC4B6" @click="submitReflection()" :disabled="!reflection">Submit</v-btn>
             <v-btn class="button" variant="elevated" color="#D9D9D9" @click="closeReflection()">Cancel</v-btn>
         </v-card-actions>
     </v-card>
@@ -36,7 +36,7 @@ const submitReflection = async () => {
     }
     const studentFlightPlanTask = (await studentFlightPlanTaskServices.getStudentFlightPlanTask(props.task.student_flight_plan_task_id)).data;
     studentFlightPlanTask.reflection = reflection.value;
-    studentFlightPlanTask.status = "ready_for_review"
+    studentFlightPlanTask.status = "ready_for_review";
     await studentFlightPlanTaskServices.updateSystemStudentFlightPlanTask(studentFlightPlanTask.id, studentFlightPlanTask);
     emit('close-reflection');
 }
@@ -52,5 +52,6 @@ const submitReflection = async () => {
   padding: 24px;
   max-width: 600px;
   width: 90vw;
+  border-radius: 15px;
 }
 </style>

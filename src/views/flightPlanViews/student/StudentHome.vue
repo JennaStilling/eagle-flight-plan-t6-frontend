@@ -163,6 +163,10 @@
           v-if="getVerificationType === 'quiz' && selectedTask.status != 'approved'">
           Take Quiz
         </v-btn>
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="uploadDocument()" 
+          v-if="getVerificationType === 'required_document' && selectedTask.status === 'in_progress' || selectedTask.status === 'unapproved'">
+          Upload Document
+        </v-btn>
       </v-card-actions>
     </div>
   </div>
@@ -235,6 +239,12 @@
   <div class="modal-overlay" v-if="showQuiz">
     <QuizSubmission :task="selectedTask" @close-quiz="closeModal" />
   </div>
+
+  <div class="modal-overlay" v-if="showDocument">
+    <DocumentSubmission :task="selectedTask"
+    @close-document="closeModal"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -264,6 +274,7 @@ import "@/assets/generic-stylesheet.css";
 import { asyncComputed } from '@vueuse/core';
 import ReflectionSubmission from '@/components/flightPlanComponents/studentPages/ReflectionSubmission.vue';
 import QuizSubmission from '@/components/flightPlanComponents/studentPages/QuizSubmission.vue';
+import DocumentSubmission from '@/components/flightPlanComponents/studentPages/DocumentSubmission.vue';
 
 // CONSTS
 const homeStore = useHomePageStore();
@@ -291,6 +302,7 @@ const isStudentSignedUp = ref(false);
 const specificStudentEvents = ref([]);
 const showReflection = ref(false);
 const showQuiz = ref(false);
+const showDocument = ref(false);
 
 onMounted(async () => {
   await getSessionData();
@@ -625,15 +637,21 @@ const takeReflection = () => {
   showReflection.value = true;
 }
 
-const closeModal = () => {
-  showReflection.value = false;
-  showQuiz.value = false;
-  window.location.reload();
-}
-
 const takeQuiz = () => {
   taskModalVisible.value = false;
   showQuiz.value = true;
+}
+
+const uploadDocument = () => {
+  taskModalVisible.value = false;
+  showDocument.value = true;
+}
+
+const closeModal = () => {
+  showReflection.value = false;
+  showQuiz.value = false;
+  showDocument.value = false;
+  window.location.reload();
 }
 // exit homepage with router ---
 
