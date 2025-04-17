@@ -1,122 +1,161 @@
 <template>
-  <div class="content">
+  <div class="admin-dashboard">
+    <!-- Header Section -->
+    <div class="homepage-header">
+      <h1>Admin Homepage</h1>
+    </div>
+
+    <!-- Analytics Section -->
+    <section class="analytics-section">
+      <div class="section-header">
+        <h2>Student Activity Analytics</h2>
+        <div class="time-filter">
+          <button 
+            class="time-btn" 
+            :class="{ active: timeFrame === 'month' }" 
+            @click="timeFrame = 'month'">
+            Past 30 Days
+          </button>
+          <button 
+            class="time-btn" 
+            :class="{ active: timeFrame === 'all' }" 
+            @click="timeFrame = 'all'">
+            All Time
+          </button>
+        </div>
+      </div>
+      <div class="graph-container">
+        <StudentActivityChart :time-frame="timeFrame" />
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <div class="content">
       <!-- Student Tasks List -->
       <div class="left-column">
-          <div class="content-header">
-            <img 
-              :src="BackArrow" 
-              alt="Back Arrow" 
-              class="arrow-button"
-              @click="prevTaskPage"
-              :class="{ disabled: currentTaskPage === 1 }"
-            />
-            Student Tasks ({{ currentTaskPage }}/{{ totalTaskPages }})
-            <img 
-              :src="ForwardArrow" 
-              alt="Forward Arrow" 
-              class="arrow-button"
-              @click="nextTaskPage"
-              :class="{ disabled: currentTaskPage === totalTaskPages }"
-            />
+        <div class="content-header">
+          <img 
+            :src="BackArrow" 
+            alt="Back Arrow" 
+            class="arrow-button"
+            @click="prevTaskPage"
+            :class="{ disabled: currentTaskPage === 1 }"
+          />
+          Student Tasks ({{ currentTaskPage }}/{{ totalTaskPages }})
+          <img 
+            :src="ForwardArrow" 
+            alt="Forward Arrow" 
+            class="arrow-button"
+            @click="nextTaskPage"
+            :class="{ disabled: currentTaskPage === totalTaskPages }"
+          />
+        </div>
+        <div class="student-tasks-body">
+          <div v-if="paginatedTasks.length === 0" class="empty-state">
+            <p>No tasks pending review</p>
           </div>
-          <div class="student-tasks-body">
-            <div class="card-item" v-for="(name, index) in paginatedTasks" 
-              :key="index" 
-              @click="getSelectedTask(
-                name, 
-                studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index], 
-                studentTasks.reflection.reflections[(currentTaskPage - 1) * itemsPerPage + index], 
-                studentTasks.id.ids[(currentTaskPage - 1) * itemsPerPage + index])">
-              <div class="list-text">
-                <div class="list-title"> {{ studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index] }} </div>
-                <div class="list-sub"> {{ name }} </div>
-              </div>
+          <div class="card-item" v-for="(name, index) in paginatedTasks" 
+            :key="index" 
+            @click="getSelectedTask(
+              name, 
+              studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index], 
+              studentTasks.reflection.reflections[(currentTaskPage - 1) * itemsPerPage + index], 
+              studentTasks.id.ids[(currentTaskPage - 1) * itemsPerPage + index])">
+            <div class="list-text">
+              <div class="list-title">{{ studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index] }}</div>
+              <div class="list-sub">{{ name }}</div>
             </div>
           </div>
+        </div>
       </div>
 
-      <!-- Ucoming Events List -->
+      <!-- Upcoming Events List -->
       <div class="right-column">
-          <div>
-              <div class="content-header">
-                <img 
-                  :src="BackArrow" 
-                  alt="Back Arrow" 
-                  class="arrow-button"
-                  @click="prevEventPage"
-                  :class="{ disabled: currentEventPage === 1 }"
-                />
-                Upcoming Events ({{ currentEventPage }}/{{ totalEventPages }})
-                <img 
-                  :src="ForwardArrow" 
-                  alt="Forward Arrow" 
-                  class="arrow-button"
-                  @click="nextEventPage"
-                  :class="{ disabled: currentEventPage === totalEventPages }"
-                />
-              </div>
-              <div class="upcoming-events-body">
-                <div class="card-item" v-for="(event, index) in paginatedEvents" 
-                  :key="index" 
-                  @click="getSelectedEvent(index)">
-                  <div class="list-text">
-                    <div class="list-title">{{ event.name }}</div>
-                    <div class="list-sub">{{ eventDate(event.date) }}</div>
-                  </div>
-                </div>
-              </div>
+        <div class="content-header">
+          <img 
+            :src="BackArrow" 
+            alt="Back Arrow" 
+            class="arrow-button"
+            @click="prevEventPage"
+            :class="{ disabled: currentEventPage === 1 }"
+          />
+          Upcoming Events ({{ currentEventPage }}/{{ totalEventPages }})
+          <img 
+            :src="ForwardArrow" 
+            alt="Forward Arrow" 
+            class="arrow-button"
+            @click="nextEventPage"
+            :class="{ disabled: currentEventPage === totalEventPages }"
+          />
+        </div>
+        <div class="upcoming-events-body">
+          <div v-if="paginatedEvents.length === 0" class="empty-state">
+            <p>No upcoming events</p>
           </div>
+          <div class="card-item" v-for="(event, index) in paginatedEvents" 
+            :key="index" 
+            @click="getSelectedEvent(index)">
+            <div class="list-text">
+              <div class="list-title">{{ event.name }}</div>
+              <div class="list-sub">{{ eventDate(event.date) }}</div>
+            </div>
+            <div class="event-action">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+          </div>
+        </div>
       </div>
-  </div>
-
-  <!-- Student Task View Modal -->
-  <div v-if="viewingTask" class="modal">
-    <div class="homepage-modal-content"> 
-      <span @click="toggleTaskView()" class="close">&times;</span>
-      <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div> 
-      {{ currentTask.name }}  
-      <div class="reflection-box">
-        {{ currentTask.reflection }} 
-      </div>
-
-      <div class="button-group">
-        <button 
-          @click="selectOption('approve')" 
-          :class="{ selected: selectedOption === 'approve' }">
-          Approve
-        </button>
-        <button 
-          @click="selectOption('deny')" 
-          :class="{ selected: selectedOption === 'deny' }">
-          Deny
-        </button>
-      </div>
-      <div v-if="isReasonEmpty" style="color: red"> Fill out Reason for Denying </div>
-      <div v-if="selectedOption === 'deny'" class="textarea-container"> 
-        <textarea v-model="userInput" placeholder="Reason for Not Approving"></textarea>
-      </div>
-      <button v-if="selectedOption === 'deny' || selectedOption === 'approve'" 
-        class="submit-button"  
-        @click="completeTaskReview(currentTask.id)"> 
-        Submit 
-      </button>
     </div>
-  </div>
 
-  <!-- Event Viewer modal -->
-  <div v-if="viewingEvent" class="modal">
-    <div class="homepage-modal-content"> 
-      <span @click="toggleEventView()" class="close">&times;</span>
-      <div class="modal-header" style="font-size: 30px; font-weight: bold;"> 
-        {{ selectedEvent.name }} 
-      </div> 
-      <div style="font-size: 20px;">{{ selectedEvent.description }}</div>
-      <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
-      <div style="margin-bottom: 15px;">Time: {{ startTime }} - {{ endTime }}</div>
-      <button 
-        @click="toggleEventView()"> 
-        Close 
-      </button>
+    <!-- Student Task View Modal -->
+    <div v-if="viewingTask" class="modal">
+      <div class="homepage-modal-content"> 
+        <span @click="toggleTaskView()" class="close">&times;</span>
+        <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div> 
+        {{ currentTask.name }}  
+        <div class="reflection-box">
+          {{ currentTask.reflection }} 
+        </div>
+
+        <div class="button-group">
+          <button 
+            @click="selectOption('approve')" 
+            :class="{ selected: selectedOption === 'approve' }">
+            Approve
+          </button>
+          <button 
+            @click="selectOption('deny')" 
+            :class="{ selected: selectedOption === 'deny' }">
+            Deny
+          </button>
+        </div>
+        <div v-if="isReasonEmpty" style="color: red"> Fill out Reason for Denying </div>
+        <div v-if="selectedOption === 'deny'" class="textarea-container"> 
+          <textarea v-model="userInput" placeholder="Reason for Not Approving"></textarea>
+        </div>
+        <button v-if="selectedOption === 'deny' || selectedOption === 'approve'" 
+          class="submit-button"  
+          @click="completeTaskReview(currentTask.id)"> 
+          Submit 
+        </button>
+      </div>
+    </div>
+
+    <!-- Event Viewer modal -->
+    <div v-if="viewingEvent" class="modal">
+      <div class="homepage-modal-content"> 
+        <span @click="toggleEventView()" class="close">&times;</span>
+        <div class="modal-header" style="font-size: 30px; font-weight: bold;"> 
+          {{ selectedEvent.name }} 
+        </div> 
+        <div style="font-size: 20px;">{{ selectedEvent.description }}</div>
+        <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+        <div style="margin-bottom: 15px;">Time: {{ startTime }} - {{ endTime }}</div>
+        <button 
+          @click="toggleEventView()"> 
+          Close 
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -134,8 +173,13 @@ import studentFlightPlanServices from "@/services/flightPlanServices/studentFlig
 import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
+// Chart Component
+import StudentActivityChart from '@/components/flightPlanComponents/adminPages/StudentActivityChart.vue';
 // CSS Files
 import "@/assets/generic-stylesheet.css";
+
+// Add timeFrame ref for chart time period toggle
+const timeFrame = ref('month'); // Default to 'month' (past 30 days)
 
 const user = ref(null);
 const studentTasks = ref({
@@ -236,7 +280,6 @@ const startTime = computed(() => new Date(selectedEvent.value.start_date_time)
   .toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
     hour12: true
 }));
 
@@ -244,7 +287,6 @@ const endTime = computed(() => new Date(selectedEvent.value.end_date_time)
   .toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
     hour12: true
 }));
 
@@ -388,13 +430,127 @@ const clearArrays = () => {
 </script>
 
 <style scoped>
+/* Global Dashboard Styles */
+.admin-dashboard {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #333;
+  background-color: #ffffff;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* Dashboard Header */
+.homepage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.homepage-header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.user-info {
+  background-color: #FAFAFA;
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-weight: 500;
+}
+
+/* Analytics Section */
+.analytics-section {
+  background-color: #FAFAFA;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.time-filter {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.time-btn {
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-btn:hover {
+  background-color: #edf2f7;
+}
+
+.time-btn.active {
+  background-color: #5EC4B6;
+  border-color: #5EC4B6;
+  color: white;
+}
+
+.graph-container {
+  width: 100%;
+  height: 300px;
+  background-color: #f9fafc;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.graph-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  background-color: #f7fafc;
+  border: 1px dashed #cbd5e0;
+}
+
+.graph-placeholder span {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.graph-placeholder p {
+  font-size: 0.875rem;
+  color: #718096;
+  max-width: 400px;
+}
+
+/* Content Section */
 .content {
   display: grid;
   grid-template-columns: 1fr 1fr; 
   gap: 20px; 
-  padding: 35px 5%;
+  padding: 0 0 35px;
 }
-
 
 .left-column, .right-column {
   display: flex;
@@ -467,7 +623,6 @@ const clearArrays = () => {
 }
 
 .card-item button {
-  background-color: #007bff; 
   color: white;
   border: none;
   padding: 4px 12px;
@@ -476,23 +631,14 @@ const clearArrays = () => {
   margin-right: 15px;
 }
 
-.card-item button:hover {
-  background-color: #0056b3;
-}
-
-.pagination {
+.empty-state {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.pagination-arrow {
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  transition: opacity 0.3s;
+  height: 100%;
+  min-height: 200px;
+  color: #a0aec0;
+  text-align: center;
 }
 
 .arrow-button.disabled {
@@ -500,22 +646,50 @@ const clearArrays = () => {
   cursor: auto;
 }
 
-.modal { /* Same as in Logout.vue*/
-    width: 100%;
-    height: 100%;
-    flex-shrink: 0;
+.event-action i {
+  font-size: 1.25rem;
+  color: #5EC4B6;
+}
+
+/* Modal Styling */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
 }
 
 .homepage-modal-content {
+  background-color: white;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  max-height: 90vh;
   overflow-y: auto;
-  overflow-x: auto;
+  padding: 20px;
+  position: relative;
 }
 
-.modal-header { /*done*/
-    flex-shrink: 0;
-    color: #000;
-    text-align: center;
-    font-size: 20px;
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.modal-header {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  font-size: 30px; 
+  font-weight: bold; 
 }
 
 .reflection-box {
@@ -529,6 +703,7 @@ const clearArrays = () => {
   resize: vertical; 
   outline: none; 
   justify-content: space-between;
+  margin: 15px 0;
 }
 
 .textarea-container {
@@ -575,14 +750,15 @@ button:hover {
 }
 
 button.selected {
-  background-color: #007bff;
-  border-color: #0056b3;
+  background-color: #5EC4B6;
+  border-color: #4dafa0;
   color: white;
 }
 
 .submit-button {
-  background-color: green;
+  background-color: #5EC4B6;
   margin-top: 15px;
   color: white;
+  width: 100%;
 }
 </style>
