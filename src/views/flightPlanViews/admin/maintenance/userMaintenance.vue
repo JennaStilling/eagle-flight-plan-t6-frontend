@@ -167,6 +167,9 @@ const handleSaveUser = async ({ user: userData, student: studentData, cliftonStr
     updateUser(userData);
     updateCliftonStrengths(userData.studentId, cliftonStrengths);
   }
+  else {
+    updateUser(userData);
+  }
 };
 
 const handleDeleteUser = async (user) => {

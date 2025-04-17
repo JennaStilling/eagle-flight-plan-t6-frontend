@@ -145,6 +145,7 @@ const clearResults = async (id) => {
   padding: 24px;
   max-width: 600px;
   width: 90vw;
+  border-radius: 15px;
 }
 
 .form-wrapper {

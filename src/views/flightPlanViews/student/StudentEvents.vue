@@ -11,9 +11,6 @@
                         </template>
                     </v-text-field>
 
-                    <!-- <v-select v-model="selectedFilter" :items="filterOptions" label="Filter By Type"
-                        variant="solo-filled" density="compact" hide-details class="filter-menu"></v-select> -->
-
                     <v-btn class="button" variant="elevated" color="#5EC4B6" @click="requestEventPopup()">
                         Request Custom Event
                     </v-btn>
@@ -250,7 +247,7 @@
 
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
-                    <v-btn v-if="viewPersonalCalendar"
+                    <v-btn v-if="checkIfStudentIsSignedUp(eventId)"
                         @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
                         variant="flat">Unregister</v-btn>
                     <v-btn v-if="!viewPersonalCalendar && eventEdit"
@@ -325,6 +322,8 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("");
+
+const isStudentRegistered = ref(false);
 
 const user = ref(null);
 const userStudentId = ref("")
@@ -454,8 +453,10 @@ const getEventDuration = (start, end) => {
 };
 
 const filteredEvents = computed(() => {
+    const eventsList = viewPersonalCalendar.value ? studentEvents.value : events.value;
+
     if (selectedFilter.value === 'All') {
-        return events.value.map(event => ({
+        return eventsList.map(event => ({
             ...event,
             id: event.id,
             formatted_date: formatDate(event.start_date_time || event.date),
@@ -487,7 +488,7 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'galup_strengths_class'
     }
 
-    return events.value.filter(event => {
+    return eventsList.filter(event => {
         return event.category === selectedFilter.value.toLowerCase();
     }).map(event => ({
         ...event,
@@ -732,20 +733,6 @@ const formatEventTime = (dateTimeStr) => {
     }
 };
 
-const formatEventForCalendar = (event) => {
-    const startDate = new Date(event.date);
-    const endDate = new Date(new Date(event.date).getTime() + 60 * 60 * 1000);
-    return {
-        id: event.id,
-        title: event.name,
-        start: startDate.toISOString().split('T')[0],
-        time: `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`,
-        end: endDate.toISOString().split('T')[0],
-        description: event.description,
-        type: event.type
-    };
-};
-
 const editEventPopup = (task) => {
     EventServices.getEvent(task.id)
         .then((res) => {
@@ -755,6 +742,7 @@ const editEventPopup = (task) => {
             eventAdd.value = false;
 
             eventId.value = eventToEdit.value.id;
+            isStudentRegistered.value = eventToEdit.value.isRegistered;
             eventName.value = eventToEdit.value.name;
             eventDescription.value = eventToEdit.value.description;
             eventType.value = capitalize(eventToEdit.value.event_type);

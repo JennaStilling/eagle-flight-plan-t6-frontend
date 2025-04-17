@@ -88,7 +88,8 @@
           </div>
         </div>
 
-        <input type="text" class="name-input" v-model="userName" />
+        <input type="text" class="name-input" v-model="userFirstName" />
+        <input type="text" class="name-input" v-model="userLastName" />
       </div>
 
       <div class="popup-content">
@@ -107,8 +108,9 @@
             <label class="label-description">{{ labels.prefix }}</label>
           </v-col>
           <v-col>
-            <textarea class="input-field" v-model="userPrefix" rows="2">
-            </textarea>
+            <v-select v-model="userPrefix" :items="prefixOptions"></v-select>
+            <!-- <textarea class="input-field" v-model="userPrefix" rows="2">
+            </textarea> -->
           </v-col>
         </v-row>
       </div>
@@ -222,11 +224,13 @@ const name = ref("");
 
 // Update Profile Variables
 const showProfileUpdate = ref(false);
-const userName = ref("");
+const userFirstName = ref("");
+const userLastName = ref("");
 const userPhoneNumber = ref("");
 const userPrefix = ref("");
 const userImage = ref(null);
 const userImageType = ref(null);
+const prefixOptions = ['Mr. ', 'Mrs. ', 'Ms. ', 'Professor', 'Dr. '];
 
 // Student Related Variables
 const student = ref(null);
@@ -264,7 +268,8 @@ const getUser = () => {
       if (userInfo.value.image === null) hasImage.value = false;
       else hasImage.value = true;
 
-      userName.value = userInfo.value.fName + " " + userInfo.value.lName;
+      userFirstName.value = userInfo.value.fName;
+      userLastName.value = userInfo.value.lName;
       userPhoneNumber.value = userInfo.value.phone_number;
       userPrefix.value = userInfo.value.prefix;
       userImage.value = userInfo.value.image;
@@ -513,12 +518,12 @@ const updateUserInfo = () => {
   toggleUpdateModal();
 
   const updateUser = {
-    fName: userName.value.split(' ')[0],
-    lName: userName.value.split(' ')[1],
+    fName: userFirstName.value,
+    lName: userLastName.value,
     email: userInfo.value.email, // Does not change
     phone_number: userPhoneNumber.value,
     prefix: userPrefix.value,
-    image: userImage.value.split(',')[1],
+    image: userImage.value ? userImage.value.split(',')[1] : null,
     image_type: userImageType.value
   }
 
@@ -691,7 +696,7 @@ const fileUpload = (event) => {
   padding-left: 10px;
   height: 150px;
   text-align: left;
-  width: 70%;
+  width: 25%;
   min-width: 400px;
   border-radius: 10px;
   background: rgba(32, 32, 32, 0.15);

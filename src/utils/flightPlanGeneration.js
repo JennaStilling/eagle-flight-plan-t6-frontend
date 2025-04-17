@@ -126,7 +126,15 @@ export async function generateFlightPlan(student, semester) {
 
         // Create the flight plan and assign the correct number of tasks/experiences depending on their pace
         const flightPlan = await getFlightPlan(semester);
-        const studentFlightPlan = (await studentFlightPlanServices.createStudentFlightPlan(student.id, flightPlan.id, {})).data;
+        
+        const flightPlanData = {
+            studentId: student.id,
+            flightPlanId: flightPlan.id,
+            semester_from_grad: semestersUntilGrad,
+            completion_date: null
+        }
+
+        const studentFlightPlan = (await studentFlightPlanServices.createSystemStudentFlightPlan(flightPlanData)).data;
 
         await addTasksToStudentFlightPlan(studentFlightPlan, tasksToFlightPlan);
         await addExperiencesToStudent(studentFlightPlan, experiencesToFlightPlan);
@@ -137,7 +145,7 @@ export async function generateFlightPlan(student, semester) {
 }
 
 // Gets the current FlightPlan, if it does not exist, it creates one
-export async function getFlightPlan(semester) {
+export async function getFlightPlan(semester, semestersUntilGrad) {
     try {
         const flightPlans = (await flightPlanServices.getAllFlightPlans(semester.id)).data;
 
