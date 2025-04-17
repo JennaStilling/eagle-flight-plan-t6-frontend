@@ -442,7 +442,7 @@ const exportDataToCSV = async () => {
     const csvRows = [];
 
     // Add CSV header
-    csvRows.push(['Month', 'Task Submissions', 'Task Approvals', 'Event Submissions', 'Event Approvals', 'Total Activities']);
+    csvRows.push(['Month', 'Task Submissions', 'Approved Tasks', 'Event Submissions', 'Approved Events', 'Total Activities']);
 
     // Add data rows
     monthlySummaries.forEach(month => {

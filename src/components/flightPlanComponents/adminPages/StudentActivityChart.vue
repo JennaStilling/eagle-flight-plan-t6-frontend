@@ -80,7 +80,7 @@ const initializeChart = async () => {
             barPercentage: 0.7   
           },
           {
-            label: 'Event Approvals',
+            label: 'Approved Events',
             data: datasets.eventApprovals,
             backgroundColor: eventApprovalsGradient,
             borderColor: '#B580D1',
