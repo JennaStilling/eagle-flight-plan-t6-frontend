@@ -60,7 +60,7 @@
     </div>
 
     <div v-if="showExperienceDetails" class="modal edit-form-body">
-        <v-card class="edit-popup mx-auto">
+        <v-card class="edit-popup mx-auto" style="max-width: 850px;">
             <v-card-title class="popup-header">
                 <v-text-field v-model="expName">
                     <Icon icon="material-symbols:edit-outline" width="24" height="24" />
@@ -72,45 +72,33 @@
             <!-- Category-->
             <v-container class="popup-content">
                 <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.category }}</label>
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">{{ labels.category }}</label>
                     </v-col>
 
-                    <v-col cols="7">
+                    <v-col cols="9">
                         <v-select v-model="expCategory" :items="categoryOptions" variant="solo-filled" density="compact"
                             hide-details class="filter-menu"></v-select>
                     </v-col>
                 </v-row>
 
-                <!-- Verification Type-->
-                <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.verification }}</label>
-                    </v-col>
-
-                    <v-col cols="7">
-                        <v-select v-model="expVerificationType" :items="typeOptions" variant="solo-filled"
-                            density="compact" hide-details class="filter-menu"></v-select>
-                    </v-col>
-                </v-row>
-
                 <!-- Reflection Required-->
                 <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.reflection }}</label>
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">{{ labels.reflection }}</label>
                     </v-col>
-                    <v-col cols="7">
+                    <v-col cols="9">
                         <v-switch v-model="isRequired" hide-details></v-switch>
                     </v-col>
                 </v-row>
 
                 <!-- Frequency-->
                 <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.schedule }}</label>
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">{{ labels.schedule }}</label>
                     </v-col>
 
-                    <v-col cols="7">
+                    <v-col cols="9">
                         <v-select v-model="expScheduleType" :items="frequencyOptions" variant="solo-filled"
                             density="compact" hide-details class="filter-menu"></v-select>
                     </v-col>
@@ -118,24 +106,114 @@
 
                 <!-- Description-->
                 <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.description }}</label>
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">{{ labels.description }}</label>
                     </v-col>
-                    <v-col cols="7">
+                    <v-col cols="9">
                         <v-textarea v-model="expDescription" rows="3" variant="outlined" density="compact"></v-textarea>
                     </v-col>
                 </v-row>
 
                 <!-- Rationale-->
                 <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.rationale }}</label>
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">{{ labels.rationale }}</label>
                     </v-col>
 
-                    <v-col cols="7">
+                    <v-col cols="9">
                         <v-textarea v-model="expRationale" rows="3" variant="outlined" density="compact"
                             hide-details></v-textarea>
                     </v-col>
+                </v-row>
+
+                <!-- Clifton Strengths -->
+                <v-row class="form-row">
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">Clifton Strengths</label>
+                    </v-col>
+                <v-col cols="9">
+                    <v-row align="center" justify="start">
+                        <v-col v-for="(cliftonStrengthSelection, i) in cliftonStrengthSelections"
+                        :key="cliftonStrengthSelection.name" class="py-1 pe-0" cols="auto">
+                        <v-chip closable class="ma-1" color="primary" rounded="lg"
+                            @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
+
+                            {{ cliftonStrengthSelection.name }}
+                        </v-chip>
+                        </v-col>
+
+                        <v-col cols="12">
+                        <v-menu v-model="cliftonStrengthMenu" close-on-content-click>
+                            <template v-slot:activator="{ props }">
+                            <v-text-field ref="cliftonStrengthSearchField" v-model="cliftonStrengthSearch" label="Search"
+                                hide-details single-line variant="solo" density="compact"
+                                v-bind="props">
+                            </v-text-field>
+                            </template>
+
+                            <v-list style="max-height: 300px; overflow-y: auto;">
+                            <template v-for="cliftonStrengths in filteredCliftonStrengths">
+                                <v-list-item
+                                v-if="!newCliftonStrengths.cliftonStrengthsToAdd.includes(cliftonStrengths)"
+                                :key="cliftonStrengths.id"
+                                @click="newCliftonStrengths.cliftonStrengthsToAdd.push(cliftonStrengths)">
+                                <template v-slot:prepend>
+                                </template>
+
+                                <v-list-item-title v-text="cliftonStrengths.name">
+                                </v-list-item-title>
+                                </v-list-item>
+                            </template>
+                            </v-list>
+                        </v-menu>
+                        </v-col>
+                    </v-row>
+                </v-col>
+                </v-row>
+
+                <!-- Majors -->
+                <v-row class="form-row">
+                    <v-col cols="3" class="label-column">
+                        <label class="label-description">Majors</label>
+                    </v-col>
+                <v-col cols="9">
+                    <v-row align="center" justify="start">
+                        <v-col v-for="(majorSelection, i) in majorSelections"
+                        :key="majorSelection.name" class="py-1 pe-0" cols="auto">
+                        <v-chip closable class="ma-1" color="primary" rounded="lg"
+                            @click:close="newMajors.majorsToAdd.splice(i, 1)">
+
+                            {{ majorSelection.name }}
+                        </v-chip>
+                        </v-col>
+
+                        <v-col cols="12">
+                        <v-menu v-model="majorMenu" close-on-content-click>
+                            <template v-slot:activator="{ props }">
+                            <v-text-field ref="majorSearchField" v-model="majorSearch" label="Search"
+                                hide-details single-line variant="solo" density="compact"
+                                v-bind="props">
+                            </v-text-field>
+                            </template>
+
+                            <v-list style="max-height: 300px; overflow-y: auto;">
+                            <template v-for="majors in filteredMajors">
+                                <v-list-item
+                                v-if="!newMajors.majorsToAdd.includes(majors)"
+                                :key="majors.id"
+                                @click="newMajors.majorsToAdd.push(majors)">
+                                <template v-slot:prepend>
+                                </template>
+
+                                <v-list-item-title v-text="majors.name">
+                                </v-list-item-title>
+                                </v-list-item>
+                            </template>
+                            </v-list>
+                        </v-menu>
+                        </v-col>
+                    </v-row>
+                </v-col>
                 </v-row>
 
             </v-container>
@@ -158,8 +236,12 @@
 
 <script setup>
 import "@/assets/generic-stylesheet.css";
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import ExperienceTypeServices from '@/services/flightPlanServices/experienceTypeServices';
+import cliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
+import experienceTypeCliftonStrengthServices from "@/services/flightPlanServices/experienceTypeCliftonStrengthServices";
+import majorServices from "@/services/flightPlanServices/majorServices";
+import experienceTypeMajorServices from "@/services/flightPlanServices/experienceTypeMajorServices";
 import { Icon } from "@iconify/vue";
 
 const search = ref('');
@@ -182,9 +264,46 @@ const expCategory = ref("");
 const expScheduleType = ref("");
 const expRationale = ref("");
 const expDescription = ref("");
-const expVerificationType = ref("")
 
+// CliftonStrengths Variables
+const cliftonStrengthSearch = ref('');
+const cliftonStrengths = ref(null);
+const cliftonStrengthMenu = ref(false);
+const oldExperienceTypeCliftonStrengths = ref(null);
+const cliftonStrengthSearchField = ref(null);
 
+const newCliftonStrengths = ref({
+    cliftonStrengthsToAdd: [],
+});
+
+// Majors Variables
+const majorSearch = ref('');
+const majors = ref(null);
+const majorMenu = ref(false);
+const oldExperienceTypeMajors = ref(null);
+const majorSearchField = ref(null);
+
+const newMajors = ref({
+  majorsToAdd: [],
+});
+
+const filteredCliftonStrengths = computed(() => {
+  const _search = cliftonStrengthSearch.value.toLowerCase();
+  if (!_search) return cliftonStrengths.value;
+  return cliftonStrengths.value.filter(item => {
+    const text = item.name.toLowerCase()
+    return text.indexOf(_search) > -1
+  })
+})
+
+const filteredMajors = computed(() => {
+  const _search = majorSearch.value.toLowerCase();
+  if (!_search) return majors.value;
+  return majors.value.filter(item => {
+    const text = item.name.toLowerCase();
+    return text.indexOf(_search) > -1;
+  })
+})
 
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
@@ -232,8 +351,10 @@ const filteredExperiences = computed(() => {
     });
 });
 
-onMounted(() => {
+onMounted(async () => {
     getAllExperiences();
+    await getAllCliftonStrengths();
+    await getAllMajors();
 });
 
 const getAllExperiences = () => {
@@ -249,25 +370,36 @@ const getAllExperiences = () => {
 }
 
 
-const editExperiencePopup = (task) => {
+const editExperiencePopup = async (task) => {
     experienceToEdit.value = task;
     showExperienceDetails.value = true;
     experienceEdit.value = true;
     experienceAdd.value = false;
-    expVerificationType.value = capitalize(experienceToEdit.value.type)
     expCategory.value = capitalize(experienceToEdit.value.category);
     expRationale.value = experienceToEdit.value.rationale;
     expDescription.value = experienceToEdit.value.description;
     isRequired.value = experienceToEdit.value.reflection_required;
     expName.value = experienceToEdit.value.name;
     expScheduleType.value = capitalize(experienceToEdit.value.schedule_type);
+
+    cliftonStrengthSearchField.value = null;
+    cliftonStrengthMenu.value = false;
+    oldExperienceTypeCliftonStrengths.value = (await experienceTypeCliftonStrengthServices.getAllCliftonStrengthsForExperienceType(experienceToEdit.value.id)).data;
+    const oldCliftonStrengths = cliftonStrengths.value.filter(cliftonStrength => oldExperienceTypeCliftonStrengths.value.some(experienceTypeCliftonStrength => cliftonStrength.id === experienceTypeCliftonStrength.cliftonStrengthId));
+    newCliftonStrengths.value.cliftonStrengthsToAdd = oldCliftonStrengths;
+
+    majorSearchField.value = null;
+    majorMenu.value = false;
+    oldExperienceTypeMajors.value = (await experienceTypeMajorServices.getAllMajorsForExperienceType(experienceToEdit.value.id)).data;
+    const oldMajors = majors.value.filter(major => oldExperienceTypeMajors.value.some(experienceTypeMajor => major.id === experienceTypeMajor.majorId));
+    newMajors.value.majorsToAdd = oldMajors;
 };
 
 function capitalize(s) {
     return s && String(s[0]).toUpperCase() + String(s).slice(1);
 }
 
-const editExperience = () => {
+const editExperience = async () => {
     if (expCategory.value === 'Career Prep') {
         expCategory.value = 'career_prep'
     }
@@ -286,7 +418,6 @@ const editExperience = () => {
 
     const updatedExperience = {
         category: expCategory.value.toLowerCase(),
-        type: expVerificationType.value.toLowerCase(),
         req_reflection: isRequired.value,
         schedule_type: expScheduleType.value.toLowerCase(),
         name: expName.value,
@@ -294,16 +425,23 @@ const editExperience = () => {
         rational: expRationale.value,
     };
 
-    ExperienceTypeServices.updateExperienceType(experienceToEdit.value.id, updatedExperience)
-        .then((response) => {
-            console.log("Task updated successfully:", response.data);
-            showExperienceDetails.value = false;
-            getAllExperiences();
-        })
-        .catch((e) => {
-            message.value = e.response.data.message;
-            deleteError.value = true;
-        });
+    // ExperienceTypeServices.updateExperienceType(experienceToEdit.value.id, updatedExperience)
+    //     .then((response) => {
+    //         console.log("Task updated successfully:", response.data);
+    //         showExperienceDetails.value = false;
+    //         getAllExperiences();
+    //     })
+    //     .catch((e) => {
+    //         message.value = e.response.data.message;
+    //         deleteError.value = true;
+    //     });
+
+    await ExperienceTypeServices.updateExperienceType(experienceToEdit.value.id, updatedExperience);
+    showExperienceDetails.value = false;
+    getAllExperiences();
+
+    updateCliftonStrengthsToExperienceType();
+    updateMajorsToExperienceType();
 };
 
 
@@ -312,17 +450,24 @@ const addExperiencePopup = () => {
     experienceAdd.value = true;
     experienceEdit.value = false;
     experienceToEdit.value = null;
-    expVerificationType.value = ""
     expName.value = "";
     expCategory.value = "";
     expRationale.value = "";
     expDescription.value = "";
     isRequired.value = false;
     expScheduleType.value = "";
+
+    cliftonStrengthSearchField.value = null;
+    cliftonStrengthMenu.value = false;
+    newCliftonStrengths.value.cliftonStrengthsToAdd = [];
+
+    majorSearchField.value = null;
+    majorMenu.value = false;
+    newMajors.value.majorsToAdd = [];
 };
 
 
-const addExperience = () => {
+const addExperience = async () => {
     if (expCategory.value === 'Career Prep') {
         expCategory.value = 'career_prep'
     }
@@ -349,7 +494,6 @@ const addExperience = () => {
 
     const newExperience = {
         category: expCategory.value.toLowerCase(),
-        type: expVerificationType.value.toLowerCase(),
         req_reflection: isRequired.value,
         schedule_type: expScheduleType.value.toLowerCase(),
         name: expName.value,
@@ -359,16 +503,23 @@ const addExperience = () => {
 
     console.log(newExperience)
 
-    ExperienceTypeServices.createExperienceType(newExperience).then((response) => {
-        showExperienceDetails.value = false;
-        console.log("Task added successfully:", response.data);
-        getAllExperiences();
-    })
-        .catch((e) => {
-            console.log(e)
-            message.value = e.response.data.message;
-            deleteError.value = true;
-        });
+    // ExperienceTypeServices.createExperienceType(newExperience).then((response) => {
+    //     showExperienceDetails.value = false;
+    //     console.log("Task added successfully:", response.data);
+    //     getAllExperiences();
+    // })
+    //     .catch((e) => {
+    //         console.log(e)
+    //         message.value = e.response.data.message;
+    //         deleteError.value = true;
+    //     });
+
+    await ExperienceTypeServices.createExperienceType(newExperience);
+    showExperienceDetails.value = false;
+    getAllExperiences();
+
+    updateCliftonStrengthsToExperienceType();
+    updateMajorsToExperienceType();
 }
 
 
@@ -409,6 +560,72 @@ const deleteSelectedExperiences = (selected) => {
     } else {
         console.log("No tasks selected.");
     }
+}
+
+const getAllCliftonStrengths = async () => {
+  cliftonStrengths.value = (await cliftonStrengthServices.getAllCliftonStrengths()).data;
+}
+
+const getAllMajors = async () => {
+  majors.value = (await majorServices.getAllMajors()).data;
+}
+
+const cliftonStrengthSelections = computed(() => {
+    const selections = [];
+    for (const selection of newCliftonStrengths.value.cliftonStrengthsToAdd) {
+        selections.push(selection);
+    }
+    return selections;
+});
+
+const majorSelections = computed(() => {
+  const selections = [];
+  for (const selection of newMajors.value.majorsToAdd) {
+    selections.push(selection);
+  }
+  return selections;
+});
+
+watch(newCliftonStrengths.value.cliftonStrengthsToAdd, () => {
+    cliftonStrengthSearch.value = '';
+});
+
+watch(newMajors.value.majorsToAdd, () => {
+  majorSearch.value = '';
+});
+
+const updateCliftonStrengthsToExperienceType = async () => {
+  for (const cliftonStrength of newCliftonStrengths.value.cliftonStrengthsToAdd) {
+    if (!oldExperienceTypeCliftonStrengths.value.some(oldCliftonStrength => oldCliftonStrength.cliftonStrengthId === cliftonStrength.id)) {
+      const experienceTypeCliftonStrength = {
+        cliftonStrengthId: cliftonStrength.id,
+        experienceTypeId: experienceToEdit.value.id
+      }
+      await experienceTypeCliftonStrengthServices.createSystemExperienceTypeCliftonStrength(experienceTypeCliftonStrength);
+    }
+  }
+
+  for (const cliftonStrength of oldExperienceTypeCliftonStrengths.value) {
+    if (!newCliftonStrengths.value.cliftonStrengthsToAdd.some(newCliftonStrength => newCliftonStrength.id === cliftonStrength.cliftonStrengthId)) {
+      await experienceTypeCliftonStrengthServices.deleteSystemExperienceTypeCliftonStrength(cliftonStrength.id);
+    }
+  }
+}
+
+const updateMajorsToExperienceType = async () => {
+  for (const major of newMajors.value.majorsToAdd) {
+    const experienceTypeMajor = {
+      majorId: major.id,
+      experienceTypeId: experienceToEdit.value.id
+    }
+    await experienceTypeMajorServices.createSystemExperienceTypeMajor(experienceTypeMajor);
+  }
+
+  for (const major of oldExperienceTypeMajors.value) {
+    if (!newMajors.value.majorsToAdd.some(newMajor => newMajor.id === major.majorId)) {
+      await experienceTypeMajorServices.deleteSystemExperienceTypeMajor(major.id);
+    }
+  }
 }
 
 </script>
