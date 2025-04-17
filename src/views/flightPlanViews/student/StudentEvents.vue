@@ -118,6 +118,7 @@
         <!-- This is the div for the event modal. Recommendation: abstract the request custom event into a modal -->
         <div v-if="showEventDetails" class="modal edit-form-body">
             <v-card class="edit-popup mx-auto">
+                <!-- <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div> -->
                 <v-card-title class="popup-header">
                     <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details :disabled="!eventAdd">
                     </v-text-field>
@@ -126,6 +127,7 @@
                 <v-container>
                     <!-- Description-->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.description }}</label>
                         </v-col>
@@ -150,6 +152,7 @@
 
                     <!-- Start Date -->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>Start Date</label>
                         </v-col>
@@ -161,6 +164,7 @@
 
                     <!-- End Date -->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>End Date</label>
                         </v-col>
@@ -172,6 +176,7 @@
 
                     <!-- Start Time -->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>Start Time</label>
                         </v-col>
@@ -184,6 +189,7 @@
 
                     <!-- End Time  -->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>End Time</label>
                         </v-col>
@@ -196,6 +202,7 @@
 
                     <!-- Location  -->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.location }}</label>
                         </v-col>
@@ -208,6 +215,7 @@
 
                     <!-- Attendance Type -->
                     <v-row class="form-row">
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.attendance }}</label>
                         </v-col>
@@ -261,6 +269,9 @@
                 </v-card-actions>
             </v-card>
         </div>
+        <v-snackbar v-model="showSnackbar" timeout="3000" color="#5EC4B6" style="color: white">
+            {{ snackbarMessage }}
+        </v-snackbar>
     </div>
 </template>
 
@@ -322,6 +333,8 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("");
+const errorMessage = ref("");
+const hasError = ref(false);
 
 const isStudentRegistered = ref(false);
 
@@ -332,6 +345,10 @@ const specificStudentEvents = ref([])
 
 const showCalendarView = ref(localStorage.getItem('showCalendarView') === 'false' ? false : true);
 const viewPersonalCalendar = ref(localStorage.getItem('viewPersonalCalendar') === 'false' ? false : true);
+
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const toggleCalendarView = () => {
     showCalendarView.value = true;
@@ -881,26 +898,66 @@ const editEvent = () => {
 };
 
 const requestEventPopup = () => {
+    errorMessage.value = "";
+    hasError.value = false;
     showEventDetails.value = true;
     eventAdd.value = true;
     eventEdit.value = false;
     eventToEdit.value = null;
 
-    eventName.value = "";
-    eventDescription.value = "";
+    eventName.value = null;
+    eventDescription.value = null;
     eventType.value = "custom";
-    eventStartDate.value = "";
-    eventEndDate.value = "";
-    eventStartTime.value = "";
-    eventEndTime.value = "";
-    eventLocation.value = "";
-    eventAttendanceType.value = "";
+    eventStartDate.value = null;
+    eventEndDate.value = null;
+    eventStartTime.value = null;
+    eventEndTime.value = null;
+    eventLocation.value = null;
+    eventAttendanceType.value = null;
     eventCustomEvent.value = false;
     eventStatus.value = "";
     eventPointValue.value = "";
 };
 
 const requestEvent = () => {
+    hasError.value = false;
+    errorMessage.value = "";
+    
+    // Check for required fields
+    if (eventName.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventDescription.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventStartDate.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventEndDate.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventStartTime.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventEndTime.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventLocation.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+    if (eventAttendanceType.value == null) {
+        errorMessage.value = "* Required";
+        hasError.value = true;
+    }
+
+    //Database name setting
     if (eventType.value === 'Career Prep') {
         eventType.value = 'career_prep'
     }
@@ -980,6 +1037,10 @@ const requestEvent = () => {
     EventServices.createEvent(newEvent).then((response) => {
         showEventDetails.value = false;
         getAllEvents();
+
+        //Snackbar success
+        snackbarMessage.value = "Event requested successfully!";
+        showSnackbar.value = true;
     })
         .catch((e) => {
             console.log(e.response.data)
