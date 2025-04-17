@@ -10,16 +10,16 @@
                 </v-card-subtitle>
             </v-card-item>
             <v-card-actions class="actions">
-                <v-btn v-if="adminAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.ADMIN)"
-                    text="Admin Home">
+                <v-btn v-if="adminAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button"
+                    @click="handleRoute(UserRoles.ADMIN)" text="Admin Home">
                 </v-btn>
 
                 <!-- <v-btn v-if="professorAccess"  color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.PROFESSOR)"
                     text="Professor Home">
                 </v-btn> -->
 
-                <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT)"
-                    text="Student Home">
+                <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button"
+                    @click="handleRoute(UserRoles.STUDENT)" text="Student Home">
                 </v-btn>
 
                 <!-- <v-btn v-if="studentAccess" color="#5EC4B6" size="x-large" variant="elevated" class="button" @click="handleRoute(UserRoles.STUDENT_WORKER)"
@@ -36,40 +36,33 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Utils from '@/config/utils';
 import { useHomePageStore, UserRoles, HomePages } from '@/store/homePageStore';
-import userRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
-const userRoles = ref([])
+import UserServices from '@/services/resumeBuilderServices/userServices';
+import StudentServices from '@/services/resumeBuilderServices/studentServices';
+import { hasStudentViewPermissions, hasAdminViewPermissions } from '@/utils/permissions';
 
 const user = ref(null);
+const student = ref(null);
 const adminAccess = ref(false);
 const studentAccess = ref(false);
 const professorAccess = ref(false);
 const router = useRouter();
 const homeStore = useHomePageStore();
 
-onMounted(() => {
-  user.value = Utils.getStore("user");
-  if (user.value) {
-    getAllUserRoles();
-  }
+onMounted(async () => {
+    await getSessionData();
+    await getAllUserRoles();
+
 });
 
-const getAllUserRoles = () => {
-  userRolePermissionServices.getAllPermissionsForUser(user.value.userId).then((res) => {
-    userRoles.value = res.data;
-    // id 7 - admin
-    // id 8 - student
-    // id 9 - professor
-    userRoles.value.forEach(role => {
-      if(role.permissionId == 7)
-        adminAccess.value = true
-      if(role.permissionId == 8)
-        studentAccess.value = true
-      if(role.permissionId == 9)
-        professorAccess.value = true
-    });
-  }).catch((error) => {
-      console.log("error", error);
-    });
+const getSessionData = async () => {
+    const userStore = Utils.getStore("user");
+    user.value = (await UserServices.getUser(userStore.userId)).data
+    student.value = (await StudentServices.getStudent(user.value.studentId)).data;
+}
+
+const getAllUserRoles = async () => {
+    adminAccess.value = await hasAdminViewPermissions(user.value);
+    studentAccess.value = await hasStudentViewPermissions(user.value);
 }
 
 const handleRoute = (loc) => {
