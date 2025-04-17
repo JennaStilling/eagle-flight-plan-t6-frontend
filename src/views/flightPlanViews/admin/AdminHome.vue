@@ -1,8 +1,20 @@
 <template>
   <div class="admin-dashboard">
+    <!-- Snackbar Notification -->
+    <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout" color="#5EC4B6" style="color: white">
+      {{ snackbar.text }}
+    </v-snackbar>
+
     <!-- Header Section -->
     <div class="homepage-header">
-      <h1>Admin Homepage</h1>
+      <div class="header-left">
+        <h1>Admin Homepage</h1>
+      </div>
+      <div class="header-right">
+        <button @click="exportDataToCSV" class="export-btn">
+          Export System Analytics
+        </button>
+      </div>
     </div>
 
     <!-- Analytics Section -->
@@ -10,17 +22,11 @@
       <div class="section-header">
         <h2>Student Activity Analytics</h2>
         <div class="time-filter">
-          <button 
-            class="time-btn" 
-            :class="{ active: timeFrame === 'month' }" 
-            @click="timeFrame = 'month'">
+          <button class="time-btn" :class="{ active: timeFrame === 'month' }" @click="timeFrame = 'month'">
             Past 30 Days
           </button>
-          <button 
-            class="time-btn" 
-            :class="{ active: timeFrame === 'all' }" 
-            @click="timeFrame = 'all'">
-            All Time
+          <button class="time-btn" :class="{ active: timeFrame === 'all' }" @click="timeFrame = 'all'">
+            Past 6 Months
           </button>
         </div>
       </div>
@@ -34,33 +40,21 @@
       <!-- Student Tasks List -->
       <div class="left-column">
         <div class="content-header">
-          <img 
-            :src="BackArrow" 
-            alt="Back Arrow" 
-            class="arrow-button"
-            @click="prevTaskPage"
-            :class="{ disabled: currentTaskPage === 1 }"
-          />
+          <img :src="BackArrow" alt="Back Arrow" class="arrow-button" @click="prevTaskPage"
+            :class="{ disabled: currentTaskPage === 1 }" />
           Student Tasks ({{ currentTaskPage }}/{{ totalTaskPages }})
-          <img 
-            :src="ForwardArrow" 
-            alt="Forward Arrow" 
-            class="arrow-button"
-            @click="nextTaskPage"
-            :class="{ disabled: currentTaskPage === totalTaskPages }"
-          />
+          <img :src="ForwardArrow" alt="Forward Arrow" class="arrow-button" @click="nextTaskPage"
+            :class="{ disabled: currentTaskPage === totalTaskPages }" />
         </div>
         <div class="student-tasks-body">
           <div v-if="paginatedTasks.length === 0" class="empty-state">
             <p>No tasks pending review</p>
           </div>
-          <div class="card-item" v-for="(name, index) in paginatedTasks" 
-            :key="index" 
-            @click="getSelectedTask(
-              name, 
-              studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index], 
-              studentTasks.reflection.reflections[(currentTaskPage - 1) * itemsPerPage + index], 
-              studentTasks.id.ids[(currentTaskPage - 1) * itemsPerPage + index])">
+          <div class="card-item" v-for="(name, index) in paginatedTasks" :key="index" @click="getSelectedTask(
+            name,
+            studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index],
+            studentTasks.reflection.reflections[(currentTaskPage - 1) * itemsPerPage + index],
+            studentTasks.id.ids[(currentTaskPage - 1) * itemsPerPage + index])">
             <div class="list-text">
               <div class="list-title">{{ studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index] }}</div>
               <div class="list-sub">{{ name }}</div>
@@ -72,28 +66,17 @@
       <!-- Upcoming Events List -->
       <div class="right-column">
         <div class="content-header">
-          <img 
-            :src="BackArrow" 
-            alt="Back Arrow" 
-            class="arrow-button"
-            @click="prevEventPage"
-            :class="{ disabled: currentEventPage === 1 }"
-          />
+          <img :src="BackArrow" alt="Back Arrow" class="arrow-button" @click="prevEventPage"
+            :class="{ disabled: currentEventPage === 1 }" />
           Upcoming Events ({{ currentEventPage }}/{{ totalEventPages }})
-          <img 
-            :src="ForwardArrow" 
-            alt="Forward Arrow" 
-            class="arrow-button"
-            @click="nextEventPage"
-            :class="{ disabled: currentEventPage === totalEventPages }"
-          />
+          <img :src="ForwardArrow" alt="Forward Arrow" class="arrow-button" @click="nextEventPage"
+            :class="{ disabled: currentEventPage === totalEventPages }" />
         </div>
         <div class="upcoming-events-body">
           <div v-if="paginatedEvents.length === 0" class="empty-state">
             <p>No upcoming events</p>
           </div>
-          <div class="card-item" v-for="(event, index) in paginatedEvents" 
-            :key="index" 
+          <div class="card-item" v-for="(event, index) in paginatedEvents" :key="index"
             @click="getSelectedEvent(index)">
             <div class="list-text">
               <div class="list-title">{{ event.name }}</div>
@@ -109,51 +92,45 @@
 
     <!-- Student Task View Modal -->
     <div v-if="viewingTask" class="modal">
-      <div class="homepage-modal-content"> 
+      <div class="homepage-modal-content">
         <span @click="toggleTaskView()" class="close">&times;</span>
-        <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div> 
-        {{ currentTask.name }}  
+        <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div>
+        {{ currentTask.name }}
         <div class="reflection-box">
-          {{ currentTask.reflection }} 
+          {{ currentTask.reflection }}
         </div>
 
         <div class="button-group">
-          <button 
-            @click="selectOption('approve')" 
-            :class="{ selected: selectedOption === 'approve' }">
+          <button @click="selectOption('approve')" :class="{ selected: selectedOption === 'approve' }">
             Approve
           </button>
-          <button 
-            @click="selectOption('deny')" 
-            :class="{ selected: selectedOption === 'deny' }">
+          <button @click="selectOption('deny')" :class="{ selected: selectedOption === 'deny' }">
             Deny
           </button>
         </div>
         <div v-if="isReasonEmpty" style="color: red"> Fill out Reason for Denying </div>
-        <div v-if="selectedOption === 'deny'" class="textarea-container"> 
+        <div v-if="selectedOption === 'deny'" class="textarea-container">
           <textarea v-model="userInput" placeholder="Reason for Not Approving"></textarea>
         </div>
-        <button v-if="selectedOption === 'deny' || selectedOption === 'approve'" 
-          class="submit-button"  
-          @click="completeTaskReview(currentTask.id)"> 
-          Submit 
+        <button v-if="selectedOption === 'deny' || selectedOption === 'approve'" class="submit-button"
+          @click="completeTaskReview(currentTask.id)">
+          Submit
         </button>
       </div>
     </div>
 
     <!-- Event Viewer modal -->
     <div v-if="viewingEvent" class="modal">
-      <div class="homepage-modal-content"> 
+      <div class="homepage-modal-content">
         <span @click="toggleEventView()" class="close">&times;</span>
-        <div class="modal-header" style="font-size: 30px; font-weight: bold;"> 
-          {{ selectedEvent.name }} 
-        </div> 
+        <div class="modal-header" style="font-size: 30px; font-weight: bold;">
+          {{ selectedEvent.name }}
+        </div>
         <div style="font-size: 20px;">{{ selectedEvent.description }}</div>
         <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
         <div style="margin-bottom: 15px;">Time: {{ startTime }} - {{ endTime }}</div>
-        <button 
-          @click="toggleEventView()"> 
-          Close 
+        <button @click="toggleEventView()">
+          Close
         </button>
       </div>
     </div>
@@ -166,6 +143,7 @@ import { useHomePageStore } from '@/store/homePageStore';
 import BackArrow from '@/assets/ArrowBackwardIcon.svg';
 import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
 import Utils from "@/config/utils";
+import { format } from 'date-fns';
 // Service Files
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
 import studentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
@@ -173,13 +151,25 @@ import studentFlightPlanServices from "@/services/flightPlanServices/studentFlig
 import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
+import StudentEventServices from "@/services/flightPlanServices/studentEventServices";
 // Chart Component
 import StudentActivityChart from '@/components/flightPlanComponents/adminPages/StudentActivityChart.vue';
-// CSS Files
-import "@/assets/generic-stylesheet.css";
 
-// Add timeFrame ref for chart time period toggle
-const timeFrame = ref('month'); // Default to 'month' (past 30 days)
+const timeFrame = ref('month'); 
+
+const snackbar = ref({
+  show: false,
+  text: '',
+  color: '',
+  timeout: 4000
+});
+
+function showSnackbar(text, color = '#5EC4B6', timeout = 4000) {
+  snackbar.value.text = text;
+  snackbar.value.color = color;
+  snackbar.value.timeout = timeout;
+  snackbar.value.show = true;
+}
 
 const user = ref(null);
 const studentTasks = ref({
@@ -209,6 +199,8 @@ const userInput = ref("");
 const isReasonEmpty = ref(false);
 const studentFlightPlanTask = ref(null);
 const selectedEvent = ref(null);
+
+const homeStore = useHomePageStore();
 
 onMounted(() => {
   user.value = Utils.getStore("user");
@@ -265,30 +257,32 @@ const nextEventPage = () => {
 };
 
 const prevEventPage = () => {
-  if (currentEventPage.value > 1) { 
+  if (currentEventPage.value > 1) {
     currentEventPage.value--;
   }
 };
 
-const eventDate = (date) => { return new Date(date).toLocaleDateString('en-US', {
-  month: 'short',  
-  day: 'numeric',  
-  year: 'numeric' 
-})};
+const eventDate = (date) => {
+  return new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+};
 
 const startTime = computed(() => new Date(selectedEvent.value.start_date_time)
   .toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
-}));
+  }));
 
 const endTime = computed(() => new Date(selectedEvent.value.end_date_time)
   .toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
-}));
+  }));
 
 const getAllFutureEvents = () => {
   eventServices.getAllEvents()
@@ -310,7 +304,7 @@ const listStudentTasks = () => {
         if (studentFlightPlanTask.status === 'ready_for_review') studentFlightPlanTasksList.value.push(studentFlightPlanTask);
       });
 
-const homeStore = useHomePageStore();
+      const homeStore = useHomePageStore();
       // Add to object and put into a list
       addToStudentList();
     })
@@ -331,7 +325,7 @@ const addToStudentList = async () => {
       const flightPlanRes = await studentFlightPlanServices.getStudentFlightPlan(studentFlightPlanTask.studentFlightPlanId);
       const studentRes = await studentServices.getStudent(flightPlanRes.data.studentId);
       const userRes = await UserServices.getAllStudentUsers(studentRes.data.id);
-      
+
       const studentName = userRes.data[0].fName + " " + userRes.data[0].lName;
 
       // Returns the data in order
@@ -343,7 +337,7 @@ const addToStudentList = async () => {
       };
     } catch (error) {
       console.log("Error:", error);
-      return null; 
+      return null;
     }
   });
 
@@ -427,6 +421,144 @@ const clearArrays = () => {
   studentTasks.value.reflection.reflections = [];
   studentTasks.value.id.ids = [];
 }
+
+const exportDataToCSV = async () => {
+  try {
+    showSnackbar('Preparing analytics export...', 'info', 60000);
+
+    // Fetch all required data
+    const [eventResponse, taskResponse] = await Promise.all([
+      StudentEventServices.getAllStudentEvents(),
+      studentFlightPlanTaskServices.getAllStudentFlightPlanTasks()
+    ]);
+
+    const events = eventResponse.data;
+    const tasks = taskResponse.data;
+
+    // Create monthly data summaries
+    const monthlySummaries = generateMonthlySummaries(events, tasks);
+
+    // Create CSV content
+    const csvRows = [];
+
+    // Add CSV header
+    csvRows.push(['Month', 'Task Submissions', 'Task Approvals', 'Event Submissions', 'Event Approvals', 'Total Activities']);
+
+    // Add data rows
+    monthlySummaries.forEach(month => {
+      csvRows.push([
+        month.label,
+        month.taskSubmissions,
+        month.taskApprovals,
+        month.eventSubmissions,
+        month.eventApprovals,
+        month.taskSubmissions + month.taskApprovals + month.eventSubmissions + month.eventApprovals
+      ]);
+    });
+
+    // Convert the data to CSV string
+    let csvContent = csvRows.map(row =>
+      row.map(cell =>
+        typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
+      ).join(',')
+    ).join('\n');
+
+    // Create download link
+    const date = new Date();
+    const fileName = `eagle_flight_plan_analytics_${format(date, 'yyyy-MM-dd')}.csv`;
+
+    // Create download link and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showSnackbar('Analytics exported successfully!', 'success', 3000);
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    showSnackbar('Error exporting data. Please try again.', 'error', 5000);
+  }
+};
+
+/**
+ * Generate monthly summaries for CSV export - all time since Jan 2025
+ */
+const generateMonthlySummaries = (events, tasks) => {
+  const now = new Date(); // Current date
+  const summaries = [];
+
+  // Start from January 2025, change later for production whenever system goes live
+  const startDate = new Date(2025, 0, 1); // January 1, 2025
+
+  // Calculate how many months to process
+  const monthsDiff = (now.getFullYear() - startDate.getFullYear()) * 12 + now.getMonth() - startDate.getMonth() + 1;
+
+  // Process each month from Jan 2025 to current month
+  for (let i = 0; i < monthsDiff; i++) {
+    const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    let monthEnd;
+    if (i === monthsDiff - 1) {
+      // Last month (current month) ends today
+      monthEnd = new Date(now);
+    } else {
+      // Other months end on their last day
+      monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    }
+    monthEnd.setHours(23, 59, 59, 999);
+
+    const monthLabel = monthStart.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    // Initialize counters
+    let taskSubmissions = 0;
+    let taskApprovals = 0;
+    let eventSubmissions = 0;
+    let eventApprovals = 0;
+
+    // Count events in this month
+    events.forEach(event => {
+      if (!event.updatedAt) return;
+
+      const eventDate = new Date(event.updatedAt);
+      if (eventDate >= monthStart && eventDate <= monthEnd) {
+        if (event.verification_status === 'in_progress') {
+          eventSubmissions++;
+        } else if (event.verification_status === 'approved') {
+          eventApprovals++;
+        }
+      }
+    });
+
+    // Count tasks in this month
+    tasks.forEach(task => {
+      if (!task.updatedAt) return;
+
+      const taskDate = new Date(task.updatedAt);
+      if (taskDate >= monthStart && taskDate <= monthEnd) {
+        if (task.status === 'ready_for_review') {
+          taskSubmissions++;
+        } else if (task.status === 'approved') {
+          taskApprovals++;
+        }
+      }
+    });
+
+    summaries.push({
+      label: monthLabel,
+      taskSubmissions,
+      taskApprovals,
+      eventSubmissions,
+      eventApprovals
+    });
+  }
+
+  return summaries;
+};
 </script>
 
 <style scoped>
@@ -460,7 +592,7 @@ const clearArrays = () => {
   background-color: #FAFAFA;
   padding: 0.5rem 1rem;
   border-radius: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-weight: 500;
 }
 
@@ -468,7 +600,7 @@ const clearArrays = () => {
 .analytics-section {
   background-color: #FAFAFA;
   border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -549,16 +681,17 @@ const clearArrays = () => {
 /* Content Section */
 .content {
   display: grid;
-  grid-template-columns: 1fr 1fr; 
-  gap: 20px; 
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   padding: 0 0 35px;
 }
 
-.left-column, .right-column {
+.left-column,
+.right-column {
   display: flex;
   flex-direction: column;
-  width: 100%; 
-  max-width: 700px; 
+  width: 100%;
+  max-width: 700px;
 }
 
 .arrow-button {
@@ -568,25 +701,25 @@ const clearArrays = () => {
 }
 
 .content-header {
-  display: flex; 
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%; 
+  width: 100%;
   height: 65px;
   color: #202020;
-  font-size: 2vw; 
+  font-size: 2vw;
   font-weight: 400;
   text-align: center;
 }
 
 .student-tasks-body,
 .upcoming-events-body {
-  width: 100%; 
-  max-width: 700px; 
+  width: 100%;
+  max-width: 700px;
   background: #FAFAFA;
-  flex-grow: 1; 
-  min-height: 500px; 
-  height: 75vh; 
+  flex-grow: 1;
+  min-height: 500px;
+  height: 75vh;
   overflow-y: auto;
 }
 
@@ -605,7 +738,7 @@ const clearArrays = () => {
 }
 
 .card-item {
-  width: 100%; 
+  width: 100%;
   max-width: 700px;
   background: #F9F7F7;
   box-shadow: 0px 4px 4px rgba(32, 32, 32, 0.20);
@@ -613,15 +746,15 @@ const clearArrays = () => {
   align-items: center;
   justify-content: space-between;
   padding: 15px;
-  font-size: 1.2vw; 
+  font-size: 1.2vw;
   border-radius: 10px;
   margin: 5px 0;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .card-item:hover {
-  transform: translateY(-3px); 
-  box-shadow: 0px 8px 12px rgba(32, 32, 32, 0.3); 
+  transform: translateY(-3px);
+  box-shadow: 0px 8px 12px rgba(32, 32, 32, 0.3);
 }
 
 .card-item button {
@@ -660,7 +793,7 @@ const clearArrays = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -690,39 +823,39 @@ const clearArrays = () => {
   text-align: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  font-size: 30px; 
-  font-weight: bold; 
+  font-size: 30px;
+  font-weight: bold;
 }
 
 .reflection-box {
-  width: 100%; 
+  width: 100%;
   display: flex;
   justify-content: center;
-  border: 2px solid #B0B0B0; 
-  border-radius: 5px; 
+  border: 2px solid #B0B0B0;
+  border-radius: 5px;
   padding: 10px;
   font-size: 16px;
-  resize: vertical; 
-  outline: none; 
+  resize: vertical;
+  outline: none;
   justify-content: space-between;
   margin: 15px 0;
 }
 
 .textarea-container {
-  width: 100%; 
+  width: 100%;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
 }
 
 .textarea-container textarea {
-  width: 100%; 
-  min-height: 100px; 
-  border: 2px solid #B0B0B0; 
-  border-radius: 5px; 
+  width: 100%;
+  min-height: 100px;
+  border: 2px solid #B0B0B0;
+  border-radius: 5px;
   padding: 10px;
   font-size: 16px;
-  resize: vertical; 
-  outline: none; 
+  resize: vertical;
+  outline: none;
 }
 
 .textarea-container textarea:focus {
@@ -762,5 +895,45 @@ button.selected {
   margin-top: 15px;
   color: white;
   width: 100%;
+}
+
+/* Export Button Styles */
+.export-btn {
+  background-color: white;
+  color: #5EC4B6;
+  border: 2px solid #5EC4B6;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: auto;
+}
+
+.export-btn:hover {
+  background-color: #5EC4B6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.export-btn i {
+  font-size: 16px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.role-icon {
+  color: #5EC4B6;
+  font-size: 1.8rem;
+  margin-right: 0.75rem;
 }
 </style>
