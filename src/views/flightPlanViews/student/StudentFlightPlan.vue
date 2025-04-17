@@ -82,7 +82,7 @@
                                         }).replace('AM', 'am').replace('PM', 'pm') }}
                                     <br>
                                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name
-                                    }}</span>
+                                        }}</span>
                                 </td>
                                 <td></td>
                             </tr>
@@ -274,7 +274,7 @@ import ExperienceTypeServices from "@/services/flightPlanServices/experienceType
 import ExperienceTypeEventServices from "@/services/flightPlanServices/experienceTypeEventServices";
 import EventServices from "@/services/flightPlanServices/eventServices";
 
-import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, checkForFlightPlan } from '@/utils/flightPlanGeneration';
 import { getRecommendedEventsForTask, getRecommendedEventsForExperience } from '@/utils/eventRecommendation'
 import { getStudentFlightPlanTasks, getStudentFlightPlanExperienceTypes, isStudentSemesterFlightPlanCompleteNotClaimed, setFlightPlanComplete } from '@/utils/flightPlanCompletion'
 
@@ -450,7 +450,7 @@ const requestTask = () => {
 
 onMounted(async () => {
     await getSessionData();
-    await checkForFlightPlan();
+    await checkForFlightPlan(student.value);
 
     await getAllSemesterData();
     await fetchFlightPlanInformationForSemester(currentSemesterIndex.value)
@@ -553,14 +553,6 @@ const getNextSemester = async () => {
 
     }
 };
-
-// Check for flight plan
-const checkForFlightPlan = async () => {
-    const semester = await getSemester();
-    const flightPlan = await getFlightPlan(semester);
-    const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
-    if (studentFlightPlan.length < 1) await generateFlightPlan(student.value, semester);
-}
 
 // Event stuff
 const ViewEventsPage = () => {
