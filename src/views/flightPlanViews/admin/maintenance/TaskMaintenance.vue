@@ -58,7 +58,7 @@
   </div>
 
   <div v-if="showTaskDetails" class="modal edit-form-body">
-    <v-card class="edit-popup mx-auto">
+    <v-card class="edit-popup mx-auto" style="max-width: 850px;">
       <v-card-title class="popup-header">
         <v-text-field v-model="taskName">
           <Icon icon="material-symbols:edit-outline" width="24" height="24" />
@@ -70,11 +70,11 @@
       <!-- Category-->
       <v-container class="popup-content">
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.category }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.category }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-select v-model="taskCategory" :items="categoryOptions" variant="solo-filled" density="compact"
               hide-details class="filter-menu"></v-select>
           </v-col>
@@ -82,11 +82,11 @@
 
         <!-- Frequency-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.schedule }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.schedule }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-select v-model="scheduleType" :items="frequencyOptions" variant="solo-filled" density="compact"
               hide-details class="filter-menu"></v-select>
           </v-col>
@@ -94,76 +94,76 @@
 
         <!-- Description-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.description }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.description }}</label>
           </v-col>
-          <v-col cols="7">
+          <v-col cols="9">
             <v-textarea v-model="taskDescription" rows="2" variant="outlined" density="compact"></v-textarea>
           </v-col>
         </v-row>
 
         <!-- Rationale-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.rationale }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.rationale }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-text-field v-model="taskRationale" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Semesters from Grad-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.semesters }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.semesters }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-text-field v-model="semFromGrad" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Point Value-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.points }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.points }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-text-field v-model="taskPointValue" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Prereq Task-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.prereq }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.prereq }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-text-field v-model="taskPreReq" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Video Type-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.video }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.video }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-text-field v-model="taskVideoLink" variant="outlined" density="compact" hide-details></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Verification-->
         <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.verification }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.verification }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-select v-model="verificationType" :items="verificationOptions" variant="solo-filled" density="compact"
               hide-details class="filter-menu"></v-select>
           </v-col>
@@ -172,15 +172,106 @@
         <div v-if="quizMessage" style="color: red">{{ quizMessage }}</div>
         <!-- Quiz Link -->
         <v-row class="form-row" v-if="verificationType === 'Quiz'">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.quizLink }}</label>
+          <v-col cols="3" class="label-column">
+            <label class="label-description">{{ labels.quizLink }}</label>
           </v-col>
 
-          <v-col cols="7">
+          <v-col cols="9">
             <v-text-field v-model="quizLink" variant="outlined" density="compact"
               hide-details></v-text-field>
           </v-col>
         </v-row>
+
+        <!-- Clifton Strengths -->
+        <v-row class="form-row">
+          <v-col cols="3" class="label-column">
+            <label class="label-description">Clifton Strengths</label>
+          </v-col>
+          <v-col cols="9">
+              <v-row align="center" justify="start">
+                <v-col v-for="(cliftonStrengthSelection, i) in cliftonStrengthSelections"
+                  :key="cliftonStrengthSelection.name" class="py-1 pe-0" cols="auto">
+                  <v-chip closable class="ma-1" color="primary" rounded="lg"
+                    @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
+
+                    {{ cliftonStrengthSelection.name }}
+                  </v-chip>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-menu v-model="cliftonStrengthMenu" close-on-content-click>
+                    <template v-slot:activator="{ props }">
+                      <v-text-field ref="cliftonStrengthSearchField" v-model="cliftonStrengthSearch" label="Search"
+                        hide-details single-line variant="solo" density="compact"
+                        v-bind="props">
+                      </v-text-field>
+                    </template>
+
+                    <v-list style="max-height: 300px; overflow-y: auto;">
+                      <template v-for="cliftonStrengths in filteredCliftonStrengths">
+                        <v-list-item
+                          v-if="!newCliftonStrengths.cliftonStrengthsToAdd.includes(cliftonStrengths)"
+                          :key="cliftonStrengths.id"
+                          @click="newCliftonStrengths.cliftonStrengthsToAdd.push(cliftonStrengths)">
+                          <template v-slot:prepend>
+                          </template>
+
+                          <v-list-item-title v-text="cliftonStrengths.name">
+                          </v-list-item-title>
+                        </v-list-item>
+                      </template>
+                    </v-list>
+                  </v-menu>
+                </v-col>
+              </v-row>
+          </v-col>
+        </v-row>
+
+        <!-- Majors -->
+        <v-row class="form-row">
+          <v-col cols="3" class="label-column">
+            <label class="label-description">Majors</label>
+          </v-col>
+          <v-col cols="9">
+              <v-row align="center" justify="start">
+                <v-col v-for="(majorSelection, i) in majorSelections"
+                  :key="majorSelection.name" class="py-1 pe-0" cols="auto">
+                  <v-chip closable class="ma-1" color="primary" rounded="lg"
+                    @click:close="newMajors.majorsToAdd.splice(i, 1)">
+
+                    {{ majorSelection.name }}
+                  </v-chip>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-menu v-model="majorMenu" close-on-content-click>
+                    <template v-slot:activator="{ props }">
+                      <v-text-field ref="majorSearchField" v-model="majorSearch" label="Search"
+                        hide-details single-line variant="solo" density="compact"
+                        v-bind="props">
+                      </v-text-field>
+                    </template>
+
+                    <v-list style="max-height: 300px; overflow-y: auto;">
+                      <template v-for="majors in filteredMajors">
+                        <v-list-item
+                          v-if="!newMajors.majorsToAdd.includes(majors)"
+                          :key="majors.id"
+                          @click="newMajors.majorsToAdd.push(majors)">
+                          <template v-slot:prepend>
+                          </template>
+
+                          <v-list-item-title v-text="majors.name">
+                          </v-list-item-title>
+                        </v-list-item>
+                      </template>
+                    </v-list>
+                  </v-menu>
+                </v-col>
+              </v-row>
+          </v-col>
+        </v-row>
+
       </v-container>
 
       <v-divider></v-divider>
@@ -198,11 +289,15 @@
 
 <script setup>
 import "@/assets/generic-stylesheet.css";
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import TaskServices from '@/services/flightPlanServices/taskServices';
 import verificationServices from '@/services/flightPlanServices/verificationServices'; 
+import cliftonStrengthServices from "@/services/flightPlanServices/cliftonStrengthServices";
+import taskCliftonStrengthServices from "@/services/flightPlanServices/taskCliftonStrengthServices";
+import majorServices from "@/services/flightPlanServices/majorServices";
 import { Icon } from "@iconify/vue";
-import { linkFormToSheet } from '@/services/flightPlanServices/quizLinkServices'; 
+import { linkFormToSheet } from '@/services/flightPlanServices/quizLinkServices';
+import taskMajorServices from "@/services/flightPlanServices/taskMajorServices";
 
 const search = ref('');
 const tasks = ref([]);
@@ -234,6 +329,46 @@ const taskDescription = ref("");
 const quizLink = ref(null);
 const publicURL = ref(null);
 const verification = ref(null);
+
+// CliftonStrengths Variables
+const cliftonStrengthSearch = ref('');
+const cliftonStrengths = ref(null);
+const cliftonStrengthMenu = ref(false);
+const oldTaskCliftonStrengths = ref(null);
+const cliftonStrengthSearchField = ref(null);
+
+const newCliftonStrengths = ref({
+    cliftonStrengthsToAdd: [],
+});
+
+// Majors Variables
+const majorSearch = ref('');
+const majors = ref(null);
+const majorMenu = ref(false);
+const oldTaskMajors = ref(null);
+const majorSearchField = ref(null);
+
+const newMajors = ref({
+  majorsToAdd: [],
+});
+
+const filteredCliftonStrengths = computed(() => {
+  const _search = cliftonStrengthSearch.value.toLowerCase();
+  if (!_search) return cliftonStrengths.value;
+  return cliftonStrengths.value.filter(item => {
+    const text = item.name.toLowerCase()
+    return text.indexOf(_search) > -1
+  })
+})
+
+const filteredMajors = computed(() => {
+  const _search = majorSearch.value.toLowerCase();
+  if (!_search) return majors.value;
+  return majors.value.filter(item => {
+    const text = item.name.toLowerCase();
+    return text.indexOf(_search) > -1;
+  })
+})
 
 const headers = ref([
   { align: 'start', key: 'name', title: 'Name' },
@@ -276,8 +411,10 @@ const filteredTasks = computed(() => {
   });
 });
 
-onMounted(() => {
+onMounted(async () => {
   getAllTasks();
+  await getAllCliftonStrengths();
+  await getAllMajors();
 });
 
 const getAllTasks = () => {
@@ -291,8 +428,6 @@ const getAllTasks = () => {
       console.error(err);
     });
 }
-
-
 
 const editTaskPopup = async (task) => {
   taskToEdit.value = task;
@@ -312,6 +447,18 @@ const editTaskPopup = async (task) => {
   scheduleType.value = capitalize(taskToEdit.value.schedule_type);
   quizMessage.value = "";
   quizLink.value = null;
+
+  cliftonStrengthSearchField.value = null;
+  cliftonStrengthMenu.value = false;
+  oldTaskCliftonStrengths.value = (await taskCliftonStrengthServices.getAllCliftonStrengthsForTask(taskToEdit.value.id)).data;
+  const oldCliftonStrengths = cliftonStrengths.value.filter(cliftonStrength => oldTaskCliftonStrengths.value.some(taskCliftonStrength => cliftonStrength.id === taskCliftonStrength.cliftonStrengthId));
+  newCliftonStrengths.value.cliftonStrengthsToAdd = oldCliftonStrengths;
+
+  majorSearchField.value = null;
+  majorMenu.value = false;
+  oldTaskMajors.value = (await taskMajorServices.getAllMajorsForTask(taskToEdit.value.id)).data;
+  const oldMajors = majors.value.filter(major => oldTaskMajors.value.some(taskMajor => major.id === taskMajor.majorId));
+  newMajors.value.majorsToAdd = oldMajors;
 
   await getVerfication(taskToEdit.value.verificationId);
   if (verification.value.type === 'quiz') {
@@ -350,16 +497,13 @@ const editTask = async () => {
     verificationId: verificationId,
   };
 
-  TaskServices.updateTask(taskToEdit.value.id, updatedTask)
-    .then((response) => {
-      console.log("Task updated successfully:", response.data);
-      showTaskDetails.value = false;
-      getAllTasks();
-    })
-    .catch((e) => {
-      message.value = e.response.data.message;
-      deleteError.value = true;
-    });
+
+  await TaskServices.updateTask(taskToEdit.value.id, updatedTask);
+  showTaskDetails.value = false;
+  getAllTasks();
+
+  updateCliftonStrengthsToTask();
+  updateMajorsToTask();
 };
 
 
@@ -380,6 +524,14 @@ const addTaskPopup = () => {
   taskDescription.value = "";
   scheduleType.value = "";
   quizLink.value = null;
+
+  cliftonStrengthSearchField.value = null;
+  cliftonStrengthMenu.value = false;
+  newCliftonStrengths.value.cliftonStrengthsToAdd = [];
+
+  majorSearchField.value = null;
+  majorMenu.value = false;
+  newMajors.value.majorsToAdd = [];
 };
 
 
@@ -406,18 +558,12 @@ const addTask = async () => {
     verificationId: verificationId
   };
 
-  console.log(newTask)
+  await TaskServices.createTask(newTask);
+  showTaskDetails.value = false;
+  getAllTasks();
 
-  TaskServices.createTask(newTask).then((response) => {
-    showTaskDetails.value = false;
-    console.log("Task added successfully:", response.data);
-    getAllTasks();
-  })
-    .catch((e) => {
-      console.log(e)
-      //message.value = e.response.data.message;
-      deleteError.value = true;
-    });
+  updateCliftonStrengthsToTask();
+  updateMajorsToTask();
 }
 
 
@@ -520,4 +666,69 @@ const verifyQuiz = async () => {
   }
 }
 
+const getAllCliftonStrengths = async () => {
+  cliftonStrengths.value = (await cliftonStrengthServices.getAllCliftonStrengths()).data;
+}
+
+const getAllMajors = async () => {
+  majors.value = (await majorServices.getAllMajors()).data;
+}
+
+const cliftonStrengthSelections = computed(() => {
+    const selections = [];
+    for (const selection of newCliftonStrengths.value.cliftonStrengthsToAdd) {
+        selections.push(selection);
+    }
+    return selections;
+});
+
+const majorSelections = computed(() => {
+  const selections = [];
+  for (const selection of newMajors.value.majorsToAdd) {
+    selections.push(selection);
+  }
+  return selections;
+});
+
+watch(newCliftonStrengths.value.cliftonStrengthsToAdd, () => {
+    cliftonStrengthSearch.value = '';
+});
+
+watch(newMajors.value.majorsToAdd, () => {
+  majorSearch.value = '';
+});
+
+const updateCliftonStrengthsToTask = async () => {
+  for (const cliftonStrength of newCliftonStrengths.value.cliftonStrengthsToAdd) {
+    if (!oldTaskCliftonStrengths.value.some(oldCliftonStrength => oldCliftonStrength.cliftonStrengthId === cliftonStrength.id)) {
+      const taskCliftonStrength = {
+        cliftonStrengthId: cliftonStrength.id,
+        taskId: taskToEdit.value.id
+      }
+      await taskCliftonStrengthServices.createSystemTaskCliftonStrength(taskCliftonStrength);
+    }
+  }
+
+  for (const cliftonStrength of oldTaskCliftonStrengths.value) {
+    if (!newCliftonStrengths.value.cliftonStrengthsToAdd.some(newCliftonStrength => newCliftonStrength.id === cliftonStrength.cliftonStrengthId)) {
+      await taskCliftonStrengthServices.deleteSystemTaskCliftonStrength(cliftonStrength.id);
+    }
+  }
+}
+
+const updateMajorsToTask = async () => {
+  for (const major of newMajors.value.majorsToAdd) {
+    const taskMajor = {
+      majorId: major.id,
+      taskId: taskToEdit.value.id
+    }
+    await taskMajorServices.createSystemTaskMajor(taskMajor);
+  }
+
+  for (const major of oldTaskMajors.value) {
+    if (!newMajors.value.majorsToAdd.some(newMajor => newMajor.id === major.majorId)) {
+      await taskMajorServices.deleteSystemTaskMajor(major.id);
+    }
+  }
+}
 </script>

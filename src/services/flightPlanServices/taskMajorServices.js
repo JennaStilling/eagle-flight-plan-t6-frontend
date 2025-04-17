@@ -10,6 +10,9 @@ export default {
     getAllTaskMajors() {
         return apiClient.get(`flightPlan-t6/taskMajor`);
     },
+    getAllMajorsForTask(taskId) {
+        return apiClient.get(`flightPlan-t6/task/${taskId}/taskMajor`);
+    },
     getTaskMajor(taskId, majorId, id) {
         return apiClient.get(`flightPlan-t6/task/${taskId}/major/${majorId}/taskMajor/${id}`);
     },

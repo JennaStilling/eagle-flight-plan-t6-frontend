@@ -10,6 +10,9 @@ export default {
     getAllExperienceTypeCliftonStrengths() {
         return apiClient.get(`flightPlan-t6/experienceTypeCliftonStrength`);
     },
+    getAllCliftonStrengthsForExperienceType(experienceTypeId) {
+        return apiClient.get(`flightPlan-t6/experienceType/${experienceTypeId}/experienceTypeCliftonStrength`);
+    },
     getExperienceTypeCliftonStrength(experienceTypeId, cliftonStrengthId, id) {
         return apiClient.get(`flightPlan-t6/experienceType/${experienceTypeId}/cliftonStrength/${cliftonStrengthId}/experienceTypeCliftonStrength/${id}`);
     },

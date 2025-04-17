@@ -10,6 +10,9 @@ export default {
     getAllTaskCliftonStrengths() {
         return apiClient.get(`flightPlan-t6/taskCliftonStrength`);
     },
+    getAllCliftonStrengthsForTask(taskId) {
+        return apiClient.get(`flightPlan-t6/task/${taskId}/taskCliftonStrength`);
+    },
     getTaskCliftonStrength(taskId, cliftonStrengthId, id) {
         return apiClient.get(`flightPlan-t6/task/${taskId}/cliftonStrength/${cliftonStrengthId}/taskCliftonStrength/${id}`);
     },

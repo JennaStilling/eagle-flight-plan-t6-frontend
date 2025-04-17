@@ -10,6 +10,9 @@ export default {
     getAllExperienceTypeMajors() {
       return apiClient.get(`flightPlan-t6/experienceTypeMajor`);
     },
+    getAllMajorsForExperienceType(experienceTypeId) {
+      return apiClient.get(`flightPlan-t6/experienceType/${experienceTypeId}/experienceTypeMajor`);
+    },
     getExperienceTypeMajor(experienceTypeId, majorId, id, data) {
       return apiClient.post(`flightPlan-t6/experienceType/${experienceTypeId}/major/${majorId}/experienceTypeMajor/${id}`, data);
     },
