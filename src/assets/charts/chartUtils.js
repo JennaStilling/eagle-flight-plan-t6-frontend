@@ -83,9 +83,6 @@ export async function fetchStudentActivityData(timeFrame) {
     
     const events = eventResponse.data;
     const tasks = taskResponse.data;
-    
-    console.log(`Fetched ${events.length} events and ${tasks.length} tasks`);
-    
     const now = new Date();
     
     // Process data based on time frame
@@ -151,12 +148,6 @@ function processMonthlyData(events, tasks, now) {
     });
   }
   
-  // Add debug to verify date ranges
-  console.log('Date ranges for Past 30 Days chart:');
-  weekBoundaries.forEach((week, i) => {
-    console.log(`Week ${i+1}: ${week.start.toLocaleString()} to ${week.end.toLocaleString()}`);
-  });
-  
   // Process each event
   events.forEach(event => {
     if (!event.updatedAt) return;
@@ -204,13 +195,6 @@ function processMonthlyData(events, tasks, now) {
       }
     }
   });
-  
-  // Debug data counts
-  console.log('Monthly chart data:');
-  console.log('Task submissions by week:', taskSubmissions);
-  console.log('Approved tasks by week:', approvedTasks);
-  console.log('Event submissions by week:', eventSubmissions);
-  console.log('Event approvals by week:', eventApprovals);
   
   return {
     labels: labels,
@@ -299,13 +283,6 @@ function processAllTimeData(events, tasks, now) {
       }
     }
   });
-  
-  // Debug data counts
-  console.log('All-time chart data:');
-  console.log('Task submissions by month:', taskSubmissions);
-  console.log('Approved tasks by month:', approvedTasks);
-  console.log('Event submissions by month:', eventSubmissions);
-  console.log('Event approvals by month:', eventApprovals);
   
   return {
     labels: labels,

@@ -445,6 +445,8 @@ const clearArrays = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .homepage-header h1 {
