@@ -11,7 +11,7 @@
                         </template>
                     </v-text-field>
 
-                    <v-btn class="button" variant="elevated" color="#5EC4B6" @click="addEventPopup()">
+                    <v-btn class="button" variant="elevated" color="#5EC4B6" @click="requestEventPopup()">
                         Request Custom Event
                     </v-btn>
 
@@ -115,10 +115,11 @@
             </v-data-table>
         </div>
 
+        <!-- This is the div for the event modal. Recommendation: abstract the request custom event into a modal -->
         <div v-if="showEventDetails" class="modal edit-form-body">
             <v-card class="edit-popup mx-auto">
                 <v-card-title class="popup-header">
-                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details disabled>
+                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details :disabled="!eventAdd">
                     </v-text-field>
                 </v-card-title>
 
@@ -130,13 +131,13 @@
                         </v-col>
                         <v-col cols="7">
                             <v-textarea v-model="eventDescription" auto-grow variant="outlined" density="compact"
-                                disabled>
+                            :disabled="!eventAdd">
                             </v-textarea>
                         </v-col>
                     </v-row>
 
                     <!-- Type-->
-                    <v-row class="form-row">
+                    <v-row class="form-row" v-if="!eventAdd">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.type }}</label>
                         </v-col>
@@ -154,7 +155,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-text-field v-model="eventStartDate" type="date" variant="outlined" density="compact"
-                                hide-details @update:model-value="updateEndDate" disabled></v-text-field>
+                                hide-details @update:model-value="updateEndDate" :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -165,7 +166,7 @@
                         </v-col>
                         <v-col cols="7">
                             <v-text-field v-model="eventEndDate" type="date" variant="outlined" density="compact"
-                                hide-details :min="eventStartDate" disabled></v-text-field>
+                                hide-details :min="eventStartDate" :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -177,7 +178,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventStartTime" type="time" variant="outlined" density="compact"
-                                hide-details disabled></v-text-field>
+                                hide-details :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -189,7 +190,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventEndTime" type="time" variant="outlined" density="compact"
-                                hide-details disabled></v-text-field>
+                                hide-details :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -201,7 +202,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventLocation" variant="outlined" density="compact" hide-details
-                                disabled></v-text-field>
+                            :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -213,12 +214,12 @@
 
                         <v-col cols="7">
                             <v-select v-model="eventAttendanceType" :items="attendanceTypes" variant="solo-filled"
-                                density="compact" hide-details class="filter-menu" disabled></v-select>
+                                density="compact" hide-details class="filter-menu" :disabled="!eventAdd"></v-select>
                         </v-col>
                     </v-row>
 
                     <!-- Status - -->
-                    <v-row class="form-row">
+                    <v-row class="form-row" v-if="!eventAdd">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.status }}</label>
                         </v-col>
@@ -230,14 +231,14 @@
                     </v-row>
 
                     <!-- Point Value -->
-                    <v-row class="form-row">
+                    <v-row class="form-row" v-if="!eventAdd">
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.points }}</label>
                         </v-col>
 
                         <v-col cols="7">
                             <v-text-field v-model="eventPointValue" variant="outlined" density="compact" hide-details
-                                disabled></v-text-field>
+                            disabled></v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -249,9 +250,12 @@
                     <v-btn v-if="checkIfStudentIsSignedUp(eventId)"
                         @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
                         variant="flat">Unregister</v-btn>
-                    <v-btn v-if="!checkIfStudentIsSignedUp(eventId)"
-                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#708E9A"
-                        variant="flat">Register</v-btn>
+                    <v-btn v-if="!viewPersonalCalendar && eventEdit"
+                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#5EC4B6"
+                        variant="flat" style="color: white;">Register</v-btn>
+                    <v-btn v-if="eventAdd"
+                        @click="requestEvent(), showEventDetails = false" color="#5EC4B6"
+                        variant="flat" style="color: white;">Request</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
 
                 </v-card-actions>
@@ -282,6 +286,7 @@ import StudentServices from '@/services/resumeBuilderServices/studentServices'
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
 import Utils from '@/config/utils';
+import EventModal from '@/components/flightPlanComponents/studentPages/EventModal.vue';
 import "@/assets/generic-stylesheet.css";
 
 const search = ref('');
@@ -784,6 +789,263 @@ const editEventPopup = (task) => {
             console.error(err);
         });
 
+};
+
+const editEvent = () => {
+    if (eventType.value === 'Career Prep') {
+        eventType.value = 'career_prep'
+    }
+
+    if (eventScheduleType.value === 'One Time') {
+        eventScheduleType.value = 'one_time'
+    }
+
+    if (eventScheduleType.value === 'Special Event') {
+        eventScheduleType.value = 'special_event'
+    }
+
+    if (eventScheduleType.value === 'Every Semester') {
+        eventScheduleType.value = 'every_semester'
+    }
+
+    if (eventType.value === 'Extra Curricular') {
+        eventType.value = 'extra_curricular'
+    }
+
+    if (eventType.value === 'Career Fair') {
+        eventType.value = 'career_fair'
+    }
+
+    if (eventType.value === 'Career Services') {
+        eventType.value = 'career_services'
+    }
+
+    if (eventType.value === 'Lunch and Learn') {
+        eventType.value = 'lunch_and_learn'
+    }
+
+    if (eventType.value === 'Galup Strengths Class') {
+        eventType.value = 'galup_strengths_class'
+    }
+
+    if (eventStatus.value === 'In Progress') {
+        eventStatus.value = 'in_progress'
+    }
+
+    if (eventAttendanceType.value === 'In Person') {
+        eventAttendanceType.value = 'in_person'
+    }
+
+
+    const startDate = parseISO(eventStartDate.value);
+    const endDate = parseISO(eventEndDate.value);
+    const [startHours, startMinutes] = eventStartTime.value.split(':');
+    const [endHours, endMinutes] = eventEndTime.value.split(':');
+
+    const startDateTime = set(startDate, {
+        hours: parseInt(startHours),
+        minutes: parseInt(startMinutes),
+        seconds: 0
+    });
+
+    const endDateTime = set(endDate, {
+        hours: parseInt(endHours),
+        minutes: parseInt(endMinutes),
+        seconds: 0
+    });
+
+    const updatedEvent = {
+        name: eventName.value,
+        description: eventDescription.value,
+        event_type: eventType.value.toLowerCase(),
+        date: startDateTime.toISOString(),
+        start_date_time: startDateTime.toISOString(),
+        end_date_time: endDateTime.toISOString(),
+        location: eventLocation.value,
+        attendance_type: eventAttendanceType.value,
+        custom: eventCustomEvent.value,
+        status: eventStatus.value,
+        point_value: eventPointValue.value
+    };
+
+    EventServices.updateEvent(eventToEdit.value.id, updatedEvent)
+        .then((response) => {
+            showEventDetails.value = false;
+            getAllEvents();
+        })
+        .catch((e) => {
+            console.log(e.value)
+            message.value = e.response.data.message;
+            deleteError.value = true;
+        });
+};
+
+const requestEventPopup = () => {
+    showEventDetails.value = true;
+    eventAdd.value = true;
+    eventEdit.value = false;
+    eventToEdit.value = null;
+
+    eventName.value = "";
+    eventDescription.value = "";
+    eventType.value = "custom";
+    eventStartDate.value = "";
+    eventEndDate.value = "";
+    eventStartTime.value = "";
+    eventEndTime.value = "";
+    eventLocation.value = "";
+    eventAttendanceType.value = "";
+    eventCustomEvent.value = false;
+    eventStatus.value = "";
+    eventPointValue.value = "";
+};
+
+const requestEvent = () => {
+    if (eventType.value === 'Career Prep') {
+        eventType.value = 'career_prep'
+    }
+
+    if (eventScheduleType.value === 'One Time') {
+        eventScheduleType.value = 'one_time'
+    }
+
+    if (eventScheduleType.value === 'Special Event') {
+        eventScheduleType.value = 'special_event'
+    }
+
+    if (eventScheduleType.value === 'Every Semester') {
+        eventScheduleType.value = 'every_semester'
+    }
+
+    if (eventType.value === 'Extra Curricular') {
+        eventType.value = 'extra_curricular'
+    }
+
+    if (eventType.value === 'Career Fair') {
+        eventType.value = 'career_fair'
+    }
+
+    if (eventType.value === 'Career Services') {
+        eventType.value = 'career_services'
+    }
+
+    if (eventType.value === 'Lunch and Learn') {
+        eventType.value = 'lunch_and_learn'
+    }
+
+    if (eventType.value === 'Galup Strengths Class') {
+        eventType.value = 'galup_strengths_class'
+    }
+
+    if (eventStatus.value === 'In Progress') {
+        eventStatus.value = 'in_progress'
+    }
+
+    if (eventAttendanceType.value === 'In Person') {
+        eventAttendanceType.value = 'in_person'
+    }
+
+
+    const startDate = parseISO(eventStartDate.value);
+    const endDate = parseISO(eventEndDate.value);
+    const [startHours, startMinutes] = eventStartTime.value.split(':');
+    const [endHours, endMinutes] = eventEndTime.value.split(':');
+
+    const startDateTime = set(startDate, {
+        hours: parseInt(startHours),
+        minutes: parseInt(startMinutes),
+        seconds: 0
+    });
+
+    const endDateTime = set(endDate, {
+        hours: parseInt(endHours),
+        minutes: parseInt(endMinutes),
+        seconds: 0
+    });
+
+    const newEvent = {
+        name: eventName.value,
+        description: eventDescription.value,
+        event_type: eventType.value.toLowerCase(),
+        date: startDateTime.toISOString(),
+        start_date_time: startDateTime.toISOString(),
+        end_date_time: endDateTime.toISOString(),
+        location: eventLocation.value,
+        attendance_type: eventAttendanceType.value.toLowerCase(),
+        custom: eventCustomEvent.value,
+        status: eventStatus.value.toLowerCase(),
+        point_value: eventPointValue.value
+    };
+
+    EventServices.createEvent(newEvent).then((response) => {
+        showEventDetails.value = false;
+        getAllEvents();
+    })
+        .catch((e) => {
+            console.log(e.response.data)
+            message.value = e.response.data.message;
+            deleteError.value = true;
+        });
+}
+
+const deleteEventConfirmation = (task) => {
+    EventServices.getEvent(task.id)
+        .then((res) => {
+            typeToDelete.value = res.data;
+            showDeleteItem.value = true
+            showEventDetails.value = false;
+        })
+        .catch((e) => {
+            console.log(e.response.data)
+            message.value = e.response.data.message;
+            deleteError.value = true;
+        });
+};
+
+const deleteEvent = async () => {
+    try {
+        await EventServices.deleteEvent(typeToDelete.value.id);
+        events.value = events.value.filter(event => event.id !== typeToDelete.value.id);
+
+        // if (calendarApp.value) {
+        //   calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
+        //   calendarApp.value.events = calendarFormattedEvents.value;
+        // }
+
+        reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
+
+        showDeleteItem.value = false;
+        typeToDelete.value = null;
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        deleteError.value = true;
+    }
+};
+
+const deleteSelectedEvents = async (selected) => {
+    if (selected.length > 0) {
+        try {
+            const deletePromises = selected.map(event => EventServices.deleteEvent(event.id));
+            await Promise.all(deletePromises);
+
+            const deletedIds = selected.map(event => event.id);
+            events.value = events.value.filter(event => !deletedIds.includes(event.id));
+
+            //   if (calendarApp.value) {
+            //     calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
+            //     calendarApp.value.events = calendarFormattedEvents.value;
+            //   }
+
+            reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
+            selected.length = 0;
+
+        } catch (error) {
+            console.error('Error deleting selected events:', error);
+            deleteError.value = true;
+        }
+    } else {
+        console.log("No events selected.");
+    }
 };
 
 const reloadPage = () => {
