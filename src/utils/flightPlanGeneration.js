@@ -23,6 +23,14 @@ let aheadOffsetTask = 4;
 let behindOffsetExperience = 3;
 let aheadOffsetExperience = 1;
 
+// Check for student flight plan 
+export async function checkForFlightPlan(student) {
+    const semester = await getSemester();
+    const flightPlan = await getFlightPlan(semester);
+    const studentFlightPlan = (await studentFlightPlanServices.getAllStudentFlightPlans(student.id, flightPlan.id)).data;
+    if (studentFlightPlan.length < 1) await generateFlightPlan(student, semester);
+}
+
 export function setNumberOfTasks(numOfTasks, numOfExperiences, offset) {
     try {
 
@@ -126,7 +134,7 @@ export async function generateFlightPlan(student, semester) {
 
         // Create the flight plan and assign the correct number of tasks/experiences depending on their pace
         const flightPlan = await getFlightPlan(semester);
-        
+
         const flightPlanData = {
             studentId: student.id,
             flightPlanId: flightPlan.id,
