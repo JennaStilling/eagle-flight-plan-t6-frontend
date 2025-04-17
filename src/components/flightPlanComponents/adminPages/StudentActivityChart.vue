@@ -55,7 +55,7 @@ const initializeChart = async () => {
             backgroundColor: taskSubmissionsGradient,
             borderColor: '#5EC4B6',
             borderWidth: 1,
-            borderRadius: 10,
+            borderRadius: 8,
             maxBarThickness: 25, 
             barPercentage: 0.7  
           },
@@ -65,7 +65,7 @@ const initializeChart = async () => {
             backgroundColor: approvedTasksGradient,
             borderColor: '#78A9C3',
             borderWidth: 1,
-            borderRadius: 10,
+            borderRadius: 8,
             maxBarThickness: 25, 
             barPercentage: 0.7 
           },
@@ -75,7 +75,7 @@ const initializeChart = async () => {
             backgroundColor: eventSubmissionsGradient,
             borderColor: '#F68D76',
             borderWidth: 1,
-            borderRadius: 10,
+            borderRadius: 8,
             maxBarThickness: 25, 
             barPercentage: 0.7   
           },
@@ -85,7 +85,7 @@ const initializeChart = async () => {
             backgroundColor: eventApprovalsGradient,
             borderColor: '#B580D1',
             borderWidth: 1,
-            borderRadius: 10,
+            borderRadius: 8,
             maxBarThickness: 25,
             barPercentage: 0.7   
           }
