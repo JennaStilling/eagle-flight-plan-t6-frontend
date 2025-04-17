@@ -82,7 +82,7 @@
                                         }).replace('AM', 'am').replace('PM', 'pm') }}
                                     <br>
                                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name
-                                    }}</span>
+                                        }}</span>
                                 </td>
                                 <td></td>
                             </tr>
@@ -188,45 +188,66 @@
     </div>
 
     <div v-if="showTaskDetails" class="modal edit-form-body">
-    <v-card class="edit-popup mx-auto">
-      <v-card-title class="popup-header">
-        <v-text-field v-model="requestName"></v-text-field>
-      </v-card-title>
+        <v-card class="edit-popup mx-auto">
+            <v-card-title class="popup-header">
+                <v-text-field v-model="requestName"></v-text-field>
+            </v-card-title>
 
-      <v-divider></v-divider>
-      <!-- Start of Body -->
-      <v-container class="popup-content">
-        <!-- Description-->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.description }}</label>
-          </v-col>
-          <v-col cols="7">
-            <v-textarea v-model="requestDescription" rows="2" variant="outlined" density="compact"></v-textarea>
-          </v-col>
-        </v-row>
+            <v-divider></v-divider>
+            <!-- Start of Body -->
+            <v-container class="popup-content">
+                <!-- Description-->
+                <v-row class="form-row">
+                    <v-col cols="5" class="label-column">
+                        <label>{{ labels.description }}</label>
+                    </v-col>
+                    <v-col cols="7">
+                        <v-textarea v-model="requestDescription" rows="2" variant="outlined"
+                            density="compact"></v-textarea>
+                    </v-col>
+                </v-row>
 
-        <!-- Rationale-->
-        <v-row class="form-row">
-          <v-col cols="5" class="label-column">
-            <label>{{ labels.rationale }}</label>
-          </v-col>
+                <!-- Rationale-->
+                <v-row class="form-row">
+                    <v-col cols="5" class="label-column">
+                        <label>{{ labels.rationale }}</label>
+                    </v-col>
 
-          <v-col cols="7">
-            <v-text-field v-model="requestRationale" variant="outlined" density="compact" hide-details></v-text-field>
-          </v-col>
-        </v-row>
-      </v-container>
+                    <v-col cols="7">
+                        <v-text-field v-model="requestRationale" variant="outlined" density="compact"
+                            hide-details></v-text-field>
+                    </v-col>
+                </v-row>
+            </v-container>
 
-      <v-divider></v-divider>
+            <v-divider></v-divider>
 
-      <v-card-actions class="popup-actions">
-        <v-spacer></v-spacer>
-        <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
-        <v-btn color="#5EC4B6" variant="flat" class="button" @click="taskRequest = requestTask()">Request</v-btn>
-      </v-card-actions>
-    </v-card>
-  </div>
+            <v-card-actions class="popup-actions">
+                <v-spacer></v-spacer>
+                <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
+                <v-btn color="#5EC4B6" variant="flat" class="button"
+                    @click="taskRequest = requestTask()">Request</v-btn>
+            </v-card-actions>
+        </v-card>
+    </div>
+    <div v-if="currentStudentFlightPlanComplete">
+        <v-overlay v-model="completedOverlay" class="popup" persistent>
+            <v-card class="completed-flightplan">
+                <h1 style="text-align: center; color: #4CAF50;">🎉 Congratulations! 🎉</h1>
+                <p style="text-align: center; font-size: 1.2rem; margin-top: 1rem;">
+                    You have successfully completed your Flightplan for
+                    <strong>{{ currentSemester?.name || `this semester` }}</strong>!
+                </p>
+                <p style="text-align: center; font-size: 1rem; margin-top: 1rem;">
+                    Keep up the great work and continue striving for success!
+                </p>
+                <v-btn class="button" variant="elevated" color="#5EC4B6"
+                    @click="completedOverlay = false, setFlightPlanComplete(completedFlightPlan)">
+                    Take Flight!
+                </v-btn>
+            </v-card>
+        </v-overlay>
+    </div>
 </template>
 
 <script setup>
@@ -253,8 +274,9 @@ import ExperienceTypeServices from "@/services/flightPlanServices/experienceType
 import ExperienceTypeEventServices from "@/services/flightPlanServices/experienceTypeEventServices";
 import EventServices from "@/services/flightPlanServices/eventServices";
 
-import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, checkForFlightPlan } from '@/utils/flightPlanGeneration';
 import { getRecommendedEventsForTask, getRecommendedEventsForExperience } from '@/utils/eventRecommendation'
+import { getStudentFlightPlanTasks, getStudentFlightPlanExperienceTypes, isStudentSemesterFlightPlanCompleteNotClaimed, setFlightPlanComplete } from '@/utils/flightPlanCompletion'
 
 // Components
 import TaskPreview from "@/components/flightPlanComponents/studentPages/taskPreview.vue";
@@ -268,6 +290,9 @@ const student = ref(null);
 const semesters = ref([]);
 const currentSemesterIndex = ref(0);
 
+const completedOverlay = ref(false);
+const currentStudentFlightPlanComplete = ref(false);
+const completedFlightPlan = ref(null);
 const studentSemesterFlightPlanTasks = ref({});
 
 const experienceTypesForStudentFlightPlans = ref({});
@@ -320,16 +345,16 @@ const loadingData = ref({
 });
 
 const labels = {
-  category: "Category",
-  reflection: "Reflection Required?",
-  schedule: "Frequency",
-  description: "Description",
-  rationale: "Rationale",
-  semesters: "Semesters",
-  points: "Point Value",
-  prereq: "Pre-Requisites",
-  video: "Video Link",
-  verification: "Verification Type"
+    category: "Category",
+    reflection: "Reflection Required?",
+    schedule: "Frequency",
+    description: "Description",
+    rationale: "Rationale",
+    semesters: "Semesters",
+    points: "Point Value",
+    prereq: "Pre-Requisites",
+    video: "Video Link",
+    verification: "Verification Type"
 };
 
 const showRecommendedEvents = ref(false);
@@ -407,7 +432,7 @@ const requestTask = () => {
         point_value: requestPointValue.value,
         // verificationId: "Requested", Change this to the correct verification type
     };
-    
+
     console.log(task)
 
     TaskServices.createTask(task).then((response) => {
@@ -415,17 +440,17 @@ const requestTask = () => {
         console.log("Task added successfully:", response.data);
         getAllTasks();
     })
-    .catch((e) => {
-        console.log(e)
-        deleteError.value = true;
-    });
+        .catch((e) => {
+            console.log(e)
+            deleteError.value = true;
+        });
 
     //Send email to admin
 }
 
 onMounted(async () => {
     await getSessionData();
-    await checkForFlightPlan();
+    await checkForFlightPlan(student.value);
 
     await getAllSemesterData();
     await fetchFlightPlanInformationForSemester(currentSemesterIndex.value)
@@ -468,6 +493,18 @@ const fetchFlightPlanInformationForSemester = async (semesterIndex) => {
     if (isSemesterFlightPlanInfoMissing(semesterIndex)) {
         getSemesterFlightPlanInformation(semesterIndex);
     }
+    isStudentFlightPlanComplete(semesterIndex);
+}
+
+//checks if flight plan is complete
+const isStudentFlightPlanComplete = async (semesterIndex) => {
+    currentStudentFlightPlanComplete.value = await isStudentSemesterFlightPlanCompleteNotClaimed(semesters.value[semesterIndex], student.value);
+    if (currentStudentFlightPlanComplete.value) {
+        completedOverlay.value = true;
+        const currentFlightPlan = await getFlightPlan(semesters.value[semesterIndex]);
+        completedFlightPlan.value = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, currentFlightPlan.id)).data[0]
+    }
+    console.log(currentStudentFlightPlanComplete.value)
 }
 
 const isSemesterFlightPlanInfoMissing = (semesterIndex) => {
@@ -485,63 +522,21 @@ const getSemesterFlightPlanInformation = async (semesterIndex) => {
 
 // flight plan tasks are sorted by semester indexes for the sake of switching between semesters
 const getSemesterTasks = async (semesterIndex, currentStudentFlightPlan) => {
-    const studentFlightPlanTasks = (await StudentFlightPlanTaskServices.getStudentFlightPlanTasks(currentStudentFlightPlan.id)).data;
-    const newSemesterTasks = [];
-
-    for (const studentFlightPlanTask of studentFlightPlanTasks) {
-        const task = await TaskServices.getTask(studentFlightPlanTask.taskId);
-        newSemesterTasks.push({
-            ...task.data,
-            status: studentFlightPlanTask.status,
-            unapprove_reason: studentFlightPlanTask.unapprove_reason,
-            student_flight_plan_task_id: studentFlightPlanTask.id
-        })
-    }
-    studentSemesterFlightPlanTasks.value[semesterIndex] = newSemesterTasks;
+    studentSemesterFlightPlanTasks.value[semesterIndex] = await (getStudentFlightPlanTasks(currentStudentFlightPlan));
 }
 
 // flight plan tasks are sorted by semester indexes for the sake of switching between semesters
 const getSemesterExperienceData = async (semesterIndex, currentStudentFlightPlan) => {
-    const studentEventIsComplete = (studentEvent) => studentEvent.status === 'approved';
-    const studentFlightPlanExperienceTypes = (await StudentFlightPlanExperienceTypeServices.getAllExperienceTypesForStudentFlightPlan(currentStudentFlightPlan.id)).data;
-    const newSemesterExperienceTypes = [];
-
-    for (const studentFlightPlanExperienceType of studentFlightPlanExperienceTypes) {
-        const experienceType = (await ExperienceTypeServices.getExperienceType(studentFlightPlanExperienceType.experienceTypeId)).data;
-        const studentFlightPlanExperienceTypeEvents = (await StudentFlightPlanExperienceTypeEventServices.getStudentFlightPlanExperienceTypeEvents(studentFlightPlanExperienceType.id)).data;
-        newSemesterExperienceTypes.push({
-            ...experienceType,
-            experienceCompleted: studentFlightPlanExperienceTypeEvents.some(studentEventIsComplete),
-        })
-    }
-
-    experienceTypesForStudentFlightPlans.value[semesterIndex] = newSemesterExperienceTypes;
+    experienceTypesForStudentFlightPlans.value[semesterIndex] = await (getStudentFlightPlanExperienceTypes(currentStudentFlightPlan));
 
     eventsByExperienceTypesForStudentFlightPlans.value[semesterIndex] = {};
     for (const experienceType of experienceTypesForStudentFlightPlans.value[semesterIndex]) {
         eventsByExperienceTypesForStudentFlightPlans.value[semesterIndex][experienceType.id] = await getEventsForExperienceType(experienceType.id);
     }
 }
-
-// Old method, could return here?
-
-// const getEventsForExperienceType = async (experienceTypeId) => {
-//     const experienceTypeEvents = await ExperienceTypeEventServices.getAllEpxerienceTypeEventsForExperienceType(experienceTypeId);
-//     const events = ref([]);
-//     for (const experienceTypeEvent of experienceTypeEvents.data) {
-//         const event = await EventServices.getEvent(experienceTypeEvent.eventId);
-//         events.value.push(event.data);
-//     }
-//     return events.value;
-// }
-
+// gets recommended events for experience type
 const getEventsForExperienceType = async (experienceTypeId) => {
     const experienceTypeEvents = await getRecommendedEventsForExperience(experienceTypeId);
-    // const events = ref([]);
-    // for (const experienceTypeEvent of experienceTypeEvents) {
-    //     const event = await EventServices.getEvent(experienceTypeEvent.eventId);
-    //     events.value.push(event.data);
-    // }
     return experienceTypeEvents;
 }
 
@@ -558,14 +553,6 @@ const getNextSemester = async () => {
 
     }
 };
-
-// Check for flight plan
-const checkForFlightPlan = async () => {
-    const semester = await getSemester();
-    const flightPlan = await getFlightPlan(semester);
-    const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
-    if (studentFlightPlan.length < 1) await generateFlightPlan(student.value, semester);
-}
 
 // Event stuff
 const ViewEventsPage = () => {
@@ -747,5 +734,20 @@ const checkIfStudentIsSignedUp = async (id) => {
     border: none;
     border-top: 1px solid #eee;
     margin: 10px 0;
+}
+
+.completed-flightplan {
+    background-color: #ffffff;
+    width: 700px;
+    height: 350px;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 }
 </style>

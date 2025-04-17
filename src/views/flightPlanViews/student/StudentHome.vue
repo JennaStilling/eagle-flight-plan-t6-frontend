@@ -3,19 +3,13 @@
     <div class="left-side">
       <!-- Semesters -->
       <div class="semester-navigation">
-        <button @click="getPreviousSemester">
-          <img :src="BackArrow" alt="Previous Semester" />
-        </button>
-        <h1>{{ semesters[currentSemesterIndex]?.name || `Loading...` }}</h1>
-        <button @click="getNextSemester">
-          <img :src="ForwardArrow" alt="Next Semester" />
-        </button>
+        <h1>{{ currentSemester?.name || `Loading...` }}</h1>
       </div>
       <!-- Tasks -->
       <div class="task-data-table-container">
         <table class="task-data-table">
           <tbody>
-            <tr v-for="task in studentSemesterFlightPlanTasks[currentSemesterIndex] || []" :key="task.id">
+            <tr v-for="task in currentStudentSemesterFlightPlanTasks" :key="task.id">
               <td class="task-card" @click="openTaskModal(task)">
                 <div class="task-content">{{ task.name }} - {{ task.point_value }}pts</div>
               </td>
@@ -45,18 +39,18 @@
                   <td class="date">
                     <div class="month">{{ new Date(event.date).toLocaleDateString('en-US', {
                       month: 'short'
-                      }).toLocaleUpperCase() }}</div>
+                    }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.date).toLocaleDateString('en-US', { day: '2-digit' }) }}</div>
                   </td>
                   <td style="user-select: none;">
                     {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                    hour: 'numeric', minute: 'numeric',
-                    hour12: true
+                      hour: 'numeric', minute: 'numeric',
+                      hour12: true
                     }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                    Date(event.end_date_time).toLocaleTimeString('en-US', {
-                    hour: 'numeric', minute: 'numeric', hour12:
-                    true
-                    }).replace('AM', 'am').replace('PM', 'pm') }}
+                      Date(event.end_date_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric', minute: 'numeric', hour12:
+                          true
+                      }).replace('AM', 'am').replace('PM', 'pm') }}
                     <br>
                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                   </td>
@@ -95,20 +89,20 @@
                   <td class="date">
                     <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
                       month: 'short'
-                      }).toLocaleUpperCase() }}</div>
+                    }).toLocaleUpperCase() }}</div>
                     <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', { day: '2-digit' })
-                      }}
+                    }}
                     </div>
                   </td>
                   <td style="user-select: none;">
                     {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                    hour: 'numeric', minute: 'numeric',
-                    hour12: true
+                      hour: 'numeric', minute: 'numeric',
+                      hour12: true
                     }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                    Date(event.end_date_time).toLocaleTimeString('en-US', {
-                    hour: 'numeric', minute: 'numeric', hour12:
-                    true
-                    }).replace('AM', 'am').replace('PM', 'pm') }}
+                      Date(event.end_date_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric', minute: 'numeric', hour12:
+                          true
+                      }).replace('AM', 'am').replace('PM', 'pm') }}
                     <br>
                     <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name }}</span>
                   </td>
@@ -149,7 +143,7 @@
         selectedTask.status }}</div>
       <div v-if="selectedTask.status === 'unapproved'" style="margin-top: 15px;">Reason: {{
         selectedTask.unapprove_reason
-        }}</div>
+      }}</div>
       <v-spacer></v-spacer>
       <v-card-actions>
         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="viewFlightPlan">
@@ -163,7 +157,7 @@
           v-if="getVerificationType === 'quiz' && selectedTask.status != 'approved'">
           Take Quiz
         </v-btn>
-        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="uploadDocument()" 
+        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="uploadDocument()"
           v-if="getVerificationType === 'required_document' && selectedTask.status === 'in_progress' || selectedTask.status === 'unapproved'">
           Upload Document
         </v-btn>
@@ -185,12 +179,12 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
         }) }}
       </div>
       <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
@@ -215,12 +209,12 @@
       </div>
       <div style="margin-bottom: 15px;">
         {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
         }) }} -
         {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit',
-        hour12: true
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
         }) }}
       </div>
       <div class="button-row">
@@ -241,9 +235,26 @@
   </div>
 
   <div class="modal-overlay" v-if="showDocument">
-    <DocumentSubmission :task="selectedTask"
-    @close-document="closeModal"
-    />
+    <DocumentSubmission :task="selectedTask" @close-document="closeModal" />
+  </div>
+
+  <div v-if="currentStudentFlightPlanComplete">
+    <v-overlay v-model="completedOverlay" class="popup" persistent>
+      <v-card class="completed-flightplan">
+        <h1 style="text-align: center; color: #4CAF50;">🎉 Congratulations! 🎉</h1>
+        <p style="text-align: center; font-size: 1.2rem; margin-top: 1rem;">
+          You have successfully completed your Flightplan for
+          <strong>{{ currentSemester?.name || `this semester` }}</strong>!
+        </p>
+        <p style="text-align: center; font-size: 1rem; margin-top: 1rem;">
+          Keep up the great work and continue striving for success!
+        </p>
+        <v-btn class="button" variant="elevated" color="#5EC4B6"
+          @click="completedOverlay = false, setFlightPlanComplete(currentStudentFlightPlan)">
+          Take Flight!
+        </v-btn>
+      </v-card>
+    </v-overlay>
   </div>
 </template>
 
@@ -253,22 +264,15 @@ import { useHomePageStore } from '@/store/homePageStore';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Utils from "@/config/utils";
-// Image Files
-import BackArrow from '@/assets/ArrowBackwardIcon.svg';
-import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
 // Service Files
 import UserServices from "@/services/resumeBuilderServices/userServices";
 import StudentServices from "@/services/resumeBuilderServices/studentServices";
-import StudentFlightPlanTaskServices from '@/services/flightPlanServices/studentFlightPlanTaskServices';
 import StudentFlightPlanServices from "@/services/flightPlanServices/studentFlightPlanServices";
-import TaskServices from "@/services/flightPlanServices/taskServices";
-import EventServices from "@/services/flightPlanServices/eventServices";
-import SemesterServices from '@/services/flightPlanServices/semesterServices';
-import FlightPlanServices from '@/services/flightPlanServices/flightPlanServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
 import verificationServices from '@/services/flightPlanServices/verificationServices';
 import { get } from '@vueuse/core';
-import { getSemester, getFlightPlan, generateFlightPlan } from '@/utils/flightPlanGeneration';
+import { getSemester, getFlightPlan, checkForFlightPlan } from '@/utils/flightPlanGeneration';
+import { getStudentFlightPlanTasks, isStudentSemesterFlightPlanCompleteNotClaimed, setFlightPlanComplete } from '@/utils/flightPlanCompletion'
 import "@/assets/generic-stylesheet.css";
 
 import { asyncComputed } from '@vueuse/core';
@@ -291,9 +295,12 @@ const selectedEvent = ref({});
 const taskModalVisible = ref(false);
 const selectedTask = ref({});
 
-const semesters = ref([]);
-const currentSemesterIndex = ref(0);
-const studentSemesterFlightPlanTasks = ref({});
+const currentSemester = ref(null);
+const currentFlightPlan = ref(null);
+const currentStudentFlightPlan = ref(null);
+const currentStudentSemesterFlightPlanTasks = ref({});
+const currentStudentFlightPlanComplete = ref(false);
+const completedOverlay = ref(true);
 
 const attendanceModalVisible = ref(false);
 const pastEvents = ref([]);
@@ -307,9 +314,8 @@ const showDocument = ref(false);
 onMounted(async () => {
   await getSessionData();
   await checkForFlightPlan(student.value);
-
-  await getAllSemesterData();
-  await getSemesterTasks(currentSemesterIndex.value);
+  await getCurrentStudentFlightPlan();
+  await getCurrentStudentFlightPlanTasks(currentStudentFlightPlan.value);
 
   // past events
   try {
@@ -333,68 +339,25 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error fetching events:', error);
   }
+
+  currentStudentFlightPlanComplete.value = await isStudentSemesterFlightPlanCompleteNotClaimed(currentSemester.value, student.value);
 });
 
 const getSessionData = async () => {
   const userStore = Utils.getStore("user");
-  const tempUser = await UserServices.getUser(userStore.userId);
-  user.value = tempUser.data;
-  const tempStudent = await StudentServices.getStudent(user.value.studentId);
-  student.value = tempStudent.data;
+  user.value = (await UserServices.getUser(userStore.userId)).data;
+  student.value = (await StudentServices.getStudent(user.value.studentId)).data;
   currentDate.value = new Date().toJSON().slice(0, 24);
 }
 
-const getAllSemesterData = async () => {
-  await getSemesters();
-  sortSemestersByDate();
-  await getCurrentSemesterIndex();
+const getCurrentStudentFlightPlan = async () => {
+  currentSemester.value = await getSemester();
+  currentFlightPlan.value = await getFlightPlan(currentSemester.value);
+  currentStudentFlightPlan.value = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, currentFlightPlan.value.id)).data[0]
 }
 
-const getSemesters = async () => {
-  const studentFlightPlans = await StudentFlightPlanServices.getAllFlightPlansForStudent(student.value.id);
-  for (const studentFlightPlan of studentFlightPlans.data) {
-    const flightPlan = await FlightPlanServices.getFlightPlanById(studentFlightPlan.flightPlanId);
-    const semester = await SemesterServices.getSemester(flightPlan.data.semesterId);
-    semesters.value.push(semester.data);
-  }
-}
-
-const sortSemestersByDate = () => {
-  semesters.value = semesters.value.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
-}
-
-const getCurrentSemesterIndex = async () => {
-  const currentSemester = await getSemester();
-  currentSemesterIndex.value = semesters.value.findIndex(
-    (semester) => semester.name === currentSemester.name
-  );
-}
-
-// flight plan tasks are sorted by semester indexes for the sake of switching between semesters
-const getSemesterTasks = async (semesterIndex) => {
-  if (studentSemesterFlightPlanTasks.value[semesterIndex]) {
-    return;
-  }
-
-  const flightPlan = await getFlightPlan(semesters.value[semesterIndex]);
-  const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.value.id, flightPlan.id)).data;
-  const currentFlightPlan = studentFlightPlan[0];
-  const studentFlightPlanTasks = (await StudentFlightPlanTaskServices.getStudentFlightPlanTasks(currentFlightPlan.id)).data;
-
-  const newSemesterTasks = [];
-
-  for (const studentFlightPlanTask of studentFlightPlanTasks) {
-    const task = await TaskServices.getTask(studentFlightPlanTask.taskId);
-    if (studentFlightPlanTask.status !== 'approved') {
-      newSemesterTasks.push({
-        ...task.data,
-        status: studentFlightPlanTask.status,
-        unapprove_reason: studentFlightPlanTask.unapprove_reason,
-        student_flight_plan_task_id: studentFlightPlanTask.id
-      })
-    }
-  }
-  studentSemesterFlightPlanTasks.value[semesterIndex] = newSemesterTasks;
+const getCurrentStudentFlightPlanTasks = async (currentStudentFlightPlan) => {
+  currentStudentSemesterFlightPlanTasks.value = (await (getStudentFlightPlanTasks(currentStudentFlightPlan))).filter(task => task.status !== 'approved');
 }
 
 // modals --------------------
@@ -418,27 +381,6 @@ const viewMoreEvents = () => {
   localStorage.setItem('viewPersonalCalendar', false);
   router.push({ name: 'student-events' });
 };
-// semester navigation ----------------------------------------------
-const getPreviousSemester = async () => {
-  if (currentSemesterIndex.value > 0) {
-    currentSemesterIndex.value--;
-    await getSemesterTasks(currentSemesterIndex.value)
-  }
-};
-const getNextSemester = async () => {
-  if (currentSemesterIndex.value < semesters.value.length - 1) {
-    currentSemesterIndex.value++;
-    await getSemesterTasks(currentSemesterIndex.value)
-  }
-};
-
-// Check for flight plan
-const checkForFlightPlan = async (student) => {
-  const semester = await getSemester();
-  const flightPlan = await getFlightPlan(semester);
-  const studentFlightPlan = (await StudentFlightPlanServices.getAllStudentFlightPlans(student.id, flightPlan.id)).data;
-  if (studentFlightPlan.length < 1) await generateFlightPlan(student, semester);
-}
 
 // event stuff
 const viewFlightPlan = () => {
@@ -560,50 +502,6 @@ const loadRegisteredEvents = async () => {
   }
 };
 
-const getStudentFlightPlanId = async (studentId, flightPlanId) => {
-  try {
-    const response = await studentFlightPlanServices.getStudentFlightPlanByStudentAndFlightPlan(studentId, flightPlanId);
-    if (response.data) {
-      return response.data[0].id;
-    }
-  } catch (error) {
-    console.error(`Error fetching student flight plan ID for student ID ${studentId} and flight plan ID ${flightPlanId}:`, error);
-  }
-};
-const getStudentFlightPlanTask = async (studentFlightPlanTaskId) => {
-  try {
-    const response = await studentFlightPlanTaskServices.getStudentFlightPlanTask(studentFlightPlanTaskId);
-    if (response.data) {
-      if (response.data.status === 'unapproved' || response.data.status === 'in_progress') {
-        unapprovedOrInProgressTasks.value.push(response.data);
-      }
-      await fetchTaskDetailsForUnapprovedOrInProgressTasks();
-    }
-  } catch (error) {
-    console.error("Error fetching student flight plan task for student: " + error);
-  }
-};
-// Fetch task details for unapproved or in-progress tasks
-const fetchTaskDetailsForUnapprovedOrInProgressTasks = async () => {
-  taskDetails.value = []; // Clear task details before fetching new ones
-  const promises = unapprovedOrInProgressTasks.value.map(async (task) => {
-    try {
-      const taskDetail = await getTaskDetails(task.taskId);
-      if (taskDetail) {
-        return {
-          ...taskDetail,
-          status: task.status,
-          unapprove_reason: task.unapprove_reason
-        };
-      }
-    } catch (error) {
-      console.error(`Error fetching task details for task ID ${task.taskId}:`, error);
-      return null;
-    }
-  });
-  const results = await Promise.all(promises);
-  taskDetails.value = results.filter(Boolean); // Remove null values
-};
 // SIMPLE METHODS
 // modals --------------------
 
@@ -613,7 +511,7 @@ const openAttendanceEventModal = (event) => {
 };
 
 const openTaskModal = (task) => {
-  const taskData = studentSemesterFlightPlanTasks.value[currentSemesterIndex.value].find(t => t.id === task.id);
+  const taskData = currentStudentSemesterFlightPlanTasks.value.find(t => t.id === task.id);
   selectedTask.value = {
     ...task,
     status: taskData.status,
@@ -626,7 +524,7 @@ const closeTaskModal = () => {
 };
 
 const getVerificationType = asyncComputed(async () => {
-  if (selectedTask.value.verificationId){
+  if (selectedTask.value.verificationId) {
     const verification = (await verificationServices.getVerification(selectedTask.value.verificationId)).data;
     return verification.type;
   }
@@ -686,6 +584,7 @@ const closeModal = () => {
   position: relative;
   width: 95%;
   margin-top: 2%;
+  height: 50px;
 }
 
 .semester-navigation button {
@@ -913,5 +812,20 @@ const closeModal = () => {
   justify-content: flex-end;
   gap: 16px;
   width: 100%;
+}
+
+.completed-flightplan {
+  background-color: #ffffff;
+  width: 700px;
+  height: 350px;
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 </style>
