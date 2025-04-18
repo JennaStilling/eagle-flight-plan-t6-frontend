@@ -41,10 +41,11 @@ import EventMaintenance from "./views/flightPlanViews/admin/maintenance/EventMai
 import ExperienceMaintenance from "./views/flightPlanViews/admin/maintenance/ExperienceMaintenance.vue";
 import FlightPlanMaintenance from "./views/flightPlanViews/admin/maintenance/FlightPlanMaintenance.vue";
 import LifeAfterTheNestFP from "./views/flightPlanViews/admin/LifeAfterTheNest.vue";
+import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue"
+import RoleMaintenance from "./views/flightPlanViews/admin/maintenance/RoleMaintenance.vue";
 import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaintenance.vue";
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
-import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue";
 
 // Approval Pages
 import EventApprovals from "./views/flightPlanViews/admin/approvals/EventApprovals.vue";
@@ -240,6 +241,11 @@ const routes = [
     path: "/flightPlan/lifeAfterTheNest",
     name: "lifeAfterTheNest",
     component: LifeAfterTheNestFP,
+  },
+  {
+    path: "/flightPlan/role/Maintenance",
+    name: "role",
+    component: RoleMaintenance,
   },
   {
     path: "/flightPlan/task/Maintenance",
@@ -489,7 +495,7 @@ router.beforeEach(async (to, from) => {
       permissions.value = [];
       const userResponse = await UserServices.getUser(user.value.userId);
       currentUser.value = userResponse.data;
-      
+
       const permissionsResponse = await UserRolePermissionServices.getAllPermissionsForUser(currentUser.value.id);
       permissionsResponse.data.forEach((userPermission) =>
         permissions.value.push(userPermission.permissionId)
@@ -531,7 +537,7 @@ router.beforeEach(async (to, from) => {
       }
 
       return true;
-    
+
     } catch (err) {
       console.log("Error:", err);
       return { name: "login" };
