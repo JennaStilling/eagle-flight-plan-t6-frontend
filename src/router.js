@@ -464,6 +464,10 @@ router.beforeEach(async (to, from) => {
   const permissions = ref([]);
   const userPages = ref([]);
 
+  if (to.name !== "login" && to.name !== "homeFP")
+    localStorage.setItem("lastPageAccessed", to.name);
+  console.log(localStorage.getItem("lastPageAccessed"))
+
   userPages.value = userPages.value.concat(unrestrictedPages);
 
   console.log("User:", user.value);
@@ -476,7 +480,6 @@ router.beforeEach(async (to, from) => {
 
   // not logged in
   if (!isAuthenticated && to.name !== "login") {
-    // TODO: store current page in localStorage (AC #55)
     // TODO: also add condition where it's not the event sign in page (AC #93)
     return { name: "login" };
   }
