@@ -109,6 +109,9 @@
       </v-card-actions>
     </v-card>
   </div>
+  <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
+    {{ snackbarMessage }}
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -136,7 +139,9 @@ const strengthName = ref("");
 const strengthCategory = ref("");
 const strengthDescription = ref("");
 
-
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const headers = ref([
   { align: 'start', key: 'name', title: 'Name' },
@@ -221,6 +226,9 @@ const editStrength = () => {
     .then((response) => {
       console.log("Strength updated successfully:", response.data);
       showStrengthDetails.value = false;
+      //Snackbar success
+      snackbarMessage.value = "Clifton Strength updated successfully!";
+      showSnackbar.value = true;
       getAllStrengths();
     })
     .catch((e) => {
@@ -263,6 +271,9 @@ const addStrength = () => {
   CliftonStrengthServices.createCliftonStrength(newStrength).then((response) => {
     showStrengthDetails.value = false;
     console.log("Strength added successfully:", response.data);
+    //Snackbar success
+    snackbarMessage.value = "Clifton Strength added successfully!";
+    showSnackbar.value = true;
     getAllStrengths();
   })
     .catch((e) => {
@@ -286,6 +297,10 @@ const deleteStrength = () => {
     .then(() => {
       showDeleteItem.value = false;
       strengths.value = strengths.value.filter((allStrengths) => allStrengths.id !== strengthToDelete.value.id);
+      
+      //Snackbar success
+      snackbarMessage.value = "Clifton Strength deleted successfully!";
+      showSnackbar.value = true;
     })
     .catch((e) => {
       message.value = e.response.data.message;
@@ -302,6 +317,9 @@ const deleteSelectedStrengths = (selected) => {
         .then(() => {
           showDeleteItem.value = false;
           strengths.value = strengths.value.filter((allStrengths) => allStrengths.id !== strength.id);
+          //Snackbar success
+          snackbarMessage.value = "Clifton Strength deleted successfully!";
+          showSnackbar.value = true;
         })
         .catch((e) => {
           message.value = e.response.data.message;

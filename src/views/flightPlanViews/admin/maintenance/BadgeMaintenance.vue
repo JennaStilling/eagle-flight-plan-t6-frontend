@@ -69,6 +69,9 @@
         </div>
       </div>
     </div>
+    <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </div>
 
   <!-- Badge Add/Edit Modal -->
@@ -232,7 +235,7 @@
         <v-btn v-if="badgeEdit" class="button" color="red" variant="outlined"
           @click="deleteBadgeConfirmation(badgeToEdit)">Delete</v-btn>
         <v-btn class="button" color="grey" variant="outlined" @click="showBadgeDetails = false">Cancel</v-btn>
-        <v-btn class="button" color="green" variant="flat" @click="badgeEdit ? editBadge() : addBadge()">Save</v-btn>
+        <v-btn class="button" color="#5EC4B6" variant="flat" @click="badgeEdit ? editBadge() : addBadge()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </div>
@@ -295,6 +298,10 @@ const errorMessage = ref("");
 // Badge Image Variables
 const badgeImage = ref(null);
 const badgeImageType = ref(null);
+
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 // Labels for Add/Edit Modal
 const labels = {
@@ -492,6 +499,10 @@ const addBadge = async () => {
       break;
   }
 
+  //Snackbar success
+  snackbarMessage.value = "Badge added successfully!";
+  showSnackbar.value = true;
+  
   getAllBadges();
 
   showBadgeDetails.value = false;
@@ -622,6 +633,10 @@ const editBadge = async () => {
       break;
   }
 
+  //Snackbar success
+  snackbarMessage.value = "Badge updated successfully!";
+  showSnackbar.value = true;
+
   getAllBadges();
 
   showBadgeDetails.value = false;
@@ -675,6 +690,10 @@ const deleteBadge = () => {
     .then(() => {
       showDeleteBadge.value = false;
       badges.value = badges.value.filter((allItems) => allItems.id !== badgeToDelete.value.id);
+
+      //Snackbar success
+      snackbarMessage.value = "Badge deleted successfully!";
+      showSnackbar.value = true;
     })
     .catch((e) => {
       message.value = e.response.data.message;
