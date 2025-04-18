@@ -382,21 +382,7 @@ const studentSignUpForEvent = async(id) => {
     if (!userStudentId.value) {
         return
     }
-    // const eventDetails = {
-    //   summary: "My event",
-    //   description: "Did it!",
-    //   location: "Embry-Riddle Aeronautical University, Daytona Beach, FL",
-    //   start: now.toISOString(),
-    //   end: later.toISOString(),
-    //   timezone: "America/New_York",
-    //   reminders: {
-    //     useDefault: false,
-    //     overrides: [
-    //       { method: "email", minutes: 2880 }, // 2 days
-    //       { method: "email", minutes: 1440 }, // 1 day
-    //     ],
-    //   },
-    // };
+    
     else {
         EventServices.getEvent(id)
         .then( async (res) => {
