@@ -491,7 +491,7 @@ router.beforeEach(async (to, from) => {
       permissionsResponse.data.forEach((userPermission) =>
         permissions.value.push(userPermission.permissionId)
       );
-      console.log(permissions.value);
+      // console.log(permissions.value);
 
       //rest of auth
       userPages.value = userPages.value.concat(anyRolePages);
@@ -515,7 +515,7 @@ router.beforeEach(async (to, from) => {
       if (permissions.value.includes(9))
         userPages.value = userPages.value.concat(professorViewPages);
 
-      console.log(userPages.value);
+      // console.log(userPages.value);
 
       // routing
       if (!userPages.value.includes(to.name)) {
