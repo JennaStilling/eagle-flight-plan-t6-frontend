@@ -288,6 +288,7 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
+import { createCalendarEvent } from "@/utils/googleApiUtils";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
@@ -377,22 +378,60 @@ const checkIfStudentIsSignedUp = (id) => {
     return !!studentSpecificEvent;
 }
 
-const studentSignUpForEvent = (id) => {
+const studentSignUpForEvent = async(id) => {
     if (!userStudentId.value) {
         return
     }
+    // const eventDetails = {
+    //   summary: "My event",
+    //   description: "Did it!",
+    //   location: "Embry-Riddle Aeronautical University, Daytona Beach, FL",
+    //   start: now.toISOString(),
+    //   end: later.toISOString(),
+    //   timezone: "America/New_York",
+    //   reminders: {
+    //     useDefault: false,
+    //     overrides: [
+    //       { method: "email", minutes: 2880 }, // 2 days
+    //       { method: "email", minutes: 1440 }, // 1 day
+    //     ],
+    //   },
+    // };
     else {
-        const newStudentEvent = {
-            eventId: id,
-            studentId: userStudentId.value
-        }
-        StudentEventServices.createStudentEvent(newStudentEvent)
+        EventServices.getEvent(id)
+        .then( async (res) => {
+            await createCalendarEvent({
+                summary: res.data.name,
+                description: res.data.description,
+                location: res.data.location,
+                start: res.data.start_date_time,
+                end: res.data.end_date_time,
+                timezone: "America/Chicago",
+                reminders: {
+        useDefault: false,
+        overrides: [
+          { method: "email", minutes: 2880 }, 
+          { method: "email", minutes: 1440 },
+        ],
+      },
+            });
+            const newStudentEvent = {
+                eventId: id,
+                studentId: userStudentId.value
+            }
+            StudentEventServices.createStudentEvent(newStudentEvent)
+            .then( async (res) => {
+            
+        })
+            .catch((error) => {
+                console.log("error", error);
+            });
+        })
             .catch((error) => {
                 console.log("error", error);
             });
     }
 }
-
 const studentDeleteStudentEvent = (id) => {
     StudentEventServices.getAllStudentEvents()
         .then((res) => {
