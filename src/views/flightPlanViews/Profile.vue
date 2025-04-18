@@ -259,6 +259,9 @@
       </div>
     </div>
   </div>
+  <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
+            {{ snackbarMessage }}
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -312,6 +315,9 @@ const showMajorsModal = ref(false);
 const selectedMajors = ref([]);
 const majorSearchQuery = ref('');
 
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const labels = {
   phoneNumber: "Phone Number",
@@ -498,6 +504,10 @@ const saveStrengths = () => {
               // Update the displayed strengths
               strengthsArray.value = [...selectedStrengths.value];
               showStrengthsModal.value = false;
+
+              //Snackbar success
+              snackbarMessage.value = "Clifton Strengths updated successfully!";
+              showSnackbar.value = true;
             })
             .catch(error => {
               console.error("Error creating new strengths:", error);
@@ -724,6 +734,10 @@ const saveMajors = () => {
               // Update the displayed majors
               studentMajors.value = [...selectedMajors.value];
               showMajorsModal.value = false;
+
+              //Snackbar success
+              snackbarMessage.value = "Your Major(s) updated successfully!";
+              showSnackbar.value = true;
             })
             .catch(error => {
               console.error("Error creating new major associations:", error);

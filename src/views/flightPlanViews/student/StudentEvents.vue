@@ -269,7 +269,7 @@
                 </v-card-actions>
             </v-card>
         </div>
-        <v-snackbar v-model="showSnackbar" timeout="3000" color="#5EC4B6" style="color: white">
+        <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
             {{ snackbarMessage }}
         </v-snackbar>
     </div>

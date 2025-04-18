@@ -22,7 +22,7 @@
                 <div class="d-flex align-center justify-center pa-4">
                     <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
                         @click="prevPage">
-                        < </v-btn>
+                        </v-btn>
 
                             <div class="mx-2 text-caption">
                                 Page {{ page }} of {{ pageCount }}
@@ -52,7 +52,7 @@
                 <div class="d-flex align-center justify-center pa-4">
                     <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
                         @click="prevPage">
-                        < </v-btn>
+                        </v-btn>
 
                             <div class="mx-2 text-caption">
                                 Page {{ page }} of {{ pageCount }}
@@ -64,6 +64,9 @@
             </template>
         </v-data-iterator>
     </v-card>
+    <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
+        {{ snackbarMessage }}
+    </v-snackbar>
 </template>
 
 <script setup>
@@ -97,6 +100,9 @@ const studentBadges = ref([]);
 const nonObtainedBadges = ref([]);
 const obtainedBadges = ref([]);
 
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const loading = computed(() => {
     return Object.values(loadingData.value).some(value => value);
@@ -261,6 +267,9 @@ const claimBadge = async (badge) => {
     student.value.points += badge.points;
     await StudentServices.updateStudent(student.value.id, student.value)
     refresh();
+
+    showSnackbar.value = true;
+    snackbarMessage.value = "Badge claimed successfully!";
 }
 </script>
 
