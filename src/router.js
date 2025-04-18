@@ -44,10 +44,10 @@ import LifeAfterTheNestFP from "./views/flightPlanViews/admin/LifeAfterTheNest.v
 import TaskMaintenance from "./views/flightPlanViews/admin/maintenance/TaskMaintenance.vue";
 import TransactionLogs from "./views/flightPlanViews/admin/TransactionLogs.vue";
 import UserMaintenance from "./views/flightPlanViews/admin/maintenance/userMaintenance.vue";
-import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue"
+import MajorMaintenance from "./views/flightPlanViews/admin/maintenance/MajorMaintenance.vue";
 
 // Approval Pages
-import EventApprovals from "./views/flightPlanViews/admin/approvals/EventApprovals.vue"
+import EventApprovals from "./views/flightPlanViews/admin/approvals/EventApprovals.vue";
 import CustomEventApprovals from "./views/flightPlanViews/admin/approvals/CustomEventApprovals.vue";
 import TaskApprovals from "./views/flightPlanViews/admin/approvals/TaskApprovals.vue";
 import CustomTaskApprovals from "./views/flightPlanViews/admin/approvals/CustomTaskApprovals.vue";
@@ -64,6 +64,8 @@ import Badges from "./views/flightPlanViews/student/StudentBadges.vue";
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
+import UserRoleServices from "./services/resumeBuilderServices/userRoleServices";
+import UserRolePermissionServices from "./services/flightPlanServices/userRolePermissionServices";
 import { computed, ref } from "vue";
 
 const user = computed(() => Utils.getStore("user"));
@@ -255,7 +257,7 @@ const routes = [
     component: UserMaintenance,
   },
   {
-    path: "/flightPlan/cliftonStrength",
+    path: "/flightPlan/cliftonStrength/Maintenance",
     name: "cliftonStrength",
     component: CliftonStrength,
   },
@@ -330,8 +332,144 @@ const router = createRouter({
   routes,
 });
 
+const unrestrictedPages = [
+  "login",
+  //"eventSignUp",
+];
+
+const anyRolePages = ["homeFP", "homeRB", "profile", "settings"];
+
+// 1
+const userMaintenancePages = [
+  "userMaintenance",
+  "major",
+  "cliftonStrength",
+  "badge",
+  "adminHomeFP",
+];
+
+//2
+const flightPlanMaintenancePages = [
+  "task",
+  "experience",
+  "event",
+  "flightPlan",
+  "badge",
+  "adminHomeFP",
+];
+
+// 3
+const flightPlanApprovalPages = [
+  "approveEvent",
+  "approveCustomEvent",
+  "approveTask",
+  "approveCustomTask",
+  "approveExperience",
+  "approveCustomExperience",
+  "adminHomeFP",
+];
+
+// 4
+const shopMaintenancePages = ["award", "adminHomeFP"];
+
+// 5
+const shopApprovalPages = ["transactionLog", "adminHomeFP"];
+
+// 6
+const resumeReviewerPages = [
+  "reviewerHome",
+  "reviewResume",
+  "reivew-inbox",
+  "adminHomeFP",
+];
+
+// 7
+const adminViewPages = [
+  "adminHomeFP",
+  "reviewerHome",
+  "reviewResume",
+  "reivew-inbox",
+  "award",
+  "badge",
+  "event",
+  "experience",
+  "flightPlan",
+  "major",
+  "lifeAfterTheNest",
+  "task",
+  "transactionLog",
+  "userMaintenance",
+  "cliftonStrength",
+  "approveEvent",
+  "approveCustomEvent",
+  "approveTask",
+  "approveCustomTask",
+  "approveExperience",
+  "approveCustomExperience",
+];
+
+// 8
+const studentViewPages = [
+  "studentHome",
+  "resumes",
+  "resume",
+  "addResume",
+  "editResume",
+  "contactInfo",
+  "education",
+  "educationEdit",
+  "experience",
+  "experienceEdit",
+  "certifications",
+  "certificationsEdit",
+  "skills",
+  "skillsEdit",
+  "project",
+  "projectEdit",
+  "shop",
+  "events",
+  "helpfulResources",
+  "leaderboard",
+  "studentHomeFP",
+  "studentFlightPlan",
+  "shop",
+  "student-events",
+  "student-transactions",
+  "student-lifeAfterTheNest",
+  "student-badges",
+];
+
+// 9
+const professorViewPages = [
+  "professorHomeFP",
+  "task",
+  "experience",
+  "event",
+  "flightPlan",
+  "badge",
+  "approveEvent",
+  "approveCustomEvent",
+  "approveTask",
+  "approveCustomTask",
+  "approveExperience",
+  "approveCustomExperience",
+  "reviewerHome",
+  "reviewResume",
+  "reivew-inbox",
+  "adminHomeFP",
+];
+
 router.beforeEach(async (to, from) => {
   const isAuthenticated = !!user.value;
+  const permissions = ref([]);
+  const userPages = ref([]);
+
+  if (to.name !== "login" && to.name !== "homeFP")
+    localStorage.setItem("lastPageAccessed", to.name);
+  console.log(localStorage.getItem("lastPageAccessed"))
+
+  userPages.value = userPages.value.concat(unrestrictedPages);
+
   console.log("User:", user.value);
 
   const currentUser = ref({});
@@ -340,79 +478,67 @@ router.beforeEach(async (to, from) => {
     return true; // Explicitly allow navigation
   }
 
+  // not logged in
+  if (!isAuthenticated && to.name !== "login") {
+    // TODO: also add condition where it's not the event sign in page (AC #93)
+    return { name: "login" };
+  }
+
   if (isAuthenticated) {
     try {
-      const res = await UserServices.getUser(user.value.userId);
-      currentUser.value = res.data;
-    } catch (error) {
-      // just in case
-      console.log("No user found");
+      permissions.value = [];
+      const userResponse = await UserServices.getUser(user.value.userId);
+      currentUser.value = userResponse.data;
+      
+      const permissionsResponse = await UserRolePermissionServices.getAllPermissionsForUser(currentUser.value.id);
+      permissionsResponse.data.forEach((userPermission) =>
+        permissions.value.push(userPermission.permissionId)
+      );
+      // console.log(permissions.value);
+
+      //rest of auth
+      userPages.value = userPages.value.concat(anyRolePages);
+
+      if (permissions.value.includes(1))
+        userPages.value = userPages.value.concat(userMaintenancePages);
+      if (permissions.value.includes(2))
+        userPages.value = userPages.value.concat(flightPlanMaintenancePages);
+      if (permissions.value.includes(3))
+        userPages.value = userPages.value.concat(flightPlanApprovalPages);
+      if (permissions.value.includes(4))
+        userPages.value = userPages.value.concat(shopMaintenancePages);
+      if (permissions.value.includes(5))
+        userPages.value = userPages.value.concat(shopApprovalPages);
+      if (permissions.value.includes(6))
+        userPages.value = userPages.value.concat(resumeReviewerPages);
+      if (permissions.value.includes(7))
+        userPages.value = userPages.value.concat(adminViewPages);
+      if (permissions.value.includes(8))
+        userPages.value = userPages.value.concat(studentViewPages);
+      if (permissions.value.includes(9))
+        userPages.value = userPages.value.concat(professorViewPages);
+
+      // console.log(userPages.value);
+
+      // routing
+      if (!userPages.value.includes(to.name)) {
+        console.log("Access denied to page:", to.name);
+        return { name: "homeFP" };
+      }
+
+      if (to.name === "login") {
+        return { name: "homeFP" };
+      }
+
+      return true;
+    
+    } catch (err) {
+      console.log("Error:", err);
       return { name: "login" };
     }
   }
 
-  const isStudent = !!currentUser.value.studentId;
-  const isAdmin = !!currentUser.value.adminId;
-  const isReviewer = !!currentUser.value.reviewerId;
-
-  const studentPages = [
-    "studentHome",
-    "resumes",
-    "resume",
-    "addResume",
-    "editResume",
-    "contactInfo",
-    "education",
-    "educationEdit",
-    "experience",
-    "experienceEdit",
-    "certifications",
-    "certificationsEdit",
-    "skills",
-    "skillsEdit",
-    "project",
-    "projectEdit",
-    "shop",
-    "events",
-    "helpfulResources",
-    "leaderboard",
-  ];
-
-  const adminPages = ["adminHome"];
-
-  const reviewerPages = ["reviewerHome", "review-inbox", "reviewResume"];
-
-  // not logged in
-  if (!isAuthenticated && to.name !== "login") {
-    return { name: "login" };
-  }
-
-  // Note: This is using the old role system currently in place, once the new one is implemented, this will need to be changed
-  // logged in
-  if (isAuthenticated) {
-    // not a student
-    if (!isStudent && studentPages.includes(to.name)) {
-      console.log("Access denied to student page:", to.name);
-      return { name: "homeFP" };
-    }
-
-    // not an admin
-    if (!isAdmin && adminPages.includes(to.name)) {
-      console.log("Access denied to admin page:", to.name);
-      return { name: "homeFP" };
-    }
-
-    // not a reviewer
-    if (!isReviewer && reviewerPages.includes(to.name)) {
-      console.log("Access denied to reviewer page:", to.name);
-      return { name: "homeFP" };
-    }
-
-    // trying to go to the login page while logged in
-    if (to.name === "login") {
-      return { name: "homeFP" };
-    }
-  }
+  return true;
 });
 
 export default router;

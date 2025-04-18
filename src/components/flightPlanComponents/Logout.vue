@@ -44,6 +44,7 @@ const cancel = () => {
 
 const logout = () => {
     emit("signOut");
+    localStorage.removeItem("lastPageAccessed")
     homeStore.switchView(UserRoles.NONE, HomePages.NONE);
     toggleLogout();
 };
