@@ -347,6 +347,7 @@ router.beforeEach(async (to, from) => {
     } catch (error) {
       // just in case
       console.log("No user found");
+      // TODO: store current page in localStorage (AC #55)
       return { name: "login" };
     }
   }
@@ -513,6 +514,7 @@ router.beforeEach(async (to, from) => {
 
   // not logged in
   if (!isAuthenticated && to.name !== "login") {
+    // TODO: store current page in localStorage (AC #55)
     return { name: "login" };
   }
 
