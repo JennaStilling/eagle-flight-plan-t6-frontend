@@ -482,64 +482,60 @@ router.beforeEach(async (to, from) => {
   }
 
   if (isAuthenticated) {
-    permissions.value = [];
-    UserServices.getUser(user.value.userId)
-      .then((res) => {
-        currentUser.value = res.data;
-        UserRolePermissionServices.getAllPermissionsForUser(currentUser.value.id)
-          .then((res) => {
-            res.data.forEach((userPermission) =>
-              permissions.value.push(userPermission.permissionId)
-            );
-            console.log(permissions.value);
+    try {
+      permissions.value = [];
+      const userResponse = await UserServices.getUser(user.value.userId);
+      currentUser.value = userResponse.data;
+      
+      const permissionsResponse = await UserRolePermissionServices.getAllPermissionsForUser(currentUser.value.id);
+      permissionsResponse.data.forEach((userPermission) =>
+        permissions.value.push(userPermission.permissionId)
+      );
+      console.log(permissions.value);
 
-            //rest of auth
-            userPages.value = userPages.value.concat(anyRolePages);
+      //rest of auth
+      userPages.value = userPages.value.concat(anyRolePages);
 
-            if (permissions.value.includes(1))
-              userPages.value = userPages.value.concat(userMaintenancePages);
-            if (permissions.value.includes(2))
-              userPages.value = userPages.value.concat(flightPlanMaintenancePages);
-            if (permissions.value.includes(3))
-              userPages.value = userPages.value.concat(flightPlanApprovalPages);
-            if (permissions.value.includes(4))
-              userPages.value = userPages.value.concat(shopMaintenancePages);
-            if (permissions.value.includes(5))
-              userPages.value = userPages.value.concat(shopApprovalPages);
-            if (permissions.value.includes(6))
-              userPages.value = userPages.value.concat(resumeReviewerPages);
-            if (permissions.value.includes(7))
-              userPages.value = userPages.value.concat(adminViewPages);
-            if (permissions.value.includes(8))
-              userPages.value = userPages.value.concat(studentViewPages);
-            if (permissions.value.includes(9))
-              userPages.value = userPages.value.concat(professorViewPages);
+      if (permissions.value.includes(1))
+        userPages.value = userPages.value.concat(userMaintenancePages);
+      if (permissions.value.includes(2))
+        userPages.value = userPages.value.concat(flightPlanMaintenancePages);
+      if (permissions.value.includes(3))
+        userPages.value = userPages.value.concat(flightPlanApprovalPages);
+      if (permissions.value.includes(4))
+        userPages.value = userPages.value.concat(shopMaintenancePages);
+      if (permissions.value.includes(5))
+        userPages.value = userPages.value.concat(shopApprovalPages);
+      if (permissions.value.includes(6))
+        userPages.value = userPages.value.concat(resumeReviewerPages);
+      if (permissions.value.includes(7))
+        userPages.value = userPages.value.concat(adminViewPages);
+      if (permissions.value.includes(8))
+        userPages.value = userPages.value.concat(studentViewPages);
+      if (permissions.value.includes(9))
+        userPages.value = userPages.value.concat(professorViewPages);
 
-            console.log(userPages.value);
+      console.log(userPages.value);
 
-            // routing
-            if (!userPages.value.includes(to.name)) {
-                console.log("Access denied to page:", to.name);
-                return { name: "homeFP" };
-            }
+      // routing
+      if (!userPages.value.includes(to.name)) {
+        console.log("Access denied to page:", to.name);
+        return { name: "homeFP" };
+      }
 
-            if (to.name === "login") {
-              return { name: "homeFP" };
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            // TODO: store current page in localStorage (AC #55)
-            return { name: "login" };
-          });
-      })
-      .catch((err) => {
-        // just in case
-        console.log("No user found");
-        // TODO: store current page in localStorage (AC #55)
-        return { name: "login" };
-      });
+      if (to.name === "login") {
+        return { name: "homeFP" };
+      }
+
+      return true;
+    
+    } catch (err) {
+      console.log("Error:", err);
+      return { name: "login" };
+    }
   }
+
+  return true;
 });
 
 export default router;
