@@ -255,7 +255,7 @@ const routes = [
     component: UserMaintenance,
   },
   {
-    path: "/flightPlan/cliftonStrength",
+    path: "/flightPlan/cliftonStrength/Maintenance",
     name: "cliftonStrength",
     component: CliftonStrength,
   },
@@ -350,6 +350,135 @@ router.beforeEach(async (to, from) => {
       return { name: "login" };
     }
   }
+
+  const unrestrictedPages = [
+    "login",
+    //"eventSignUp",
+  ];
+
+  const anyRolePages = [
+    "homeFP", 
+    "homeRB",
+    "profile",
+    "settings",
+  ];
+
+  const userMaintenancePages = [
+    "userMaintenance",
+    "major",
+    "cliftonStrength",
+    "badge",
+    "adminHomeFP",
+  ];
+
+  const flightPlanMaintenancePages = [
+    "task",
+    "experience",
+    "event",
+    "flightPlan",
+    "badge",
+    "adminHomeFP",
+  ];
+
+  const flightPlanApprovalPages = [
+    "approveEvent",
+    "approveCustomEvent",
+    "approveTask",
+    "approveCustomTask",
+    "approveExperience",
+    "approveCustomExperience",
+    "adminHomeFP",
+  ];
+
+  const shopMaintenancePages = [
+    "award", 
+    "adminHomeFP"
+  ];
+
+  const shopApprovalPages = [
+    "transactionLog", 
+    "adminHomeFP"
+  ];
+
+  const resumeReviewerPages = [
+    "reviewerHome",
+    "reviewResume",
+    "reivew-inbox",
+    "adminHomeFP",
+  ];
+
+  const adminViewPages = [
+    "adminHomeFP",
+    "reviewerHome",
+    "reviewResume",
+    "reivew-inbox",
+    "award",
+    "badge",
+    "event",
+    "experience",
+    "flightPlan",
+    "major",
+    "lifeAfterTheNest",
+    "task",
+    "transactionLog",
+    "userMaintenance",
+    "cliftonStrength",
+    "approveEvent",
+    "approveCustomEvent",
+    "approveTask",
+    "approveCustomTask",
+    "approveExperience",
+    "approveCustomExperience",
+  ];
+
+  const studentViewPages = [
+    "studentHome",
+    "resumes",
+    "resume",
+    "addResume",
+    "editResume",
+    "contactInfo",
+    "education",
+    "educationEdit",
+    "experience",
+    "experienceEdit",
+    "certifications",
+    "certificationsEdit",
+    "skills",
+    "skillsEdit",
+    "project",
+    "projectEdit",
+    "shop",
+    "events",
+    "helpfulResources",
+    "leaderboard",
+    "studentHomeFP",
+    "studentFlightPlan",
+    "shop",
+    "student-events",
+    "student-transactions",
+    "student-lifeAfterTheNest",
+    "student-badges",
+  ];
+
+  const professorViewPages = [
+    "professorHomeFP",
+    "task",
+    "experience",
+    "event",
+    "flightPlan",
+    "badge",
+    "approveEvent",
+    "approveCustomEvent",
+    "approveTask",
+    "approveCustomTask",
+    "approveExperience",
+    "approveCustomExperience",
+    "reviewerHome",
+    "reviewResume",
+    "reivew-inbox",
+    "adminHomeFP",
+  ];
 
   const isStudent = !!currentUser.value.studentId;
   const isAdmin = !!currentUser.value.adminId;
