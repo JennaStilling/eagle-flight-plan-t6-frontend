@@ -323,7 +323,11 @@ async function createTaskList(numOfTasks, availableTasks, studentsPreviousTasks)
                 const fetchedTask = (await taskServices.getTask(task.taskId)).data;
                 tasksToFlightPlan.push(fetchedTask);
                 addedTaskIds.add(fetchedTask.id);
-                adjustTaskCount(trackNumberOfTasks, numOfTasks);
+                if (trackNumberOfTasks >= numOfTasks) {
+                    numOfTasks--;
+                } else {
+                    trackNumberOfTasks++;
+                }
             }
 
             tasksToFlightPlan.push(task);
@@ -339,15 +343,6 @@ async function createTaskList(numOfTasks, availableTasks, studentsPreviousTasks)
 async function shouldFetchPrereqTask(prereqTask) {
     if (!prereqTask) return true;
     return prereqTask.status !== 'approved';
-}
-
-// Adjusts the number of tasks added to the list depending on if there are prereqs
-function adjustTaskCount(trackNumberOfTasks, numOfTasks) {
-    if (trackNumberOfTasks >= numOfTasks) {
-        numOfTasks--;
-    } else {
-        trackNumberOfTasks++;
-    }
 }
 
 // Returns a list of experience that will be added to this semester's flight plan

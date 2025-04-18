@@ -13,9 +13,6 @@ export default {
     getAllSystemStudentCliftonStrengths() {
         return apiClient.get(`flightPlan-t6/studentCliftonStrength`);
     },
-    getAllStudentCliftonStrengths(studentId, cliftonStrengthId) {
-        return apiClient.get(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength`);
-    },
     getStudentCliftonStrength(studentId, cliftonStrengthId, id) {
         return apiClient.get(`flightPlan-t6/student/${studentId}/cliftonStrength/${cliftonStrengthId}/studentCliftonStrength/${id}`);
     },
