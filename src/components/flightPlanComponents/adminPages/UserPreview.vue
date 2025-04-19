@@ -1,5 +1,5 @@
 <template>
-    <div class="user-preview" @click="selectUser" @mouseover="handleMouseover" @mouseleave="handleMouseleave">
+    <div class="user-preview" @click="selectUser">
 
         <v-row class="profile-image-row">
             <div v-if="props.user.image" class="image-container">
@@ -11,7 +11,7 @@
             <div>
                 <h3 class="ma-1">{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
                 <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma-1" color="primary" rounded="lg"
-                    :text="formatRole(role.role_type)">
+                    :text="role.name">
                 </v-chip>
             </div>
         </v-row>
@@ -54,13 +54,13 @@
 
                                     <h3>Assigned Roles</h3>
                                     <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma-1"
-                                        color="primary" rounded="lg" :text="formatRole(role.role_type)">
+                                        color="primary" rounded="lg" :text="role.name">
                                     </v-chip>
 
                                     <h3>Available Roles</h3>
                                     <v-chip-group v-model="roleData.rolesToAdd" multiple>
                                         <v-chip v-for="role in roles" :key="role.id" class="ma-1" color="primary"
-                                            rounded="lg" :value="role.role_type" :text="formatRole(role.role_type)">
+                                            rounded="lg" :value="role" :text="role.name">
                                         </v-chip>
                                     </v-chip-group>
                                 </div>
@@ -181,10 +181,8 @@
                                         <v-row align="center" justify="start">
                                             <v-col v-for="(selection, i) in selections" :key="selection.name"
                                                 class="py-1 pe-0" cols="auto">
-                                                <v-chip :disabled="loading" closable class="ma-1" color="primary"
-                                                    rounded="lg"
+                                                <v-chip closable class="ma-1" color="primary" rounded="lg"
                                                     @click:close="newCliftonStrengths.cliftonStrengthsToAdd.splice(i, 1)">
-
                                                     {{ selection.name }}
                                                 </v-chip>
                                             </v-col>
@@ -202,7 +200,7 @@
                                                         <template v-for="cliftonStrengths in filteredCliftonStrengths">
                                                             <v-list-item
                                                                 v-if="!newCliftonStrengths.cliftonStrengthsToAdd.includes(cliftonStrengths)"
-                                                                :key="cliftonStrengths.id" :disabled="loading"
+                                                                :key="cliftonStrengths.id"
                                                                 @click="newCliftonStrengths.cliftonStrengthsToAdd.push(cliftonStrengths)">
                                                                 <template v-slot:prepend>
                                                                 </template>
@@ -260,7 +258,7 @@
                         <div>
                             <h3 class="ma-1">{{ user.prefix }} {{ user.fName }} {{ user.lName }}</h3>
                             <v-chip v-for="role in specificUserRoles" :key="role.id" class="ma-1" color="primary"
-                                rounded="lg" :text="formatRole(role.role_type)">
+                                rounded="lg" :text="role.name">
                             </v-chip>
                         </div>
                     </v-row>
@@ -370,14 +368,12 @@ const formData = ref({
 
 const formatPhoneNumber = (value) => {
     if (!value) return '';
-    // Remove all non-numeric characters
     const cleaned = value.replace(/\D/g, '');
-    // Format as (123) 456-7890
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
     if (match) {
         return `(${match[1]}) ${match[2]}-${match[3]}`;
     }
-    return value; // Return the original value if it doesn't match
+    return value;
 };
 
 const formatDate = (value) => {
@@ -429,14 +425,6 @@ const overlay = ref(false);
 
 const menu = ref(false);
 
-const handleMouseover = () => {
-    //console.log("MOUSE ON");
-};
-
-const handleMouseleave = () => {
-    //console.log("MOUSE OFF");
-};
-
 const triggerFileInput = () => {
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.click();
@@ -478,7 +466,6 @@ const saveUser = () => {
         overlay.value = false;
         emit('save-user', { user: newUser.value, student: newStudent.value, cliftonStrengths: newCliftonStrengths.value.cliftonStrengthsToAdd, newRoles: roleData.value.rolesToAdd });
     }
-
 };
 
 const fixImageData = () => {
@@ -503,18 +490,13 @@ const cancelEdit = () => {
     overlay.value = false;
 };
 
-const formatRole = (role) => {
-    return role.replace(/_/g, ' ')
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
 const getSpecificUserRoles = () => {
     specificUserRoles.value = props.userRoles.map(
         (userRole) => props.roles.find((role) => role?.id === userRole.roleId));
 };
 
 const prePopulateRolesToAdd = () => {
-    roleData.value.rolesToAdd = specificUserRoles.value.map(role => role.role_type);
+    roleData.value.rolesToAdd = specificUserRoles.value;
 };
 
 const prePopulateCliftonStrengthsToAdd = () => {
@@ -523,7 +505,7 @@ const prePopulateCliftonStrengthsToAdd = () => {
 }
 
 const hasRole = (role) => {
-    return roleData.value.rolesToAdd.some((userRole) => userRole === role);
+    return roleData.value.rolesToAdd.map((role) => role.role_type).includes(role)
 };
 
 const updateUserData = () => {
@@ -538,7 +520,6 @@ const updateUserData = () => {
         image_type: props.user.image_type,
         studentId: props.user.studentId
     }
-    // console.log(newUser.value);
 };
 
 const updateStudentData = () => {
@@ -554,7 +535,6 @@ const updateStudentData = () => {
 
 const searchField = ref()
 
-const loading = ref(false)
 const search = ref('')
 
 const filteredCliftonStrengths = computed(() => {

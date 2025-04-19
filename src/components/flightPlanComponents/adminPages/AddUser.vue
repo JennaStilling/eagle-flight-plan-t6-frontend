@@ -27,7 +27,7 @@
                                 <h3>Available Roles</h3>
                                 <v-chip-group v-model="roleData.rolesToAdd" multiple>
                                     <v-chip v-for="role in roles" :key="role.id" class="ma-1" color="primary"
-                                        rounded="lg" :value="role.role_type" :text="formatRole(role.role_type)">
+                                        rounded="lg" :value="role" :text="role.name">
                                     </v-chip>
                                 </v-chip-group>
                             </div>
@@ -354,7 +354,7 @@ const addUser = () => {
     if (form && valid) {
         overlay.value = false;
         fixImageData();
-        if (!roleData.value.rolesToAdd.includes('student')) {
+        if (!roleData.value.rolesToAdd.map((role) => role.role_type).includes('student')) {
             newStudent.value = null;
             newCliftonStrengths.value.cliftonStrengthsToAdd = null;
         }
@@ -372,13 +372,8 @@ const cancelAdd = () => {
     overlay.value = false;
 };
 
-const formatRole = (role) => {
-    return role.replace(/_/g, ' ')
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
 const hasRole = (role) => {
-    return roleData.value.rolesToAdd.some((userRole) => userRole === role);
+    return roleData.value.rolesToAdd.map((role) => role.role_type).includes(role);
 };
 
 const searchField = ref()
