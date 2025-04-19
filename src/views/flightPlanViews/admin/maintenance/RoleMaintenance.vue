@@ -16,9 +16,13 @@
     <v-data-table :headers="headers" :items="roles" :search="search">
       <template v-slot:[`item.actions`]="{ item }">
         <EditRole :permissions="permissions" :role="item" @save-role="handleEditRole" />
-        <v-btn variant="plain" size="small" @click="deleteRole(item)" :disabled="item.role_type !== 'custom'">
-          <Icon icon="material-symbols:delete-outline" width="24" height="24" />
-        </v-btn>
+        <DeletePopup @delete="deleteRole(item)" :name="item.name + ' Role'">
+          <template #trigger="{ open }">
+            <v-btn variant="plain" size="small" @click="open" :disabled="item.role_type !== 'custom'">
+              <Icon icon="material-symbols:delete-outline" width="24" height="24" />
+            </v-btn>
+          </template>
+        </DeletePopup>
       </template>
     </v-data-table>
   </v-card>
@@ -33,6 +37,7 @@ import RolePermissionServices from '@/services/flightPlanServices/rolePermission
 import PermissionServices from '@/services/flightPlanServices/permissionServices';
 import AddRole from '@/components/flightPlanComponents/adminPages/AddRole.vue';
 import EditRole from '@/components/flightPlanComponents/adminPages/EditRole.vue';
+import DeletePopup from '@/components/flightPlanComponents/adminPages/DeletePopup.vue'
 import { Icon } from "@iconify/vue";
 
 const search = ref('');
