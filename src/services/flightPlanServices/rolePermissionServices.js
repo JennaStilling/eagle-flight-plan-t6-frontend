@@ -7,11 +7,17 @@ export default {
     getAllRolePermissions() {
         return apiClient.get(`flightPlan-t6/rolePermission`);
     },
+    getRoleRolePermission(roleId) {
+        return apiClient.get(`flightPlan-t6/role/${roleId}/rolePermission/`);
+    },
     getRolePermission(id) {
         return apiClient.get(`flightPlan-t6/rolePermission/${id}`);
     },
     updateRolePermission(id, data) {
         return apiClient.put(`flightPlan-t6/rolePermission/${id}`, data);
+    },
+    deleteRolePermissionByIds(roleId, permisionId) {
+        return apiClient.delete(`flightPlan-t6/role/${roleId}/permission/${permisionId}/rolePermission/`)
     },
     deleteRolePermission(id) {
         return apiClient.delete(`flightPlan-t6/rolePermission/${id}`);
