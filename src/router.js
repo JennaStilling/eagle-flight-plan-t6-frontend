@@ -347,6 +347,7 @@ const anyRolePages = ["homeFP", "homeRB", "profile", "settings"];
 
 // 1
 const userMaintenancePages = [
+  "role",
   "userMaintenance",
   "major",
   "cliftonStrength",
@@ -397,6 +398,7 @@ const adminViewPages = [
   "reivew-inbox",
   "award",
   "badge",
+  "role",
   "event",
   "experience",
   "flightPlan",
