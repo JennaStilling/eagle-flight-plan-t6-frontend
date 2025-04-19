@@ -16,7 +16,7 @@ function initializeGoogleAuth(scope, resolve) {
     const client = import.meta.env.VITE_APP_CLIENT_ID || (user && user.clientId);
     
     if (!client) {
-        console.error('No Google client ID found');
+        console.error('No google api token found');
         resolve(null);
         return;
     }
@@ -39,7 +39,7 @@ export const createCalendarEvent = async (eventDetails) => {
     const access_token = await getGoogleToken('https://www.googleapis.com/auth/calendar');
     
     if (!access_token) {
-        throw new Error('Failed to get Calendar permission');
+        throw new Error('No google api token found');
     }
 
     const event = {
@@ -47,7 +47,7 @@ export const createCalendarEvent = async (eventDetails) => {
         ...eventDetails
     };
     
-    const response = await fetch('http://localhost:3026/api/calendar/create', {
+    const response = await fetch('http://localhost:3026/api/calendar/create', { // TODO: functionality for production server
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(event)

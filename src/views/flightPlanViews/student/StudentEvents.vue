@@ -288,7 +288,7 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
-import { createCalendarEvent } from "@/utils/googleApiUtils";
+import { createCalendarEvent } from "@/utils/google";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
