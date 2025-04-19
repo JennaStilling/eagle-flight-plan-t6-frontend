@@ -314,12 +314,11 @@ const filteredUsers = computed(() => {
   return filtered;
 });
 
-const addRole = (userId, roleName) => {
-  const specificRoleId = roles.value.find((role) => role.role_type === roleName).id;
-
+const addRole = (userId, role) => {
+  const specificRoleId = role.id;
   let data = {
     userId: userId,
-    roleId: specificRoleId
+    roleId: role.id
   };
 
   UserRoleServices.createUserRole(userId, data)
@@ -358,8 +357,8 @@ const addRole = (userId, roleName) => {
     })
 };
 
-const removeRole = (userId, roleName) => {
-  const specificRoleId = roles.value.find((role) => role.role_type === roleName).id;
+const removeRole = (userId, role) => {
+  const specificRoleId = role.id;
   const userRoleId = userRoles.value.find((userRole) => userRole.userId === userId && userRole.roleId === specificRoleId).id;
 
   UserRoleServices.deleteUserRole(userId, userRoleId)
@@ -425,7 +424,7 @@ const addRoles = async (user, newRoles) => {
 
 const updateUserRoles = (user, newRoles) => {
   const specificUserUserRoles = userRoles.value.filter((userRole) => userRole.userId === user.id);
-  const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId).role_type);
+  const specificUserRoles = specificUserUserRoles.map((userRole) => roles.value.find((role) => role.id === userRole.roleId));
 
   newRoles.forEach((role) => {
     if (!specificUserRoles.includes(role)) {
