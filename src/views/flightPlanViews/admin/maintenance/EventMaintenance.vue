@@ -427,6 +427,7 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
+import { createCalendarEvent, deleteCalendarEvent } from "@/utils/google";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
@@ -1219,13 +1220,24 @@ const deleteEventConfirmation = (task) => {
 
 const deleteEvent = async () => {
     try {
-        await EventServices.deleteEvent(typeToDelete.value.id);
-        events.value = events.value.filter(event => event.id !== typeToDelete.value.id);
+        let deletedEventId = typeToDelete.value.id
 
-        // if (calendarApp.value) {
-        //   calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
-        //   calendarApp.value.events = calendarFormattedEvents.value;
-        // }
+        StudentEventServices.getAllStudentEvents()
+        .then(async (res) => {
+            console.log(res.data.flat())
+            console.log(deletedEventId)
+            const studentEvents = res.data.filter(event => event.eventId === deletedEventId);
+            console.log(studentEvents)
+            studentEvents.forEach(async (studentEvent) => {
+                await deleteCalendarEvent(studentEvent.calendar_id);
+            });
+
+            await EventServices.deleteEvent(deletedEventId);
+            events.value = events.value.filter(event => event.id !== deletedEventId);
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 
         reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
 
