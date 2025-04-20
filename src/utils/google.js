@@ -1,3 +1,8 @@
+// local vs. production url for google calls
+const url = process.env.NODE_ENV === 'production' 
+  ? 'https://flightplan.eaglesoftwareteam.com/2025/flight-plan/t6' 
+  : 'http://localhost:3026';
+
 export const getGoogleToken = async (scope) => {
     return new Promise((resolve) => {
         if (!window.google || !window.google.accounts) {
@@ -47,18 +52,42 @@ export const createCalendarEvent = async (eventDetails) => {
         ...eventDetails
     };
     
-    const response = await fetch('http://localhost:3026/api/calendar/create', { // TODO: functionality for production server
+    const response = await fetch(url+'/api/calendar/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(event)
     });
     
-    console.log(response);
-    
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create calendar event');
+        throw new Error(errorData.error);
     }
     
     return await response.json();
+};
+
+export const deleteCalendarEvent = async (eventId) => {
+  const access_token = await getGoogleToken(
+    "https://www.googleapis.com/auth/calendar"
+  );
+
+  if (!access_token) {
+    throw new Error("No google api token found");
+  }
+
+  const response = await fetch(url + "/api/calendar/delete", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      access_token,
+      eventId,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error);
+  }
+
+  return await response.json();
 };

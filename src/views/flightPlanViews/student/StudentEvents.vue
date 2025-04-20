@@ -38,7 +38,7 @@
                             <div class="event-header">
                                 <div class="event-title">{{ calendarEvent.title }}</div>
                                 <v-tooltip text="You are registered for this event">
-                                    <template v-slot:activator="{props}">
+                                    <template v-slot:activator="{ props }">
                                         <Icon v-if="calendarEvent.isRegistered" v-bind="props"
                                             icon="material-symbols:bookmark-rounded" width="24" height="24" />
                                     </template>
@@ -90,7 +90,7 @@
                                 </div>
                                 <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                     formatEventTime(calendarEvent.end)
-                                    }}</div>
+                                }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
                                 <div style="margin-left: 75%">
@@ -98,7 +98,7 @@
                                         @click="closeModal(); studentSignUpForEvent(calendarEvent.id)"
                                         color="#F68D76">Register</v-btn>
                                     <v-btn v-if="checkIfStudentIsSignedUp(calendarEvent.id)"
-                                        @click="closeModal();studentDeleteStudentEvent(calendarEvent.id)"
+                                        @click="closeModal(); studentDeleteStudentEvent(calendarEvent.id)"
                                         color="#F68D76">Unregister</v-btn>
                                 </div>
                             </div>
@@ -120,20 +120,22 @@
             <v-card class="edit-popup mx-auto">
                 <!-- <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div> -->
                 <v-card-title class="popup-header">
-                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details :disabled="!eventAdd">
+                    <v-text-field v-model="eventName" variant="outlined" density="compact" hide-details
+                        :disabled="!eventAdd">
                     </v-text-field>
                 </v-card-title>
 
                 <v-container>
                     <!-- Description-->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.description }}</label>
                         </v-col>
                         <v-col cols="7">
                             <v-textarea v-model="eventDescription" auto-grow variant="outlined" density="compact"
-                            :disabled="!eventAdd">
+                                :disabled="!eventAdd">
                             </v-textarea>
                         </v-col>
                     </v-row>
@@ -152,7 +154,8 @@
 
                     <!-- Start Date -->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>Start Date</label>
                         </v-col>
@@ -164,7 +167,8 @@
 
                     <!-- End Date -->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>End Date</label>
                         </v-col>
@@ -176,7 +180,8 @@
 
                     <!-- Start Time -->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>Start Time</label>
                         </v-col>
@@ -189,7 +194,8 @@
 
                     <!-- End Time  -->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>End Time</label>
                         </v-col>
@@ -202,20 +208,22 @@
 
                     <!-- Location  -->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.location }}</label>
                         </v-col>
 
                         <v-col cols="7">
                             <v-text-field v-model="eventLocation" variant="outlined" density="compact" hide-details
-                            :disabled="!eventAdd"></v-text-field>
+                                :disabled="!eventAdd"></v-text-field>
                         </v-col>
                     </v-row>
 
                     <!-- Attendance Type -->
                     <v-row class="form-row">
-                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}</div>
+                        <div v-if="hasError" style="color: red; width:100%; white-space: pre-line;">{{ errorMessage }}
+                        </div>
                         <v-col cols="5" class="label-column">
                             <label>{{ labels.attendance }}</label>
                         </v-col>
@@ -246,7 +254,7 @@
 
                         <v-col cols="7">
                             <v-text-field v-model="eventPointValue" variant="outlined" density="compact" hide-details
-                            disabled></v-text-field>
+                                disabled></v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -259,10 +267,9 @@
                         @click="studentDeleteStudentEvent(eventId), showEventDetails = false" color="#708E9A"
                         variant="flat">Unregister</v-btn>
                     <v-btn v-if="!viewPersonalCalendar && eventEdit"
-                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#5EC4B6"
-                        variant="flat" style="color: white;">Register</v-btn>
-                    <v-btn v-if="eventAdd"
-                        @click="requestEvent(), showEventDetails = false" color="#5EC4B6"
+                        @click="studentSignUpForEvent(eventId), showEventDetails = false" color="#5EC4B6" variant="flat"
+                        style="color: white;">Register</v-btn>
+                    <v-btn v-if="eventAdd" @click="requestEvent(), showEventDetails = false" color="#5EC4B6"
                         variant="flat" style="color: white;">Request</v-btn>
                     <v-btn color="#708E9A" variant="flat" @click="showEventDetails = false">Close</v-btn>
 
@@ -288,7 +295,7 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
-import { createCalendarEvent } from "@/utils/google";
+import { createCalendarEvent, deleteCalendarEvent } from "@/utils/google";
 
 import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
@@ -378,41 +385,44 @@ const checkIfStudentIsSignedUp = (id) => {
     return !!studentSpecificEvent;
 }
 
-const studentSignUpForEvent = async(id) => {
+const studentSignUpForEvent = async (id) => {
     if (!userStudentId.value) {
         return
     }
-    
+
     else {
         EventServices.getEvent(id)
-        .then( async (res) => {
-            await createCalendarEvent({
-                summary: res.data.name,
-                description: res.data.description,
-                location: res.data.location,
-                start: res.data.start_date_time,
-                end: res.data.end_date_time,
-                timezone: "America/Chicago",
-                reminders: {
-        useDefault: false,
-        overrides: [
-          { method: "email", minutes: 2880 }, 
-          { method: "email", minutes: 1440 },
-        ],
-      },
-            });
-            const newStudentEvent = {
-                eventId: id,
-                studentId: userStudentId.value
-            }
-            StudentEventServices.createStudentEvent(newStudentEvent)
-            .then( async (res) => {
-            
-        })
-            .catch((error) => {
-                console.log("error", error);
-            });
-        })
+            .then(async (res) => {
+                const result = await createCalendarEvent({
+                    summary: res.data.name,
+                    description: res.data.description,
+                    location: res.data.location,
+                    start: res.data.start_date_time,
+                    end: res.data.end_date_time,
+                    timezone: "America/Chicago",
+                    reminders: {
+                        useDefault: false,
+                        overrides: [
+                            { method: "email", minutes: 2880 },
+                            { method: "email", minutes: 1440 },
+                        ],
+                    },
+                });
+
+                console.log(result)
+                const newStudentEvent = {
+                    eventId: id,
+                    studentId: userStudentId.value,
+                    calendar_id: result.id,
+                }
+                StudentEventServices.createStudentEvent(newStudentEvent)
+                    .then(async (res) => {
+                        reloadPage();
+                    })
+                    .catch((error) => {
+                        console.log("error", error);
+                    });
+            })
             .catch((error) => {
                 console.log("error", error);
             });
@@ -422,13 +432,16 @@ const studentDeleteStudentEvent = (id) => {
     StudentEventServices.getAllStudentEvents()
         .then((res) => {
             specificStudentEvents.value = res.data;
-
             if (specificStudentEvents.value) {
-
                 const eventToDelete = specificStudentEvents.value.find(studentEvent => studentEvent.eventId === id && studentEvent.studentId === userStudentId.value);
                 if (eventToDelete) {
+                    const calendarEventId = eventToDelete.calendar_id;
                     StudentEventServices.deleteStudentEvent(eventToDelete.id)
-                        .then((res) => {
+                        .then(async (res) => {
+                            console.log(calendarEventId);
+                            if (calendarEventId) {
+                                await deleteCalendarEvent(calendarEventId);
+                            }
                             reloadPage();
                         })
                         .catch((error) => {
@@ -491,7 +504,7 @@ const getEventDuration = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const duration = endDate.getTime() - startDate.getTime();
-    return duration / 60000; // convert to minutes
+    return duration / 60000;
 };
 
 const filteredEvents = computed(() => {
@@ -947,7 +960,7 @@ const requestEventPopup = () => {
 const requestEvent = () => {
     hasError.value = false;
     errorMessage.value = "";
-    
+
     // Check for required fields
     if (eventName.value == null) {
         errorMessage.value = "* Required";
