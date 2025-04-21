@@ -276,8 +276,8 @@ const oldExperienceTypeCliftonStrengths = ref(null);
 const cliftonStrengthSearchField = ref(null);
 
 // Snackbar Variables
-showSnackbar = ref(false);
-snackbarMessage = ref('');
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
 
 const newCliftonStrengths = ref({
     cliftonStrengthsToAdd: [],
