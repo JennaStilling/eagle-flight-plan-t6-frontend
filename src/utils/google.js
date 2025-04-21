@@ -1,13 +1,8 @@
 // local vs. production url for google calls
 const url =
   process.env.NODE_ENV === "production"
-    ? "https://flightplan.eaglesoftwareteam.com"
+    ? "flightplan.eaglesoftwareteam.com"
     : "http://localhost:3026";
-
-// Try different API path structures
-const calendarApiPath = process.env.NODE_ENV === "production"
-    ? "/api/nodeapps/2025/flight-plan/t6/calendar" 
-    : "/api/calendar"; 
 
 export const getGoogleToken = async (scope) => {
   return new Promise((resolve) => {
@@ -51,7 +46,6 @@ function initializeGoogleAuth(scope, resolve) {
 export const createCalendarEvent = async (eventDetails) => {
     const access_token = await getGoogleToken('https://www.googleapis.com/auth/calendar');
     console.log("Accessed url: " + url);
-    console.log("API path: " + calendarApiPath);
     
     if (!access_token) {
         throw new Error('No google api token found');
@@ -62,7 +56,7 @@ export const createCalendarEvent = async (eventDetails) => {
         ...eventDetails
     };
     
-    const fullUrl = `${url}${calendarApiPath}/create`;
+    const fullUrl = `${url}/api/calendar/create`;
     console.log("Full request URL:", fullUrl);
     
     try {
@@ -100,7 +94,7 @@ export const deleteCalendarEvent = async (eventId) => {
     throw new Error("No google api token found");
   }
 
-  const fullUrl = `${url}${calendarApiPath}/delete`;
+  const fullUrl = `${url}/api/calendar/delete`;
   console.log("Full delete URL:", fullUrl);
 
   try {
