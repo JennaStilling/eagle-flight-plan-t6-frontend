@@ -4,7 +4,6 @@ const url =
     ? "https://flightplan.eaglesoftwareteam.com"
     : "http://localhost:3026";
 
-// API path for calendar operations
 const calendarApiPath = process.env.NODE_ENV === "production"
     ? "/nodeapps/2025/flight-plan/t6/calendar" 
     : "/api/calendar"; 
