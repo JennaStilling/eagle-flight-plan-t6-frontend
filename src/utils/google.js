@@ -2,7 +2,7 @@
 const url =
   process.env.NODE_ENV === "production"
     ? "/flightPlan-t6"
-    : "http://localhost:3026";
+    : "http://localhost:3026/flightPlan-t6";
 
 export const getGoogleToken = async (scope) => {
   return new Promise((resolve) => {
