@@ -346,6 +346,7 @@ const listStudentTasks = () => {
 
 const getSelectedTask = async (task) => {
   currentTask.value = (await studentFlightPlanTaskServices.getStudentFlightPlanTask(task.id)).data;
+  console.log(currentTask.value);
   viewingTask.value = !viewingTask.value;
 }
 
@@ -395,6 +396,7 @@ const completeTaskReview = async (id) => {
   await studentFlightPlanTaskServices.updateSystemStudentFlightPlanTask(id, studentFlightPlanTask.value);
   toggleTaskView();
   listStudentTasks();
+  userInput.value= '';
 }
 
 const clearArrays = () => {
