@@ -1,6 +1,6 @@
 // local vs. production url for google calls
 const url = process.env.NODE_ENV === 'production' 
-  ? 'https://flightplan.eaglesoftwareteam.com/2025/flight-plan/t6' 
+  ? 'https://flightplan.eaglesoftwareteam.com/' 
   : 'http://localhost:3026';
 
 export const getGoogleToken = async (scope) => {
@@ -42,6 +42,7 @@ function initializeGoogleAuth(scope, resolve) {
 
 export const createCalendarEvent = async (eventDetails) => {
     const access_token = await getGoogleToken('https://www.googleapis.com/auth/calendar');
+    console.log("Accessed url: " + url);
     
     if (!access_token) {
         throw new Error('No google api token found');
