@@ -1,6 +1,6 @@
 // local vs. production url for google calls
 const url = process.env.NODE_ENV === 'production' 
-  ? 'https://flightplan.eaglesoftwareteam.com/' 
+  ? 'https://flightplan.eaglesoftwareteam.com' 
   : 'http://localhost:3026';
 
 export const getGoogleToken = async (scope) => {
