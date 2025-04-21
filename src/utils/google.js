@@ -4,8 +4,9 @@ const url =
     ? "https://flightplan.eaglesoftwareteam.com"
     : "http://localhost:3026";
 
+// Try different API path structures
 const calendarApiPath = process.env.NODE_ENV === "production"
-    ? "/nodeapps/2025/flight-plan/t6/calendar" 
+    ? "/api/nodeapps/2025/flight-plan/t6/calendar" 
     : "/api/calendar"; 
 
 export const getGoogleToken = async (scope) => {
