@@ -13,6 +13,7 @@
                 </div>
             </div>
         </v-card>
+
         <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected"
             show-select @click:row="(event, { item }) => getStudentAttendees(item)">
         </v-data-table>
@@ -22,6 +23,9 @@
                 <div class="modal-header">
                     <h3>Registered Students</h3>
                 </div>
+                <span v-if="handshakeRegistration">
+                    <h4>Upload .csv File: </h4> <input type="file" accept=".csv" @change="handleFileUpload" />
+                </span>
                 <div class="search-container">
                     <v-text-field v-model="studentSearchResult" label="Search" variant="outlined" density="compact"
                         hide-details class="search-field">
@@ -32,7 +36,7 @@
                 </div>
                 <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
                     <v-list class="w-100">
-                        <v-list-item class="header-row">
+                        <v-list-item v-if="filteredStudentList.length > 0" class="header-row">
                             <v-list-item-title class="font-weight-bold">Student Name</v-list-item-title>
                             <template v-slot:append>
                                 <div class="font-weight-bold pr-8">Attended?</div>
@@ -42,13 +46,8 @@
                         <v-list-item v-for="(student, index) in filteredStudentList" :key="index">
                             <v-list-item-title>{{ student.name }}</v-list-item-title>
                             <template v-slot:append>
-                                <v-switch
-                                    v-model="student.didAttend"
-                                    color="#708E9A"
-                                    hide-details
-                                    density="compact"
-                                    class="ma-0 pa-0"
-                                ></v-switch>
+                                <v-switch v-model="student.didAttend" color="#708E9A" hide-details density="compact"
+                                    class="ma-0 pa-0"></v-switch>
                             </template>
                         </v-list-item>
                     </v-list>
@@ -56,12 +55,19 @@
                         {{ studentSearchResult ? 'No matching students found' : 'No students requesting approval'
                         }}
                     </div>
+                    <v-divider></v-divider>
+                    <br>
+                    <h4 style="float: left">Add Student by ID:</h4>
+                    <br>
+                    <p>{{ addStudentStatus }}</p>
+                    <v-text-field v-model="newStudentId" label="Enter Student ID"></v-text-field>
+                    <v-btn @click="addStudentToEvent()">Add Student</v-btn>
                 </div>
                 <v-divider></v-divider>
                 <v-card-actions class="popup-actions">
                     <v-spacer></v-spacer>
                     <v-btn color="#708E9A" variant="flat"
-                        @click="showStudentNamesList = false; showEventDetails = true;">Close</v-btn>
+                        @click="showStudentNamesList = false; showEventDetails = true; studentNameList = []">Close</v-btn>
                     <v-btn color="#5EC4B6" style="color: white" variant="flat"
                         @click="showStudentNamesList = false; showEventDetails = true; saveAttendanceDetails();">Save</v-btn>
 
@@ -76,10 +82,15 @@ import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
 import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
 import UserServices from '@/services/resumeBuilderServices/userServices'
+import StudentServices from '@/services/resumeBuilderServices/studentServices'
+import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices';
+import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
-import studentServices from '@/services/resumeBuilderServices/studentServices';
+import Papa from 'papaparse'
 
+const jsonData = ref([])
+const formattedData = ref([])
 const search = ref('');
 const events = ref([]);
 const message = ref('');
@@ -88,17 +99,24 @@ const showEventDetails = ref(false);
 const showStudentNamesList = ref(false);
 const selectedFilter = ref('All');
 
+const newStudentId = ref("");
+const addStudentStatus = ref("");
+
 const currentDate = ref([])
+const selectedEvent = ref(null);
+const handshakeRegistration = ref(false);
 
-const eventStartDate = ref("")
-const eventEndDate = ref("")
-
-const studentNameList = ref([{
-    name: null,
-    didAttend: false
-}])
+// const studentNameList = ref([{
+//     studentId: null,
+//     name: null,
+//     didAttend: false,
+//     studentEventId: null,
+//     studentSchoolId: null,
+//     pointValue: 0,
+//     verification_status: null,
+// }])
+const studentNameList = ref([])
 const attendeeMap = ref([])
-const studentToggles = ref({})
 
 const studentSearchResult = ref('');
 
@@ -114,9 +132,16 @@ const headers = ref([
     { key: 'formatted_date', title: 'Date' },
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
+    { key: 'registration', title: 'Registration Type' },
     { key: 'eventAttendees', title: '# Registered', sortable: false },
     { key: 'actions', title: '', sortable: false },
 ]);
+
+onMounted(async () => {
+    currentDate.value = new Date().toJSON().slice(0, 24);
+    await getAllEvents();
+    await getNumberAttendees();
+});
 
 const filteredEvents = computed(() => {
     if (selectedFilter.value === 'All') {
@@ -132,6 +157,7 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'career_prep'
     }
 
+
     return events.value.filter(event => {
         return event.type === selectedFilter.value.toLowerCase();
     }).map(event => ({
@@ -142,6 +168,319 @@ const filteredEvents = computed(() => {
 
     }));
 });
+
+const getStudentAttendees = (event) => {
+    newStudentId.value = ""
+    selectedEvent.value = event;
+    showStudentNamesList.value = true;
+    addStudentStatus.value = ""
+    studentNameList.value = [];
+
+    if (selectedEvent.value.registration === 'in_app') {
+        handleManualEvent();
+    }
+    else if (selectedEvent.value.registration === 'qr_code') { // TODO - add qr code logic (AC #93)
+        handleQRCodeEvent();
+    }
+    else {
+        handleHandshakeEvent();
+    }
+}
+
+const handleManualEvent = () => {
+    handshakeRegistration.value = false;
+    StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
+        .then((res) => {
+            const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
+            console.log(students);
+            students.forEach(async student => {
+                UserServices.getAllStudentUsers(student.id)
+                    .then((res) => {
+                        studentNameList.value.push({
+                            studentId: student.id,
+                            name: res.data[0].fName + " " + res.data[0].lName,
+                            didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
+                            studentEventId: student.studentEvent[0].id,
+                            studentSchoolId: student.student_issued_id,
+                            pointValue: selectedEvent.value.point_value,
+                            verification_status: "in_progress"
+                        });
+                    })
+                    .catch((err) => {
+                        message.value = `Error: ${err.code}: ${err.message}`;
+                        console.log(err);
+                    })
+            }
+            );
+        })
+        .catch((err) => {
+            message.value = `Error: ${err.code}: ${err.message}`;
+            console.log(err);
+        })
+}
+
+const handleQRCodeEvent = () => {
+    // TODO - handle qr code logic (AC #93)
+    handshakeRegistration.value = false;
+}
+
+const handleHandshakeEvent = () => {
+    handshakeRegistration.value = true;
+}
+
+const createStudentEvent = (student) => {
+    UserServices.getAllStudentUsers(student.id)
+        .then((res) => {
+            const newUser = res.data[0];
+            const newStudentEvent = {
+                verification_status: "in_progress",
+                eventId: selectedEvent.value.id,
+                studentId: student.id,
+            }
+            StudentEventServices.createStudentEvent(newStudentEvent)
+                .then((res) => {
+                    studentNameList.value.push({
+                        studentId: student.id,
+                        name: newUser.fName + " " + newUser.lName,
+                        didAttend: false,
+                        studentEventId: res.data.id,
+                        studentSchoolId: student.student_issued_id,
+                        pointValue: selectedEvent.value.point_value,
+                        verification_status: "in_progress"
+                    })
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+}
+
+const createStudentUser = (student) => {
+    const newStudent = {
+        student_issued_id: student["Username"],
+        points: 0,
+        total_points: 0
+    }
+    StudentServices.createStudent(newStudent)
+        .then((res) => {
+            const newUser = {
+                fName: student["First Name"],
+                lName: student["Last Name"],
+                email: student["Email Address"],
+                studentId: res.data.id,
+            }
+            UserServices.createUser(newUser)
+                .then((res) => {
+                    const userId = res.data.id;
+                    const newStudentEvent = {
+                        verification_status: "in_progress",
+                        eventId: selectedEvent.value.id,
+                        studentId: res.data.studentId,
+                    }
+                    StudentEventServices.createStudentEvent(newStudentEvent)
+                        .then((res) => {
+                            UserRoleServices.createUserRole(userId, {
+                                roleId: 2,
+                            })
+                                .then((res) => {
+                                    UserRolePermissionServices.createUserRolePermission({
+                                        userRoleId: res.data.id,
+                                        permissionId: 8,
+                                    })
+                                        .then((res) => {
+                                            studentNameList.value.push({
+                                                studentId: newUser.studentId,
+                                                name: newUser.fName + " " + newUser.lName,
+                                                didAttend: student["Checked In"] !== "",
+                                                studentEventId: res.data.id,
+                                                studentSchoolId: student.Username,
+                                                pointValue: selectedEvent.value.point_value,
+                                                verification_status: "in_progress"
+                                            })
+                                        })
+                                        .catch((err) => {
+                                            console.log(err);
+                                        });
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                });
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+const handleFileUpload = (event) => {
+    StudentServices.getAllStudents()
+        .then((res) => {
+            const studentList = res.data;
+            const file = event.target.files[0]
+            if (file) {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        jsonData.value = results.data.filter(row => Object.values(row).some(value => value !== ""));
+                        jsonData.value.forEach(async student => {
+                            const existingStudent = studentList.find(existingStudent => existingStudent.student_issued_id === student.Username);
+                            if (existingStudent) {
+                                StudentEventServices.getAllStudentEvents()
+                                    .then((res) => {
+                                        const studentEventsList = res.data.flat();
+                                        const existingStudentEvent = studentEventsList.find(
+                                            existingEvent => existingEvent.studentId === existingStudent.id &&
+                                                existingEvent.eventId === selectedEvent.value.id)
+                                        if (!existingStudentEvent) {
+                                            const newStudentEvent = {
+                                                verification_status: "in_progress",
+                                                eventId: selectedEvent.value.id,
+                                                studentId: existingStudent.id,
+                                            }
+                                            StudentEventServices.createStudentEvent(newStudentEvent)
+                                                .then((res) => {
+                                                    studentNameList.value.push({
+                                                        studentId: res.data.studentId,
+                                                        name: student["First Name"] + " " + student["Last Name"],
+                                                        didAttend: student["Checked In"] !== "",
+                                                        studentEventId: res.data.id,
+                                                        studentSchoolId: student.Username,
+                                                        pointValue: selectedEvent.value.point_value,
+                                                        verification_status: "in_progress"
+                                                    })
+                                                })
+                                                .catch((err) => {
+                                                    console.log(err);
+                                                });
+                                        }
+                                        else {
+                                            if (existingStudentEvent.attendance_status === "in_progress") {
+                                                studentNameList.value.push({
+                                                    studentId: existingStudent.id,
+                                                    name: student["First Name"] + " " + student["Last Name"],
+                                                    didAttend: student["Checked In"] !== "",
+                                                    studentEventId: existingStudentEvent.id,
+                                                    studentSchoolId: student.Username,
+                                                    pointValue: selectedEvent.value.point_value,
+                                                    verification_status: "in_progress"
+                                                })
+                                            }
+                                        }
+                                    })
+
+                                    .catch((err) => {
+                                        console.log(err);
+                                    });
+                            }
+                            else {
+                                await createStudentUser(student)
+                            }
+                        })
+                    }
+                })
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+const addStudentToEvent = () => {
+    if (!newStudentId.value) {
+        addStudentStatus.value = "Please enter a valid student ID"
+        newStudentId.value = ""
+        return;
+    }
+    addStudentStatus.value = ""
+    if (studentNameList.value.filter(student => student.studentSchoolId === newStudentId.value).length === 0) {
+        StudentServices.getStudentByStudentId(newStudentId.value)
+            .then((res) => {
+                createStudentEvent(res.data)
+            }).catch((err) => {
+                console.log(err);
+            })
+    }
+    else {
+        addStudentStatus.value = "Student already added to event"
+        newStudentId.value = ""
+        return;
+    }
+
+}
+
+const saveAttendanceDetails = () => {
+    studentNameList.value.forEach(student => {
+
+        if (student.didAttend && student.verification_status === 'in_progress') {
+            const newData = {
+                attendance_status: "attended",
+                verification_status: "approved"
+            }
+            StudentEventServices.updateStudentEvent(student.studentEventId, newData)
+                .then((res) => {
+                    StudentServices.getStudent(student.studentId)
+                        .then((res) => {
+                            const newCurrentPointValue = res.data.points + student.pointValue;
+                            const newTotalPoints = res.data.total_points + student.pointValue;
+                            const newStudentData = {
+                                points: newCurrentPointValue,
+                                total_points: newTotalPoints
+                            }
+
+                            StudentServices.updateStudent(student.studentId, newStudentData)
+                                .catch((err) => {
+                                    message.value = `Error: ${err.code}: ${err.message}`;
+                                    console.log(err);
+                                })
+                        })
+                        .catch((err) => {
+                            message.value = `Error: ${err.code}: ${err.message}`;
+                            console.log(err);
+                        })
+                })
+        }
+        else {
+            const newData = {
+                attendance_status: "did_not_attend",
+                verification_status: "denied"
+            }
+            StudentEventServices.updateStudentEvent(student.studentEventId, newData)
+                .then((res) => {
+                })
+                .catch((err) => {
+                    message.value = `Error: ${err.code}: ${err.message}`;
+                    console.log(err);
+                })
+        }
+
+    });
+}
+
+const getAllEvents = () => {
+    return EventServices.getAllEvents()
+        .then((res) => {
+            events.value = res.data;
+            events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value))
+                .sort((a, b) => {
+                    return new Date(b.date) - new Date(a.date);
+                });
+        })
+        .catch((err) => {
+            message.value = `Error: ${err.code}: ${err.message}`;
+            console.log(err);
+        });
+}
 
 const getNumberAttendees = () => {
     events.value.forEach(event => {
@@ -158,80 +497,9 @@ const getNumberAttendees = () => {
                 }
             })
             .catch((err) => {
-                console.error(err);
+                console.log(err);
             });
     });
-}
-
-const getAllEvents = () => {
-    return EventServices.getAllEvents()
-        .then((res) => {
-            events.value = res.data;
-            events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value));
- 
-            })
-        .catch((err) => {
-            message.value = `Error: ${err.code}: ${err.message}`;
-            console.error(err);
-        });
-};
-
-onMounted(async () => {
-    currentDate.value = new Date().toJSON().slice(0, 24);
-    await getAllEvents();
-    await getNumberAttendees();
-});
-
-const formatDate = (dateTimeStr) => {
-    if (!dateTimeStr) return '';
-    try {
-        if (dateTimeStr.includes('T')) {
-            const date = parseISO(dateTimeStr);
-            return format(date, 'MM-dd-yyyy');
-        }
-        const date = parseISO(dateTimeStr);
-        return format(date, 'MM-dd-yyyy');
-    } catch (error) {
-        console.error('Error formatting date:', error);
-        return dateTimeStr;
-    }
-};
-
-const showStudentNamesListPopup = async (event) => {
-    await getStudentAttendees(event);
-    showStudentNamesList.value = true;
-}
-
-const getStudentAttendees = (event) => {
-    StudentEventServices.getAllStudentsByEvent(event.id)
-        .then((res) => {
-            const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-            studentNameList.value = []
-
-            students.forEach(async student => {
-                UserServices.getAllStudentUsers(student.id)
-                    .then((res) => {
-                        console.log(event)
-                        studentNameList.value.push({
-                            studentId: student.id,
-                            name: res.data[0].prefix + " " + res.data[0].fName + " " + res.data[0].lName,
-                            didAttend: student.studentEvent[0].attendence_status === 'attended' ? true : false,
-                            eventId: student.studentEvent[0].id,
-                            pointValue: event.point_value
-                        });
-                    })
-                    .catch((err) => {
-                        message.value = `Error: ${err.code}: ${err.message}`;
-                        console.error(err);
-                    })
-            }
-            );
-            showStudentNamesList.value = true;
-        })
-        .catch((err) => {
-            message.value = `Error: ${err.code}: ${err.message}`;
-            console.error(err);
-        })
 }
 
 const formatTime = (dateTimeStr) => {
@@ -243,59 +511,24 @@ const formatTime = (dateTimeStr) => {
         }
         return dateTimeStr;
     } catch (error) {
-        console.error('Error formatting time:', error);
+        console.log('Error formatting time:', error);
         return '';
     }
 };
 
-const saveAttendanceDetails = () => {
-    console.log("Printing now")
-    console.log(filteredStudentList.value)
-    filteredStudentList.value.forEach(student => {
-        const newData = {
-            attendence_status: student.didAttend ? "attended" : "did_not_attend",
-            verification_status: student.didAttend ? "approved" : "denied"
+const formatDate = (dateTimeStr) => {
+    if (!dateTimeStr) return '';
+    try {
+        if (dateTimeStr.includes('T')) {
+            const date = parseISO(dateTimeStr);
+            return format(date, 'MM-dd-yyyy');
         }
-        StudentEventServices.updateStudentEvent(student.eventId, newData)
-        .then((res) =>{
-            if (newData.verification_status !== 'denied' && newData.attendence_status !== 'did_not_attend') {
-                studentServices.getStudent(student.studentId)
-                .then((res) => {
-                    console.log(res.data.points)
-                    console.log(res.data.total_points)
-                    console.log(student.pointValue)
-                    const newCurrentPointValue = res.data.points + student.pointValue;
-                    const newTotalPoints = res.data.total_points + student.pointValue;
-                    const newStudentData = {
-                        points: newCurrentPointValue,
-                        total_points: newTotalPoints
-                    }
-                    console.log(newStudentData)
-                    studentServices.updateStudent(student.studentId, newStudentData)
-                    .then((res) => {
-                        console.log(res.data)
-                    })
-                        .catch((err) => {
-                            message.value = `Error: ${err.code}: ${err.message}`;
-                            console.error(err);
-                        })
-                })
-                    .catch((err) => {
-                        message.value = `Error: ${err.code}: ${err.message}`;
-                        console.error(err);
-                    })
-
-            }
-        }
-    )
-    });
-}
-
-const toggleStudent = (studentName) => {
-  const student = studentNameList.value.find(s => s.name === studentName);
-  if (student) {
-    student.didAttend = !student.didAttend;
-  }
+        const date = parseISO(dateTimeStr);
+        return format(date, 'MM-dd-yyyy');
+    } catch (error) {
+        console.log('Error formatting date:', error);
+        return dateTimeStr;
+    }
 };
 </script>
 
