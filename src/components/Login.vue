@@ -34,7 +34,10 @@
       const errorMessage = ref("");
   
       const handleLoginSuccess = () => {
-        router.push('/homeFP');
+        if (localStorage.getItem("lastPageAccessed") != null)
+          router.push({ name: localStorage.getItem("lastPageAccessed") });
+        else
+          router.push('/homeFP');
       };
   
       const handleLoginFailure = (message) => {

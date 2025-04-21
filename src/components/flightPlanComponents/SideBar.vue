@@ -66,6 +66,8 @@
           Plans</router-link></li>
       <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }" @click="closeSidebar">Life
           After the Nest</router-link></li>
+      <li v-if="hasUserPermission"><router-link :to="{ name: 'role' }" @click="closeSidebar">Site Roles / Permissions
+        </router-link></li>
       <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'major' }" @click="closeSidebar">Majors
         </router-link></li>
       <li v-if="hasShopPermission"><router-link :to="{ name: 'award' }" @click="closeSidebar">Shop

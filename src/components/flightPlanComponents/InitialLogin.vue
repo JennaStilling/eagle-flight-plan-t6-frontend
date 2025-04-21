@@ -52,6 +52,12 @@ onMounted(async () => {
     await getSessionData();
     await getAllUserRoles();
 
+    const savedPage = localStorage.getItem("lastPageAccessed");
+    if (savedPage) {
+        console.log(savedPage)
+        router.push({ name: savedPage });
+        return;
+    }
 });
 
 const getSessionData = async () => {
