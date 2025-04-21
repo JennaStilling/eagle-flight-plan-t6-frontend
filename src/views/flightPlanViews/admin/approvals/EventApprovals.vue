@@ -119,8 +119,11 @@ const headers = ref([
 ]);
 
 const filteredEvents = computed(() => {
+    // Filter out events with empty status first
+    const validEvents = events.value.filter(event => event.status !== "");
+    
     if (selectedFilter.value === 'All') {
-        return events.value.map(event => ({
+        return validEvents.map(event => ({
             ...event,
             formatted_date: formatDate(event.start_date_time || event.date),
             formatted_time: formatTime(event.start_date_time),
@@ -132,14 +135,13 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'career_prep'
     }
 
-    return events.value.filter(event => {
+    return validEvents.filter(event => {
         return event.type === selectedFilter.value.toLowerCase();
     }).map(event => ({
         ...event,
         formatted_date: formatDate(event.start_date_time || event.date),
         formatted_time: formatTime(event.start_date_time),
         eventAttendees: attendeeMap.value.find(a => a.id === event.id)?.attendees || 0
-
     }));
 });
 
