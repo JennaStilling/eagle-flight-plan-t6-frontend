@@ -715,6 +715,7 @@ const getAllStudentRecommendedEvents = () => {
 }
 
 onMounted(async () => {
+    console.log(window.location.origin)
     user.value = Utils.getStore("user");
     await getCurrentUser();
 
