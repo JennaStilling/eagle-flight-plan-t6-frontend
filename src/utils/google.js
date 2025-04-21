@@ -6,8 +6,8 @@ const url =
 
 // API path for calendar operations
 const calendarApiPath = process.env.NODE_ENV === "production"
-    ? "/nodeapps/2025/flight-plan/t6/calendar"  // Production path
-    : "/api/calendar";  // Local path
+    ? "/nodeapps/2025/flight-plan/t6/calendar" 
+    : "/api/calendar"; 
 
 export const getGoogleToken = async (scope) => {
   return new Promise((resolve) => {
