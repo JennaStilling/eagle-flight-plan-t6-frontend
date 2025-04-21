@@ -13,7 +13,7 @@
                 </div>
             </div>
         </v-card>
-        
+
         <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected"
             show-select @click:row="(event, { item }) => getStudentAttendees(item)">
         </v-data-table>
@@ -59,7 +59,7 @@
                     <br>
                     <h4 style="float: left">Add Student by ID:</h4>
                     <br>
-                    <!-- <p>{{ addStudentStatus }}</p> -->
+                    <p>{{ addStudentStatus }}</p>
                     <v-text-field v-model="newStudentId" label="Enter Student ID"></v-text-field>
                     <v-btn @click="addStudentToEvent()">Add Student</v-btn>
                 </div>
@@ -83,6 +83,7 @@ import EventServices from '@/services/flightPlanServices/eventServices';
 import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
 import UserServices from '@/services/resumeBuilderServices/userServices'
 import StudentServices from '@/services/resumeBuilderServices/studentServices'
+import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices';
 import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
@@ -105,15 +106,16 @@ const currentDate = ref([])
 const selectedEvent = ref(null);
 const handshakeRegistration = ref(false);
 
-const studentNameList = ref([{
-    studentId: null,
-    name: null,
-    didAttend: false,
-    eventId: null, // ** studentEvent id
-    studentSchoolId: null,
-    pointValue: 0,
-    verification_status: null,
-}])
+// const studentNameList = ref([{
+//     studentId: null,
+//     name: null,
+//     didAttend: false,
+//     studentEventId: null,
+//     studentSchoolId: null,
+//     pointValue: 0,
+//     verification_status: null,
+// }])
+const studentNameList = ref([])
 const attendeeMap = ref([])
 
 const studentSearchResult = ref('');
@@ -130,115 +132,17 @@ const headers = ref([
     { key: 'formatted_date', title: 'Date' },
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
-    { key: 'registration', title: 'Registration Type'},
+    { key: 'registration', title: 'Registration Type' },
     { key: 'eventAttendees', title: '# Registered', sortable: false },
     { key: 'actions', title: '', sortable: false },
 ]);
 
-const handleFileUpload = (event) => {
-    StudentServices.getAllStudents()
-        .then((res) => {
-            const studentList = res.data;
-            // console.log(studentList)
-            const file = event.target.files[0]
-            if (file) {
-                Papa.parse(file, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: (results) => {
-                        jsonData.value = results.data
-                        // console.log(jsonData.value)
-                        jsonData.value.forEach(student => {
-                            const existingStudent = studentList.find(existingStudent => existingStudent.student_issued_id === student.Username);
-                            // console.log(existingStudent)
-                            if (existingStudent)
-                                StudentEventServices.getAllStudentEvents()
-                                    .then((res) => {
-                                        const studentEventsList = res.data;
-                                        const existingStudentEvent = studentEventsList.find(existingEvent => existingEvent.studentId === existingStudent.id)
-                                        if (!existingStudentEvent){
-                                            const newStudentEvent = {
-                                                verification_status: "in_progress",
-                                                eventId: selectedEvent.value.id,
-                                                studentId: res.data.studentId,
-                                            }
-                                            StudentEventServices.createStudentEvent(newStudentEvent)
-                                                .then((res) => {
-                                                    studentNameList.value.push({
-                                                        studentId: newUser.studentId,
-                                                        name: newUser.fName + " " + newUser.lName,
-                                                        didAttend: student["Checked In"] !== "",
-                                                        eventId: res.data.id,
-                                                        studentSchoolId: student.Username,
-                                                        pointValue: selectedEvent.value.point_value,
-                                                        verification_status: "in_progress"
-                                                    })
-                                                })
-                                                .catch((err) => {
-                                                    console.error(err);
-                                                });
-                                        }
-                                    })
-                                    .catch((err) => {
-                                        console.error(err);
-                                    });
-                            else {
-                                const newStudent = {
-                                    student_issued_id: student["Username"],
-                                    points: 0,
-                                    total_points: 0
-                                }
-                                StudentServices.createStudent(newStudent)
-                                    .then((res) => {
-                                        const newUser = {
-                                            fName: student["First Name"],
-                                            lName: student["Last Name"],
-                                            email: student["Email Address"],
-                                            studentId: res.data.id,
-                                        }
-                                        UserServices.createUser(newUser)
-                                            .then((res) => {
-                                                const userId = res.data.id;
-                                                // TODO - add student role permissions
-                                                const newStudentEvent = {
-                                                    verification_status: "in_progress",
-                                                    eventId: selectedEvent.value.id,
-                                                    studentId: res.data.studentId,
-                                                }
-                                                StudentEventServices.createStudentEvent(newStudentEvent)
-                                                    .then((res) => {
-                                                        studentNameList.value.push({
-                                                            studentId: newUser.studentId,
-                                                            name: newUser.fName + " " + newUser.lName,
-                                                            didAttend: student["Checked In"] !== "",
-                                                            eventId: res.data.id,
-                                                            studentSchoolId: student.Username,
-                                                            pointValue: selectedEvent.value.point_value,
-                                                            verification_status: "in_progress"
-                                                        })
-                                                    })
-                                                    .catch((err) => {
-                                                        console.error(err);
-                                                    });
-                                            })
-                                            .catch((err) => {
-                                                console.error(err);
-                                            });
-                                    })
-                                    .catch((err) => {
-                                        console.error(err);
-                                    });
-                            }
-                        })
-                        // console.log(studentNameList.value);
-                    }
-                })
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-        });
-}
+onMounted(async () => {
+    currentDate.value = new Date().toJSON().slice(0, 24);
+    await getAllEvents();
+    await getNumberAttendees();
+});
+
 const filteredEvents = computed(() => {
     if (selectedFilter.value === 'All') {
         return events.value.map(event => ({
@@ -265,161 +169,246 @@ const filteredEvents = computed(() => {
     }));
 });
 
-const getNumberAttendees = () => {
-    events.value.forEach(event => {
-        StudentEventServices.getAllStudentsByEvent(event.id)
-            .then((res) => {
-                const index = attendeeMap.value.findIndex(a => a.id === event.id);
-                if (index >= 0) {
-                    attendeeMap.value[index].attendees = res.data.length;
-                } else {
-                    attendeeMap.value.push({
-                        id: event.id,
-                        attendees: res.data.length,
-                    });
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-    });
+const getStudentAttendees = (event) => {
+    newStudentId.value = ""
+    selectedEvent.value = event;
+    showStudentNamesList.value = true;
+    addStudentStatus.value = ""
+
+    if (selectedEvent.value.registration === 'in_app') {
+        handleManualEvent();
+    }
+    else if (selectedEvent.value.registration === 'qr_code') { // TODO - add qr code logic (AC #93)
+        handleQRCodeEvent();
+    }
+    else {
+        handleHandshakeEvent();
+    }
 }
 
-const getAllEvents = () => {
-    return EventServices.getAllEvents()
+const handleManualEvent = () => {
+    console.log("Handling manual event")
+    StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
         .then((res) => {
-            events.value = res.data;
-            events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value))
-                .sort((a, b) => {
-                    // Sort by date in descending order (most recent first)
-                    return new Date(b.date) - new Date(a.date);
-                });
+            const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
+            studentNameList.value = []
+            console.log(students)
+
+            students.forEach(async student => {
+                UserServices.getAllStudentUsers(student.id)
+                    .then((res) => {
+                        studentNameList.value.push({
+                            studentId: student.id,
+                            name: res.data[0].fName + " " + res.data[0].lName,
+                            didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
+                            studentEventId: student.studentEvent[0].id,
+                            studentSchoolId: student.student_issued_id,
+                            pointValue: selectedEvent.value.point_value,
+                            verification_status: "in_progress"
+                        });
+                    })
+                    .catch((err) => {
+                        message.value = `Error: ${err.code}: ${err.message}`;
+                        console.error(err);
+                    })
+            }
+            );
         })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
             console.error(err);
+        })
+}
+
+const handleQRCodeEvent = () => {
+    // TODO - handle qr code logic (AC #93)
+}
+
+const handleHandshakeEvent = () => {
+
+}
+
+const createStudentEvent = (student) => {
+    UserServices.getAllStudentUsers(student.id)
+        .then((res) => {
+            const newUser = res.data[0];
+            const newStudentEvent = {
+                verification_status: "in_progress",
+                eventId: selectedEvent.value.id,
+                studentId: student.id,
+            }
+            StudentEventServices.createStudentEvent(newStudentEvent)
+                .then((res) => {
+                    console.log(res.data)
+                    studentNameList.value.push({
+                        studentId: student.id,
+                        name: newUser.fName + " " + newUser.lName,
+                        didAttend: false,
+                        studentEventId: res.data.id,
+                        studentSchoolId: student.student_issued_id,
+                        pointValue: selectedEvent.value.point_value,
+                        verification_status: "in_progress"
+                    })
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        })
+        .catch((err) => {
+            console.error(err);
+        })
+
+}
+
+const createStudentUser = (student) => {
+    const newStudent = {
+        student_issued_id: student["Username"],
+        points: 0,
+        total_points: 0
+    }
+    StudentServices.createStudent(newStudent)
+        .then((res) => {
+            const newUser = {
+                fName: student["First Name"],
+                lName: student["Last Name"],
+                email: student["Email Address"],
+                studentId: res.data.id,
+            }
+            UserServices.createUser(newUser)
+                .then((res) => {
+                    const userId = res.data.id;
+                    const newStudentEvent = {
+                        verification_status: "in_progress",
+                        eventId: selectedEvent.value.id,
+                        studentId: res.data.studentId,
+                    }
+                    StudentEventServices.createStudentEvent(newStudentEvent)
+                        .then((res) => {
+                            UserRoleServices.createUserRole({
+                                userId: userId,
+                                roleId: 2,
+                            })
+                                .then((res) => {
+                                    UserRolePermissionServices.createUserRolePermission({
+                                        userRoleId: res.data.id,
+                                        permissionId: 8,
+                                    })
+                                        .then((res) => {
+                                            studentNameList.value.push({
+                                                studentId: newUser.studentId,
+                                                name: newUser.fName + " " + newUser.lName,
+                                                didAttend: student["Checked In"] !== "",
+                                                eventId: res.data.id,
+                                                studentSchoolId: student.Username,
+                                                pointValue: selectedEvent.value.point_value,
+                                                verification_status: "in_progress"
+                                            })
+                                        })
+                                        .catch((err) => {
+                                            console.error(err);
+                                        });
+                                })
+                                .catch((err) => {
+                                    console.error(err);
+                                });
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                        });
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        })
+        .catch((err) => {
+            console.error(err);
         });
 }
 
-onMounted(async () => {
-    currentDate.value = new Date().toJSON().slice(0, 24);
-    await getAllEvents();
-    await getNumberAttendees();
-});
-
-const formatDate = (dateTimeStr) => {
-    if (!dateTimeStr) return '';
-    try {
-        if (dateTimeStr.includes('T')) {
-            const date = parseISO(dateTimeStr);
-            return format(date, 'MM-dd-yyyy');
-        }
-        const date = parseISO(dateTimeStr);
-        return format(date, 'MM-dd-yyyy');
-    } catch (error) {
-        console.error('Error formatting date:', error);
-        return dateTimeStr;
-    }
-};
-
-const getStudentAttendees = (event) => {
-    newStudentId.value = ""
-    selectedEvent.value = event;
-    if (selectedEvent.value.registration === 'handshake') {
-        handshakeRegistration.value = true;
-        showStudentNamesList.value = true;
-    }
-    else {
-        handshakeRegistration.value = false;
-        // console.log("Handshake registration false")
-        StudentEventServices.getAllStudentsByEvent(event.id)
-            .then((res) => {
-                const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-                studentNameList.value = []
-
-                students.forEach(async student => {
-                    UserServices.getAllStudentUsers(student.id)
-                        .then((res) => {
-                            console.log(event)
-                            studentNameList.value.push({
-                                studentId: student.id,
-                                name: res.data[0].fName + " " + res.data[0].lName,
-                                didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
-                                eventId: student.studentEvent[0].id,
-                                studentSchoolId: student.student_issued_id,
-                                pointValue: event.point_value,
-                                verification_status: "in_progress"
-                            });
+const handleFileUpload = (event) => {
+    StudentServices.getAllStudents()
+        .then((res) => {
+            const studentList = res.data;
+            const file = event.target.files[0]
+            if (file) {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        jsonData.value = results.data
+                        jsonData.value.forEach(async student => {
+                            const existingStudent = studentList.find(existingStudent => existingStudent.student_issued_id === student.Username);
+                            if (existingStudent)
+                                StudentEventServices.getAllStudentEvents()
+                                    .then((res) => {
+                                        const studentEventsList = res.data;
+                                        const existingStudentEvent = studentEventsList.find(existingEvent => existingEvent.studentId === existingStudent.id)
+                                        if (!existingStudentEvent) {
+                                            const newStudentEvent = {
+                                                verification_status: "in_progress",
+                                                eventId: selectedEvent.value.id,
+                                                studentId: res.data.studentId,
+                                            }
+                                            StudentEventServices.createStudentEvent(newStudentEvent)
+                                                .then((res) => {
+                                                    studentNameList.value.push({
+                                                        studentId: newUser.studentId,
+                                                        name: newUser.fName + " " + newUser.lName,
+                                                        didAttend: student["Checked In"] !== "",
+                                                        studentEventId: res.data.id,
+                                                        studentSchoolId: student.Username,
+                                                        pointValue: selectedEvent.value.point_value,
+                                                        verification_status: "in_progress"
+                                                    })
+                                                })
+                                                .catch((err) => {
+                                                    console.error(err);
+                                                });
+                                        }
+                                    })
+                                    .catch((err) => {
+                                        console.error(err);
+                                    });
+                            else {
+                                await createStudentUser(student)
+                                    .catch((err) => {
+                                        console.error(err);
+                                    });
+                            }
                         })
-                        .catch((err) => {
-                            message.value = `Error: ${err.code}: ${err.message}`;
-                            console.error(err);
-                        })
-                }
-                );
-                showStudentNamesList.value = true;
-            })
-            .catch((err) => {
-                message.value = `Error: ${err.code}: ${err.message}`;
-                console.error(err);
-            })
-    }
-    // StudentEventServices.getAllStudentsByEvent(event.id)
-    //     .then((res) => {
-    //         const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-    //         studentNameList.value = []
-
-    //         students.forEach(async student => {
-    //             UserServices.getAllStudentUsers(student.id)
-    //                 .then((res) => {
-    //                     console.log(event)
-    //                     studentNameList.value.push({
-    //                         studentId: student.id,
-    //                         name: res.data[0].fName + " " + res.data[0].lName,
-    //                         didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
-    //                         eventId: student.studentEvent[0].id,
-    //                         studentSchoolId: student.student_issued_id,
-    //                         pointValue: event.point_value
-    //                     });
-    //                 })
-    //                 .catch((err) => {
-    //                     message.value = `Error: ${err.code}: ${err.message}`;
-    //                     console.error(err);
-    //                 })
-    //         }
-    //         );
-    //         showStudentNamesList.value = true;
-    //     })
-    //     .catch((err) => {
-    //         message.value = `Error: ${err.code}: ${err.message}`;
-    //         console.error(err);
-    //     })
+                        // console.log(studentNameList.value);
+                    }
+                })
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 }
-
-const formatTime = (dateTimeStr) => {
-    if (!dateTimeStr) return '';
-    try {
-        if (dateTimeStr.includes('T')) {
-            const date = parseISO(dateTimeStr);
-            return format(date, 'HH:mm');
-        }
-        return dateTimeStr;
-    } catch (error) {
-        console.error('Error formatting time:', error);
-        return '';
-    }
-};
 
 const addStudentToEvent = () => {
     console.log("Adding student " + newStudentId.value + " to event")
-    StudentServices.getStudentByStudentId(newStudentId.value)
-    .then((res) => {
-        console.log(res.data)
-        addStudentStatus.value = "Student added successfully"
+    if (!newStudentId.value) {
+        addStudentStatus.value = "Please enter a valid student ID"
+        newStudentId.value = ""
+        return;
+    }
+    addStudentStatus.value = ""
+    if (studentNameList.value.filter(student => student.studentSchoolId === newStudentId.value).length === 0) {
+        StudentServices.getStudentByStudentId(newStudentId.value)
+            .then((res) => {
+                console.log(res.data)
+                createStudentEvent(res.data)
+            }).catch((err) => {
+                console.error(err);
+            })
+    }
+    else {
+        addStudentStatus.value = "Student already added to event"
+        newStudentId.value = ""
+        return;
+    }
 
-    }).catch((err) => {
-        console.error(err);
-    })
 }
 
 const saveAttendanceDetails = () => {
@@ -431,7 +420,7 @@ const saveAttendanceDetails = () => {
 
         if (student.didAttend && student.verification_status === 'in_progress') {
             const newData = {
-                attendance_status:  "attended" ,
+                attendance_status: "attended",
                 verification_status: "approved"
             }
             console.log(newData)
@@ -483,6 +472,70 @@ const saveAttendanceDetails = () => {
 
     });
 }
+
+const getAllEvents = () => {
+    return EventServices.getAllEvents()
+        .then((res) => {
+            events.value = res.data;
+            events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value))
+                .sort((a, b) => {
+                    return new Date(b.date) - new Date(a.date);
+                });
+        })
+        .catch((err) => {
+            message.value = `Error: ${err.code}: ${err.message}`;
+            console.error(err);
+        });
+}
+
+const getNumberAttendees = () => {
+    events.value.forEach(event => {
+        StudentEventServices.getAllStudentsByEvent(event.id)
+            .then((res) => {
+                const index = attendeeMap.value.findIndex(a => a.id === event.id);
+                if (index >= 0) {
+                    attendeeMap.value[index].attendees = res.data.length;
+                } else {
+                    attendeeMap.value.push({
+                        id: event.id,
+                        attendees: res.data.length,
+                    });
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+}
+
+const formatTime = (dateTimeStr) => {
+    if (!dateTimeStr) return '';
+    try {
+        if (dateTimeStr.includes('T')) {
+            const date = parseISO(dateTimeStr);
+            return format(date, 'HH:mm');
+        }
+        return dateTimeStr;
+    } catch (error) {
+        console.error('Error formatting time:', error);
+        return '';
+    }
+};
+
+const formatDate = (dateTimeStr) => {
+    if (!dateTimeStr) return '';
+    try {
+        if (dateTimeStr.includes('T')) {
+            const date = parseISO(dateTimeStr);
+            return format(date, 'MM-dd-yyyy');
+        }
+        const date = parseISO(dateTimeStr);
+        return format(date, 'MM-dd-yyyy');
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return dateTimeStr;
+    }
+};
 </script>
 
 <style>
