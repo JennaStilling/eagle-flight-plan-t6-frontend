@@ -174,6 +174,7 @@ const getStudentAttendees = (event) => {
     selectedEvent.value = event;
     showStudentNamesList.value = true;
     addStudentStatus.value = ""
+    studentNameList.value = [];
 
     if (selectedEvent.value.registration === 'in_app') {
         handleManualEvent();
@@ -191,7 +192,7 @@ const handleManualEvent = () => {
     StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
         .then((res) => {
             const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-
+            console.log(students);
             students.forEach(async student => {
                 UserServices.getAllStudentUsers(student.id)
                     .then((res) => {
@@ -438,9 +439,6 @@ const saveAttendanceDetails = () => {
                             }
 
                             StudentServices.updateStudent(student.studentId, newStudentData)
-                                .then((res) => {
-                                    console.log(res.data)
-                                })
                                 .catch((err) => {
                                     message.value = `Error: ${err.code}: ${err.message}`;
                                     console.log(err);
