@@ -411,6 +411,9 @@
                 </v-card-actions>
             </div>
         </div>
+        <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+            {{ snackbarMessage }}
+        </v-snackbar>
     </div>
 </template>
 
@@ -487,6 +490,9 @@ const majorLoading = ref(false)
 
 const strengthMenu = ref(false);
 const majorMenu = ref(false);
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
 
 const eventCliftonStrengths = ref({
     cliftonStrengthsToAdd: [],
@@ -988,6 +994,10 @@ const editEvent = () => {
     EventServices.updateEvent(eventToEdit.value.id, updatedEvent)
         .then((res) => {
             showEventDetails.value = false;
+            
+            snackbarMessage.value = "Event updated successfully!";
+            showSnackbar.value = true;
+
             getAllEvents();
         })
         .catch((e) => {
@@ -1195,6 +1205,10 @@ const addEvent = () => {
                     console.error(err);
                 });
         })
+
+        snackbarMessage.value = "Event added successfully!";
+        showSnackbar.value = true;
+
         getAllEvents();
     })
         .catch((e) => {
@@ -1263,6 +1277,9 @@ const deleteSelectedEvents = async (selected) => {
             //     calendarApp.value.events = calendarFormattedEvents.value;
             //   }
 
+            //snackbarMessage.value = "Event deleted successfully!";
+            //showSnackbar.value = true;
+            
             reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
             selected.length = 0;
 

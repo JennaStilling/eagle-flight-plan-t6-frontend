@@ -318,7 +318,7 @@ const deleteSelectedStrengths = (selected) => {
           showDeleteItem.value = false;
           strengths.value = strengths.value.filter((allStrengths) => allStrengths.id !== strength.id);
           //Snackbar success
-          snackbarMessage.value = "Clifton Strength deleted successfully!";
+          snackbarMessage.value = "Clifton Strengths deleted successfully!";
           showSnackbar.value = true;
         })
         .catch((e) => {

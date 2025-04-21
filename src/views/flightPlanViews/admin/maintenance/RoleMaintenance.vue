@@ -25,6 +25,9 @@
         </DeletePopup>
       </template>
     </v-data-table>
+    <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-card>
 </template>
 
@@ -43,6 +46,9 @@ import { Icon } from "@iconify/vue";
 const search = ref('');
 const roles = ref([]);
 const permissions = ref([]);
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
 
 const headers = ref([
   { align: 'start', key: 'name', title: 'Role' },
@@ -89,6 +95,8 @@ const handleAddRole = async ({ roleData: role, permissionsData: permissions }) =
     }
     RolePermissionServices.createRolePermission(data);
   }
+  snackbarMessage.value = "Role added successfully!";
+  showSnackbar.value = true;
   await refresh();
 }
 
@@ -107,12 +115,16 @@ const handleEditRole = async ({ roleData: role, permissionsData: permissions }) 
     }
     RolePermissionServices.createRolePermission(data);
   }
+  snackbarMessage.value = "Role updated successfully!";
+  showSnackbar.value = true;
   await refresh();
 }
 
 const deleteRole = async (role) => {
   if (role.role_type === 'custom') {
     await RoleServices.deleteRole(role.id);
+    snackbarMessage.value = "Role deleted successfully!";
+    showSnackbar.value = true;
     refresh();
   }
   else {
