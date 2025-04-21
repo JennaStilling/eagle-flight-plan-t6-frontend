@@ -62,6 +62,7 @@ import Events from "./views/flightPlanViews/student/StudentEvents.vue";
 import Transactions from "./views/flightPlanViews/student/StudentTransactions.vue";
 import StudentLifeAfterTheNest from "./views/flightPlanViews/student/StudentLifeAfterTheNest.vue";
 import Badges from "./views/flightPlanViews/student/StudentBadges.vue";
+import SignInToEvent from "./views/flightPlanViews/SignInToEvent.vue";
 
 import Utils from "@/config/utils.js";
 import UserServices from "@/services/resumeBuilderServices/userServices.js";
@@ -331,6 +332,11 @@ const routes = [
     name: "student-badges",
     component: Badges,
   },
+  {
+    path: "flightPlan/event-sign-in",
+    name: "eventSignUp",
+    component: SignInToEvent,
+  }
 ];
 
 const router = createRouter({
@@ -340,7 +346,7 @@ const router = createRouter({
 
 const unrestrictedPages = [
   "login",
-  //"eventSignUp",
+  "eventSignUp",
 ];
 
 const anyRolePages = ["homeFP", "homeRB", "profile", "settings"];
@@ -487,8 +493,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // not logged in
-  if (!isAuthenticated && to.name !== "login") {
-    // TODO: also add condition where it's not the event sign in page (AC #93)
+  if (!isAuthenticated && to.name !== "login" && !to.fullPath.includes("event-sign-in")) {
     return { name: "login" };
   }
 
@@ -502,7 +507,6 @@ router.beforeEach(async (to, from) => {
       permissionsResponse.data.forEach((userPermission) =>
         permissions.value.push(userPermission.permissionId)
       );
-      // console.log(permissions.value);
 
       //rest of auth
       userPages.value = userPages.value.concat(anyRolePages);
