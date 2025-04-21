@@ -187,14 +187,10 @@ const getStudentAttendees = (event) => {
 }
 
 const handleManualEvent = () => {
-    // console.log("Handling manual event")
     handshakeRegistration.value = false;
-    studentNameList.value = []
     StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
         .then((res) => {
             const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-            studentNameList.value = []
-            // console.log(students)
 
             students.forEach(async student => {
                 UserServices.getAllStudentUsers(student.id)
@@ -211,14 +207,14 @@ const handleManualEvent = () => {
                     })
                     .catch((err) => {
                         message.value = `Error: ${err.code}: ${err.message}`;
-                        console.error(err);
+                        console.log(err);
                     })
             }
             );
         })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
-            console.error(err);
+            console.log(err);
         })
 }
 
@@ -229,7 +225,6 @@ const handleQRCodeEvent = () => {
 
 const handleHandshakeEvent = () => {
     handshakeRegistration.value = true;
-    // console.log("Handling handshake event")
 }
 
 const createStudentEvent = (student) => {
@@ -243,7 +238,6 @@ const createStudentEvent = (student) => {
             }
             StudentEventServices.createStudentEvent(newStudentEvent)
                 .then((res) => {
-                    // console.log(res.data)
                     studentNameList.value.push({
                         studentId: student.id,
                         name: newUser.fName + " " + newUser.lName,
@@ -255,11 +249,11 @@ const createStudentEvent = (student) => {
                     })
                 })
                 .catch((err) => {
-                    console.error(err);
+                    console.log(err);
                 });
         })
         .catch((err) => {
-            console.error(err);
+            console.log(err);
         })
 }
 
@@ -307,23 +301,23 @@ const createStudentUser = (student) => {
                                             })
                                         })
                                         .catch((err) => {
-                                            console.error(err);
+                                            console.log(err);
                                         });
                                 })
                                 .catch((err) => {
-                                    console.error(err);
+                                    console.log(err);
                                 });
                         })
                         .catch((err) => {
-                            console.error(err);
+                            console.log(err);
                         });
                 })
                 .catch((err) => {
-                    console.error(err);
+                    console.log(err);
                 });
         })
         .catch((err) => {
-            console.error(err);
+            console.log(err);
         });
 }
 
@@ -343,10 +337,10 @@ const handleFileUpload = (event) => {
                             if (existingStudent) {
                                 StudentEventServices.getAllStudentEvents()
                                     .then((res) => {
-                                        const studentEventsList = res.data;
+                                        const studentEventsList = res.data.flat();
                                         const existingStudentEvent = studentEventsList.find(
                                             existingEvent => existingEvent.studentId === existingStudent.id &&
-                                                existingEvent.evendId === selectedEvent.value.id)
+                                                existingEvent.eventId === selectedEvent.value.id)
                                         if (!existingStudentEvent) {
                                             const newStudentEvent = {
                                                 verification_status: "in_progress",
@@ -355,7 +349,6 @@ const handleFileUpload = (event) => {
                                             }
                                             StudentEventServices.createStudentEvent(newStudentEvent)
                                                 .then((res) => {
-                                                    // console.log(res.data)
                                                     studentNameList.value.push({
                                                         studentId: res.data.studentId,
                                                         name: student["First Name"] + " " + student["Last Name"],
@@ -367,43 +360,42 @@ const handleFileUpload = (event) => {
                                                     })
                                                 })
                                                 .catch((err) => {
-                                                    console.error(err);
+                                                    console.log(err);
                                                 });
                                         }
                                         else {
-                                            console.log("Found existing student event")
-                                            studentNameList.value.push({
-                                                studentId: existingStudent.id,
-                                                name: student["First Name"] + " " + student["Last Name"],
-                                                didAttend: student["Checked In"] !== "",
-                                                studentEventId: existingStudentEvent.id,
-                                                studentSchoolId: student.Username,
-                                                pointValue: selectedEvent.value.point_value,
-                                                verification_status: "in_progress"
-                                            })
+                                            if (existingStudentEvent.attendance_status === "in_progress") {
+                                                studentNameList.value.push({
+                                                    studentId: existingStudent.id,
+                                                    name: student["First Name"] + " " + student["Last Name"],
+                                                    didAttend: student["Checked In"] !== "",
+                                                    studentEventId: existingStudentEvent.id,
+                                                    studentSchoolId: student.Username,
+                                                    pointValue: selectedEvent.value.point_value,
+                                                    verification_status: "in_progress"
+                                                })
+                                            }
                                         }
                                     })
 
                                     .catch((err) => {
-                                        console.error(err);
+                                        console.log(err);
                                     });
                             }
                             else {
                                 await createStudentUser(student)
                             }
                         })
-                        // console.log(studentNameList.value);
                     }
                 })
             }
         })
         .catch((err) => {
-            console.error(err);
+            console.log(err);
         });
 }
 
 const addStudentToEvent = () => {
-    // console.log("Adding student " + newStudentId.value + " to event")
     if (!newStudentId.value) {
         addStudentStatus.value = "Please enter a valid student ID"
         newStudentId.value = ""
@@ -413,10 +405,9 @@ const addStudentToEvent = () => {
     if (studentNameList.value.filter(student => student.studentSchoolId === newStudentId.value).length === 0) {
         StudentServices.getStudentByStudentId(newStudentId.value)
             .then((res) => {
-                // console.log(res.data)
                 createStudentEvent(res.data)
             }).catch((err) => {
-                console.error(err);
+                console.log(err);
             })
     }
     else {
@@ -428,10 +419,7 @@ const addStudentToEvent = () => {
 }
 
 const saveAttendanceDetails = () => {
-    console.log("Printing now")
-    console.log(studentNameList.value)
     studentNameList.value.forEach(student => {
-        console.log(student)
 
         if (student.didAttend && student.verification_status === 'in_progress') {
             const newData = {
@@ -455,12 +443,12 @@ const saveAttendanceDetails = () => {
                                 })
                                 .catch((err) => {
                                     message.value = `Error: ${err.code}: ${err.message}`;
-                                    console.error(err);
+                                    console.log(err);
                                 })
                         })
                         .catch((err) => {
                             message.value = `Error: ${err.code}: ${err.message}`;
-                            console.error(err);
+                            console.log(err);
                         })
                 })
         }
@@ -474,7 +462,7 @@ const saveAttendanceDetails = () => {
                 })
                 .catch((err) => {
                     message.value = `Error: ${err.code}: ${err.message}`;
-                    console.error(err);
+                    console.log(err);
                 })
         }
 
@@ -492,7 +480,7 @@ const getAllEvents = () => {
         })
         .catch((err) => {
             message.value = `Error: ${err.code}: ${err.message}`;
-            console.error(err);
+            console.log(err);
         });
 }
 
@@ -511,7 +499,7 @@ const getNumberAttendees = () => {
                 }
             })
             .catch((err) => {
-                console.error(err);
+                console.log(err);
             });
     });
 }
@@ -525,7 +513,7 @@ const formatTime = (dateTimeStr) => {
         }
         return dateTimeStr;
     } catch (error) {
-        console.error('Error formatting time:', error);
+        console.log('Error formatting time:', error);
         return '';
     }
 };
@@ -540,7 +528,7 @@ const formatDate = (dateTimeStr) => {
         const date = parseISO(dateTimeStr);
         return format(date, 'MM-dd-yyyy');
     } catch (error) {
-        console.error('Error formatting date:', error);
+        console.log('Error formatting date:', error);
         return dateTimeStr;
     }
 };
