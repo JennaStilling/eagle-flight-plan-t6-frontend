@@ -84,6 +84,9 @@
                 </div>
             </div>
         </div>
+        <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
+            {{ snackbarMessage }}
+        </v-snackbar>
     </div>
 
     <!-- Add/Edit Shop Item Modal -->
@@ -170,7 +173,7 @@
         <v-spacer></v-spacer>
         <v-btn v-if="itemEdit" class="button" color="red" variant="outlined" @click="deleteItemConfirmation(itemToEdit)">Delete</v-btn>
         <v-btn color="grey" class="button" variant="outlined" @click="showItemDetails = false">Cancel</v-btn>
-        <v-btn color="green" class="button" variant="flat" @click="itemEdit ? editItem() : addItem()">Save</v-btn>
+        <v-btn color="#5EC4B6" class="button" variant="flat" @click="itemEdit ? editItem() : addItem()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </div>
@@ -207,6 +210,10 @@ const itemRedemptionInfo = ref(null);
 const itemImage = ref(null); 
 const itemImageType = ref(null);
 const imageBase64 = ref(null);
+
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
@@ -295,6 +302,11 @@ const editItem = () => {
         .then((res) => {
             console.log("Award Updated Successfully: " + res.data);
             showItemDetails.value = false;
+            
+            //Snackbar success
+            snackbarMessage.value = "Item updated successfully!";
+            showSnackbar.value = true;
+
             getAllAwards();
         })
         .catch((error) => {
@@ -338,6 +350,11 @@ const addItem = () => {
         .then((res) => {
             showItemDetails.value = false;
             console.log("Award added successfully: " + res.data);
+
+            //Snackbar success
+            snackbarMessage.value = "Item added successfully!";
+            showSnackbar.value = true;
+
             getAllAwards();
         })
         .catch((error) => {
@@ -357,6 +374,10 @@ const deleteItem = () => {
         .then(() => {
             showDeleteItem.value = false;
             items.value = items.value.filter((allItems) => allItems.id !== itemToDelete.value.id);
+
+            //Snackbar success
+            snackbarMessage.value = "Item deleted successfully!";
+            showSnackbar.value = true;
         })
         .catch((e) => {
             message.value = e.response.data.message;
@@ -377,6 +398,11 @@ const deleteSelectedItems = (selected) => {
                 .then(() => {
                     showSelectedDeleteItem.value = false;
                     getAllAwards();
+
+                    //Snackbar success
+                    snackbarMessage.value = "Item(s) deleted successfully!";
+                    showSnackbar.value = true;
+
                     items.value = items.value.filter((allItems) => allItems.id !== item.id);
                 })
                 .catch((e) => {

@@ -232,6 +232,9 @@
             </v-card-actions>
         </v-card>
     </div>
+    <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+        {{ snackbarMessage }}
+    </v-snackbar>
 </template>
 
 <script setup>
@@ -271,6 +274,10 @@ const cliftonStrengths = ref(null);
 const cliftonStrengthMenu = ref(false);
 const oldExperienceTypeCliftonStrengths = ref(null);
 const cliftonStrengthSearchField = ref(null);
+
+// Snackbar Variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
 
 const newCliftonStrengths = ref({
     cliftonStrengthsToAdd: [],
@@ -438,6 +445,10 @@ const editExperience = async () => {
 
     await ExperienceTypeServices.updateExperienceType(experienceToEdit.value.id, updatedExperience);
     showExperienceDetails.value = false;
+
+    snackbarMessage.value = "Experience updated successfully!";
+    showSnackbar.value = true;
+
     getAllExperiences();
 
     updateCliftonStrengthsToExperienceType();
@@ -516,6 +527,10 @@ const addExperience = async () => {
 
     await ExperienceTypeServices.createExperienceType(newExperience);
     showExperienceDetails.value = false;
+
+    snackbarMessage.value = "Experience added successfully!";
+    showSnackbar.value = true;
+
     getAllExperiences();
 
     updateCliftonStrengthsToExperienceType();
@@ -534,6 +549,10 @@ const deleteExperience = () => {
     ExperienceTypeServices.deleteExperienceType(categoryToDelete.value.id)
         .then((res) => {
             showDeleteItem.value = false;
+
+            snackbarMessage.value = "Experience deleted successfully!";
+            showSnackbar.value = true;
+
             getAllExperiences();
         })
         .catch((e) => {
@@ -550,6 +569,8 @@ const deleteSelectedExperiences = (selected) => {
             ExperienceTypeServices.deleteExperienceType(category.id)
                 .then((res) => {
                     showDeleteItem.value = false;
+                    snackbarMessage.value = "Experiences deleted successfully!";
+                    showSnackbar.value = true;
                     getAllExperiences();
                 })
                 .catch((e) => {

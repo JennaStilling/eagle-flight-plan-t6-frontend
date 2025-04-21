@@ -285,6 +285,9 @@
       </v-card-actions>
     </v-card>
   </div>
+  <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+    {{ snackbarMessage }}
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -329,6 +332,9 @@ const taskDescription = ref("");
 const quizLink = ref(null);
 const publicURL = ref(null);
 const verification = ref(null);
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
 
 // CliftonStrengths Variables
 const cliftonStrengthSearch = ref('');
@@ -500,6 +506,8 @@ const editTask = async () => {
 
   await TaskServices.updateTask(taskToEdit.value.id, updatedTask);
   showTaskDetails.value = false;
+  snackbarMessage.value = "Task updated successfully!";
+  showSnackbar.value = true;
   getAllTasks();
 
   updateCliftonStrengthsToTask();
@@ -560,6 +568,8 @@ const addTask = async () => {
 
   await TaskServices.createTask(newTask);
   showTaskDetails.value = false;
+  snackbarMessage.value = "Task added successfully!";
+  showSnackbar.value = true;
   getAllTasks();
 
   updateCliftonStrengthsToTask();
@@ -578,6 +588,8 @@ const deleteTask = () => {
   TaskServices.deleteTask(taskToDelete.value.id)
     .then(() => {
       showDeleteItem.value = false;
+      snackbarMessage.value = "Task deleted successfully!";
+      showSnackbar.value = true;
       tasks.value = tasks.value.filter((allTasks) => allTasks.id !== taskToDelete.value.id);
     })
     .catch((e) => {
@@ -594,6 +606,8 @@ const deleteSelectedTasks = (selected) => {
       TaskServices.deleteTask(task.id)
         .then(() => {
           showDeleteItem.value = false;
+          snackbarMessage.value = "Tasks deleted successfully!";
+          showSnackbar.value = true;
           tasks.value = tasks.value.filter((allTasks) => allTasks.id !== task.id);
         })
         .catch((e) => {

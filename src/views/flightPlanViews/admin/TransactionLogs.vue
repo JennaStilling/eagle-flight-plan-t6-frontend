@@ -202,6 +202,9 @@
         </div>
       </div>
     </div>
+    <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+      {{ snackbarMessage }}
+    </v-snackbar>
 </template>
 
 <script setup>
@@ -281,6 +284,9 @@ const priorAward = ref(null);
 const showRefundTransaction = ref(false);
 const transactionToRefund = ref(null);
 const refundError = ref(false);
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 // Displays a dropdown of awards that matches the users search
 const filteredAwardOptions = computed(() => {
@@ -525,6 +531,8 @@ const addTransaction = () => {
     .then((res) => {
       console.log("Transaction created successfully");
       console.log(res.data);
+      snackbarMessage.value = "Transaction created successfully";
+      showSnackbar.value = true;
       getTransactions();
       toggleRedeemPointsModal();
     })
@@ -614,6 +622,8 @@ const editTransaction = () => {
     .then((res) => {
       console.log("Updated Transaction Successfully");
       console.log(res.data);
+      snackbarMessage.value = "Transaction updated successfully";
+      showSnackbar.value = true;
       toggleRedeemPointsModal();
       getTransactions();
     })
@@ -661,6 +671,8 @@ const refundTransaction = () => {
     .then((res) => {
       console.log("Successfully removed transaction");
       console.log(res.data);
+      snackbarMessage.value = "Transaction successfully refunded";
+      showSnackbar.value = true;
       showRefundTransaction.value = false;
       getTransactions();
     })

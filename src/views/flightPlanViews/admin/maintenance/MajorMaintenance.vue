@@ -106,6 +106,9 @@
             </v-card-actions>
         </v-card>
     </div>
+    <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+        {{ snackbarMessage }}
+    </v-snackbar>
 </template>
 
 <script setup>
@@ -127,6 +130,9 @@ const deleteError = ref(false);
 const selected = ref([]);
 const majorEdit = ref(false);
 const majorAdd = ref(false);
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
 
 const headers = ref([
     { align: 'start', key: 'name', title: 'Name' },
@@ -190,6 +196,8 @@ const editMajor = () => {
         .then((response) => {
             console.log("Major updated successfully:", response.data);
             showMajorDetails.value = false;
+            snackbarMessage.value = "Major updated successfully!";
+            showSnackbar.value = true;
             getAllMajors();
         })
         .catch((e) => {
@@ -232,6 +240,8 @@ const addMajor = () => {
     MajorServices.createMajor(newMajor).then((response) => {
         showMajorDetails.value = false;
         console.log("Major added successfully:", response.data);
+        snackbarMessage.value = "Major added successfully!";
+        showSnackbar.value = true;
         getAllMajors();
     })
         .catch((e) => {
@@ -254,6 +264,8 @@ const deleteMajor = () => {
     MajorServices.deleteMajor(majorToDelete.value.id)
         .then(() => {
             showDeleteItem.value = false;
+            snackbarMessage.value = "Major deleted successfully!";
+            showSnackbar.value = true;
             majors.value = majors.value.filter((allMajors) => allMajors.id !== majorToDelete.value.id);
         })
         .catch((e) => {
@@ -270,6 +282,8 @@ const deleteSelectedMajors = (selected) => {
             MajorServices.deleteMajor(major.id)
                 .then(() => {
                     showDeleteItem.value = false;
+                    snackbarMessage.value = "Majors deleted successfully!";
+                    showSnackbar.value = true;
                     majors.value = majors.value.filter((allMajors) => allMajors.id !== major.id);
                 })
                 .catch((e) => {

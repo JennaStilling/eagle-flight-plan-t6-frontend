@@ -1,169 +1,33 @@
 <template>
-    <h1 class="pa-5">Student Flight Plan</h1>
-    <div class="semester-navigation">
-        <v-btn :disabled="currentSemesterIndex + 1 === 1" @click="getPreviousSemester" density="comfortable"
-            icon="mdi-arrow-left" variant="tonal" rounded>
-            < </v-btn>
-                <h1>{{ semesters[currentSemesterIndex]?.name || `Loading...` }}</h1>
-                <v-btn :disabled="currentSemesterIndex + 1 >= semesters.length" @click="getNextSemester"
-                    density="comfortable" icon="mdi-arrow-right" variant="tonal" rounded>
-                    >
-                </v-btn>
-    </div>
-    <v-divider />
-    <v-card class="stuff">
-        <h1 class="pa-5">Tasks
-            <v-btn class="button" variant="elevated" color="#5EC4B6" @click="requestTaskPopup()">
-                Request Custom Task
+    <div>
+        <h1 class="pa-5">Student Flight Plan</h1>
+        <div class="semester-navigation">
+            <v-btn :disabled="currentSemesterIndex + 1 === 1" @click="getPreviousSemester" density="comfortable"
+                icon="mdi-arrow-left" variant="tonal" rounded>
             </v-btn>
-        </h1>
-        <v-data-iterator :items="studentSemesterFlightPlanTasks[currentSemesterIndex] || []" :items-per-page="4"
-            v-if="!loading">
-            <template v-slot:default="{ items }">
-                <v-container class="pa-5" fluid>
-                    <v-row dense>
-                        <v-col v-for="task in items" :key="task.raw.id" cols="auto" md="3">
-                            <TaskPreview :key="task.raw.id" :task="task.raw"
-                                :show-overlay="selectedTaskId === task.raw.id"
-                                @show-recommended-events="showRecommendedEventsModal"
-                                @update:showOverlay="(value) => handleTaskOverlay(value, task.raw.id)" />
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </template>
-
-            <template v-slot:footer="{ page, pageCount, prevPage, nextPage }">
-                <div class="d-flex align-center justify-center pa-4">
-                    <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal" rounded
-                        @click="prevPage">
-                        < </v-btn>
-
-                            <div class="mx-2 text-caption">
-                                Page {{ page }} of {{ pageCount }}
-                            </div>
-
-                            <v-btn :disabled="page >= pageCount" density="comfortable" icon="mdi-arrow-right"
-                                variant="tonal" rounded @click="nextPage"> > </v-btn>
-                </div>
-            </template>
-        </v-data-iterator>
-    </v-card>
-
-    <v-overlay v-model="showRecommendedEvents" class="recommended-events-overlay">
-        <v-card class="modal-content">
-            <div class="modal-header">
-                <h3>Recommended Events</h3>
-            </div>
-            <div class="event-data-table-container">
-                <table class="event-data-table">
-                    <tbody>
-                        <template v-for="event in recommendedEvents" :key="event.id">
-                            <tr @click="openEventModal(event)" class="clickable-row">
-                                <td class="date">
-                                    <Icon v-if="isEventRegistered(event)" icon="material-symbols:bookmark-rounded"
-                                        width="24" height="24" />
-                                    <div class="month">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
-                                        month: 'short'
-                                    }).toLocaleUpperCase() }}</div>
-                                    <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US', {
-                                        day: '2-digit'
-                                    }) }}</div>
-                                </td>
-                                <td style="user-select: none;">
-                                    {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
-                                        hour: 'numeric',
-                                        minute: 'numeric',
-                                        hour12: true
-                                    }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
-                                        Date(event.end_date_time).toLocaleTimeString('en-US', {
-                                            hour: 'numeric', minute:
-                                                'numeric', hour12:
-                                                true
-                                        }).replace('AM', 'am').replace('PM', 'pm') }}
-                                    <br>
-                                    <span style="font-size: 30px; font-weight: 100; user-select: none;">{{ event.name
-                                        }}</span>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td colspan="3">
-                                    <hr class="event-line">
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-            <v-divider></v-divider>
-            <v-card-actions class="popup-actions">
-                <v-spacer></v-spacer>
-                <v-btn color="#708E9A" variant="flat" @click="closeRecommendedEvents">Close</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-overlay>
-
-    <v-overlay v-model="modalVisible" class="recommended-events-overlay">
-        <v-card class="modal-content">
-            <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
-            <h2>{{ selectedEvent.name }}</h2>
-            <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
-            <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value }}</span>
-                points
-            </div>
-            <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
-            <div style="margin-bottom: 15px;">
-                {{ new Date(selectedEvent.date).toLocaleDateString('en-US', {
-                    month: 'long', day: '2-digit', year:
-                        'numeric'
-                })
-                }}
-            </div>
-            <div style="margin-bottom: 15px;">
-                {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit', minute:
-                        '2-digit',
-                    hour12: true
-                }) }} -
-                {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit', minute:
-                        '2-digit',
-                    hour12: true
-                }) }}
-            </div>
-            <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
-                color="#F68D76">Register</v-btn>
-        </v-card>
-    </v-overlay>
-
-    <div v-for="(experienceType) in experienceTypesForStudentFlightPlans[currentSemesterIndex] || []"
-        :key="experienceType.id">
+            <h1>{{ semesters[currentSemesterIndex]?.name || `Loading...` }}</h1>
+            <v-btn :disabled="currentSemesterIndex + 1 >= semesters.length" @click="getNextSemester"
+                density="comfortable" icon="mdi-arrow-right" variant="tonal" rounded>
+                >
+            </v-btn>
+        </div>
         <v-divider />
-        <v-card class="stuff" :class="{
-            'experience-completed': experienceType.experienceCompleted === true,
-        }">
-            <div class="title-row">
-                <h1>{{ experienceType.name }}</h1>
-                <div class="search-filter-button-group">
-                    <v-text-field v-model="search" label="Search for Event" variant="solo" hide-details single-line
-                        density="compact" class="search-bar">
-                        <template v-slot:prepend-inner>
-                            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
-                        </template>
-                    </v-text-field>
-                    <v-btn class="button" variant="elevated" color="#5EC4B6" @click="ViewEventsPage()">
-                        View All Events
-                    </v-btn>
-                </div>
-            </div>
-            <v-data-iterator
-                :items="eventsByExperienceTypesForStudentFlightPlans[currentSemesterIndex][experienceType.id] || []"
-                :items-per-page="6" v-if="!loading">
+        <v-card class="stuff">
+            <h1 class="pa-5">Tasks
+                <v-btn class="button" variant="elevated" color="#5EC4B6" @click="requestTaskPopup()">
+                    Request Custom Task
+                </v-btn>
+            </h1>
+            <v-data-iterator :items="studentSemesterFlightPlanTasks[currentSemesterIndex] || []" :items-per-page="4"
+                v-if="!loading">
                 <template v-slot:default="{ items }">
                     <v-container class="pa-5" fluid>
                         <v-row dense>
-                            <v-col v-for="event in items" :key="event.id" cols="auto" md="4">
-                                <EventPreview :key="event.raw.id" :event="event.raw" />
+                            <v-col v-for="task in items" :key="task.raw.id" cols="auto" md="3">
+                                <TaskPreview :key="task.raw.id" :task="task.raw"
+                                    :show-overlay="selectedTaskId === task.raw.id"
+                                    @show-recommended-events="showRecommendedEventsModal"
+                                    @update:showOverlay="(value) => handleTaskOverlay(value, task.raw.id)" />
                             </v-col>
                         </v-row>
                     </v-container>
@@ -185,68 +49,213 @@
                 </template>
             </v-data-iterator>
         </v-card>
-    </div>
 
-    <div v-if="showTaskDetails" class="modal edit-form-body">
-        <v-card class="edit-popup mx-auto">
-            <v-card-title class="popup-header">
-                <v-text-field v-model="requestName"></v-text-field>
-            </v-card-title>
-
-            <v-divider></v-divider>
-            <!-- Start of Body -->
-            <v-container class="popup-content">
-                <!-- Description-->
-                <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.description }}</label>
-                    </v-col>
-                    <v-col cols="7">
-                        <v-textarea v-model="requestDescription" rows="2" variant="outlined"
-                            density="compact"></v-textarea>
-                    </v-col>
-                </v-row>
-
-                <!-- Rationale-->
-                <v-row class="form-row">
-                    <v-col cols="5" class="label-column">
-                        <label>{{ labels.rationale }}</label>
-                    </v-col>
-
-                    <v-col cols="7">
-                        <v-text-field v-model="requestRationale" variant="outlined" density="compact"
-                            hide-details></v-text-field>
-                    </v-col>
-                </v-row>
-            </v-container>
-
-            <v-divider></v-divider>
-
-            <v-card-actions class="popup-actions">
-                <v-spacer></v-spacer>
-                <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
-                <v-btn color="#5EC4B6" variant="flat" class="button"
-                    @click="taskRequest = requestTask()">Request</v-btn>
-            </v-card-actions>
-        </v-card>
-    </div>
-    <div v-if="currentStudentFlightPlanComplete">
-        <v-overlay v-model="completedOverlay" class="popup" persistent>
-            <v-card class="completed-flightplan">
-                <h1 style="text-align: center; color: #4CAF50;">🎉 Congratulations! 🎉</h1>
-                <p style="text-align: center; font-size: 1.2rem; margin-top: 1rem;">
-                    You have successfully completed your Flightplan for
-                    <strong>{{ currentSemester?.name || `this semester` }}</strong>!
-                </p>
-                <p style="text-align: center; font-size: 1rem; margin-top: 1rem;">
-                    Keep up the great work and continue striving for success!
-                </p>
-                <v-btn class="button" variant="elevated" color="#5EC4B6"
-                    @click="completedOverlay = false, setFlightPlanComplete(completedFlightPlan)">
-                    Take Flight!
-                </v-btn>
+        <v-overlay v-model="showRecommendedEvents" class="recommended-events-overlay">
+            <v-card class="modal-content">
+                <div class="modal-header">
+                    <h3>Recommended Events</h3>
+                </div>
+                <div class="event-data-table-container">
+                    <table class="event-data-table">
+                        <tbody>
+                            <template v-for="event in recommendedEvents" :key="event.id">
+                                <tr @click="openEventModal(event)" class="clickable-row">
+                                    <td class="date">
+                                        <Icon v-if="isEventRegistered(event)" icon="material-symbols:bookmark-rounded"
+                                            width="24" height="24" />
+                                        <div class="month">{{ new
+                                            Date(event.start_date_time).toLocaleDateString('en-US', {
+                                                month: 'short'
+                                            }).toLocaleUpperCase() }}</div>
+                                        <div class="day">{{ new Date(event.start_date_time).toLocaleDateString('en-US',
+                                            {
+                                                day: '2-digit'
+                                            }) }}</div>
+                                    </td>
+                                    <td style="user-select: none;">
+                                        {{ new Date(event.start_date_time).toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: 'numeric',
+                                            hour12: true
+                                        }).replace('AM', 'am').replace('PM', 'pm') }} - {{ new
+                                            Date(event.end_date_time).toLocaleTimeString('en-US', {
+                                                hour: 'numeric', minute:
+                                                    'numeric', hour12:
+                                                    true
+                                            }).replace('AM', 'am').replace('PM', 'pm') }}
+                                        <br>
+                                        <span style="font-size: 30px; font-weight: 100; user-select: none;">{{
+                                            event.name
+                                            }}</span>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                        <hr class="event-line">
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <v-divider></v-divider>
+                <v-card-actions class="popup-actions">
+                    <v-spacer></v-spacer>
+                    <v-btn color="#708E9A" variant="flat" @click="closeRecommendedEvents">Close</v-btn>
+                </v-card-actions>
             </v-card>
         </v-overlay>
+
+        <v-overlay v-model="modalVisible" class="recommended-events-overlay">
+            <v-card class="modal-content">
+                <span @click="closeEventModal" class="close" style="font-size: 2rem;">&times;</span>
+                <h2>{{ selectedEvent.name }}</h2>
+                <div style="font-size: 20px; text-align: center;">{{ selectedEvent.description }}</div>
+                <div style="margin-top: 15px;">Earn <span style="font-weight:bold;">{{ selectedEvent.point_value
+                        }}</span>
+                    points
+                </div>
+                <div style="margin-top: 15px;">{{ selectedEvent.location }}</div>
+                <div style="margin-bottom: 15px;">
+                    {{ new Date(selectedEvent.date).toLocaleDateString('en-US', {
+                        month: 'long', day: '2-digit', year:
+                            'numeric'
+                    })
+                    }}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    {{ new Date(selectedEvent.start_date_time).toLocaleTimeString('en-US', {
+                        hour: '2-digit', minute:
+                            '2-digit',
+                        hour12: true
+                    }) }} -
+                    {{ new Date(selectedEvent.end_date_time).toLocaleTimeString('en-US', {
+                        hour: '2-digit', minute:
+                            '2-digit',
+                        hour12: true
+                    }) }}
+                </div>
+                <v-btn v-if="!isStudentSignedUp" @click="closeEventModal; studentSignUpForEvent(selectedEvent.id)"
+                    color="#F68D76">Register</v-btn>
+            </v-card>
+        </v-overlay>
+
+        <div v-for="(experienceType) in experienceTypesForStudentFlightPlans[currentSemesterIndex] || []"
+            :key="experienceType.id">
+            <v-divider />
+            <v-card class="stuff" :class="{
+                'experience-completed': experienceType.experienceCompleted === true,
+            }">
+                <div class="title-row">
+                    <h1>{{ experienceType.name }}</h1>
+                    <div class="search-filter-button-group">
+                        <v-text-field v-model="search" label="Search for Event" variant="solo" hide-details single-line
+                            density="compact" class="search-bar">
+                            <template v-slot:prepend-inner>
+                                <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+                            </template>
+                        </v-text-field>
+                        <v-btn class="button" variant="elevated" color="#5EC4B6" @click="ViewEventsPage()">
+                            View All Events
+                        </v-btn>
+                    </div>
+                </div>
+                <v-data-iterator
+                    :items="eventsByExperienceTypesForStudentFlightPlans[currentSemesterIndex][experienceType.id] || []"
+                    :items-per-page="6" v-if="!loading">
+                    <template v-slot:default="{ items }">
+                        <v-container class="pa-5" fluid>
+                            <v-row dense>
+                                <v-col v-for="event in items" :key="event.id" cols="auto" md="4">
+                                    <EventPreview :key="event.raw.id" :event="event.raw" />
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </template>
+
+                    <template v-slot:footer="{ page, pageCount, prevPage, nextPage }">
+                        <div class="d-flex align-center justify-center pa-4">
+                            <v-btn :disabled="page === 1" density="comfortable" icon="mdi-arrow-left" variant="tonal"
+                                rounded @click="prevPage">
+                                < </v-btn>
+
+                                    <div class="mx-2 text-caption">
+                                        Page {{ page }} of {{ pageCount }}
+                                    </div>
+
+                                    <v-btn :disabled="page >= pageCount" density="comfortable" icon="mdi-arrow-right"
+                                        variant="tonal" rounded @click="nextPage"> > </v-btn>
+                        </div>
+                    </template>
+                </v-data-iterator>
+            </v-card>
+        </div>
+
+        <div v-if="showTaskDetails" class="modal edit-form-body">
+            <v-card class="edit-popup mx-auto">
+                <v-card-title class="popup-header">
+                    <v-text-field v-model="requestName"></v-text-field>
+                </v-card-title>
+
+                <v-divider></v-divider>
+                <!-- Start of Body -->
+                <v-container class="popup-content">
+                    <!-- Description-->
+                    <v-row class="form-row">
+                        <v-col cols="5" class="label-column">
+                            <label>{{ labels.description }}</label>
+                        </v-col>
+                        <v-col cols="7">
+                            <v-textarea v-model="requestDescription" rows="2" variant="outlined"
+                                density="compact"></v-textarea>
+                        </v-col>
+                    </v-row>
+
+                    <!-- Rationale-->
+                    <v-row class="form-row">
+                        <v-col cols="5" class="label-column">
+                            <label>{{ labels.rationale }}</label>
+                        </v-col>
+
+                        <v-col cols="7">
+                            <v-text-field v-model="requestRationale" variant="outlined" density="compact"
+                                hide-details></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-container>
+
+                <v-divider></v-divider>
+
+                <v-card-actions class="popup-actions">
+                    <v-spacer></v-spacer>
+                    <v-btn color="#708E9A" variant="flat" class="button" @click="showTaskDetails = false">Cancel</v-btn>
+                    <v-btn color="#5EC4B6" variant="flat" class="button"
+                        @click="taskRequest = requestTask()">Request</v-btn>
+                </v-card-actions>
+            </v-card>
+        </div>
+        <div v-if="currentStudentFlightPlanComplete">
+            <v-overlay v-model="completedOverlay" class="popup" persistent>
+                <v-card class="completed-flightplan">
+                    <h1 style="text-align: center; color: #4CAF50;">🎉 Congratulations! 🎉</h1>
+                    <p style="text-align: center; font-size: 1.2rem; margin-top: 1rem;">
+                        You have successfully completed your Flightplan for
+                        <strong>{{ currentSemester?.name || `this semester` }}</strong>!
+                    </p>
+                    <p style="text-align: center; font-size: 1rem; margin-top: 1rem;">
+                        Keep up the great work and continue striving for success!
+                    </p>
+                    <v-btn class="button" variant="elevated" color="#5EC4B6"
+                        @click="completedOverlay = false, setFlightPlanComplete(completedFlightPlan)">
+                        Take Flight!
+                    </v-btn>
+                </v-card>
+            </v-overlay>
+        </div>
+        <v-snackbar v-model="showSnackbar" timeout="3000" color="success" style="color: white">
+            {{ snackbarMessage }}
+        </v-snackbar>
     </div>
 </template>
 
@@ -314,6 +323,10 @@ const requestName = ref("");
 const requestDescription = ref("");
 const requestPointValue = ref(0);
 const requestRationale = ref("");
+
+//Snackbar variables
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const loadRegisteredEvents = async () => {
     try {
@@ -438,6 +451,10 @@ const requestTask = () => {
     TaskServices.createTask(task).then((response) => {
         showTaskDetails.value = false;
         console.log("Task added successfully:", response.data);
+        
+        snackbarMessage.value = "Task requested successfully!";
+        showSnackbar.value = true;
+        
         getAllTasks();
     })
         .catch((e) => {

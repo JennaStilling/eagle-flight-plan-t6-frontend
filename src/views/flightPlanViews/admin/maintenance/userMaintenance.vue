@@ -47,6 +47,9 @@
         </template>
       </v-data-iterator>
     </v-card>
+    <v-snackbar v-model="showSnackbar" timeout="5000" color="success" style="color: white">
+      {{ snackbarMessage }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -90,6 +93,9 @@ const students = ref([]);
 
 const cliftonStrengths = ref([]);
 const studentCliftonStrengths = ref([]);
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
 
 const loading = computed(() => {
   return Object.values(loadingData.value).some(value => value);
@@ -342,6 +348,9 @@ const addRole = (userId, role) => {
                 console.error(err)
               });
           })
+
+          snackbarMessage.value = "Role added successfully!";
+          showSnackbar.value = true;
         })
         .catch((err) => {
           message.value = "Error: " + err.code + ":" + err.message;
@@ -364,6 +373,8 @@ const removeRole = (userId, role) => {
   UserRoleServices.deleteUserRole(userId, userRoleId)
     .catch((err) => console.error(err))
     .finally(() => {
+      snackbarMessage.value = "Role successfully removed!";
+      showSnackbar.value = true;
       refresh();
     })
 };
@@ -374,6 +385,10 @@ const addStudentCliftonStrength = (studentId, cliftonStrength) => {
     cliftonStrengthId: cliftonStrength.id
   }
   StudentCliftonStrengthServices.createSystemStudentCliftonStrength(data)
+    .then(() => {
+      snackbarMessage.value = "Clifton Strength added successfully!";
+      showSnackbar.value = true;
+    })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
       console.log(err);
@@ -386,6 +401,10 @@ const addStudentCliftonStrength = (studentId, cliftonStrength) => {
 const removeStudentCliftonStrength = (studentId, cliftonStrength) => {
 
   StudentCliftonStrengthServices.deleteStudentCliftonStrengthTwoIds(studentId, cliftonStrength.id)
+    .then(() => {
+      snackbarMessage.value = "Clifton Strength removed successfully!";
+      showSnackbar.value = true;
+    })
     .catch((err) => console.error(err))
     .finally(() => {
       refresh();
@@ -395,12 +414,14 @@ const removeStudentCliftonStrength = (studentId, cliftonStrength) => {
 const addUser = async (user) => {
   return UserServices.createUser(user)
     .then((response) => {
+      snackbarMessage.value = "User added successfully!";
       return response.data;
     }).catch((e) => {
       message.value = e.response.data.message;
     })
     .finally(() => {
       refresh();
+      showSnackbar.value = true;
     })
 }
 
@@ -474,6 +495,10 @@ const updateStudent = (studentData) => {
 
 const updateUser = (userData) => {
   UserServices.updateUser(userData.id, userData)
+    .then(() => {
+      snackbarMessage.value = "User updated successfully!";
+      showSnackbar.value = true;
+    })
     .catch((e) => {
       message.value = e.response.data.message;
     })
@@ -484,6 +509,10 @@ const updateUser = (userData) => {
 
 const deleteUser = async (userId) => {
   return UserServices.deleteUser(userId)
+    .then(() => {
+      snackbarMessage.value = "User deleted successfully!";
+      showSnackbar.value = true;
+    })
     .catch((e) => {
       message.value = e.response.data.message;
     })
