@@ -333,7 +333,7 @@ const routes = [
     component: Badges,
   },
   {
-    path: "flightPlan/event-sign-in",
+    path: "/flightPlan/event-sign-in",
     name: "eventSignUp",
     component: SignInToEvent,
   }
@@ -480,7 +480,6 @@ router.beforeEach(async (to, from) => {
 
   if (to.name !== "login" && to.name !== "homeFP")
     localStorage.setItem("lastPageAccessed", to.name);
-  console.log(localStorage.getItem("lastPageAccessed"))
 
   userPages.value = userPages.value.concat(unrestrictedPages);
 
