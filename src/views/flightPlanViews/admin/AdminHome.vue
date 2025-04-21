@@ -50,14 +50,10 @@
           <div v-if="paginatedTasks.length === 0" class="empty-state">
             <p>No tasks pending review</p>
           </div>
-          <div class="card-item" v-for="(name, index) in paginatedTasks" :key="index" @click="getSelectedTask(
-            name,
-            studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index],
-            studentTasks.reflection.reflections[(currentTaskPage - 1) * itemsPerPage + index],
-            studentTasks.id.ids[(currentTaskPage - 1) * itemsPerPage + index])">
+          <div class="card-item" v-for="(task, index) in paginatedTasks" :key="index" @click="getSelectedTask(task)">
             <div class="list-text">
-              <div class="list-title">{{ studentTasks.task.tasks[(currentTaskPage - 1) * itemsPerPage + index] }}</div>
-              <div class="list-sub">{{ name }}</div>
+              <div class="list-title">{{ getTaskName(paginatedTasks[index]) }}</div>
+              <div class="list-sub">{{ getStudentName(paginatedTasks[index]) }}</div>
             </div>
           </div>
         </div>
@@ -94,10 +90,32 @@
     <div v-if="viewingTask" class="modal">
       <div class="homepage-modal-content">
         <span @click="toggleTaskView()" class="close">&times;</span>
-        <div class="modal-header" style="font-weight: bold;"> {{ currentTask.task }} </div>
-        {{ currentTask.name }}
-        <div class="reflection-box">
+        <div class="modal-header" style="font-weight: bold;"> {{ getTaskName(currentTask) }} </div>
+        {{ getStudentName(currentTask) }}
+        <div class="reflection-box" v-if="getVerificationType === 'reflection'">
           {{ currentTask.reflection }}
+        </div>
+        <div v-else-if="getVerificationType === 'required_document'">
+          <img
+            v-if="currentTask.required_document_type?.startsWith('image/')"
+            :src="currentTask.required_document"
+            alt="Uploaded Image"
+            style="max-width: 100%; max-height: 300px"
+          />
+
+          <iframe
+            v-else-if="currentTask.required_document_type === 'application/pdf'"
+            :src="currentTask.required_document"
+            width="600px"
+            height="450px"
+          ></iframe>
+
+          <div v-else>
+            <p>Preview not available for this file type.</p>
+            <a :href="currentTask.required_document" download target="_blank">
+              Download {{ currentTask.required_document_type }}
+            </a>
+          </div>
         </div>
 
         <div class="button-group">
@@ -138,8 +156,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useHomePageStore } from '@/store/homePageStore';
+import { asyncComputed } from '@vueuse/core';
 import BackArrow from '@/assets/ArrowBackwardIcon.svg';
 import ForwardArrow from '@/assets/ArrowForwardIcon.svg';
 import Utils from "@/config/utils";
@@ -152,8 +171,10 @@ import taskServices from "@/services/flightPlanServices/taskServices";
 import studentServices from "@/services/resumeBuilderServices/studentServices";
 import eventServices from "@/services/flightPlanServices/eventServices";
 import StudentEventServices from "@/services/flightPlanServices/studentEventServices";
+import verificationServices from "@/services/flightPlanServices/verificationServices";
 // Chart Component
 import StudentActivityChart from '@/components/flightPlanComponents/adminPages/StudentActivityChart.vue';
+import userServices from "@/services/resumeBuilderServices/userServices.js";
 
 const timeFrame = ref('month'); 
 
@@ -186,12 +207,7 @@ const studentFlightPlanTasksList = ref([]);
 
 const viewingTask = ref(false);
 const viewingEvent = ref(false);
-const currentTask = ref({
-  name: null,
-  task: null,
-  reflection: null,
-  id: null
-});
+const currentTask = ref(null);
 
 // Modal Variables
 const selectedOption = ref(null);
@@ -199,6 +215,9 @@ const userInput = ref("");
 const isReasonEmpty = ref(false);
 const studentFlightPlanTask = ref(null);
 const selectedEvent = ref(null);
+
+const taskNames = ref({});
+const studentNames = ref({});
 
 const homeStore = useHomePageStore();
 
@@ -217,7 +236,7 @@ const currentTaskPage = ref(1);
 const currentEventPage = ref(1);
 
 // Total task pages
-const totalTaskPages = computed(() => Math.ceil(studentTasks.value.name.names.length / itemsPerPage));
+const totalTaskPages = computed(() => Math.ceil(studentFlightPlanTasksList.value.length / itemsPerPage));
 
 // Total event pages
 const totalEventPages = computed(() => Math.ceil(upcomingEvents.value.length / itemsPerPage));
@@ -226,8 +245,22 @@ const totalEventPages = computed(() => Math.ceil(upcomingEvents.value.length / i
 const paginatedTasks = computed(() => {
   const start = (currentTaskPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return studentTasks.value.name.names.slice(start, end);
+  return studentFlightPlanTasksList.value.slice(start, end);
 });
+
+const preloadTasks = async () => {
+  for (const task of paginatedTasks.value) {
+    if (!taskNames.value[task.id]) {
+      const studentTask = (await taskServices.getTask(task.taskId)).data;
+      const studentFlightPlan = (await studentFlightPlanServices.getStudentFlightPlan(task.studentFlightPlanId)).data;
+      const studentUser = (await userServices.getAllStudentUsers(studentFlightPlan.studentId)).data[0];
+      taskNames.value[task.id] = studentTask.name;
+      studentNames.value[task.id] = `${studentUser.fName} ${studentUser.lName}`;
+    }
+  }
+};
+
+watch(paginatedTasks, preloadTasks, { immediate: true });
 
 // Get paginated events
 const paginatedEvents = computed(() => {
@@ -305,61 +338,16 @@ const listStudentTasks = () => {
       });
 
       const homeStore = useHomePageStore();
-      // Add to object and put into a list
-      addToStudentList();
     })
     .catch((error) => {
       console.log("Error: " + error);
     })
 }
 
-// Get all the information needed to put into the list
-const addToStudentList = async () => {
-  const promises = studentFlightPlanTasksList.value.map(async (studentFlightPlanTask) => {
-    try {
-      // Get task info
-      const taskRes = await taskServices.getTask(studentFlightPlanTask.taskId);
-      const taskName = taskRes.data.name;
-
-      // StudentFlightPlan
-      const flightPlanRes = await studentFlightPlanServices.getStudentFlightPlan(studentFlightPlanTask.studentFlightPlanId);
-      const studentRes = await studentServices.getStudent(flightPlanRes.data.studentId);
-      const userRes = await UserServices.getAllStudentUsers(studentRes.data.id);
-
-      const studentName = userRes.data[0].fName + " " + userRes.data[0].lName;
-
-      // Returns the data in order
-      return {
-        task: taskName,
-        name: studentName,
-        reflection: studentFlightPlanTask.reflection,
-        id: studentFlightPlanTask.id,
-      };
-    } catch (error) {
-      console.log("Error:", error);
-      return null;
-    }
-  });
-
-  // Promise waits for calls to finish
-  const results = await Promise.all(promises);
-
-  // removes null values
-  studentTasks.value = {
-    name: { names: results.map(res => res?.name).filter(Boolean) },
-    task: { tasks: results.map(res => res?.task).filter(Boolean) },
-    reflection: { reflections: results.map(res => res?.reflection).filter(Boolean) },
-    id: { ids: results.map(res => res?.id).filter(Boolean) }
-  };
-};
-
-const getSelectedTask = (name, task, reflection, id) => {
-  currentTask.value.name = name;
-  currentTask.value.task = task;
-  currentTask.value.reflection = reflection;
-  currentTask.value.id = id;
+const getSelectedTask = async (task) => {
+  currentTask.value = (await studentFlightPlanTaskServices.getStudentFlightPlanTask(task.id)).data;
+  console.log(currentTask.value);
   viewingTask.value = !viewingTask.value;
-  console.log(studentTasks.value);
 }
 
 const getSelectedEvent = (index) => {
@@ -383,43 +371,36 @@ const selectOption = (option) => {
   selectedOption.value = option;
 };
 
-const completeTaskReview = (id) => {
+const completeTaskReview = async (id) => {
   if (selectedOption.value === 'deny' && userInput.value === "") {
     isReasonEmpty.value = true;
+    return
+  }
+
+  studentFlightPlanTask.value = (await studentFlightPlanTaskServices.getStudentFlightPlanTask(id)).data;
+  if (selectedOption.value === 'deny') {
+    studentFlightPlanTask.value.status = "unapproved";
+    studentFlightPlanTask.value.unapprove_reason = userInput.value;
   }
   else {
-    studentFlightPlanTaskServices.getStudentFlightPlanTask(id)
-      .then((res) => {
-        studentFlightPlanTask.value = res.data;
-        if (selectedOption.value === 'deny') {
-          studentFlightPlanTask.value.status = "unapproved";
-          studentFlightPlanTask.value.unapprove_reason = userInput.value;
-        }
-        else {
-          studentFlightPlanTask.value.status = "approved";
-          studentFlightPlanTask.value.userId = user.value.userId;
-        }
-        studentFlightPlanTaskServices.updateSystemStudentFlightPlanTask(id, studentFlightPlanTask.value)
-          .then((res) => {
-            toggleTaskView();
-            listStudentTasks();
-          })
-          .catch((error) => {
-            console.log("Error: " + error);
-          })
-      })
-      .catch((error) => {
-        console.log("Error: ", error)
-      })
+    studentFlightPlanTask.value.status = "approved";  
+    studentFlightPlanTask.value.userId = user.value.userId;
+    const task = (await taskServices.getTask(studentFlightPlanTask.value.taskId)).data;
+    const studentFlightPlan = (await studentFlightPlanServices.getStudentFlightPlan(studentFlightPlanTask.value.studentFlightPlanId)).data;
+    const student = (await studentServices.getStudent(studentFlightPlan.studentId)).data;
+    student.points = task.point_value;
+    student.total_points = task.point_value;
+    await studentServices.updateStudent(student.id, student);
   }
+
+  await studentFlightPlanTaskServices.updateSystemStudentFlightPlanTask(id, studentFlightPlanTask.value);
+  toggleTaskView();
+  listStudentTasks();
+  userInput.value= '';
 }
 
 const clearArrays = () => {
   studentFlightPlanTasksList.value = [];
-  studentTasks.value.name.names = [];
-  studentTasks.value.task.tasks = [];
-  studentTasks.value.reflection.reflections = [];
-  studentTasks.value.id.ids = [];
 }
 
 const exportDataToCSV = async () => {
@@ -559,6 +540,22 @@ const generateMonthlySummaries = (events, tasks) => {
 
   return summaries;
 };
+
+const getTaskName = (task) => {
+  return taskNames.value[task.id] || 'Loading...';
+};
+
+const getStudentName = (task) => {
+  return studentNames.value[task.id] || 'Loading...';
+}
+
+const getVerificationType = asyncComputed(async () => {
+  const task = (await taskServices.getTask(currentTask.value.taskId)).data;
+  if (task.verificationId){
+    const verification = (await verificationServices.getVerification(task.verificationId)).data;
+    return verification.type;
+  }
+});
 </script>
 
 <style scoped>

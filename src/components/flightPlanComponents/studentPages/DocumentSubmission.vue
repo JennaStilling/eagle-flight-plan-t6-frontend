@@ -24,28 +24,28 @@
         <div v-else-if="documentSubmission">
             <img
                 v-if="documentType?.startsWith('image/')"
-                :src="documentSubmission"
+                :src="display"
                 alt="Uploaded Image"
                 style="max-width: 100%; max-height: 300px"
             />
 
             <iframe
                 v-else-if="documentType === 'application/pdf'"
-                :src="documentSubmission"
+                :src="display"
                 width="600px"
                 height="450px"
             ></iframe>
 
             <div v-else>
                 <p>Preview not available for this file type.</p>
-                <a :href="documentSubmission" download target="_blank">
+                <a :href="display" download target="_blank">
                     Download {{ documentType }}
                 </a>
             </div>
         </div>
 
         <v-card-actions>
-            <v-btn class="button" variant="elevated" color="#5EC4B6" @click="submitDocument()" :disabled="!documentSubmission">Submit</v-btn>
+            <v-btn class="button" variant="elevated" color="#5EC4B6" @click="submitDocument()" :disabled="!documentSubmission && !isLoading">Submit</v-btn>
             <v-btn class="button" variant="elevated" color="#D9D9D9" @click="closeDocument()">Cancel</v-btn>
         </v-card-actions>
     </v-card>
@@ -61,6 +61,7 @@ const emit = defineEmits(['close-document']);
 const message = ref('');
 const documentSubmission = ref(null);
 const documentType = ref(null);
+const display = ref(null);
 const isLoading = ref(false);
 
 const props = defineProps({
@@ -106,10 +107,13 @@ const fileUpload = (event) => {
 };
 
 const checkFileType = async () => {
+    display.value = documentSubmission.value;
     if (documentType.value === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        documentSubmission.value = await convertDocxToPdf(documentSubmission.value); 
-        documentType.value = "application/pdf";    
+        documentSubmission.value = await convertDocxToPdf(documentSubmission.value);
+        documentType.value = "application/pdf";
+        display.value = `data:${documentType.value};base64,${documentSubmission.value}`;
     }
+    documentSubmission.value = documentSubmission.value.replace(/^data:.*;base64,/, '');
     isLoading.value = false;
 }
 
