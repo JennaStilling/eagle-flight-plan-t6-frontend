@@ -188,6 +188,7 @@ const getStudentAttendees = (event) => {
 
 const handleManualEvent = () => {
     console.log("Handling manual event")
+    handshakeRegistration.value = false;
     StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
         .then((res) => {
             const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
@@ -222,10 +223,12 @@ const handleManualEvent = () => {
 
 const handleQRCodeEvent = () => {
     // TODO - handle qr code logic (AC #93)
+    handshakeRegistration.value = false;
 }
 
 const handleHandshakeEvent = () => {
-
+    handshakeRegistration.value = true;
+    console.log("Handling handshake event")
 }
 
 const createStudentEvent = (student) => {
@@ -284,8 +287,7 @@ const createStudentUser = (student) => {
                     }
                     StudentEventServices.createStudentEvent(newStudentEvent)
                         .then((res) => {
-                            UserRoleServices.createUserRole({
-                                userId: userId,
+                            UserRoleServices.createUserRole(userId, {
                                 roleId: 2,
                             })
                                 .then((res) => {
@@ -342,7 +344,9 @@ const handleFileUpload = (event) => {
                                 StudentEventServices.getAllStudentEvents()
                                     .then((res) => {
                                         const studentEventsList = res.data;
-                                        const existingStudentEvent = studentEventsList.find(existingEvent => existingEvent.studentId === existingStudent.id)
+                                        const existingStudentEvent = studentEventsList.find(
+                                            existingEvent => existingEvent.studentId === existingStudent.id &&
+                                                existingEvent.evendId === selectedEvent.value.id)
                                         if (!existingStudentEvent) {
                                             const newStudentEvent = {
                                                 verification_status: "in_progress",
@@ -352,8 +356,8 @@ const handleFileUpload = (event) => {
                                             StudentEventServices.createStudentEvent(newStudentEvent)
                                                 .then((res) => {
                                                     studentNameList.value.push({
-                                                        studentId: newUser.studentId,
-                                                        name: newUser.fName + " " + newUser.lName,
+                                                        studentId: res.data.studentId,
+                                                        name: student["First Name"] + " " + student["Last Name"],
                                                         didAttend: student["Checked In"] !== "",
                                                         studentEventId: res.data.id,
                                                         studentSchoolId: student.Username,
@@ -365,15 +369,23 @@ const handleFileUpload = (event) => {
                                                     console.error(err);
                                                 });
                                         }
+                                        else {
+                                            studentNameList.value.push({
+                                                studentId: existingStudent.id,
+                                                name: student["First Name"] + " " + student["Last Name"],
+                                                didAttend: student["Checked In"] !== "",
+                                                studentEventId: existingStudentEvent.id,
+                                                studentSchoolId: student.Username,
+                                                pointValue: selectedEvent.value.point_value,
+                                                verification_status: "in_progress"
+                                            })
+                                        }
                                     })
                                     .catch((err) => {
                                         console.error(err);
                                     });
                             else {
                                 await createStudentUser(student)
-                                    .catch((err) => {
-                                        console.error(err);
-                                    });
                             }
                         })
                         // console.log(studentNameList.value);
