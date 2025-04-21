@@ -28,6 +28,7 @@ jobs:
           echo VITE_APP_API_URL="$VITE_APP_API_URL" >> .env
           echo VITE_APP_CLIENT_URL=flightplan.eaglesoftwareteam.com >> .env
           echo VITE_APP_SITE_URL=flightplan.eaglesoftwareteam.com >> .env
+          echo VITE_GOOGLE_SHEET_ID="$VITE_GOOGLE_SHEET_ID" >> .env
 
       - run: npm install
       - run: npm run build
