@@ -107,11 +107,13 @@ const fileUpload = (event) => {
 };
 
 const checkFileType = async () => {
+    display.value = documentSubmission.value;
     if (documentType.value === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         documentSubmission.value = await convertDocxToPdf(documentSubmission.value);
-        documentType.value = "application/pdf";    
+        documentType.value = "application/pdf";
+        display.value = `data:${documentType.value};base64,${documentSubmission.value}`;
     }
-    display.value = `data:${documentType.value};base64,${documentSubmission.value}`;
+    documentSubmission.value = documentSubmission.value.replace(/^data:.*;base64,/, '');
     isLoading.value = false;
 }
 
