@@ -1,7 +1,7 @@
 <template>
   <div class="admin-dashboard">
     <!-- Snackbar Notification -->
-    <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout" color="#5EC4B6" style="color: white">
+    <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout" :color="snackbar.color" style="color: white">
       {{ snackbar.text }}
     </v-snackbar>
 
@@ -160,11 +160,11 @@ const timeFrame = ref('month');
 const snackbar = ref({
   show: false,
   text: '',
-  color: '',
+  color: 'success',
   timeout: 4000
 });
 
-function showSnackbar(text, color = '#5EC4B6', timeout = 4000) {
+function showSnackbar(text, color = 'success', timeout = 4000) {
   snackbar.value.text = text;
   snackbar.value.color = color;
   snackbar.value.timeout = timeout;
