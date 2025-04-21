@@ -53,16 +53,29 @@ export const createCalendarEvent = async (eventDetails) => {
         ...eventDetails
     };
     
-    const response = await fetch(url+'/api/calendar/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(event)
-    });
-    
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error);
-    }
+const response = await fetch(url + "/api/calendar/create", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(event),
+});
+
+// Log the full response to see what's coming back
+console.log("Response status:", response.status);
+const responseText = await response.text();
+console.log("Response body:", responseText);
+
+// Now you need to handle the response differently since we've already consumed it
+if (!response.ok) {
+  throw new Error(`API error: ${response.status} - ${responseText}`);
+}
+
+try {
+  return JSON.parse(responseText);
+} catch (e) {
+  throw new Error(
+    `Invalid JSON response: ${responseText.substring(0, 100)}...`
+  );
+}
     
     return await response.json();
 };
