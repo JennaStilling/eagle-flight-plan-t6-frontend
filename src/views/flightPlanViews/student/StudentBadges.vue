@@ -265,6 +265,7 @@ const claimBadge = async (badge) => {
     await StudentBadgeServices.createSystemStudentBadge(data)
 
     student.value.points += badge.points;
+    student.value.total_points += badge.points;
     await StudentServices.updateStudent(student.value.id, student.value)
     refresh();
 
