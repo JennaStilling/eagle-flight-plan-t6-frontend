@@ -61,7 +61,7 @@
                     <br>
                     <p>{{ addStudentStatus }}</p>
                     <v-text-field v-model="newStudentId" label="Enter Student ID"></v-text-field>
-                    <v-btn @click="addStudentToEvent()">Add Student</v-btn>
+                    <v-btn color="#5EC4B6"@click="addStudentToEvent()">Add Student</v-btn>
                 </div>
                 <v-divider></v-divider>
                 <v-card-actions class="popup-actions">

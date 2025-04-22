@@ -1375,7 +1375,6 @@ function updateEndDate() {
 </script>
 
 <style>
-/* Ask Jenna abt this, since it's not used anywhere*/
 .modal {
     position: fixed;
     z-index: 999;
