@@ -124,12 +124,12 @@
                         </v-container>
                     </v-form>
                 </v-card-text>
-                <v-card-actions>
+                                <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="grey-darken-1" variant="text" @click="showApprovalDialog = false">
                         Cancel
                     </v-btn>
-                    <v-btn color="error" variant="flat" @click="denyEvent">
+                    <v-btn color="error" variant="flat" @click="denyEvent" style="min-width: 135px;">
                         Deny Request
                     </v-btn>
                     <div class="tooltip-wrapper">
@@ -142,6 +142,7 @@
                               class="button-white-text"
                               :disabled="!validForm"
                               @click="approveEvent"
+                              style="min-width: 135px;"
                             >
                               Approve Event
                             </v-btn>
