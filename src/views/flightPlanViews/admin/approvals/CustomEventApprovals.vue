@@ -15,8 +15,7 @@
             </div>
         </v-card>
 
-        <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected"
-            show-select @click:row="handleRowClick">
+        <v-data-table :headers="headers" :items="filteredEvents" :search="search" @click:row="handleRowClick">
             <template v-slot:item.actions="{ item }">
                 <div class="d-flex justify-end gap-2">
                     <v-btn color="#5EC4B6" size="small" icon variant="text" @click.stop="openApprovalDialog(item)">
