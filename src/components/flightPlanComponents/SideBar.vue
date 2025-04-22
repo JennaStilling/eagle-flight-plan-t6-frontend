@@ -35,18 +35,16 @@
               <Icon :icon="approvalRequestsDropdown ? 'material-symbols:expand-less' : 'material-symbols:expand-more'"
                 class="dropdown-arrow" />
               <div v-if="approvalRequestsDropdown" class="dropdown-menu" @click.stop>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveEvent' }" @click="closeSidebar">View
-                Event Approvals</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveTask' }" @click="closeSidebar">View
-                Task Approvals</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveEvent' }" @click="closeSidebar">Approve Event Attendance</router-link></li>
+            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveTask' }" @click="closeSidebar">Approve Task Completion</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveExperience' }"
-                @click="closeSidebar">View Experience Approvals</router-link></li>
+                @click="closeSidebar">Approve Experience Completion</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomEvent' }"
-                @click="closeSidebar">View Custom Event Approvals</router-link></li>
+                @click="closeSidebar">Approve Custom Event Request</router-link></li>
             <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomTask' }"
-                @click="closeSidebar">View Custom Task Approvals</router-link></li>
-            <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomExperience' }"
-                @click="closeSidebar">View Custom Experience Approvals</router-link></li>
+                @click="closeSidebar">Approve Custom Task Request</router-link></li>
+            <!-- <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'approveCustomExperience' }"
+                @click="closeSidebar">View Custom Experience Approvals</router-link></li> -->
       </div>
       </li>
 
@@ -62,10 +60,10 @@
       </li>
       <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'experience' }"
           @click="closeSidebar">Experiences</router-link></li>
-      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight
-          Plans</router-link></li>
-      <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }" @click="closeSidebar">Life
-          After the Nest</router-link></li>
+      <!-- <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'flightPlan' }" @click="closeSidebar">Flight
+          Plans</router-link></li> -->
+      <!-- <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'lifeAfterTheNest' }" @click="closeSidebar">Life
+          After the Nest</router-link></li> -->
       <li v-if="hasUserPermission"><router-link :to="{ name: 'role' }" @click="closeSidebar">Site Roles / Permissions
         </router-link></li>
       <li v-if="hasFlightPlanPermission"><router-link :to="{ name: 'major' }" @click="closeSidebar">Majors

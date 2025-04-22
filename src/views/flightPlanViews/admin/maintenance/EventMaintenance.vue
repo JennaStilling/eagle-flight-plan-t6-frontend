@@ -228,6 +228,18 @@
                         </v-col>
                     </v-row>
 
+                    <!-- Registration Type -->
+                    <v-row class="form-row">
+                        <v-col cols="5" class="label-column">
+                            <label>{{ labels.registration }}</label>
+                        </v-col>
+
+                        <v-col cols="7">
+                            <v-select v-model="eventRegistrationType" :items="registrationTypes" variant="solo-filled"
+                                density="compact" hide-details class="filter-menu"></v-select>
+                        </v-col>
+                    </v-row>
+
                     <!-- Custom Event -->
                     <v-row class="form-row">
                         <v-col cols="5" class="label-column">
@@ -475,6 +487,7 @@ const eventAttendanceType = ref("")
 const eventCustomEvent = ref(false)
 const eventStatus = ref("")
 const eventPointValue = ref("")
+const eventRegistrationType = ref("")
 
 const eventAttendees = ref("")
 const studentNameList = ref([])
@@ -556,6 +569,7 @@ const filterOptions = ref(['All']);
 const eventTypes = ['Club', 'Extra Curricular', 'Career Fair', 'Mentoring', 'Career Services', 'Lunch and Learn', 'Galup Strengths Class', 'Volunteer'];
 const statusOptions = ['Scheduled', 'In Progress', 'Completed', 'Finished']
 const attendanceTypes = ['In Person', 'Online']
+const registrationTypes = ['Handshake', 'In App']
 
 const labels = {
     description: "Description",
@@ -565,6 +579,7 @@ const labels = {
     end: "End Time",
     location: "Location",
     attendance: "Attendance Type",
+    registration: "Registration Type",
     custom: "Custom Event?",
     status: "Status",
     points: "Point Value",
@@ -863,6 +878,7 @@ const editEventPopup = async (task) => {
 
             eventLocation.value = eventToEdit.value.location;
             eventAttendanceType.value = eventToEdit.value.attendance_type;
+            eventRegistrationType.value = eventToEdit.value.registration;
             eventCustomEvent.value = eventToEdit.value.custom;
             eventStatus.value = eventToEdit.value.status;
             eventPointValue.value = eventToEdit.value.point_value;
@@ -956,9 +972,9 @@ const editEvent = () => {
         eventAttendanceType.value = 'in_person'
     }
 
-    // console.log(eventCliftonStrengths.value.cliftonStrengthsToAdd[0].id)
-    // console.log(eventMajors.value.majorsToAdd[0].id)
-
+    if (eventRegistrationType.value === "In App") {
+        eventRegistrationType.value = "in_app"
+    }
 
     const startDate = parseISO(eventStartDate.value);
     const endDate = parseISO(eventEndDate.value);
@@ -986,6 +1002,7 @@ const editEvent = () => {
         end_date_time: endDateTime.toISOString(),
         location: eventLocation.value,
         attendance_type: eventAttendanceType.value,
+        registration: eventRegistrationType.value.toLowerCase(),
         custom: eventCustomEvent.value,
         status: eventStatus.value,
         point_value: eventPointValue.value
@@ -1143,6 +1160,10 @@ const addEvent = () => {
         eventAttendanceType.value = 'in_person'
     }
 
+    if (eventRegistrationType.value === "In App") {
+        eventRegistrationType.value = "in_app"
+    }
+
     const startDate = parseISO(eventStartDate.value);
     const endDate = parseISO(eventEndDate.value);
     const [startHours, startMinutes] = eventStartTime.value.split(':');
@@ -1169,6 +1190,7 @@ const addEvent = () => {
         end_date_time: endDateTime.toISOString(),
         location: eventLocation.value,
         attendance_type: eventAttendanceType.value.toLowerCase(),
+        registration: eventRegistrationType.value.toLowerCase(),
         custom: eventCustomEvent.value,
         status: eventStatus.value.toLowerCase(),
         point_value: eventPointValue.value
