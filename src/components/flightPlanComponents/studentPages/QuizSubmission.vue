@@ -114,7 +114,7 @@ const checkScore = async (results) => {
     const studentFlightPlanTask = (await studentFlightPlanTaskServices.getStudentFlightPlanTask(props.task.student_flight_plan_task_id)).data;
 
     if (results.payload.status === "Passed") {
-        message.value = `Congratulations, you passed, you got a ${results.payload.score}. You can not close the window`;
+        message.value = `Congratulations, you passed. You can now close the window`;
         studentFlightPlanTask.status = "approved";
         studentFlightPlanTask.points_earned = props.task.point_value;
         studentFlightPlanTask.completed_date = new Date().toISOString;
@@ -123,7 +123,7 @@ const checkScore = async (results) => {
         await studentServices.updateStudent(student.value.id, student.value);
     }
     else {
-        message.value = `Unfortunatly, you did not pass, you got a ${results.payload.score}. Close the window and retake the quiz`;
+        message.value = `Unfortunatly, you did not pass. Close the window and retake the quiz`;
         studentFlightPlanTask.status = "unapproved";
         studentFlightPlanTask.unapprove_reason = "Did not pass the quiz";
     }
