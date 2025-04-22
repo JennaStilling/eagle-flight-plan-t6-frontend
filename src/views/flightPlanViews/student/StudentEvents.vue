@@ -955,7 +955,7 @@ const requestEventPopup = () => {
     eventAttendanceType.value = null;
     eventCustomEvent.value = false;
     eventStatus.value = "";
-    eventPointValue.value = "";
+    eventPointValue.value = "0";
 };
 
 const requestEvent = () => {
@@ -1070,7 +1070,7 @@ const requestEvent = () => {
         attendance_type: eventAttendanceType.value.toLowerCase(),
         custom: eventCustomEvent.value,
         status: "in_progress",
-        point_value: 0,
+        point_value: eventPointValue.value,
     };
 
     EventServices.createEvent(newEvent).then((response) => {
