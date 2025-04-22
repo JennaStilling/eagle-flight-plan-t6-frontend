@@ -372,10 +372,10 @@
 
 
                 <div class="d-flex justify-center pa-4">
-                    <v-btn color="#708E9A" class="mr-4" variant="flat" @click="generateQRCode">
+                    <v-btn min-width="35%" color="#708E9A" class="mr-4" variant="flat" @click="generateQRCode">
                         Generate QR Code
                     </v-btn>
-                    <v-btn color="#708E9A" variant="flat"
+                    <v-btn  min-width="30%" color="#708E9A" variant="flat"
                         @click="showEventDetails = false; showStudentNamesList = true;">
                         View Attendees
                     </v-btn>
