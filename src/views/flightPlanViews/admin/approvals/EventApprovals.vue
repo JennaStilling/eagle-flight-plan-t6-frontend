@@ -157,10 +157,6 @@ const filteredEvents = computed(() => {
         selectedFilter.value = 'career_prep'
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 02cef374cfe55d400cc83e70efc405a0edfa709f
     return events.value.filter(event => {
         return event.type === selectedFilter.value.toLowerCase();
     }).map(event => ({
