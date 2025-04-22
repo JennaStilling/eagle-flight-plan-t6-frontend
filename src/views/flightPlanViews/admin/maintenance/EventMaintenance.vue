@@ -754,8 +754,6 @@ const getAllEvents = () => {
 };
 
 const generateQRCode = async () => {
-    console.log("Generating qr code for " + eventToEdit.value.name)
-    
     const url = window.location.origin + router.resolve({
         name: "eventSignUp",
         query: { eventId: eventToEdit.value.id }
@@ -774,12 +772,12 @@ const generateQRCode = async () => {
 
         const link = document.createElement('a')
         link.href = dataUrl
-        link.download = `event-qr-${eventToEdit.value.name}.png`
+        link.download = `${eventToEdit.value.name}-qr.png`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
     } catch (err) {
-        console.error('QR generation or download failed:', err)
+        console.log(err)
     }
 }
 
