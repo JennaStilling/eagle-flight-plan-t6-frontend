@@ -43,7 +43,7 @@
                             </div>
                             <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                 formatEventTime(calendarEvent.end)
-                            }}</div>
+                                }}</div>
                             <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}</div>
                         </div>
                     </template>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="event-time">{{ formatEventTime(calendarEvent.start) }} - {{
                                     formatEventTime(calendarEvent.end)
-                                }}</div>
+                                    }}</div>
                                 <div v-if="calendarEvent.location" class="event-location">{{ calendarEvent.location }}
                                 </div>
                             </div>
@@ -372,6 +372,9 @@
 
 
                 <div class="d-flex justify-center pa-4">
+                    <v-btn color="#708E9A" class="mr-4" variant="flat" @click="generateQRCode">
+                        Generate QR Code
+                    </v-btn>
                     <v-btn color="#708E9A" variant="flat"
                         @click="showEventDetails = false; showStudentNamesList = true;">
                         View Attendees
@@ -454,6 +457,10 @@ import EventMajorsServices from "@/services/flightPlanServices/eventMajorsServic
 import EventCliftonStrengthServices from "@/services/flightPlanServices/eventCliftonStrengthServices";
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
+import QRCode from 'qrcode'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const search = ref('');
 const strengthSearch = ref('')
@@ -657,6 +664,13 @@ const getNumberAttendees = () => {
     });
 }
 
+onMounted(async () => {
+    await getAllEvents();
+    await getNumberAttendees();
+    await getAllMajors();
+    await getAllStrengths();
+});
+
 const initializeCalendar = (events) => {
     const today = new Date();
     const config = {
@@ -739,12 +753,33 @@ const getAllEvents = () => {
         });
 };
 
-onMounted(async () => {
-    await getAllEvents();
-    await getNumberAttendees();
-    await getAllMajors();
-    await getAllStrengths();
-});
+const generateQRCode = async () => {
+    const url = window.location.origin + router.resolve({
+        name: "eventSignUp",
+        query: { eventId: eventToEdit.value.id }
+    }).href
+    console.log("Generated URL:", url)
+    
+    try {
+        const dataUrl = await QRCode.toDataURL(url, {
+            width: 256,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#ffffff',
+            },
+        })
+
+        const link = document.createElement('a')
+        link.href = dataUrl
+        link.download = `${eventToEdit.value.name}-qr.png`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 const getAllMajors = () => {
     MajorServices.getAllMajors()
@@ -802,20 +837,6 @@ const formatEventTime = (dateTimeStr) => {
         console.error('Error formatting event time:', error);
         return '';
     }
-};
-
-const formatEventForCalendar = (event) => {
-    const startDate = new Date(event.date);
-    const endDate = new Date(new Date(event.date).getTime() + 60 * 60 * 1000);
-    return {
-        id: event.id,
-        title: event.name,
-        start: startDate.toISOString().split('T')[0],
-        time: `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`,
-        end: endDate.toISOString().split('T')[0],
-        description: event.description,
-        type: event.type
-    };
 };
 
 const editEventPopup = async (task) => {
@@ -904,11 +925,9 @@ const editEventPopup = async (task) => {
                 })
             EventCliftonStrengthServices.getAllCliftonStrengthsByEvent(eventToEdit.value.id)
                 .then((res) => {
-                    console.log(res.data)
                     eventCliftonStrengths.value.cliftonStrengthsToAdd = res.data;
                     EventMajorsServices.getAllMajorsByEvent(eventToEdit.value.id)
                         .then((res) => {
-                            console.log(res.data)
                             eventMajors.value.majorsToAdd = res.data;
                         })
                         .catch((err) => {
@@ -1275,7 +1294,7 @@ const deleteEvent = async () => {
             console.error(err);
         });
 
-        reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
+        reloadPage()
 
         showDeleteItem.value = false;
         typeToDelete.value = null;
@@ -1294,15 +1313,7 @@ const deleteSelectedEvents = async (selected) => {
             const deletedIds = selected.map(event => event.id);
             events.value = events.value.filter(event => !deletedIds.includes(event.id));
 
-            //   if (calendarApp.value) {
-            //     calendarFormattedEvents.value = events.value.map(formatEventForCalendar);
-            //     calendarApp.value.events = calendarFormattedEvents.value;
-            //   }
-
-            //snackbarMessage.value = "Event deleted successfully!";
-            //showSnackbar.value = true;
-            
-            reloadPage() // TODO: fix later to dynamically refresh calendar events - above code is a WIP
+            reloadPage() 
             selected.length = 0;
 
         } catch (error) {
@@ -1362,7 +1373,6 @@ function updateEndDate() {
 </script>
 
 <style>
-/* Ask Jenna abt this, since it's not used anywhere*/
 .modal {
     position: fixed;
     z-index: 999;
@@ -1395,10 +1405,6 @@ function updateEndDate() {
     box-sizing: border-box;
     text-align: center;
     gap: 8px;
-}
-
-.modal-body .v-list {
-    padding: 0;
 }
 
 .search-field {

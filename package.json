@@ -37,6 +37,7 @@
     "mdi": "^2.2.43",
     "pinia": "^2.3.1",
     "pinia-plugin-persistedstate": "^4.2.0",
+    "qrcode": "^1.5.4",
     "v-dropdown": "^3.0.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.5.12",
