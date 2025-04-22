@@ -1070,7 +1070,7 @@ const requestEvent = () => {
         attendance_type: eventAttendanceType.value.toLowerCase(),
         custom: eventCustomEvent.value,
         status: "in_progress",
-        point_value: eventPointValue.value
+        point_value: 0,
     };
 
     EventServices.createEvent(newEvent).then((response) => {
