@@ -32,13 +32,13 @@
                     <a v-if="task.video_link" :href="task.video_link" target="_blank">
                         Watch Video
                     </a>
-                    <p v-if="getVerificationType === 'reflection' && task.status === 'in_progress' || task.status === 'unapproved'">
+                    <p v-if="getVerificationType === 'reflection' && (task.status === 'in_progress' || task.status === 'unapproved')">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeReflection()">Reflection</v-btn>
                     </p>
                     <p v-if="getVerificationType === 'quiz' && task.status != 'approved'">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="takeQuiz()">Take Quiz</v-btn>
                     </p>
-                    <p v-if="getVerificationType === 'required_document' && task.status === 'in_progress' || task.status === 'unapproved'">
+                    <p v-if="getVerificationType === 'required_document' && (task.status === 'in_progress' || task.status === 'unapproved')">
                         <v-btn class="button" variant="elevated" color="#5EC4B6" @click="submitDocument()">Upload Document</v-btn>
                     </p>
                     

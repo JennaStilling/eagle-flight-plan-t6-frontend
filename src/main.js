@@ -12,6 +12,9 @@ import { createVuetify } from "vuetify";
 import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
 import "@fontsource/poppins";
 import "@fontsource/poppins/500.css";
+import VuePapaParse from "vue-papa-parse";
+
+const app = createApp(App);
 
 import piniaPluginPersistedState from "pinia-plugin-persistedstate"
 
@@ -34,8 +37,11 @@ createApp(App)
   .use(pinia)
   .use(vuetify)
   .use(store)
+  .use(VuePapaParse)
   .mount("#app")
   .provide(
     "cohereClient",
     new CohereClient({ token: process.env.VITE_APP_COHERE_API_KEY })
   );
+
+  app.mount("#app");
