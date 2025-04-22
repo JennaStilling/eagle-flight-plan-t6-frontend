@@ -10,12 +10,21 @@
                             <Icon icon="material-symbols:search-rounded" width="24" height="24" />
                         </template>
                     </v-text-field>
+
                 </div>
             </div>
         </v-card>
 
         <v-data-table :headers="headers" :items="filteredEvents" :search="search" v-model:selectable="selected"
-            show-select @click:row="(event, { item }) => getStudentAttendees(item)">
+            show-select @click:row="handleRowClick">
+            <template v-slot:item.actions="{ item }">
+                <div class="d-flex justify-end gap-2">
+                    <v-btn color="#5EC4B6" size="small" icon variant="text" @click.stop="openApprovalDialog(item)">
+                        <Icon icon="material-symbols:visibility" width="24" height="24" style="color: black;" />
+                        <v-tooltip activator="parent" location="top">View Event</v-tooltip>
+                    </v-btn>
+                </div>
+            </template>
         </v-data-table>
 
         <div v-if="showStudentNamesList" class="modal">
@@ -74,6 +83,80 @@
                 </v-card-actions>
             </div>
         </div>
+
+        <v-dialog v-model="showApprovalDialog" max-width="600px" scrollable>
+            <v-card>
+                <v-card-title class="text-h5 font-weight-bold">
+                    Custom Event Review
+                </v-card-title>
+                <v-card-text class="pt-4">
+                    <v-form ref="approvalForm" v-model="validForm">
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-text-field v-model="editedEvent.name" label="Event Name" required
+                                        :rules="[v => !!v || 'Name is required']"></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-textarea v-model="editedEvent.description" label="Description" rows="3"
+                                        auto-grow></v-textarea>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field v-model.number="editedEvent.point_value" label="Point Value"
+                                        type="number" min="0" required
+                                        :rules="[v => !!v || 'Point value is required', v => v >= 0 || 'Point value must be non-negative']"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-select v-model="editedEvent.status" :items="eventStatuses" label="Event Status"
+                                        required :rules="[v => !!v || 'Status is required']"></v-select>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-alert type="info" border="start" variant="tonal" density="compact">
+                                        <div><strong>Event Type:</strong> {{ capitalizeFirstLetter(editedEvent.type) }}
+                                        </div>
+                                        <div><strong>Date:</strong> {{ formatDate(editedEvent.start_date_time ||
+                                            editedEvent.date) }}</div>
+                                        <div><strong>Time:</strong> {{ formatTime(editedEvent.start_date_time) }} - {{
+                                            formatTime(editedEvent.end_date_time) }}</div>
+                                        <div><strong>Location:</strong> {{ editedEvent.location }}</div>
+                                    </v-alert>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-form>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="grey-darken-1" variant="text" @click="showApprovalDialog = false">
+                        Cancel
+                    </v-btn>
+                    <v-btn color="error" variant="flat" @click="denyEvent">
+                        Deny Request
+                    </v-btn>
+                    <div class="tooltip-wrapper">
+                      <v-tooltip :disabled="validForm" location="top" content-class="error-tooltip">
+                        <template v-slot:activator="{ props }">
+                          <div v-bind="props">
+                            <v-btn
+                              color="#5EC4B6"
+                              variant="flat"
+                              class="button-white-text"
+                              :disabled="!validForm"
+                              @click="approveEvent"
+                            >
+                              Approve Event
+                            </v-btn>
+                          </div>
+                        </template>
+                        <span>Enter points first</span>
+                      </v-tooltip>
+                    </div>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-snackbar v-model="showSnackbar" timeout="3000" :color="snackbarColor" style="color: white">
+            {{ snackbarMessage }}
+        </v-snackbar>
     </div>
 </template>
 
@@ -87,7 +170,7 @@ import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices'
 import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
 import { Icon } from "@iconify/vue";
 import { format, parseISO, set } from 'date-fns';
-import Papa from 'papaparse'
+import Papa from 'papaparse';
 
 const jsonData = ref([])
 const formattedData = ref([])
@@ -110,6 +193,10 @@ const attendeeMap = ref([])
 
 const studentSearchResult = ref('');
 
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarColor = ref("success");
+
 const filteredStudentList = computed(() => {
     if (!studentSearchResult.value) return studentNameList.value;
     return studentNameList.value
@@ -123,9 +210,18 @@ const headers = ref([
     { key: 'formatted_time', title: 'Time' },
     { key: 'location', title: 'Location' },
     { key: 'registration', title: 'Registration Type' },
-    { key: 'eventAttendees', title: '# Registered', sortable: false },
-    { key: 'actions', title: '', sortable: false },
+    { key: 'actions', title: 'Actions', sortable: false, align: 'end' },
 ]);
+
+const showApprovalDialog = ref(false);
+const showDenyDialog = ref(false);
+const editedEvent = ref({});
+const validForm = ref(true);
+const approvalFilter = ref('Pending');
+
+const approvalStatuses = ['All', 'Pending', 'Scheduled', 'Denied'];
+//type: Sequelize.ENUM('scheduled', 'in_progress', 'completed', 'finished'),
+const eventStatuses = ['scheduled', 'in_progress', 'completed', 'finished'];
 
 onMounted(async () => {
     currentDate.value = new Date().toJSON().slice(0, 24);
@@ -133,21 +229,33 @@ onMounted(async () => {
     await getNumberAttendees();
 });
 
+const handleRowClick = (event, { item }) => {
+    openApprovalDialog(item);
+};
+
 const filteredEvents = computed(() => {
-    // Filter out events with empty status first
-    const validEvents = events.value.filter(event => event.status == '');
-    
+    let validEvents;
+
+    if (approvalFilter.value === 'Pending') {
+        validEvents = events.value.filter(event => event.status === '');
+    } else if (approvalFilter.value === 'Scheduled') {
+        validEvents = events.value.filter(event => event.status === 'scheduled');
+    } else if (approvalFilter.value === 'Denied') {
+        validEvents = events.value.filter(event => event.status === 'denied');
+    } else {
+        validEvents = events.value;
+    }
+
     if (selectedFilter.value === 'All') {
         return validEvents.map(event => ({
             ...event,
             formatted_date: formatDate(event.start_date_time || event.date),
             formatted_time: formatTime(event.start_date_time),
-            eventAttendees: attendeeMap.value.find(a => a.id === event.id)?.attendees || 0
         }));
     }
 
     if (selectedFilter.value === 'Career Prep') {
-        selectedFilter.value = 'career_prep'
+        selectedFilter.value = 'career_prep';
     }
 
     return validEvents.filter(event => {
@@ -159,6 +267,69 @@ const filteredEvents = computed(() => {
         eventAttendees: attendeeMap.value.find(a => a.id === event.id)?.attendees || 0
     }));
 });
+
+const openApprovalDialog = (item) => {
+    editedEvent.value = {
+        ...item,
+        point_value: item.point_value || 0,
+        status: 'scheduled'
+    };
+    showApprovalDialog.value = true;
+};
+
+const confirmDenyEvent = (item) => {
+    editedEvent.value = { ...item };
+    showDenyDialog.value = true;
+};
+
+const approveEvent = async () => {
+    try {
+        const updatedEvent = {
+            name: editedEvent.value.name,
+            description: editedEvent.value.description,
+            point_value: Number(editedEvent.value.point_value),
+            status: editedEvent.value.status,
+            updatedAt: new Date().toISOString()
+        };
+
+        await EventServices.updateEvent(editedEvent.value.id, updatedEvent);
+        showApprovalDialog.value = false;
+        await getAllEvents();
+
+        snackbarMessage.value = `Event "${editedEvent.value.name}" has been approved.`;
+        snackbarColor.value = "success";
+        showSnackbar.value = true;
+    } catch (err) {
+        snackbarMessage.value = `Error: ${err.code}: ${err.message}`;
+        snackbarColor.value = "error";
+        showSnackbar.value = true;
+        console.log(err);
+    }
+};
+
+const denyEvent = async () => {
+    try {
+        if (confirm(`Are you sure you want to deny "${editedEvent.value.name}"? This will delete the event and cannot be undone.`)) {
+            await EventServices.deleteEvent(editedEvent.value.id);
+            showApprovalDialog.value = false;
+            await getAllEvents();
+
+            snackbarMessage.value = `Event "${editedEvent.value.name}" has been denied.`;
+            snackbarColor.value = "success";
+            showSnackbar.value = true;
+        }
+    } catch (err) {
+        snackbarMessage.value = `Error: ${err.code}: ${err.message}`;
+        snackbarColor.value = "error";
+        showSnackbar.value = true;
+        console.log(err);
+    }
+};
+
+const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};
 
 const getStudentAttendees = (event) => {
     newStudentId.value = ""
@@ -183,7 +354,6 @@ const handleManualEvent = () => {
     StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
         .then((res) => {
             const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
-            console.log(students);
             students.forEach(async student => {
                 UserServices.getAllStudentUsers(student.id)
                     .then((res) => {
@@ -211,7 +381,6 @@ const handleManualEvent = () => {
 }
 
 const handleQRCodeEvent = () => {
-    // TODO - handle qr code logic (AC #93)
     handshakeRegistration.value = false;
 }
 
@@ -461,8 +630,7 @@ const saveAttendanceDetails = () => {
 const getAllEvents = () => {
     return EventServices.getAllEvents()
         .then((res) => {
-            events.value = res.data;
-            events.value = res.data.filter(event => new Date(event.date) <= new Date(currentDate.value))
+            events.value = res.data
                 .sort((a, b) => {
                     return new Date(b.date) - new Date(a.date);
                 });
@@ -838,5 +1006,22 @@ const formatDate = (dateTimeStr) => {
 .header-row {
     background-color: #f5f5f5;
     pointer-events: none;
+}
+
+.v-card-title.bg-primary {
+    background-color: #708E9A !important;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.tooltip-wrapper {
+  display: inline-block;
+}
+
+.error-tooltip {
+  background-color: rgba(40, 40, 40, 0.9) !important;
+  color: white !important;
 }
 </style>
