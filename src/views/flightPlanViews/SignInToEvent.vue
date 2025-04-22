@@ -115,10 +115,12 @@ const signInToEvent = () => {
                     userId: user.id,
                     studentId: res.data[0].id
                   }
+                  console.log(studentUser.value)
+                  signInSuccess.value = true;
+                  addStudentEvent()
+                  confirmationStatus.value = "You are now signed in! You may close this page.";
                })
-               signInSuccess.value = true;
-               addStudentEvent()
-               confirmationStatus.value = "You are now signed in! You may close this page.";
+
            } else {
                confirmationStatus.value = ""
                displayUserInformation.value = true;
@@ -183,17 +185,32 @@ const createUser = () => {
 
 const addStudentEvent = () => {
   const studentEvent = {
-    eventId: eventId.value,
+    eventId: event.value.id,
     studentId: studentUser.value.studentId,
     verification_status: "in_progress",
-    attendance_status: "registered"
+    attendance_status: "attended"
   }
-  StudentEventServices.createStudentEvent(studentEvent)
-    .then((res) => {
-      console.log(res)
-    })
-    .catch((err) => {
-      console.log(err);
+  
+  StudentEventServices.getAllEventsByStudent(studentEvent.studentId)
+  .then((res) => {
+    const event = res.data.find(e => 
+      e.studentEvent[0].eventId === studentEvent.eventId
+    );
+    
+    if (!event) {
+      StudentEventServices.createStudentEvent(studentEvent)
+          .catch((err) => {
+            console.error(err);
+        });
+    } else {
+      StudentEventServices.updateStudentEvent(event.id, studentEvent)
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  })
+  .catch((err) => {
+    console.error(err);
   });
 }
 </script>
