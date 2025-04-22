@@ -1069,7 +1069,7 @@ const requestEvent = () => {
         location: eventLocation.value,
         attendance_type: eventAttendanceType.value.toLowerCase(),
         custom: eventCustomEvent.value,
-        status: eventStatus.value.toLowerCase(),
+        status: "in_progress",
         point_value: eventPointValue.value
     };
 
