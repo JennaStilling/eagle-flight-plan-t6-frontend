@@ -1,11 +1,1027 @@
 <template>
     <div>
-        This is the Custom Event Approvals Page
+        <v-card flat>
+            <div class="title-row">
+                <h1 class="table-title"> Custom Event Approvals</h1>
+                <div class="search-filter-button-group">
+                    <v-text-field v-model="search" label="Search" variant="solo-filled" hide-details single-line
+                        density="compact" class="search-bar">
+                        <template v-slot:prepend-inner>
+                            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+                        </template>
+                    </v-text-field>
+
+                </div>
+            </div>
+        </v-card>
+
+        <v-data-table :headers="headers" :items="filteredEvents" :search="search" @click:row="handleRowClick">
+            <template v-slot:item.actions="{ item }">
+                <div class="d-flex justify-end gap-2">
+                    <v-btn color="#5EC4B6" size="small" icon variant="text" @click.stop="openApprovalDialog(item)">
+                        <Icon icon="material-symbols:visibility" width="24" height="24" style="color: black;" />
+                        <v-tooltip activator="parent" location="top">View Event</v-tooltip>
+                    </v-btn>
+                </div>
+            </template>
+        </v-data-table>
+
+        <div v-if="showStudentNamesList" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Registered Students</h3>
+                </div>
+                <span v-if="handshakeRegistration">
+                    <h4>Upload .csv File: </h4> <input type="file" accept=".csv" @change="handleFileUpload" />
+                </span>
+                <div class="search-container">
+                    <v-text-field v-model="studentSearchResult" label="Search" variant="outlined" density="compact"
+                        hide-details class="search-field">
+                        <template v-slot:prepend-inner>
+                            <Icon icon="material-symbols:search-rounded" width="24" height="24" />
+                        </template>
+                    </v-text-field>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto; width: 100%; padding-right: 0;">
+                    <v-list class="w-100">
+                        <v-list-item v-if="filteredStudentList.length > 0" class="header-row">
+                            <v-list-item-title class="font-weight-bold">Student Name</v-list-item-title>
+                            <template v-slot:append>
+                                <div class="font-weight-bold pr-8">Attended?</div>
+                            </template>
+                        </v-list-item>
+                        <v-divider></v-divider>
+                        <v-list-item v-for="(student, index) in filteredStudentList" :key="index">
+                            <v-list-item-title>{{ student.name }}</v-list-item-title>
+                            <template v-slot:append>
+                                <v-switch v-model="student.didAttend" color="#708E9A" hide-details density="compact"
+                                    class="ma-0 pa-0"></v-switch>
+                            </template>
+                        </v-list-item>
+                    </v-list>
+                    <div v-if="filteredStudentList.length === 0" class="text-center pa-4">
+                        {{ studentSearchResult ? 'No matching students found' : 'No students requesting approval'
+                        }}
+                    </div>
+                    <v-divider></v-divider>
+                    <br>
+                    <h4 style="float: left">Add Student by ID:</h4>
+                    <br>
+                    <p>{{ addStudentStatus }}</p>
+                    <v-text-field v-model="newStudentId" label="Enter Student ID"></v-text-field>
+                    <v-btn @click="addStudentToEvent()">Add Student</v-btn>
+                </div>
+                <v-divider></v-divider>
+                <v-card-actions class="popup-actions">
+                    <v-spacer></v-spacer>
+                    <v-btn color="#708E9A" variant="flat"
+                        @click="showStudentNamesList = false; showEventDetails = true; studentNameList = []">Close</v-btn>
+                    <v-btn color="#5EC4B6" style="color: white" variant="flat"
+                        @click="showStudentNamesList = false; showEventDetails = true; saveAttendanceDetails();">Save</v-btn>
+
+                </v-card-actions>
+            </div>
+        </div>
+
+        <v-dialog v-model="showApprovalDialog" max-width="600px" scrollable>
+            <v-card>
+                <v-card-title class="text-h5 font-weight-bold">
+                    Custom Event Review
+                </v-card-title>
+                <v-card-text class="pt-4">
+                    <v-form ref="approvalForm" v-model="validForm">
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-text-field v-model="editedEvent.name" label="Event Name" required
+                                        :rules="[v => !!v || 'Name is required']"></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-textarea v-model="editedEvent.description" label="Description" rows="3"
+                                        auto-grow></v-textarea>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field v-model.number="editedEvent.point_value" label="Point Value"
+                                        type="number" min="0" required
+                                        :rules="[v => !!v || 'Point value is required', v => v >= 0 || 'Point value must be non-negative']"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-select v-model="editedEvent.status" :items="eventStatuses" label="Event Status"
+                                        required :rules="[v => !!v || 'Status is required']"></v-select>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-alert type="info" border="start" variant="tonal" density="compact">
+                                        <div><strong>Event Type:</strong> {{ capitalizeFirstLetter(editedEvent.type) }}
+                                        </div>
+                                        <div><strong>Date:</strong> {{ formatDate(editedEvent.start_date_time ||
+                                            editedEvent.date) }}</div>
+                                        <div><strong>Time:</strong> {{ formatTime(editedEvent.start_date_time) }} - {{
+                                            formatTime(editedEvent.end_date_time) }}</div>
+                                        <div><strong>Location:</strong> {{ editedEvent.location }}</div>
+                                    </v-alert>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-form>
+                </v-card-text>
+                                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="grey-darken-1" variant="text" @click="showApprovalDialog = false">
+                        Cancel
+                    </v-btn>
+                    <v-btn color="error" variant="flat" @click="denyEvent" style="min-width: 135px;">
+                        Deny Request
+                    </v-btn>
+                    <div class="tooltip-wrapper">
+                      <v-tooltip :disabled="validForm" location="top" content-class="error-tooltip">
+                        <template v-slot:activator="{ props }">
+                          <div v-bind="props">
+                            <v-btn
+                              color="#5EC4B6"
+                              variant="flat"
+                              class="button-white-text"
+                              :disabled="!validForm"
+                              @click="approveEvent"
+                              style="min-width: 135px;"
+                            >
+                              Approve Event
+                            </v-btn>
+                          </div>
+                        </template>
+                        <span>Enter points first</span>
+                      </v-tooltip>
+                    </div>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-snackbar v-model="showSnackbar" timeout="3000" :color="snackbarColor" style="color: white">
+            {{ snackbarMessage }}
+        </v-snackbar>
     </div>
 </template>
 
 <script setup>
+import { ref, computed, shallowRef, onMounted, watch, nextTick } from 'vue';
+import EventServices from '@/services/flightPlanServices/eventServices';
+import StudentEventServices from '@/services/flightPlanServices/studentEventServices';
+import UserServices from '@/services/resumeBuilderServices/userServices'
+import StudentServices from '@/services/resumeBuilderServices/studentServices'
+import UserRoleServices from '@/services/resumeBuilderServices/userRoleServices';
+import UserRolePermissionServices from '@/services/flightPlanServices/userRolePermissionServices';
+import { Icon } from "@iconify/vue";
+import { format, parseISO, set } from 'date-fns';
+import Papa from 'papaparse';
 
+const jsonData = ref([])
+const formattedData = ref([])
+const search = ref('');
+const events = ref([]);
+const message = ref('');
+const selected = ref([]);
+const showEventDetails = ref(false);
+const showStudentNamesList = ref(false);
+const selectedFilter = ref('All');
+
+const newStudentId = ref("");
+const addStudentStatus = ref("");
+
+const currentDate = ref([])
+const selectedEvent = ref(null);
+const handshakeRegistration = ref(false);
+const studentNameList = ref([])
+const attendeeMap = ref([])
+
+const studentSearchResult = ref('');
+
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarColor = ref("success");
+
+const filteredStudentList = computed(() => {
+    if (!studentSearchResult.value) return studentNameList.value;
+    return studentNameList.value
+        .filter(student => student.name.toLowerCase().includes(studentSearchResult.value.toLowerCase()));
+});
+
+const headers = ref([
+    { align: 'start', key: 'name', title: 'Name' },
+    { key: 'description', title: 'Description' },
+    { key: 'formatted_date', title: 'Date' },
+    { key: 'formatted_time', title: 'Time' },
+    { key: 'location', title: 'Location' },
+    { key: 'registration', title: 'Registration Type' },
+    { key: 'actions', title: 'Actions', sortable: false, align: 'end' },
+]);
+
+const showApprovalDialog = ref(false);
+const showDenyDialog = ref(false);
+const editedEvent = ref({});
+const validForm = ref(true);
+const approvalFilter = ref('Pending');
+
+const approvalStatuses = ['All', 'Pending', 'Scheduled', 'Denied'];
+//type: Sequelize.ENUM('scheduled', 'in_progress', 'completed', 'finished'),
+const eventStatuses = ['scheduled', 'in_progress', 'completed', 'finished'];
+
+onMounted(async () => {
+    currentDate.value = new Date().toJSON().slice(0, 24);
+    await getAllEvents();
+    await getNumberAttendees();
+});
+
+const handleRowClick = (event, { item }) => {
+    openApprovalDialog(item);
+};
+
+const filteredEvents = computed(() => {
+    let validEvents;
+
+    if (approvalFilter.value === 'Pending') {
+        validEvents = events.value.filter(event => event.status === '');
+    } else if (approvalFilter.value === 'Scheduled') {
+        validEvents = events.value.filter(event => event.status === 'scheduled');
+    } else if (approvalFilter.value === 'Denied') {
+        validEvents = events.value.filter(event => event.status === 'denied');
+    } else {
+        validEvents = events.value;
+    }
+
+    if (selectedFilter.value === 'All') {
+        return validEvents.map(event => ({
+            ...event,
+            formatted_date: formatDate(event.start_date_time || event.date),
+            formatted_time: formatTime(event.start_date_time),
+        }));
+    }
+
+    if (selectedFilter.value === 'Career Prep') {
+        selectedFilter.value = 'career_prep';
+    }
+
+    return validEvents.filter(event => {
+        return event.type === selectedFilter.value.toLowerCase();
+    }).map(event => ({
+        ...event,
+        formatted_date: formatDate(event.start_date_time || event.date),
+        formatted_time: formatTime(event.start_date_time),
+        eventAttendees: attendeeMap.value.find(a => a.id === event.id)?.attendees || 0
+    }));
+});
+
+const openApprovalDialog = (item) => {
+    editedEvent.value = {
+        ...item,
+        point_value: item.point_value || 0,
+        status: 'scheduled'
+    };
+    showApprovalDialog.value = true;
+};
+
+const confirmDenyEvent = (item) => {
+    editedEvent.value = { ...item };
+    showDenyDialog.value = true;
+};
+
+const approveEvent = async () => {
+    try {
+        const updatedEvent = {
+            name: editedEvent.value.name,
+            description: editedEvent.value.description,
+            point_value: Number(editedEvent.value.point_value),
+            status: editedEvent.value.status,
+            updatedAt: new Date().toISOString()
+        };
+
+        await EventServices.updateEvent(editedEvent.value.id, updatedEvent);
+        showApprovalDialog.value = false;
+        await getAllEvents();
+
+        snackbarMessage.value = `Event "${editedEvent.value.name}" has been approved.`;
+        snackbarColor.value = "success";
+        showSnackbar.value = true;
+    } catch (err) {
+        snackbarMessage.value = `Error: ${err.code}: ${err.message}`;
+        snackbarColor.value = "error";
+        showSnackbar.value = true;
+        console.log(err);
+    }
+};
+
+const denyEvent = async () => {
+    try {
+        if (confirm(`Are you sure you want to deny "${editedEvent.value.name}"? This will delete the event and cannot be undone.`)) {
+            await EventServices.deleteEvent(editedEvent.value.id);
+            showApprovalDialog.value = false;
+            await getAllEvents();
+
+            snackbarMessage.value = `Event "${editedEvent.value.name}" has been denied.`;
+            snackbarColor.value = "success";
+            showSnackbar.value = true;
+        }
+    } catch (err) {
+        snackbarMessage.value = `Error: ${err.code}: ${err.message}`;
+        snackbarColor.value = "error";
+        showSnackbar.value = true;
+        console.log(err);
+    }
+};
+
+const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+const getStudentAttendees = (event) => {
+    newStudentId.value = ""
+    selectedEvent.value = event;
+    showStudentNamesList.value = true;
+    addStudentStatus.value = ""
+    studentNameList.value = [];
+
+    if (selectedEvent.value.registration === 'in_app') {
+        handleManualEvent();
+    }
+    else if (selectedEvent.value.registration === 'qr_code') { // TODO - add qr code logic (AC #93)
+        handleQRCodeEvent();
+    }
+    else {
+        handleHandshakeEvent();
+    }
+}
+
+const handleManualEvent = () => {
+    handshakeRegistration.value = false;
+    StudentEventServices.getAllStudentsByEvent(selectedEvent.value.id)
+        .then((res) => {
+            const students = res.data.filter((student) => student.studentEvent[0].verification_status === 'in_progress');
+            students.forEach(async student => {
+                UserServices.getAllStudentUsers(student.id)
+                    .then((res) => {
+                        studentNameList.value.push({
+                            studentId: student.id,
+                            name: res.data[0].fName + " " + res.data[0].lName,
+                            didAttend: student.studentEvent[0].attendance_status === 'attended' ? true : false,
+                            studentEventId: student.studentEvent[0].id,
+                            studentSchoolId: student.student_issued_id,
+                            pointValue: selectedEvent.value.point_value,
+                            verification_status: "in_progress"
+                        });
+                    })
+                    .catch((err) => {
+                        message.value = `Error: ${err.code}: ${err.message}`;
+                        console.log(err);
+                    })
+            }
+            );
+        })
+        .catch((err) => {
+            message.value = `Error: ${err.code}: ${err.message}`;
+            console.log(err);
+        })
+}
+
+const handleQRCodeEvent = () => {
+    handshakeRegistration.value = false;
+}
+
+const handleHandshakeEvent = () => {
+    handshakeRegistration.value = true;
+}
+
+const createStudentEvent = (student) => {
+    UserServices.getAllStudentUsers(student.id)
+        .then((res) => {
+            const newUser = res.data[0];
+            const newStudentEvent = {
+                verification_status: "in_progress",
+                eventId: selectedEvent.value.id,
+                studentId: student.id,
+            }
+            StudentEventServices.createStudentEvent(newStudentEvent)
+                .then((res) => {
+                    studentNameList.value.push({
+                        studentId: student.id,
+                        name: newUser.fName + " " + newUser.lName,
+                        didAttend: false,
+                        studentEventId: res.data.id,
+                        studentSchoolId: student.student_issued_id,
+                        pointValue: selectedEvent.value.point_value,
+                        verification_status: "in_progress"
+                    })
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+}
+
+const createStudentUser = (student) => {
+    const newStudent = {
+        student_issued_id: student["Username"],
+        points: 0,
+        total_points: 0
+    }
+    StudentServices.createStudent(newStudent)
+        .then((res) => {
+            const newUser = {
+                fName: student["First Name"],
+                lName: student["Last Name"],
+                email: student["Email Address"],
+                studentId: res.data.id,
+            }
+            UserServices.createUser(newUser)
+                .then((res) => {
+                    const userId = res.data.id;
+                    const newStudentEvent = {
+                        verification_status: "in_progress",
+                        eventId: selectedEvent.value.id,
+                        studentId: res.data.studentId,
+                    }
+                    StudentEventServices.createStudentEvent(newStudentEvent)
+                        .then((res) => {
+                            UserRoleServices.createUserRole(userId, {
+                                roleId: 2,
+                            })
+                                .then((res) => {
+                                    UserRolePermissionServices.createUserRolePermission({
+                                        userRoleId: res.data.id,
+                                        permissionId: 8,
+                                    })
+                                        .then((res) => {
+                                            studentNameList.value.push({
+                                                studentId: newUser.studentId,
+                                                name: newUser.fName + " " + newUser.lName,
+                                                didAttend: student["Checked In"] !== "",
+                                                studentEventId: res.data.id,
+                                                studentSchoolId: student.Username,
+                                                pointValue: selectedEvent.value.point_value,
+                                                verification_status: "in_progress"
+                                            })
+                                        })
+                                        .catch((err) => {
+                                            console.log(err);
+                                        });
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                });
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+const handleFileUpload = (event) => {
+    StudentServices.getAllStudents()
+        .then((res) => {
+            const studentList = res.data;
+            const file = event.target.files[0]
+            if (file) {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        jsonData.value = results.data.filter(row => Object.values(row).some(value => value !== ""));
+                        jsonData.value.forEach(async student => {
+                            const existingStudent = studentList.find(existingStudent => existingStudent.student_issued_id === student.Username);
+                            if (existingStudent) {
+                                StudentEventServices.getAllStudentEvents()
+                                    .then((res) => {
+                                        const studentEventsList = res.data.flat();
+                                        const existingStudentEvent = studentEventsList.find(
+                                            existingEvent => existingEvent.studentId === existingStudent.id &&
+                                                existingEvent.eventId === selectedEvent.value.id)
+                                        if (!existingStudentEvent) {
+                                            const newStudentEvent = {
+                                                verification_status: "in_progress",
+                                                eventId: selectedEvent.value.id,
+                                                studentId: existingStudent.id,
+                                            }
+                                            StudentEventServices.createStudentEvent(newStudentEvent)
+                                                .then((res) => {
+                                                    studentNameList.value.push({
+                                                        studentId: res.data.studentId,
+                                                        name: student["First Name"] + " " + student["Last Name"],
+                                                        didAttend: student["Checked In"] !== "",
+                                                        studentEventId: res.data.id,
+                                                        studentSchoolId: student.Username,
+                                                        pointValue: selectedEvent.value.point_value,
+                                                        verification_status: "in_progress"
+                                                    })
+                                                })
+                                                .catch((err) => {
+                                                    console.log(err);
+                                                });
+                                        }
+                                        else {
+                                            if (existingStudentEvent.attendance_status === "in_progress") {
+                                                studentNameList.value.push({
+                                                    studentId: existingStudent.id,
+                                                    name: student["First Name"] + " " + student["Last Name"],
+                                                    didAttend: student["Checked In"] !== "",
+                                                    studentEventId: existingStudentEvent.id,
+                                                    studentSchoolId: student.Username,
+                                                    pointValue: selectedEvent.value.point_value,
+                                                    verification_status: "in_progress"
+                                                })
+                                            }
+                                        }
+                                    })
+
+                                    .catch((err) => {
+                                        console.log(err);
+                                    });
+                            }
+                            else {
+                                await createStudentUser(student)
+                            }
+                        })
+                    }
+                })
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+const addStudentToEvent = () => {
+    if (!newStudentId.value) {
+        addStudentStatus.value = "Please enter a valid student ID"
+        newStudentId.value = ""
+        return;
+    }
+    addStudentStatus.value = ""
+    if (studentNameList.value.filter(student => student.studentSchoolId === newStudentId.value).length === 0) {
+        StudentServices.getStudentByStudentId(newStudentId.value)
+            .then((res) => {
+                createStudentEvent(res.data)
+            }).catch((err) => {
+                console.log(err);
+            })
+    }
+    else {
+        addStudentStatus.value = "Student already added to event"
+        newStudentId.value = ""
+        return;
+    }
+
+}
+
+const saveAttendanceDetails = () => {
+    studentNameList.value.forEach(student => {
+
+        if (student.didAttend && student.verification_status === 'in_progress') {
+            const newData = {
+                attendance_status: "attended",
+                verification_status: "approved"
+            }
+            StudentEventServices.updateStudentEvent(student.studentEventId, newData)
+                .then((res) => {
+                    StudentServices.getStudent(student.studentId)
+                        .then((res) => {
+                            const newCurrentPointValue = res.data.points + student.pointValue;
+                            const newTotalPoints = res.data.total_points + student.pointValue;
+                            const newStudentData = {
+                                points: newCurrentPointValue,
+                                total_points: newTotalPoints
+                            }
+
+                            StudentServices.updateStudent(student.studentId, newStudentData)
+                                .catch((err) => {
+                                    message.value = `Error: ${err.code}: ${err.message}`;
+                                    console.log(err);
+                                })
+                        })
+                        .catch((err) => {
+                            message.value = `Error: ${err.code}: ${err.message}`;
+                            console.log(err);
+                        })
+                })
+        }
+        else {
+            const newData = {
+                attendance_status: "did_not_attend",
+                verification_status: "denied"
+            }
+            StudentEventServices.updateStudentEvent(student.studentEventId, newData)
+                .then((res) => {
+                })
+                .catch((err) => {
+                    message.value = `Error: ${err.code}: ${err.message}`;
+                    console.log(err);
+                })
+        }
+
+    });
+}
+
+const getAllEvents = () => {
+    return EventServices.getAllEvents()
+        .then((res) => {
+            events.value = res.data
+                .sort((a, b) => {
+                    return new Date(b.date) - new Date(a.date);
+                });
+        })
+        .catch((err) => {
+            message.value = `Error: ${err.code}: ${err.message}`;
+            console.log(err);
+        });
+}
+
+const getNumberAttendees = () => {
+    events.value.forEach(event => {
+        StudentEventServices.getAllStudentsByEvent(event.id)
+            .then((res) => {
+                const index = attendeeMap.value.findIndex(a => a.id === event.id);
+                if (index >= 0) {
+                    attendeeMap.value[index].attendees = res.data.length;
+                } else {
+                    attendeeMap.value.push({
+                        id: event.id,
+                        attendees: res.data.length,
+                    });
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    });
+}
+
+const formatTime = (dateTimeStr) => {
+    if (!dateTimeStr) return '';
+    try {
+        if (dateTimeStr.includes('T')) {
+            const date = parseISO(dateTimeStr);
+            return format(date, 'HH:mm');
+        }
+        return dateTimeStr;
+    } catch (error) {
+        console.log('Error formatting time:', error);
+        return '';
+    }
+};
+
+const formatDate = (dateTimeStr) => {
+    if (!dateTimeStr) return '';
+    try {
+        if (dateTimeStr.includes('T')) {
+            const date = parseISO(dateTimeStr);
+            return format(date, 'MM-dd-yyyy');
+        }
+        const date = parseISO(dateTimeStr);
+        return format(date, 'MM-dd-yyyy');
+    } catch (error) {
+        console.log('Error formatting date:', error);
+        return dateTimeStr;
+    }
+};
 </script>
 
-<style scope></style>
+<style>
+.sx-calendar-container {
+    height: 100%;
+    width: 100%;
+    margin: 20px 0;
+    padding: 0 20px;
+}
+
+.event-item {
+    height: 100%;
+    width: 100%;
+    padding: 4px 8px;
+    background-color: #5EC4B6;
+    color: white;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 60px;
+    overflow: hidden;
+}
+
+.event-item .event-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.event-item .event-time {
+    font-size: 12px;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.event-item .event-location {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.event-actions {
+    display: none;
+    gap: 2px;
+}
+
+.event-item:hover .event-actions {
+    display: flex;
+}
+
+.event-actions .v-btn {
+    min-width: 24px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+}
+
+.event-item .event-title {
+    flex: 1;
+    margin-right: 8px;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    flex-wrap: wrap;
+}
+
+.table-title {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.search-filter-button-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    justify-content: flex-start;
+}
+
+.search-bar {
+    width: 250px;
+    min-width: 180px;
+    max-width: 300px;
+    flex-shrink: 1;
+}
+
+.filter-menu {
+    width: 180px;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.button {
+    width: auto;
+    color: white !important;
+    white-space: nowrap;
+}
+
+.button-white-text {
+    color: white !important;
+}
+
+.label-column p {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: #555;
+}
+
+.popup-header {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.popup-actions {
+    padding: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.edit-popup {
+    max-width: 550px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.popup-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.label-column {
+    white-space: nowrap;
+    text-align: right;
+    font-weight: 500;
+    font-size: 14px;
+    color: #555;
+}
+
+.v-text-field,
+.v-textarea {
+    width: 100%;
+}
+
+.v-card-text {
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal {
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    margin-bottom: 20px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.v-dialog {
+    .v-card {
+        padding: 20px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+}
+
+.edit-form-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.edit-popup {
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.popup-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.form-row {
+    margin-bottom: 16px;
+}
+
+.label-column {
+    display: flex;
+    align-items: center;
+}
+
+.popup-actions {
+    padding: 16px 24px;
+    gap: 8px;
+}
+
+.v-card-text {
+    padding: 20px;
+}
+
+.v-container {
+    padding: 24px;
+}
+
+.v-row {
+    margin: 0 -12px;
+}
+
+.v-col {
+    padding: 12px;
+}
+
+.modal-body {
+    box-sizing: border-box;
+}
+
+.modal-body .v-list {
+    padding: 0;
+}
+
+.search-field {
+    margin-bottom: 8px;
+}
+
+.search-container {
+    padding: 16px 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.search-field {
+    width: 100%;
+}
+
+.header-row {
+    background-color: #f5f5f5;
+    pointer-events: none;
+}
+
+.v-card-title.bg-primary {
+    background-color: #708E9A !important;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.tooltip-wrapper {
+  display: inline-block;
+}
+
+.error-tooltip {
+  background-color: rgba(40, 40, 40, 0.9) !important;
+  color: white !important;
+}
+</style>

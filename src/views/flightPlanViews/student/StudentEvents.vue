@@ -954,7 +954,7 @@ const requestEventPopup = () => {
     eventLocation.value = null;
     eventAttendanceType.value = null;
     eventCustomEvent.value = false;
-    eventStatus.value = "";
+    eventStatus.value = "in_progress";
     eventPointValue.value = "";
 };
 
